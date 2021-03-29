@@ -14,32 +14,32 @@ case class StringSchema(override val properties: SchemaProperties[String] = Sche
 
   def this(value: String) = {
     this(SchemaProperties(
-      MinLengthProperty().merge(value),
-      MaxLengthProperty().merge(value)
-    ))
+      MinLengthProperty(),
+      MaxLengthProperty()
+    ).merge(value))
   }
 }
 
 case class MinLengthProperty(minLength: Option[Int] = None) extends SchemaProperty[String] {
   override val toJson = ("minLength" -> minLength)
 
-  override def merge(value: String) = {
-    MinLengthProperty(minOrNone(Some(value.length), minLength))
+  override def merge(otherProp: SchemaProperty[String]) = {
+    MinLengthProperty(minOrNone(minLength, otherProp.asInstanceOf[MinLengthProperty].minLength))
   }
 
-  def merge(prop: MinLengthProperty) = {
-    MinLengthProperty(minOrNone(prop.minLength, minLength))
+  override def merge(value: String) = {
+    MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
 }
 
 case class MaxLengthProperty(maxLength: Option[Int] = None) extends SchemaProperty[String] {
   override val toJson = ("maxLength" -> maxLength)
 
-  override def merge(value: String) = {
-    MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
+  override def merge(otherProp: SchemaProperty[String]) = {
+    MaxLengthProperty(maxOrNone(maxLength, otherProp.asInstanceOf[MaxLengthProperty].maxLength))
   }
 
-  def merge(prop: MaxLengthProperty) = {
-    MaxLengthProperty(maxOrNone(prop.maxLength, maxLength))
+  override def merge(value: String) = {
+    MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 }
