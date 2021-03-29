@@ -13,5 +13,5 @@ trait JsonSchema[T] {
 
   def schemaType: String
 
-  // def mergeSameType: PartialFunction[JsonSchema, JsonSchema]
+  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]]
 }

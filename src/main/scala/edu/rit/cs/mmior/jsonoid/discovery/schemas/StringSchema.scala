@@ -18,6 +18,11 @@ case class StringSchema(override val properties: SchemaProperties[String] = Sche
       MaxLengthProperty()
     ).merge(value))
   }
+
+  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+    case other @ StringSchema(otherProperties) =>
+      StringSchema(properties.merge(otherProperties))
+  }
 }
 
 case class MinLengthProperty(minLength: Option[Int] = None) extends SchemaProperty[String] {
