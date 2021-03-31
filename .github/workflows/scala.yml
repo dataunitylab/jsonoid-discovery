@@ -1,0 +1,15 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: olafurpg/setup-scala@v10
+    - name: Test
+      run: sbt test
