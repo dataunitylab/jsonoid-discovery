@@ -9,15 +9,17 @@ import Scalaz._
 import Helpers._
 
 
-case class StringSchema(override val properties: SchemaProperties[String] = SchemaProperties.empty) extends JsonSchema[String] {
-  override val schemaType = "string"
-
-  def this(value: String) = {
-    this(SchemaProperties(
+object StringSchema {
+  def apply(value: String): StringSchema = {
+    StringSchema(SchemaProperties(
       MinLengthProperty(),
       MaxLengthProperty()
     ).merge(value))
   }
+}
+
+case class StringSchema(override val properties: SchemaProperties[String] = SchemaProperties.empty) extends JsonSchema[String] {
+  override val schemaType = "string"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ StringSchema(otherProperties) =>

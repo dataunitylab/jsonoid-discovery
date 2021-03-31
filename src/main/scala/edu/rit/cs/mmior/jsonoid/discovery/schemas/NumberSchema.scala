@@ -9,15 +9,17 @@ import Scalaz._
 import Helpers._
 
 
-case class NumberSchema(override val properties: SchemaProperties[Double] = SchemaProperties.empty) extends JsonSchema[Double] {
-  override val schemaType = "string"
-
-  def this(value: Double) = {
-    this(SchemaProperties(
+object NumberSchema {
+  def apply(value: BigDecimal): NumberSchema = {
+    NumberSchema(SchemaProperties(
       MinNumValueProperty(),
       MaxNumValueProperty()
     ).merge(value))
   }
+}
+
+case class NumberSchema(override val properties: SchemaProperties[BigDecimal] = SchemaProperties.empty) extends JsonSchema[BigDecimal] {
+  override val schemaType = "string"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>
@@ -34,26 +36,26 @@ case class NumberSchema(override val properties: SchemaProperties[Double] = Sche
   }
 }
 
-case class MinNumValueProperty(minNumValue: Option[Double] = None) extends SchemaProperty[Double] {
+case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None) extends SchemaProperty[BigDecimal] {
   override val toJson = ("minimum" -> minNumValue)
 
-  override def merge(otherProp: SchemaProperty[Double]) = {
+  override def merge(otherProp: SchemaProperty[BigDecimal]) = {
     MinNumValueProperty(minOrNone(minNumValue, otherProp.asInstanceOf[MinNumValueProperty].minNumValue))
   }
 
-  override def merge(value: Double) = {
+  override def merge(value: BigDecimal) = {
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
 }
 
-case class MaxNumValueProperty(maxNumValue: Option[Double] = None) extends SchemaProperty[Double] {
+case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None) extends SchemaProperty[BigDecimal] {
   override val toJson = ("maximum" -> maxNumValue)
 
-  override def merge(otherProp: SchemaProperty[Double]) = {
+  override def merge(otherProp: SchemaProperty[BigDecimal]) = {
     MaxNumValueProperty(maxOrNone(maxNumValue, otherProp.asInstanceOf[MaxNumValueProperty].maxNumValue))
   }
 
-  override def merge(value: Double) = {
+  override def merge(value: BigDecimal) = {
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue))
   }
 }

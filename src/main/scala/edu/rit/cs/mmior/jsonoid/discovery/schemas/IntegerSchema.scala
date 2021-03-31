@@ -9,15 +9,17 @@ import Scalaz._
 import Helpers._
 
 
-case class IntegerSchema(override val properties: SchemaProperties[BigInt] = SchemaProperties.empty) extends JsonSchema[BigInt] {
-  override val schemaType = "string"
-
-  def this(value: BigInt) = {
-    this(SchemaProperties(
+object IntegerSchema {
+  def apply(value: BigInt): IntegerSchema = {
+    IntegerSchema(SchemaProperties(
       MinIntValueProperty(),
       MaxIntValueProperty()
     ).merge(value))
   }
+}
+
+case class IntegerSchema(override val properties: SchemaProperties[BigInt] = SchemaProperties.empty) extends JsonSchema[BigInt] {
+  override val schemaType = "string"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ IntegerSchema(otherProperties) =>
