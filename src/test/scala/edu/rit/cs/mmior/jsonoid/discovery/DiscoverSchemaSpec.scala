@@ -14,6 +14,10 @@ class DiscoverSchemaSpec extends AnyFlatSpec with Matchers {
     DiscoverSchema.discoverFromValue(JArray(List(JBool(true)))) shouldEqual ArraySchema(SchemaProperties(Seq(ItemTypeProperty(BooleanSchema()), MinArrayLengthProperty(Some(1)), MaxArrayLengthProperty(Some(1)))))
   }
 
+  it should "produce an array schema from a set" in {
+    DiscoverSchema.discoverFromValue(JSet(Set(JBool(true)))) shouldEqual ArraySchema(SchemaProperties(Seq(ItemTypeProperty(BooleanSchema()), MinArrayLengthProperty(Some(1)), MaxArrayLengthProperty(Some(1)))))
+  }
+
   it should "produce a boolean schema" in {
     DiscoverSchema.discoverFromValue(JBool(true)) shouldEqual BooleanSchema()
   }
