@@ -18,3 +18,5 @@ jobs:
       run: sbt 'scalafixAll --check'
     - name: Test
       run: sbt test
+    - name: Publish GH Pages
+      run: sbt ghpagesPushSite
