@@ -10,6 +10,10 @@ import org.scalatest.matchers.should.Matchers
 class DiscoverSchemaSpec extends AnyFlatSpec with Matchers {
   behavior of "DiscoverSchema"
 
+  it should "produce an array schema" in {
+    DiscoverSchema.discoverFromValue(JArray(List(JBool(true)))) shouldEqual ArraySchema(SchemaProperties(Seq(ItemTypeProperty(BooleanSchema()), MinArrayLengthProperty(Some(1)), MaxArrayLengthProperty(Some(1)))))
+  }
+
   it should "produce a boolean schema" in {
     DiscoverSchema.discoverFromValue(JBool(true)) shouldEqual BooleanSchema()
   }

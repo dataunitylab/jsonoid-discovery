@@ -16,6 +16,7 @@ object DiscoverSchema {
 
   def discoverFromValue(value: JValue): JsonSchema[_] = {
     value match {
+      case JArray(items) => ArraySchema(items.map(discoverFromValue))
       case JBool(bool)   => BooleanSchema(bool)
       case JDecimal(dec) => NumberSchema(dec)
       case JDouble(dbl)  => NumberSchema(dbl)
