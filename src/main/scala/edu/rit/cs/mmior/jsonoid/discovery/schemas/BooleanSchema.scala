@@ -8,14 +8,15 @@ import Scalaz._
 
 import Helpers._
 
-
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
     BooleanSchema(SchemaProperties().merge(value))
   }
 }
 
-case class BooleanSchema(override val properties: SchemaProperties[Boolean] = SchemaProperties.empty) extends JsonSchema[Boolean] {
+case class BooleanSchema(
+    override val properties: SchemaProperties[Boolean] = SchemaProperties.empty
+) extends JsonSchema[Boolean] {
   override val schemaType = "string"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {

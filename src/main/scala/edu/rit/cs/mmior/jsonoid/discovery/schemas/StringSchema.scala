@@ -8,17 +8,20 @@ import Scalaz._
 
 import Helpers._
 
-
 object StringSchema {
   def apply(value: String): StringSchema = {
-    StringSchema(SchemaProperties(
-      MinLengthProperty(),
-      MaxLengthProperty()
-    ).merge(value))
+    StringSchema(
+      SchemaProperties(
+        MinLengthProperty(),
+        MaxLengthProperty()
+      ).merge(value)
+    )
   }
 }
 
-case class StringSchema(override val properties: SchemaProperties[String] = SchemaProperties.empty) extends JsonSchema[String] {
+case class StringSchema(
+    override val properties: SchemaProperties[String] = SchemaProperties.empty
+) extends JsonSchema[String] {
   override val schemaType = "string"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
@@ -27,11 +30,14 @@ case class StringSchema(override val properties: SchemaProperties[String] = Sche
   }
 }
 
-case class MinLengthProperty(minLength: Option[Int] = None) extends SchemaProperty[String] {
+case class MinLengthProperty(minLength: Option[Int] = None)
+    extends SchemaProperty[String] {
   override val toJson = ("minLength" -> minLength)
 
   override def merge(otherProp: SchemaProperty[String]) = {
-    MinLengthProperty(minOrNone(minLength, otherProp.asInstanceOf[MinLengthProperty].minLength))
+    MinLengthProperty(
+      minOrNone(minLength, otherProp.asInstanceOf[MinLengthProperty].minLength)
+    )
   }
 
   override def merge(value: String) = {
@@ -39,11 +45,14 @@ case class MinLengthProperty(minLength: Option[Int] = None) extends SchemaProper
   }
 }
 
-case class MaxLengthProperty(maxLength: Option[Int] = None) extends SchemaProperty[String] {
+case class MaxLengthProperty(maxLength: Option[Int] = None)
+    extends SchemaProperty[String] {
   override val toJson = ("maxLength" -> maxLength)
 
   override def merge(otherProp: SchemaProperty[String]) = {
-    MaxLengthProperty(maxOrNone(maxLength, otherProp.asInstanceOf[MaxLengthProperty].maxLength))
+    MaxLengthProperty(
+      maxOrNone(maxLength, otherProp.asInstanceOf[MaxLengthProperty].maxLength)
+    )
   }
 
   override def merge(value: String) = {

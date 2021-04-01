@@ -8,17 +8,20 @@ import Scalaz._
 
 import Helpers._
 
-
 object IntegerSchema {
   def apply(value: BigInt): IntegerSchema = {
-    IntegerSchema(SchemaProperties(
-      MinIntValueProperty(),
-      MaxIntValueProperty()
-    ).merge(value))
+    IntegerSchema(
+      SchemaProperties(
+        MinIntValueProperty(),
+        MaxIntValueProperty()
+      ).merge(value)
+    )
   }
 }
 
-case class IntegerSchema(override val properties: SchemaProperties[BigInt] = SchemaProperties.empty) extends JsonSchema[BigInt] {
+case class IntegerSchema(
+    override val properties: SchemaProperties[BigInt] = SchemaProperties.empty
+) extends JsonSchema[BigInt] {
   override val schemaType = "string"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
@@ -28,11 +31,17 @@ case class IntegerSchema(override val properties: SchemaProperties[BigInt] = Sch
   }
 }
 
-case class MinIntValueProperty(minIntValue: Option[BigInt] = None) extends SchemaProperty[BigInt] {
+case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
+    extends SchemaProperty[BigInt] {
   override val toJson = ("minimum" -> minIntValue)
 
   override def merge(otherProp: SchemaProperty[BigInt]) = {
-    MinIntValueProperty(minOrNone(minIntValue, otherProp.asInstanceOf[MinIntValueProperty].minIntValue))
+    MinIntValueProperty(
+      minOrNone(
+        minIntValue,
+        otherProp.asInstanceOf[MinIntValueProperty].minIntValue
+      )
+    )
   }
 
   override def merge(value: BigInt) = {
@@ -40,11 +49,17 @@ case class MinIntValueProperty(minIntValue: Option[BigInt] = None) extends Schem
   }
 }
 
-case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None) extends SchemaProperty[BigInt] {
+case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
+    extends SchemaProperty[BigInt] {
   override val toJson = ("maximum" -> maxIntValue)
 
   override def merge(otherProp: SchemaProperty[BigInt]) = {
-    MaxIntValueProperty(maxOrNone(maxIntValue, otherProp.asInstanceOf[MaxIntValueProperty].maxIntValue))
+    MaxIntValueProperty(
+      maxOrNone(
+        maxIntValue,
+        otherProp.asInstanceOf[MaxIntValueProperty].maxIntValue
+      )
+    )
   }
 
   override def merge(value: BigInt) = {

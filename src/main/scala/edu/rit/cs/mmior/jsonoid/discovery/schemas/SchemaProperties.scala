@@ -1,6 +1,5 @@
 package edu.rit.cs.mmior.jsonoid.discovery.schemas
 
-
 object SchemaProperties {
   type PropertySubclass[T] = Class[_ <: SchemaProperty[T]]
   type PropertyMap[T] = Map[PropertySubclass[T], SchemaProperty[T]]
@@ -20,8 +19,10 @@ object SchemaProperties {
 
 import SchemaProperties._
 
-
-case class SchemaProperties[T](val properties: PropertyMap[T] = Map.empty[PropertySubclass[T], SchemaProperty[T]]) extends Iterable[SchemaProperty[T]] {
+case class SchemaProperties[T](
+    val properties: PropertyMap[T] =
+      Map.empty[PropertySubclass[T], SchemaProperty[T]]
+) extends Iterable[SchemaProperty[T]] {
 
   override def iterator = properties.values.iterator
 
@@ -36,7 +37,7 @@ case class SchemaProperties[T](val properties: PropertyMap[T] = Map.empty[Proper
     val mergedProperties = properties.map { case (key, prop) =>
       other.properties.get(key) match {
         case Some(otherProp) => prop.merge(otherProp)
-        case None => prop
+        case None            => prop
       }
     }
     SchemaProperties(mergedProperties)
