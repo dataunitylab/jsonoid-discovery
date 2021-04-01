@@ -30,6 +30,10 @@ class DiscoverSchemaSpec extends AnyFlatSpec with Matchers {
     DiscoverSchema.discoverFromValue(JNull) shouldEqual NullSchema()
   }
 
+  it should "produce an object schema" in {
+    DiscoverSchema.discoverFromValue(JObject(List(("foo", JBool(true))))) shouldEqual ObjectSchema(SchemaProperties((Seq(ObjectTypesProperty(Map("foo" -> BooleanSchema()))))))
+  }
+
   it should "produce a string schema" in {
     DiscoverSchema.discoverFromValue(JString("foo")) shouldEqual StringSchema(SchemaProperties(Seq(MinLengthProperty(Some(3)), MaxLengthProperty(Some(3)))))
   }

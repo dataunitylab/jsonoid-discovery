@@ -16,15 +16,16 @@ object DiscoverSchema {
 
   def discoverFromValue(value: JValue): JsonSchema[_] = {
     value match {
-      case JArray(items) => ArraySchema(items.map(discoverFromValue))
-      case JBool(bool)   => BooleanSchema(bool)
-      case JDecimal(dec) => NumberSchema(dec)
-      case JDouble(dbl)  => NumberSchema(dbl)
-      case JInt(int)     => IntegerSchema(int)
-      case JLong(long)   => IntegerSchema(long)
-      case JNothing      => NullSchema()
-      case JNull         => NullSchema()
-      case JString(str)  => StringSchema(str)
+      case JArray(items)   => ArraySchema(items.map(discoverFromValue))
+      case JBool(bool)     => BooleanSchema(bool)
+      case JDecimal(dec)   => NumberSchema(dec)
+      case JDouble(dbl)    => NumberSchema(dbl)
+      case JInt(int)       => IntegerSchema(int)
+      case JLong(long)     => IntegerSchema(long)
+      case JNothing        => NullSchema()
+      case JNull           => NullSchema()
+      case JObject(fields) => ObjectSchema(fields.map { case (k, v) => (k, discoverFromValue(v)) }.toMap)
+      case JString(str)    => StringSchema(str)
     }
   }
 
