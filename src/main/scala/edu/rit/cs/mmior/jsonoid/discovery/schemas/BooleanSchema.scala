@@ -1,7 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
     BooleanSchema(SchemaProperties().merge(value))
