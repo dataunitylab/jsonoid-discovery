@@ -14,5 +14,7 @@ jobs:
     - uses: olafurpg/setup-scala@v10
     - name: Scalafmt
       run: sbt scalafmtCheck
+    - name: Scalafix
+      run: sbt 'scalafixAll --check'
     - name: Test
       run: sbt test

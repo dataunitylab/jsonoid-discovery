@@ -2,7 +2,6 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import org.json4s._
-import org.json4s.jackson.JsonMethods._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 

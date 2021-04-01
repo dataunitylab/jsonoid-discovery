@@ -3,7 +3,6 @@ package schemas
 
 import scalaz._
 import org.json4s.JsonDSL._
-import org.json4s._
 import Scalaz._
 
 import Helpers._

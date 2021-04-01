@@ -1,12 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import scalaz._
-import org.json4s.JsonDSL._
-import org.json4s._
-import Scalaz._
-
-import Helpers._
 
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {

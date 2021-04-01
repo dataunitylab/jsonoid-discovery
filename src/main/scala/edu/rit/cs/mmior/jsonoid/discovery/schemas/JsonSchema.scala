@@ -1,6 +1,5 @@
 package edu.rit.cs.mmior.jsonoid.discovery.schemas
 
-import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
 

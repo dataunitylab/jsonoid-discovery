@@ -2,7 +2,6 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import org.json4s.JsonDSL._
-import org.json4s._
 
 object ObjectSchema {
   def apply(value: Map[String, JsonSchema[_]]): ObjectSchema = {

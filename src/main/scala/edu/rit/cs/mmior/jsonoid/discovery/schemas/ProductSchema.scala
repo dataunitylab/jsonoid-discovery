@@ -3,10 +3,7 @@ package schemas
 
 import scala.language.existentials
 
-import scalaz._
 import org.json4s.JsonDSL._
-import org.json4s._
-import Scalaz._
 
 case class ProductSchema(
     override val properties: SchemaProperties[JsonSchema[_]] =
