@@ -10,34 +10,34 @@ class DiscoverSchemaSpec extends AnyFlatSpec with Matchers {
   behavior of "DiscoverSchema"
 
   it should "produce an array schema" in {
-    DiscoverSchema.discoverFromValue(JArray(List(JBool(true)))) shouldEqual ArraySchema(SchemaProperties(Seq(ItemTypeProperty(BooleanSchema()), MinArrayLengthProperty(Some(1)), MaxArrayLengthProperty(Some(1)))))
+    DiscoverSchema.discoverFromValue(JArray(List(JBool(true)))) shouldBe a [ArraySchema]
   }
 
   it should "produce an array schema from a set" in {
-    DiscoverSchema.discoverFromValue(JSet(Set(JBool(true)))) shouldEqual ArraySchema(SchemaProperties(Seq(ItemTypeProperty(BooleanSchema()), MinArrayLengthProperty(Some(1)), MaxArrayLengthProperty(Some(1)))))
+    DiscoverSchema.discoverFromValue(JSet(Set(JBool(true)))) shouldBe a [ArraySchema]
   }
 
   it should "produce a boolean schema" in {
-    DiscoverSchema.discoverFromValue(JBool(true)) shouldEqual BooleanSchema()
+    DiscoverSchema.discoverFromValue(JBool(true)) shouldBe a [BooleanSchema]
   }
 
   it should "produce a number schema" in {
-    DiscoverSchema.discoverFromValue(JDecimal(1.0)) shouldEqual NumberSchema(SchemaProperties(Seq(MinNumValueProperty(Some(1.0)), MaxNumValueProperty(Some(1.0)))))
+    DiscoverSchema.discoverFromValue(JDecimal(1.0)) shouldBe a [NumberSchema]
   }
 
   it should "produce an integer schema" in {
-    DiscoverSchema.discoverFromValue(JInt(1)) shouldEqual IntegerSchema(SchemaProperties(Seq(MinIntValueProperty(Some(1)), MaxIntValueProperty(Some(1)))))
+    DiscoverSchema.discoverFromValue(JInt(1)) shouldBe a [IntegerSchema]
   }
 
   it should "produce a null schema" in {
-    DiscoverSchema.discoverFromValue(JNull) shouldEqual NullSchema()
+    DiscoverSchema.discoverFromValue(JNull) shouldBe a [NullSchema]
   }
 
   it should "produce an object schema" in {
-    DiscoverSchema.discoverFromValue(JObject(List(("foo", JBool(true))))) shouldEqual ObjectSchema(SchemaProperties((Seq(ObjectTypesProperty(Map("foo" -> BooleanSchema()))))))
+    DiscoverSchema.discoverFromValue(JObject(List(("foo", JBool(true))))) shouldBe a [ObjectSchema]
   }
 
   it should "produce a string schema" in {
-    DiscoverSchema.discoverFromValue(JString("foo")) shouldEqual StringSchema(SchemaProperties(Seq(MinLengthProperty(Some(3)), MaxLengthProperty(Some(3)))))
+    DiscoverSchema.discoverFromValue(JString("foo")) shouldBe a [StringSchema]
   }
 }
