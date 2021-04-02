@@ -2,11 +2,9 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import org.json4s._
-import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.matchers.should.Matchers
 
 
-class DiscoverSchemaSpec extends AnyFlatSpec with Matchers {
+class DiscoverSchemaSpec extends UnitSpec {
   behavior of "DiscoverSchema"
 
   it should "produce an array schema" in {

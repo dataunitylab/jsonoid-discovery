@@ -14,6 +14,7 @@ lazy val root = (project in file("."))
         // Scala
         json4s,
         json4sScalaz,
+        jsonSchemaValidator,
 
         scalaTest % Test
     ),
