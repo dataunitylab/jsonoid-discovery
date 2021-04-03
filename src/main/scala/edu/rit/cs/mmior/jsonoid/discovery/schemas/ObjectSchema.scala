@@ -13,7 +13,7 @@ object ObjectSchema {
   }
 }
 
-case class ObjectSchema(
+final case class ObjectSchema(
     override val properties: SchemaProperties[Map[String, JsonSchema[_]]] =
       SchemaProperties.empty
 ) extends JsonSchema[Map[String, JsonSchema[_]]] {
@@ -25,7 +25,7 @@ case class ObjectSchema(
   }
 }
 
-case class ObjectTypesProperty(
+final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override val toJson = ("properties" -> "foo")
@@ -39,7 +39,7 @@ case class ObjectTypesProperty(
     val merged = objectTypes.toSeq ++ value.toSeq
     val grouped = merged.groupBy(_._1)
     ObjectTypesProperty(
-      grouped.view.mapValues(_.map(_._2).reduce(_.merge(_))).toMap
+      grouped.view.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
     )
   }
 }

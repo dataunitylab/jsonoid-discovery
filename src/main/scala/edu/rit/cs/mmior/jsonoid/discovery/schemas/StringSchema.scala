@@ -18,7 +18,7 @@ object StringSchema {
   }
 }
 
-case class StringSchema(
+final case class StringSchema(
     override val properties: SchemaProperties[String] = SchemaProperties.empty
 ) extends JsonSchema[String] {
   override val schemaType = "string"
@@ -29,7 +29,7 @@ case class StringSchema(
   }
 }
 
-case class MinLengthProperty(minLength: Option[Int] = None)
+final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String] {
   override val toJson = ("minLength" -> minLength)
 
@@ -44,7 +44,7 @@ case class MinLengthProperty(minLength: Option[Int] = None)
   }
 }
 
-case class MaxLengthProperty(maxLength: Option[Int] = None)
+final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String] {
   override val toJson = ("maxLength" -> maxLength)
 

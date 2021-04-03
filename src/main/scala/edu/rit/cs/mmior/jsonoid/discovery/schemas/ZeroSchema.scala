@@ -1,7 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-case class ZeroSchema(
+final case class ZeroSchema(
     override val properties: SchemaProperties[Nothing] = SchemaProperties.empty
 ) extends JsonSchema[Nothing] {
   override val schemaType = "zero"

@@ -7,7 +7,7 @@ object BooleanSchema {
   }
 }
 
-case class BooleanSchema(
+final case class BooleanSchema(
     override val properties: SchemaProperties[Boolean] = SchemaProperties.empty
 ) extends JsonSchema[Boolean] {
   override val schemaType = "string"

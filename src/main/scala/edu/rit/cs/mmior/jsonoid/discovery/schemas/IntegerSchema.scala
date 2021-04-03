@@ -18,7 +18,7 @@ object IntegerSchema {
   }
 }
 
-case class IntegerSchema(
+final case class IntegerSchema(
     override val properties: SchemaProperties[BigInt] = SchemaProperties.empty
 ) extends JsonSchema[BigInt] {
   override val schemaType = "string"
@@ -30,7 +30,7 @@ case class IntegerSchema(
   }
 }
 
-case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
+final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
   override val toJson = ("minimum" -> minIntValue)
 
@@ -48,7 +48,7 @@ case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
   }
 }
 
-case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
+final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
   override val toJson = ("maximum" -> maxIntValue)
 

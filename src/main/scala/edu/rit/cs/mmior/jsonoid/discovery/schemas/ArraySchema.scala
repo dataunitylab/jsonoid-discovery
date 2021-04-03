@@ -19,7 +19,7 @@ object ArraySchema {
   }
 }
 
-case class ArraySchema(
+final case class ArraySchema(
     override val properties: SchemaProperties[List[JsonSchema[_]]] =
       SchemaProperties.empty
 ) extends JsonSchema[List[JsonSchema[_]]] {
@@ -31,7 +31,7 @@ case class ArraySchema(
   }
 }
 
-case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
+final case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
     extends SchemaProperty[List[JsonSchema[_]]] {
   override val toJson = ("items" -> itemType.toJson)
 
@@ -46,7 +46,7 @@ case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
   }
 }
 
-case class MinArrayLengthProperty(minLength: Option[Int] = None)
+final case class MinArrayLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override val toJson = ("minLength" -> minLength)
 
@@ -64,7 +64,7 @@ case class MinArrayLengthProperty(minLength: Option[Int] = None)
   }
 }
 
-case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
+final case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override val toJson = ("maxLength" -> maxLength)
 

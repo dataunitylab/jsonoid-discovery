@@ -18,7 +18,7 @@ object NumberSchema {
   }
 }
 
-case class NumberSchema(
+final case class NumberSchema(
     override val properties: SchemaProperties[BigDecimal] =
       SchemaProperties.empty
 ) extends JsonSchema[BigDecimal] {
@@ -29,7 +29,7 @@ case class NumberSchema(
       NumberSchema(properties.merge(otherProperties))
 
     case other @ IntegerSchema(otherProperties) => {
-      val newProperties = otherProperties.collect {
+      val newProperties: Seq[SchemaProperty[BigDecimal]] = otherProperties.collect {
         case MinIntValueProperty(minValue) =>
           MinNumValueProperty(minValue.map(_.toDouble))
         case MaxIntValueProperty(maxValue) =>
@@ -41,7 +41,7 @@ case class NumberSchema(
   }
 }
 
-case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
+final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
   override val toJson = ("minimum" -> minNumValue)
 
@@ -59,7 +59,7 @@ case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
   }
 }
 
-case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
+final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
   override val toJson = ("maximum" -> maxNumValue)
 

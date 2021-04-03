@@ -18,6 +18,28 @@ lazy val root = (project in file("."))
     )
   )
 
+wartremoverErrors ++= Seq(
+  Wart.ArrayEquals,
+  Wart.EitherProjectionPartial,
+  Wart.Enumeration,
+  Wart.Equals,
+  Wart.ExplicitImplicitTypes,
+  Wart.FinalCaseClass,
+  Wart.MutableDataStructures,
+  Wart.NonUnitStatements,
+  Wart.Null,
+  Wart.Option2Iterable,
+  Wart.OptionPartial,
+  Wart.PublicInference,
+  Wart.Recursion,
+  Wart.Return,
+  Wart.StringPlusAny,
+  Wart.TraversableOps,
+  Wart.TryPartial,
+  Wart.Var,
+  Wart.While,
+)
+
 enablePlugins(GhpagesPlugin)
 enablePlugins(SiteScaladocPlugin)
 

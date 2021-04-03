@@ -12,28 +12,28 @@ object SchemaProperties {
     SchemaProperties(properties.map(prop => (prop.getClass, prop)).toMap)
   }
 
-  def empty[T] = {
+  def empty[T]: SchemaProperties[T] = {
     SchemaProperties[T]()
   }
 }
 
 import SchemaProperties._
 
-case class SchemaProperties[T](
+final case class SchemaProperties[T](
     val properties: PropertyMap[T] =
       Map.empty[PropertySubclass[T], SchemaProperty[T]]
 ) extends Iterable[SchemaProperty[T]] {
 
   override def iterator = properties.values.iterator
 
-  def merge(value: T) = {
+  def merge(value: T): SchemaProperties[T] = {
     val mergedProperties = properties.map { case (key, prop) =>
       prop.merge(value)
     }
     SchemaProperties(mergedProperties)
   }
 
-  def merge(other: SchemaProperties[T]) = {
+  def merge(other: SchemaProperties[T]): SchemaProperties[T] = {
     val mergedProperties = properties.map { case (key, prop) =>
       other.properties.get(key) match {
         case Some(otherProp) => prop.merge(otherProp)

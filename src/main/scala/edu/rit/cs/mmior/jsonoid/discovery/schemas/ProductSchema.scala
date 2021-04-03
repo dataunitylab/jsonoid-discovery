@@ -5,7 +5,7 @@ import scala.language.existentials
 
 import org.json4s.JsonDSL._
 
-case class ProductSchema(
+final case class ProductSchema(
     override val properties: SchemaProperties[JsonSchema[_]] =
       SchemaProperties.empty
 ) extends JsonSchema[JsonSchema[_]] {
@@ -17,7 +17,7 @@ case class ProductSchema(
   }
 }
 
-case class ProductSchemaTypesProperty(
+final case class ProductSchemaTypesProperty(
     val schemaTypes: Map[Class[_ <: JsonSchema[_]], JsonSchema[_]] = Map
       .empty[Class[_ <: JsonSchema[_]], JsonSchema[_]]
       .withDefaultValue(ZeroSchema())
@@ -31,7 +31,7 @@ case class ProductSchemaTypesProperty(
       .toSeq
     val grouped = merged.groupBy(_._1)
     ProductSchemaTypesProperty(
-      grouped.view.mapValues(_.map(_._2).reduce(_.merge(_))).toMap
+      grouped.view.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
     )
   }
 
