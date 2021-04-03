@@ -4,8 +4,6 @@ ThisBuild / scalaVersion      := "2.13.4"
 ThisBuild / version           := "0.1.0-SNAPSHOT"
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
-ThisBuild / semanticdbEnabled := true
-ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val root = (project in file("."))
   .settings(
@@ -17,8 +15,7 @@ lazy val root = (project in file("."))
         jsonSchemaValidator,
 
         scalaTest % Test
-    ),
-    scalacOptions += "-Xlint:unused"
+    )
   )
 
 enablePlugins(GhpagesPlugin)
