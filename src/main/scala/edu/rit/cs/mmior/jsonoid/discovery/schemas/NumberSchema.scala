@@ -29,12 +29,13 @@ final case class NumberSchema(
       NumberSchema(properties.merge(otherProperties))
 
     case other @ IntegerSchema(otherProperties) => {
-      val newProperties: Seq[SchemaProperty[BigDecimal]] = otherProperties.collect {
-        case MinIntValueProperty(minValue) =>
-          MinNumValueProperty(minValue.map(_.toDouble))
-        case MaxIntValueProperty(maxValue) =>
-          MaxNumValueProperty(maxValue.map(_.toDouble))
-      }.toSeq
+      val newProperties: Seq[SchemaProperty[BigDecimal]] =
+        otherProperties.collect {
+          case MinIntValueProperty(minValue) =>
+            MinNumValueProperty(minValue.map(_.toDouble))
+          case MaxIntValueProperty(maxValue) =>
+            MaxNumValueProperty(maxValue.map(_.toDouble))
+        }.toSeq
 
       NumberSchema(properties.merge(SchemaProperties(newProperties)))
     }
