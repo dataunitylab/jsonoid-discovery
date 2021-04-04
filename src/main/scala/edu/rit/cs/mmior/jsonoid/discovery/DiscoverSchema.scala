@@ -34,7 +34,11 @@ object DiscoverSchema {
     }
   }
 
+  def jsonFromSource(source: Source): Seq[JValue] = {
+    source.getLines().map(parse(_)).toSeq
+  }
+
   def jsonFromFile(file: File): Seq[JValue] = {
-    Source.fromFile(file, "UTF-8").getLines().map(parse(_)).toSeq
+    jsonFromSource(Source.fromFile(file, "UTF-8"))
   }
 }
