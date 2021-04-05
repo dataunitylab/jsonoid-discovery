@@ -1,7 +1,12 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.io.Source
+
+import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
 import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.scalatest.prop.TableDrivenPropertyChecks._
 
 
 class DiscoverSchemaSpec extends UnitSpec {
@@ -42,5 +47,25 @@ class DiscoverSchemaSpec extends UnitSpec {
 
   it should "produce a string schema" in {
     DiscoverSchema.discoverFromValue(JString("foo")) shouldBe a [StringSchema]
+  }
+
+  it should "produce a valid schema for given documents" in {
+    val files = Table(
+      "filename",
+      "/test.json",
+      "/jsonlines-example.json",
+    )
+
+    forAll(files) { filename: String =>
+      val url = getClass.getResource(filename)
+      val input = DiscoverSchema.jsonFromSource(Source.fromURL(url))
+      val schema = DiscoverSchema.discover(input)
+
+      val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)
+      val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
+
+      val errors = jsonSchema.validate(asJsonNode(input(0)))
+      errors shouldBe empty
+    }
   }
 }
