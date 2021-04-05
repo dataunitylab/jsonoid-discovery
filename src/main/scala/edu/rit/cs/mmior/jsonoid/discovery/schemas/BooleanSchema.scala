@@ -3,12 +3,15 @@ package schemas
 
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
-    BooleanSchema(SchemaProperties().merge(value))
+    BooleanSchema(BooleanSchema.initialProperties.merge(value))
   }
+
+  def initialProperties: SchemaProperties[Boolean] = SchemaProperties()
 }
 
 final case class BooleanSchema(
-    override val properties: SchemaProperties[Boolean] = SchemaProperties.empty
+    override val properties: SchemaProperties[Boolean] =
+      BooleanSchema.initialProperties
 ) extends JsonSchema[Boolean] {
   override val schemaType = "boolean"
 

@@ -9,17 +9,18 @@ import Helpers._
 
 object IntegerSchema {
   def apply(value: BigInt): IntegerSchema = {
-    IntegerSchema(
-      SchemaProperties(
-        MinIntValueProperty(),
-        MaxIntValueProperty()
-      ).merge(value)
-    )
+    IntegerSchema(IntegerSchema.initialProperties.merge(value))
   }
+
+  def initialProperties: SchemaProperties[BigInt] = SchemaProperties(
+    MinIntValueProperty(),
+    MaxIntValueProperty(),
+  )
 }
 
 final case class IntegerSchema(
-    override val properties: SchemaProperties[BigInt] = SchemaProperties.empty
+    override val properties: SchemaProperties[BigInt] =
+      IntegerSchema.initialProperties
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
 

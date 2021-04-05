@@ -9,19 +9,19 @@ import Helpers._
 
 object ArraySchema {
   def apply(value: List[JsonSchema[_]]): ArraySchema = {
-    ArraySchema(
-      SchemaProperties(
-        ItemTypeProperty(),
-        MinArrayLengthProperty(),
-        MaxArrayLengthProperty()
-      ).merge(value)
-    )
+    ArraySchema(ArraySchema.initialProperties.merge(value))
   }
+
+  def initialProperties: SchemaProperties[List[JsonSchema[_]]] = SchemaProperties(
+    ItemTypeProperty(),
+    MinArrayLengthProperty(),
+    MaxArrayLengthProperty(),
+  )
 }
 
 final case class ArraySchema(
     override val properties: SchemaProperties[List[JsonSchema[_]]] =
-      SchemaProperties.empty
+      ArraySchema.initialProperties
 ) extends JsonSchema[List[JsonSchema[_]]] {
   override val schemaType = "string"
 

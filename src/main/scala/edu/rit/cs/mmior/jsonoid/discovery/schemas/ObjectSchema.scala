@@ -5,17 +5,18 @@ import org.json4s.JsonDSL._
 
 object ObjectSchema {
   def apply(value: Map[String, JsonSchema[_]]): ObjectSchema = {
-    ObjectSchema(
-      SchemaProperties(
-        ObjectTypesProperty()
-      ).merge(value)
-    )
+    ObjectSchema(ObjectSchema.initialProperties.merge(value))
   }
+
+  def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] =
+    SchemaProperties(
+      ObjectTypesProperty(),
+    )
 }
 
 final case class ObjectSchema(
     override val properties: SchemaProperties[Map[String, JsonSchema[_]]] =
-      SchemaProperties.empty
+      ObjectSchema.initialProperties
 ) extends JsonSchema[Map[String, JsonSchema[_]]] {
   override val schemaType = "object"
 

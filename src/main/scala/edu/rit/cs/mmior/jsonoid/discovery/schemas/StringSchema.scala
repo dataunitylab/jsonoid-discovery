@@ -9,17 +9,18 @@ import Helpers._
 
 object StringSchema {
   def apply(value: String): StringSchema = {
-    StringSchema(
-      SchemaProperties(
-        MinLengthProperty(),
-        MaxLengthProperty()
-      ).merge(value)
-    )
+    StringSchema(StringSchema.initialProperties.merge(value))
   }
+
+  def initialProperties: SchemaProperties[String] = SchemaProperties(
+    MinLengthProperty(),
+    MaxLengthProperty(),
+  )
 }
 
 final case class StringSchema(
-    override val properties: SchemaProperties[String] = SchemaProperties.empty
+    override val properties: SchemaProperties[String] =
+      StringSchema.initialProperties
 ) extends JsonSchema[String] {
   override val schemaType = "string"
 

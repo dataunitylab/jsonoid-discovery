@@ -9,18 +9,18 @@ import Helpers._
 
 object NumberSchema {
   def apply(value: BigDecimal): NumberSchema = {
-    NumberSchema(
-      SchemaProperties(
-        MinNumValueProperty(),
-        MaxNumValueProperty()
-      ).merge(value)
-    )
+    NumberSchema(NumberSchema.initialProperties.merge(value))
   }
+
+  def initialProperties: SchemaProperties[BigDecimal] = SchemaProperties(
+    MinNumValueProperty(),
+    MaxNumValueProperty(),
+  )
 }
 
 final case class NumberSchema(
     override val properties: SchemaProperties[BigDecimal] =
-      SchemaProperties.empty
+      NumberSchema.initialProperties
 ) extends JsonSchema[BigDecimal] {
   override val schemaType = "number"
 

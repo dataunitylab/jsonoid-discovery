@@ -7,6 +7,11 @@ import org.json4s._
 class DiscoverSchemaSpec extends UnitSpec {
   behavior of "DiscoverSchema"
 
+  it should "produce a product schema" in {
+    val schema = DiscoverSchema.discover(Seq(JBool(true), JString("foo")))
+    DiscoverSchema.discover(Seq(JBool(true), JString("foo"))) shouldBe a [ProductSchema]
+  }
+
   it should "produce an array schema" in {
     DiscoverSchema.discoverFromValue(JArray(List(JBool(true)))) shouldBe a [ArraySchema]
   }

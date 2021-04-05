@@ -12,6 +12,8 @@ trait JsonSchema[T] {
 
   def schemaType: String
 
+  def hasType: Boolean = true
+
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]]
 
   def createProduct: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
