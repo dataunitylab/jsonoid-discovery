@@ -12,11 +12,12 @@ object ArraySchema {
     ArraySchema(ArraySchema.initialProperties.merge(value))
   }
 
-  def initialProperties: SchemaProperties[List[JsonSchema[_]]] = SchemaProperties(
-    ItemTypeProperty(),
-    MinArrayLengthProperty(),
-    MaxArrayLengthProperty(),
-  )
+  def initialProperties: SchemaProperties[List[JsonSchema[_]]] =
+    SchemaProperties(
+      ItemTypeProperty(),
+      MinArrayLengthProperty(),
+      MaxArrayLengthProperty(),
+    )
 }
 
 final case class ArraySchema(

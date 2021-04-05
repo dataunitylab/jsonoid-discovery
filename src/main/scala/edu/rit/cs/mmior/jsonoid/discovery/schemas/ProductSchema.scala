@@ -5,7 +5,6 @@ import scala.language.existentials
 
 import org.json4s.JsonDSL._
 
-
 object ProductSchema {
   def apply(value: JsonSchema[_]): ProductSchema = {
     ProductSchema(ProductSchema.initialProperties.merge(value))
@@ -31,10 +30,10 @@ final case class ProductSchema(
   }
 
   override def merge(other: JsonSchema[_]): JsonSchema[_] = {
-    other match  {
+    other match {
       case prod: ProductSchema => this.mergeSameType(prod)
-      case zero: ZeroSchema => this
-      case _ => ProductSchema(this.properties.merge(other))
+      case zero: ZeroSchema    => this
+      case _                   => ProductSchema(this.properties.merge(other))
     }
   }
 }
