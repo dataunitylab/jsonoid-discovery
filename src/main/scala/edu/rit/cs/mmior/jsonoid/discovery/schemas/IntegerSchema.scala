@@ -21,7 +21,7 @@ object IntegerSchema {
 final case class IntegerSchema(
     override val properties: SchemaProperties[BigInt] = SchemaProperties.empty
 ) extends JsonSchema[BigInt] {
-  override val schemaType = "string"
+  override val schemaType = "integer"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ IntegerSchema(otherProperties) =>

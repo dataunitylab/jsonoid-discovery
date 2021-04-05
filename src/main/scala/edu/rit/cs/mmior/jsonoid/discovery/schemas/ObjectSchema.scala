@@ -28,7 +28,9 @@ final case class ObjectSchema(
 final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
-  override val toJson = ("properties" -> "foo")
+  override val toJson = ("properties" -> objectTypes.map {
+    case (propType, schema) => (propType -> schema.toJson)
+  }) ~ ("additionalProperties" -> false)
 
   override def merge(otherProp: SchemaProperty[Map[String, JsonSchema[_]]]) = {
     val other = otherProp.asInstanceOf[ObjectTypesProperty].objectTypes

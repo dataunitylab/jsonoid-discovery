@@ -10,7 +10,7 @@ object BooleanSchema {
 final case class BooleanSchema(
     override val properties: SchemaProperties[Boolean] = SchemaProperties.empty
 ) extends JsonSchema[Boolean] {
-  override val schemaType = "string"
+  override val schemaType = "boolean"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ BooleanSchema(otherProperties) =>

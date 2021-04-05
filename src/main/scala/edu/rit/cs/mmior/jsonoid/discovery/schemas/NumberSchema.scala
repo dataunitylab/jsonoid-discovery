@@ -22,7 +22,7 @@ final case class NumberSchema(
     override val properties: SchemaProperties[BigDecimal] =
       SchemaProperties.empty
 ) extends JsonSchema[BigDecimal] {
-  override val schemaType = "string"
+  override val schemaType = "number"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>
