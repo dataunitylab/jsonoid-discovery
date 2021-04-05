@@ -3,6 +3,8 @@ package schemas
 
 import org.json4s.JsonDSL._
 
+import Helpers._
+
 object ObjectSchema {
   def apply(value: Map[String, JsonSchema[_]]): ObjectSchema = {
     ObjectSchema(ObjectSchema.initialProperties.merge(value))
@@ -11,6 +13,7 @@ object ObjectSchema {
   def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] =
     SchemaProperties(
       ObjectTypesProperty(),
+      RequiredProperty(),
     )
 }
 
@@ -44,5 +47,20 @@ final case class ObjectTypesProperty(
     ObjectTypesProperty(
       grouped.view.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
     )
+  }
+}
+
+final case class RequiredProperty(
+    required: Option[Set[String]] = None
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override val toJson = ("required" -> required)
+
+  override def merge(otherProp: SchemaProperty[Map[String, JsonSchema[_]]]) = {
+    val other = otherProp.asInstanceOf[RequiredProperty].required
+    RequiredProperty(intersectOrNone(other, required))
+  }
+
+  override def merge(value: Map[String, JsonSchema[_]]) = {
+    RequiredProperty(intersectOrNone(Some(value.keySet), required))
   }
 }

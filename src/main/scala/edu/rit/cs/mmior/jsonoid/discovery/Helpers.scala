@@ -23,4 +23,14 @@ object Helpers {
         else { first }
       case (None, None) => None
     }
+
+  def intersectOrNone[A](
+      first: Option[Set[A]],
+      second: Option[Set[A]]
+  ): Option[Set[A]] = (first, second) match {
+    case (Some(a), None)    => first
+    case (None, Some(b))    => second
+    case (Some(a), Some(b)) => Some(a.intersect(b))
+    case (None, None)       => None
+  }
 }
