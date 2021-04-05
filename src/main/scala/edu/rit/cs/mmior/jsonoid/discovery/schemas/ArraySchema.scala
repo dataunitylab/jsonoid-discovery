@@ -23,7 +23,7 @@ final case class ArraySchema(
     override val properties: SchemaProperties[List[JsonSchema[_]]] =
       ArraySchema.initialProperties
 ) extends JsonSchema[List[JsonSchema[_]]] {
-  override val schemaType = "string"
+  override val schemaType = "array"
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ArraySchema(otherProperties) =>

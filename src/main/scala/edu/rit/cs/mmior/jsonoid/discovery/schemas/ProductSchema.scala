@@ -33,6 +33,7 @@ final case class ProductSchema(
   override def merge(other: JsonSchema[_]): JsonSchema[_] = {
     other match  {
       case prod: ProductSchema => this.mergeSameType(prod)
+      case zero: ZeroSchema => this
       case _ => ProductSchema(this.properties.merge(other))
     }
   }
