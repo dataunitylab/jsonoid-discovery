@@ -53,4 +53,11 @@ git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
 
 fork in Test := true
 
+assemblyMergeStrategy in assembly := {
+  case "module-info.class" => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
+
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
