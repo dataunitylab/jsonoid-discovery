@@ -1,10 +1,19 @@
 import sbt._
 
 object Dependencies {
-  lazy val json4s              = "org.json4s"       %% "json4s-jackson"         % "3.7.0-M15"
-  lazy val json4sScalaz        = "org.json4s"       %% "json4s-scalaz"          % "3.7.0-M15"
-  lazy val jsonSchemaValidator = "com.networknt"    %  "json-schema-validator"  % "1.0.51"
-  lazy val spark               = "org.apache.spark" %% "spark-core"             % "3.1.1"
+  // Runtime
+  // XXX json4s cannot currently be upgrade to maintain compatibility with Spark
+  lazy val json4s              = "org.json4s"                 %% "json4s-jackson"         % "3.7.0-M2"
+  lazy val json4sScalaz        = "org.json4s"                 %% "json4s-scalaz"          % "3.7.0-M2"
 
-  lazy val scalaTest           = "org.scalatest" %% "scalatest"              % "3.2.7"
+  lazy val jsonSchemaValidator = "com.networknt"              %  "json-schema-validator"  % "1.0.49"
+  lazy val spark               = "org.apache.spark"           %% "spark-core"             % "3.1.1"
+  lazy val sparkSql            = "org.apache.spark"           %% "spark-sql"              % "3.1.1"
+
+  // Test
+  lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.7"
+
+  // Overrides
+  // XXX This is necessary for Spark version consistency
+  lazy val jacksonDatabind     = "com.fasterxml.jackson.core" %  "jackson-databind"       % "2.10.5.1"
 }

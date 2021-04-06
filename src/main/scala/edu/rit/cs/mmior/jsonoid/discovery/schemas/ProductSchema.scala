@@ -52,7 +52,12 @@ final case class ProductSchemaTypesProperty(
       .toSeq
     val grouped = merged.groupBy(_._1)
     ProductSchemaTypesProperty(
-      grouped.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
+      // .map(identity) below is necessary to
+      // produce a map which is serializable
+      grouped
+        .mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_)))
+        .map(identity)
+        .toMap
     )
   }
 

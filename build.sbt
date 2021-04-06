@@ -13,9 +13,14 @@ lazy val root = (project in file("."))
         json4s,
         json4sScalaz,
         jsonSchemaValidator,
-        spark,
 
-        scalaTest % Test
+        spark % "provided",
+        sparkSql % "provided",
+
+        scalaTest % Test,
+    ),
+    dependencyOverrides ++= Seq(
+      jacksonDatabind,
     )
   )
 
@@ -45,5 +50,7 @@ enablePlugins(GhpagesPlugin)
 enablePlugins(SiteScaladocPlugin)
 
 git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
+
+fork in Test := true
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
