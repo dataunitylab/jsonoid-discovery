@@ -26,9 +26,14 @@ object DiscoverSchema {
       case JNothing      => NullSchema()
       case JNull         => NullSchema()
       case JObject(fields) =>
-        ObjectSchema(fields.map { case (k, v) =>
-          (k, discoverFromValue(v))
-        }.toMap)
+        ObjectSchema(
+          fields
+            .map { case (k, v) =>
+              (k, discoverFromValue(v))
+            }
+            .asInstanceOf[Seq[(String, JsonSchema[_])]]
+            .toMap
+        )
       case JSet(items)  => ArraySchema(items.map(discoverFromValue).toList)
       case JString(str) => StringSchema(str)
     }

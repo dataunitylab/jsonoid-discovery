@@ -52,7 +52,7 @@ final case class ProductSchemaTypesProperty(
       .toSeq
     val grouped = merged.groupBy(_._1)
     ProductSchemaTypesProperty(
-      grouped.view.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
+      grouped.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
     )
   }
 

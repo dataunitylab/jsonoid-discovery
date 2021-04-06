@@ -1,6 +1,6 @@
 import Dependencies._
 
-ThisBuild / scalaVersion      := "2.13.5"
+ThisBuild / scalaVersion      := "2.12.13"
 ThisBuild / version           := "0.1.0-SNAPSHOT"
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
@@ -13,6 +13,7 @@ lazy val root = (project in file("."))
         json4s,
         json4sScalaz,
         jsonSchemaValidator,
+        spark,
 
         scalaTest % Test
     )

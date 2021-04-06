@@ -45,7 +45,7 @@ final case class ObjectTypesProperty(
     val merged = objectTypes.toSeq ++ value.toSeq
     val grouped = merged.groupBy(_._1)
     ObjectTypesProperty(
-      grouped.view.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
+      grouped.mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_))).toMap
     )
   }
 }

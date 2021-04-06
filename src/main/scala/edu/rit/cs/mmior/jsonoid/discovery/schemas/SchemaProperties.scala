@@ -5,11 +5,21 @@ object SchemaProperties {
   type PropertyMap[T] = Map[PropertySubclass[T], SchemaProperty[T]]
 
   def apply[T](properties: SchemaProperty[T]*): SchemaProperties[T] = {
-    SchemaProperties(properties.map(prop => (prop.getClass, prop)).toMap)
+    SchemaProperties(
+      properties
+        .map(prop => (prop.getClass, prop))
+        .asInstanceOf[Seq[(PropertySubclass[T], SchemaProperty[T])]]
+        .toMap
+    )
   }
 
   def apply[T](properties: Iterable[SchemaProperty[T]]): SchemaProperties[T] = {
-    SchemaProperties(properties.map(prop => (prop.getClass, prop)).toMap)
+    SchemaProperties(
+      properties
+        .map(prop => (prop.getClass, prop))
+        .asInstanceOf[Seq[(PropertySubclass[T], SchemaProperty[T])]]
+        .toMap
+    )
   }
 
   def empty[T]: SchemaProperties[T] = {
