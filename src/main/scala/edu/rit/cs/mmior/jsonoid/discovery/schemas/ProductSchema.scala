@@ -4,6 +4,7 @@ package schemas
 import scala.language.existentials
 
 import org.json4s.JsonDSL._
+import org.json4s._
 
 object ProductSchema {
   def apply(value: JsonSchema[_]): ProductSchema = {
@@ -11,7 +12,7 @@ object ProductSchema {
   }
 
   def initialProperties: SchemaProperties[JsonSchema[_]] = SchemaProperties(
-    ProductSchemaTypesProperty(),
+    ProductSchemaTypesProperty()
   )
 }
 
@@ -22,7 +23,7 @@ final case class ProductSchema(
   override def hasType: Boolean = false
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  override val schemaType = null
+  override val schemaType: String = null
 
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ProductSchema(otherProperties) =>
@@ -43,9 +44,11 @@ final case class ProductSchemaTypesProperty(
       .empty[Class[_ <: JsonSchema[_]], JsonSchema[_]]
       .withDefaultValue(ZeroSchema())
 ) extends SchemaProperty[JsonSchema[_]] {
-  override def toJson = ("anyOf" -> schemaTypes.values.map(_.toJson))
+  override def toJson: JObject = ("anyOf" -> schemaTypes.values.map(_.toJson))
 
-  override def merge(otherProp: SchemaProperty[JsonSchema[_]]) = {
+  override def merge(
+      otherProp: SchemaProperty[JsonSchema[_]]
+  ): ProductSchemaTypesProperty = {
     val merged = schemaTypes.toSeq ++ otherProp
       .asInstanceOf[ProductSchemaTypesProperty]
       .schemaTypes
@@ -61,7 +64,7 @@ final case class ProductSchemaTypesProperty(
     )
   }
 
-  override def merge(value: JsonSchema[_]) = {
+  override def merge(value: JsonSchema[_]): ProductSchemaTypesProperty = {
     val newType = (value.getClass -> schemaTypes(value.getClass).merge(value))
     ProductSchemaTypesProperty(schemaTypes + newType)
   }

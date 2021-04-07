@@ -14,6 +14,8 @@ jobs:
     - uses: olafurpg/setup-scala@v10
     - name: Scalafmt
       run: sbt scalafmtCheck
+    - name: Scalastyle
+      run: sbt scalastyle
     - name: Test
       run: sbt coverage test coverageReport
     - name: Upload coverage

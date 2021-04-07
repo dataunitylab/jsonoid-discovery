@@ -8,17 +8,18 @@ import com.github.prasanthj.hll.{HyperLogLog => HLL, HyperLogLogUtils}
 
 object HyperLogLog {
   implicit def unwrapHLL(hll: HyperLogLog): HLL = hll.hll
+  val DefaultRegisterIndexBits: Int = 10
 }
 
 class HyperLogLog extends Serializable {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   @transient var hll: HLL = HLL
     .builder()
-    .setNumRegisterIndexBits(10)
+    .setNumRegisterIndexBits(HyperLogLog.DefaultRegisterIndexBits)
     .setEncoding(HLL.EncodingType.SPARSE)
     .build()
 
-  override def toString() = hll.toString()
+  override def toString(): String = hll.toString()
 
   @throws(classOf[IOException])
   private def writeObject(out: ObjectOutputStream): Unit = {

@@ -34,7 +34,8 @@ final case class SchemaProperties[T](
       Map.empty[PropertySubclass[T], SchemaProperty[T]]
 ) extends Iterable[SchemaProperty[T]] {
 
-  override def iterator = properties.values.iterator
+  override def iterator: Iterator[SchemaProperty[T]] =
+    properties.values.iterator
 
   def merge(value: T): SchemaProperties[T] = {
     val mergedProperties = properties.map { case (key, prop) =>

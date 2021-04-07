@@ -3,6 +3,7 @@ package schemas
 
 import scalaz._
 import org.json4s.JsonDSL._
+import org.json4s._
 import Scalaz._
 
 import Helpers._
@@ -16,7 +17,7 @@ object IntegerSchema {
   def initialProperties: SchemaProperties[BigInt] = SchemaProperties(
     MinIntValueProperty(),
     MaxIntValueProperty(),
-    IntHyperLogLogProperty(),
+    IntHyperLogLogProperty()
   )
 }
 
@@ -35,9 +36,9 @@ final case class IntegerSchema(
 
 final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
-  override def toJson = ("minimum" -> minIntValue)
+  override def toJson: JObject = ("minimum" -> minIntValue)
 
-  override def merge(otherProp: SchemaProperty[BigInt]) = {
+  override def merge(otherProp: SchemaProperty[BigInt]): MinIntValueProperty = {
     MinIntValueProperty(
       minOrNone(
         minIntValue,
@@ -46,16 +47,16 @@ final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
     )
   }
 
-  override def merge(value: BigInt) = {
+  override def merge(value: BigInt): MinIntValueProperty = {
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
   }
 }
 
 final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
-  override def toJson = ("maximum" -> maxIntValue)
+  override def toJson: JObject = ("maximum" -> maxIntValue)
 
-  override def merge(otherProp: SchemaProperty[BigInt]) = {
+  override def merge(otherProp: SchemaProperty[BigInt]): MaxIntValueProperty = {
     MaxIntValueProperty(
       maxOrNone(
         maxIntValue,
@@ -64,7 +65,7 @@ final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
     )
   }
 
-  override def merge(value: BigInt) = {
+  override def merge(value: BigInt): MaxIntValueProperty = {
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue))
   }
 }
@@ -72,9 +73,11 @@ final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigInt] {
-  override def toJson = ("distinctValues" -> hll.count())
+  override def toJson: JObject = ("distinctValues" -> hll.count())
 
-  override def merge(otherProp: SchemaProperty[BigInt]) = {
+  override def merge(
+      otherProp: SchemaProperty[BigInt]
+  ): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.asInstanceOf[IntHyperLogLogProperty].hll)
@@ -82,7 +85,7 @@ final case class IntHyperLogLogProperty(
     prop
   }
 
-  override def merge(value: BigInt) = {
+  override def merge(value: BigInt): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.add(value.toLong)

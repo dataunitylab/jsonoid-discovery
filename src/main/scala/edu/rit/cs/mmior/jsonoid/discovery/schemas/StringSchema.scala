@@ -3,6 +3,7 @@ package schemas
 
 import scalaz._
 import org.json4s.JsonDSL._
+import org.json4s._
 import Scalaz._
 
 import Helpers._
@@ -16,7 +17,7 @@ object StringSchema {
   def initialProperties: SchemaProperties[String] = SchemaProperties(
     MinLengthProperty(),
     MaxLengthProperty(),
-    StringHyperLogLogProperty(),
+    StringHyperLogLogProperty()
   )
 }
 
@@ -34,30 +35,30 @@ final case class StringSchema(
 
 final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String] {
-  override def toJson = ("minLength" -> minLength)
+  override def toJson: JObject = ("minLength" -> minLength)
 
-  override def merge(otherProp: SchemaProperty[String]) = {
+  override def merge(otherProp: SchemaProperty[String]): MinLengthProperty = {
     MinLengthProperty(
       minOrNone(minLength, otherProp.asInstanceOf[MinLengthProperty].minLength)
     )
   }
 
-  override def merge(value: String) = {
+  override def merge(value: String): MinLengthProperty = {
     MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String] {
-  override def toJson = ("maxLength" -> maxLength)
+  override def toJson: JObject = ("maxLength" -> maxLength)
 
-  override def merge(otherProp: SchemaProperty[String]) = {
+  override def merge(otherProp: SchemaProperty[String]): MaxLengthProperty = {
     MaxLengthProperty(
       maxOrNone(maxLength, otherProp.asInstanceOf[MaxLengthProperty].maxLength)
     )
   }
 
-  override def merge(value: String) = {
+  override def merge(value: String): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 }
@@ -65,9 +66,11 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 final case class StringHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[String] {
-  override def toJson = ("distinctValues" -> hll.count())
+  override def toJson: JObject = ("distinctValues" -> hll.count())
 
-  override def merge(otherProp: SchemaProperty[String]) = {
+  override def merge(
+      otherProp: SchemaProperty[String]
+  ): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.asInstanceOf[StringHyperLogLogProperty].hll)
@@ -75,7 +78,7 @@ final case class StringHyperLogLogProperty(
     prop
   }
 
-  override def merge(value: String) = {
+  override def merge(value: String): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.addString(value)

@@ -3,6 +3,7 @@ package schemas
 
 import scalaz._
 import org.json4s.JsonDSL._
+import org.json4s._
 import Scalaz._
 
 import Helpers._
@@ -16,7 +17,7 @@ object NumberSchema {
   def initialProperties: SchemaProperties[BigDecimal] = SchemaProperties(
     MinNumValueProperty(),
     MaxNumValueProperty(),
-    NumHyperLogLogProperty(),
+    NumHyperLogLogProperty()
   )
 }
 
@@ -52,9 +53,11 @@ final case class NumberSchema(
 
 final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
-  override def toJson = ("minimum" -> minNumValue)
+  override def toJson: JObject = ("minimum" -> minNumValue)
 
-  override def merge(otherProp: SchemaProperty[BigDecimal]) = {
+  override def merge(
+      otherProp: SchemaProperty[BigDecimal]
+  ): MinNumValueProperty = {
     MinNumValueProperty(
       minOrNone(
         minNumValue,
@@ -63,16 +66,18 @@ final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
     )
   }
 
-  override def merge(value: BigDecimal) = {
+  override def merge(value: BigDecimal): MinNumValueProperty = {
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
 }
 
 final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
-  override def toJson = ("maximum" -> maxNumValue)
+  override def toJson: JObject = ("maximum" -> maxNumValue)
 
-  override def merge(otherProp: SchemaProperty[BigDecimal]) = {
+  override def merge(
+      otherProp: SchemaProperty[BigDecimal]
+  ): MaxNumValueProperty = {
     MaxNumValueProperty(
       maxOrNone(
         maxNumValue,
@@ -81,7 +86,7 @@ final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
     )
   }
 
-  override def merge(value: BigDecimal) = {
+  override def merge(value: BigDecimal): MaxNumValueProperty = {
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue))
   }
 }
@@ -89,9 +94,11 @@ final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
 final case class NumHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigDecimal] {
-  override def toJson = ("distinctValues" -> hll.count())
+  override def toJson: JObject = ("distinctValues" -> hll.count())
 
-  override def merge(otherProp: SchemaProperty[BigDecimal]) = {
+  override def merge(
+      otherProp: SchemaProperty[BigDecimal]
+  ): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.asInstanceOf[NumHyperLogLogProperty].hll)
@@ -99,7 +106,7 @@ final case class NumHyperLogLogProperty(
     prop
   }
 
-  override def merge(value: BigDecimal) = {
+  override def merge(value: BigDecimal): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     val longVal = if (value.isValidLong) {

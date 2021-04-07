@@ -17,26 +17,29 @@ object DiscoverSchema {
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def discoverFromValue(value: JValue): JsonSchema[_] = {
     value match {
-      case JArray(items) => ArraySchema(items.map(discoverFromValue))
-      case JBool(bool)   => BooleanSchema(bool)
-      case JDecimal(dec) => NumberSchema(dec)
-      case JDouble(dbl)  => NumberSchema(dbl)
-      case JInt(int)     => IntegerSchema(int)
-      case JLong(long)   => IntegerSchema(long)
-      case JNothing      => NullSchema()
-      case JNull         => NullSchema()
-      case JObject(fields) =>
-        ObjectSchema(
-          fields
-            .map { case (k, v) =>
-              (k, discoverFromValue(v))
-            }
-            .asInstanceOf[Seq[(String, JsonSchema[_])]]
-            .toMap
-        )
-      case JSet(items)  => ArraySchema(items.map(discoverFromValue).toList)
-      case JString(str) => StringSchema(str)
+      case JArray(items)   => ArraySchema(items.map(discoverFromValue))
+      case JBool(bool)     => BooleanSchema(bool)
+      case JDecimal(dec)   => NumberSchema(dec)
+      case JDouble(dbl)    => NumberSchema(dbl)
+      case JInt(int)       => IntegerSchema(int)
+      case JLong(long)     => IntegerSchema(long)
+      case JNothing        => NullSchema()
+      case JNull           => NullSchema()
+      case JObject(fields) => discoverObjectFields(fields)
+      case JSet(items)     => ArraySchema(items.map(discoverFromValue).toList)
+      case JString(str)    => StringSchema(str)
     }
+  }
+
+  def discoverObjectFields(fields: Seq[JField]): JsonSchema[_] = {
+    ObjectSchema(
+      fields
+        .map { case (k, v) =>
+          (k, discoverFromValue(v))
+        }
+        .asInstanceOf[Seq[(String, JsonSchema[_])]]
+        .toMap
+    )
   }
 
   def jsonFromSource(source: Source): Seq[JValue] = {
