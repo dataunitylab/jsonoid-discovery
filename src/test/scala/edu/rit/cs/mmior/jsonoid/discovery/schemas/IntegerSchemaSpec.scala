@@ -6,18 +6,18 @@ import UnitSpec._
 class IntegerSchemaSpec extends UnitSpec {
   behavior of "IntegerSchema"
 
-  private val integerSchema = IntegerSchema(3).properties.merge(4)
+  private val integerSchema = IntegerSchema(3).merge(IntegerSchema(4))
 
   it should "track the maximum length" in {
-    integerSchema should contain (MaxIntValueProperty(Some(4)))
+    integerSchema.properties should contain (MaxIntValueProperty(Some(4)))
   }
 
   it should "track the minimum length" in {
-    integerSchema should contain (MinIntValueProperty(Some(3)))
+    integerSchema.properties should contain (MinIntValueProperty(Some(3)))
   }
 
   it should "track the distinct elements" in {
-    val hyperLogLogProp = integerSchema.find(_.isInstanceOf[IntHyperLogLogProperty]).fold(IntHyperLogLogProperty())(_.asInstanceOf[IntHyperLogLogProperty])
+    val hyperLogLogProp = integerSchema.properties.find(_.isInstanceOf[IntHyperLogLogProperty]).fold(IntHyperLogLogProperty())(_.asInstanceOf[IntHyperLogLogProperty])
     hyperLogLogProp.hll.count() should be (2)
   }
 }

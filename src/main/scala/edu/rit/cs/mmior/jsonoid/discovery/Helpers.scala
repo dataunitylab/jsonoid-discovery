@@ -33,9 +33,4 @@ object Helpers {
     case (Some(a), Some(b)) => Some(a.intersect(b))
     case (None, None)       => None
   }
-
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  implicit final class AnyOps[A](self: A) {
-    def ===(other: A): Boolean = self == other
-  }
 }

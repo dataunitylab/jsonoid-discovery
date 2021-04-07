@@ -37,8 +37,16 @@ class DiscoverSchemaSpec extends UnitSpec {
     DiscoverSchema.discoverFromValue(JInt(1)) shouldBe a [IntegerSchema]
   }
 
+  it should "produce an integer schema from a long" in {
+    DiscoverSchema.discoverFromValue(JLong(1)) shouldBe a [IntegerSchema]
+  }
+
   it should "produce a null schema" in {
     DiscoverSchema.discoverFromValue(JNull) shouldBe a [NullSchema]
+  }
+
+  it should "produce a null schema from nothing" in {
+    DiscoverSchema.discoverFromValue(JNothing) shouldBe a [NullSchema]
   }
 
   it should "produce an object schema" in {

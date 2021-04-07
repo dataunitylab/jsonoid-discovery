@@ -20,5 +20,6 @@ class JsonoidRDDSpec extends UnitSpec {
     val schema = jsonoidRdd.reduceSchemas()
 
     schema shouldBe a[ObjectSchema]
+    jsonoidRdd.count should be (2)
   }
 }
