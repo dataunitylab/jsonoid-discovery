@@ -6,6 +6,7 @@ import org.json4s.JsonDSL._
 import Scalaz._
 
 import Helpers._
+import utils.HyperLogLog
 
 object IntegerSchema {
   def apply(value: BigInt): IntegerSchema = {
@@ -15,6 +16,7 @@ object IntegerSchema {
   def initialProperties: SchemaProperties[BigInt] = SchemaProperties(
     MinIntValueProperty(),
     MaxIntValueProperty(),
+    IntHyperLogLogProperty(),
   )
 }
 
@@ -64,5 +66,27 @@ final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
 
   override def merge(value: BigInt) = {
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue))
+  }
+}
+
+final case class IntHyperLogLogProperty(
+    hll: HyperLogLog = new HyperLogLog()
+) extends SchemaProperty[BigInt] {
+  override def toJson = ("distinctValues" -> hll.count())
+
+  override def merge(otherProp: SchemaProperty[BigInt]) = {
+    val prop = IntHyperLogLogProperty()
+    prop.hll.merge(this.hll)
+    prop.hll.merge(otherProp.asInstanceOf[IntHyperLogLogProperty].hll)
+
+    prop
+  }
+
+  override def merge(value: BigInt) = {
+    val prop = IntHyperLogLogProperty()
+    prop.hll.merge(this.hll)
+    prop.hll.add(value.toLong)
+
+    prop
   }
 }

@@ -17,7 +17,7 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "track the distinct elements" in {
-    val hyperLogLogProp = stringSchema.find(_.isInstanceOf[HyperLogLogProperty]).fold(HyperLogLogProperty())(_.asInstanceOf[HyperLogLogProperty])
+    val hyperLogLogProp = stringSchema.find(_.isInstanceOf[StringHyperLogLogProperty]).fold(StringHyperLogLogProperty())(_.asInstanceOf[StringHyperLogLogProperty])
     hyperLogLogProp.hll.count() should be (2)
   }
 }

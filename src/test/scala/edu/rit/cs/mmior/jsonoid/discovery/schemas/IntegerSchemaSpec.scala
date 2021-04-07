@@ -15,4 +15,9 @@ class IntegerSchemaSpec extends UnitSpec {
   it should "track the minimum length" in {
     integerSchema should contain (MinIntValueProperty(Some(3)))
   }
+
+  it should "track the distinct elements" in {
+    val hyperLogLogProp = integerSchema.find(_.isInstanceOf[IntHyperLogLogProperty]).fold(IntHyperLogLogProperty())(_.asInstanceOf[IntHyperLogLogProperty])
+    hyperLogLogProp.hll.count() should be (2)
+  }
 }

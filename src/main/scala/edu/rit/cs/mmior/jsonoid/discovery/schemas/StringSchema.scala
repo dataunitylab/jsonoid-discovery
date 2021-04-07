@@ -16,7 +16,7 @@ object StringSchema {
   def initialProperties: SchemaProperties[String] = SchemaProperties(
     MinLengthProperty(),
     MaxLengthProperty(),
-    HyperLogLogProperty(),
+    StringHyperLogLogProperty(),
   )
 }
 
@@ -62,21 +62,21 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
   }
 }
 
-final case class HyperLogLogProperty(
+final case class StringHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[String] {
   override def toJson = ("distinctValues" -> hll.count())
 
   override def merge(otherProp: SchemaProperty[String]) = {
-    val prop = HyperLogLogProperty()
+    val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
-    prop.hll.merge(otherProp.asInstanceOf[HyperLogLogProperty].hll)
+    prop.hll.merge(otherProp.asInstanceOf[StringHyperLogLogProperty].hll)
 
     prop
   }
 
   override def merge(value: String) = {
-    val prop = HyperLogLogProperty()
+    val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.addString(value)
 
