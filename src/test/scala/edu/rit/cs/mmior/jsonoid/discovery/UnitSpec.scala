@@ -1,6 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
-import scala.language.implicitConversions
+import scala.language.{higherKinds, implicitConversions}
 
 import org.apache.log4j.{Level, Logger}
 import org.scalactic.Equality

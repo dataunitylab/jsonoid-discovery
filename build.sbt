@@ -12,6 +12,7 @@ lazy val root = (project in file("."))
         // Scala
         json4s,
         json4sScalaz,
+        hyperLogLog,
         jsonSchemaValidator,
 
         spark % "provided",

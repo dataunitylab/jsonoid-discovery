@@ -6,6 +6,7 @@ import org.json4s.JsonDSL._
 import Scalaz._
 
 import Helpers._
+import utils.HyperLogLog
 
 object StringSchema {
   def apply(value: String): StringSchema = {
@@ -15,6 +16,7 @@ object StringSchema {
   def initialProperties: SchemaProperties[String] = SchemaProperties(
     MinLengthProperty(),
     MaxLengthProperty(),
+    HyperLogLogProperty(),
   )
 }
 
@@ -57,5 +59,27 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 
   override def merge(value: String) = {
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
+  }
+}
+
+final case class HyperLogLogProperty(
+    hll: HyperLogLog = new HyperLogLog()
+) extends SchemaProperty[String] {
+  override def toJson = ("distinctValues" -> hll.count())
+
+  override def merge(otherProp: SchemaProperty[String]) = {
+    val prop = HyperLogLogProperty()
+    prop.hll.merge(this.hll)
+    prop.hll.merge(otherProp.asInstanceOf[HyperLogLogProperty].hll)
+
+    prop
+  }
+
+  override def merge(value: String) = {
+    val prop = HyperLogLogProperty()
+    prop.hll.merge(this.hll)
+    prop.hll.addString(value)
+
+    prop
   }
 }

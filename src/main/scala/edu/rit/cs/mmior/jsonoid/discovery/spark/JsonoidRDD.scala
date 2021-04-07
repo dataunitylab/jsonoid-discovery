@@ -15,6 +15,9 @@ object JsonoidRDD {
       DiscoverSchema.discoverFromValue(parse(jsonString))
     new JsonoidRDD(rdd.map(discoverFromString))
   }
+
+  implicit def unwrapJsonoidRdd(jsonoidRdd: JsonoidRDD): RDD[JsonSchema[_]] =
+    jsonoidRdd.rdd
 }
 
 class JsonoidRDD(val rdd: RDD[JsonSchema[_]]) {

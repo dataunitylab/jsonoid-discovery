@@ -15,4 +15,9 @@ class StringSchemaSpec extends UnitSpec {
   it should "track the minimum length" in {
     stringSchema should contain (MinLengthProperty(Some(3)))
   }
+
+  it should "track the distinct elements" in {
+    val hyperLogLogProp = stringSchema.find(_.isInstanceOf[HyperLogLogProperty]).fold(HyperLogLogProperty())(_.asInstanceOf[HyperLogLogProperty])
+    hyperLogLogProp.hll.count() should be (2)
+  }
 }
