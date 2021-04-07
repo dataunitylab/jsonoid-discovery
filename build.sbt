@@ -5,6 +5,8 @@ ThisBuild / version           := "0.1.0-SNAPSHOT"
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
@@ -52,12 +54,12 @@ enablePlugins(SiteScaladocPlugin)
 
 git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
 
-fork in Test := true
+Test / fork := true
 
-assemblyMergeStrategy in assembly := {
+assembly / assemblyMergeStrategy := {
   case "module-info.class" => MergeStrategy.discard
   case x =>
-    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
 }
 
