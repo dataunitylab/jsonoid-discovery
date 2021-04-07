@@ -15,4 +15,9 @@ jobs:
     - name: Scalafmt
       run: sbt scalafmtCheck
     - name: Test
-      run: sbt test
+      run: sbt coverage test coverageReport
+    - name: Upload coverage
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
