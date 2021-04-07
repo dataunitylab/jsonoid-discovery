@@ -33,7 +33,7 @@ final case class IntegerSchema(
 
 final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
-  override val toJson = ("minimum" -> minIntValue)
+  override def toJson = ("minimum" -> minIntValue)
 
   override def merge(otherProp: SchemaProperty[BigInt]) = {
     MinIntValueProperty(
@@ -51,7 +51,7 @@ final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
 
 final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
-  override val toJson = ("maximum" -> maxIntValue)
+  override def toJson = ("maximum" -> maxIntValue)
 
   override def merge(otherProp: SchemaProperty[BigInt]) = {
     MaxIntValueProperty(

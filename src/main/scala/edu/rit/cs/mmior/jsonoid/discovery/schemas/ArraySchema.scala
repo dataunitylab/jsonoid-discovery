@@ -34,7 +34,7 @@ final case class ArraySchema(
 
 final case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
     extends SchemaProperty[List[JsonSchema[_]]] {
-  override val toJson = ("items" -> itemType.toJson)
+  override def toJson = ("items" -> itemType.toJson)
 
   override def merge(otherProp: SchemaProperty[List[JsonSchema[_]]]) = {
     ItemTypeProperty(
@@ -49,7 +49,7 @@ final case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
 
 final case class MinArrayLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
-  override val toJson = ("minLength" -> minLength)
+  override def toJson = ("minLength" -> minLength)
 
   override def merge(otherProp: SchemaProperty[List[JsonSchema[_]]]) = {
     MinArrayLengthProperty(
@@ -67,7 +67,7 @@ final case class MinArrayLengthProperty(minLength: Option[Int] = None)
 
 final case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
-  override val toJson = ("maxLength" -> maxLength)
+  override def toJson = ("maxLength" -> maxLength)
 
   override def merge(otherProp: SchemaProperty[List[JsonSchema[_]]]) = {
     MaxArrayLengthProperty(

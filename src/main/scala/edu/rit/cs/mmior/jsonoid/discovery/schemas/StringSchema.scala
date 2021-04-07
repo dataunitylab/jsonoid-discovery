@@ -32,7 +32,7 @@ final case class StringSchema(
 
 final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String] {
-  override val toJson = ("minLength" -> minLength)
+  override def toJson = ("minLength" -> minLength)
 
   override def merge(otherProp: SchemaProperty[String]) = {
     MinLengthProperty(
@@ -47,7 +47,7 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String] {
-  override val toJson = ("maxLength" -> maxLength)
+  override def toJson = ("maxLength" -> maxLength)
 
   override def merge(otherProp: SchemaProperty[String]) = {
     MaxLengthProperty(

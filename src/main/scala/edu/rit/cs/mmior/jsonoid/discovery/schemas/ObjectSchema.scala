@@ -32,7 +32,7 @@ final case class ObjectSchema(
 final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
-  override val toJson = ("properties" -> objectTypes.map {
+  override def toJson = ("properties" -> objectTypes.map {
     case (propType, schema) => (propType -> schema.toJson)
   }) ~ ("additionalProperties" -> false)
 
@@ -58,7 +58,7 @@ final case class ObjectTypesProperty(
 final case class RequiredProperty(
     required: Option[Set[String]] = None
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
-  override val toJson = ("required" -> required)
+  override def toJson = ("required" -> required)
 
   override def merge(otherProp: SchemaProperty[Map[String, JsonSchema[_]]]) = {
     val other = otherProp.asInstanceOf[RequiredProperty].required

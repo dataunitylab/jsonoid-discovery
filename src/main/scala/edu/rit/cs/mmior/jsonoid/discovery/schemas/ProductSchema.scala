@@ -43,7 +43,7 @@ final case class ProductSchemaTypesProperty(
       .empty[Class[_ <: JsonSchema[_]], JsonSchema[_]]
       .withDefaultValue(ZeroSchema())
 ) extends SchemaProperty[JsonSchema[_]] {
-  override val toJson = ("anyOf" -> schemaTypes.values.map(_.toJson))
+  override def toJson = ("anyOf" -> schemaTypes.values.map(_.toJson))
 
   override def merge(otherProp: SchemaProperty[JsonSchema[_]]) = {
     val merged = schemaTypes.toSeq ++ otherProp

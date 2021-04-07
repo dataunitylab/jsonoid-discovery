@@ -44,7 +44,7 @@ final case class NumberSchema(
 
 final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
-  override val toJson = ("minimum" -> minNumValue)
+  override def toJson = ("minimum" -> minNumValue)
 
   override def merge(otherProp: SchemaProperty[BigDecimal]) = {
     MinNumValueProperty(
@@ -62,7 +62,7 @@ final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
 
 final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
-  override val toJson = ("maximum" -> maxNumValue)
+  override def toJson = ("maximum" -> maxNumValue)
 
   override def merge(otherProp: SchemaProperty[BigDecimal]) = {
     MaxNumValueProperty(
