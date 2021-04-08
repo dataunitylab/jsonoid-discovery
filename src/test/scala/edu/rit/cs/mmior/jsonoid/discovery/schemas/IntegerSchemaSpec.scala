@@ -20,4 +20,9 @@ class IntegerSchemaSpec extends UnitSpec {
     val hyperLogLogProp = integerSchema.properties.find(_.isInstanceOf[IntHyperLogLogProperty]).fold(IntHyperLogLogProperty())(_.asInstanceOf[IntHyperLogLogProperty])
     hyperLogLogProp.hll.count() should be (2)
   }
+
+  it should "keep a Bloom filter of observed elements" in {
+    val bloomFilterProp = integerSchema.properties.find(_.isInstanceOf[IntBloomFilterProperty]).fold(IntBloomFilterProperty())(_.asInstanceOf[IntBloomFilterProperty])
+    bloomFilterProp.bloomFilter.contains(BigInt(3).toByteArray) shouldBe true
+  }
 }

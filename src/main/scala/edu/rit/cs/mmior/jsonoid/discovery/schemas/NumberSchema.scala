@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -17,7 +18,8 @@ object NumberSchema {
   def initialProperties: SchemaProperties[BigDecimal] = SchemaProperties(
     MinNumValueProperty(),
     MaxNumValueProperty(),
-    NumHyperLogLogProperty()
+    NumHyperLogLogProperty(),
+    NumBloomFilterProperty()
   )
 }
 
@@ -44,6 +46,10 @@ final case class NumberSchema(
             //     a problem unless integer values are several
             //     orders of magnitude larger
             NumHyperLogLogProperty(hll)
+          case IntBloomFilterProperty(bloomfilter) =>
+            NumBloomFilterProperty(
+              bloomfilter.asInstanceOf[InMemoryBloomFilter[Double]]
+            )
         }.toSeq
 
       NumberSchema(properties.merge(SchemaProperties(newProperties)))
@@ -118,6 +124,46 @@ final case class NumHyperLogLogProperty(
       (value * 100000).toLong
     }
     prop.hll.add(longVal)
+
+    prop
+  }
+}
+
+object NumBloomFilterProperty {
+  val ExpectedElements: Int = 100000
+  val FalsePositive: Double = 0.01
+}
+
+final case class NumBloomFilterProperty(
+    bloomFilter: InMemoryBloomFilter[Double] = new InMemoryBloomFilter[Double](
+      NumBloomFilterProperty.ExpectedElements,
+      NumBloomFilterProperty.FalsePositive
+    )
+) extends SchemaProperty[BigDecimal] {
+  override def toJson: JObject = JObject(Nil)
+
+  override def merge(
+      otherProp: SchemaProperty[BigDecimal]
+  ): NumBloomFilterProperty = {
+    val prop = NumBloomFilterProperty()
+    prop.bloomFilter.merge(this.bloomFilter)
+    prop.bloomFilter.merge(
+      otherProp.asInstanceOf[NumBloomFilterProperty].bloomFilter
+    )
+
+    prop
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def merge(value: BigDecimal): NumBloomFilterProperty = {
+    val prop = NumBloomFilterProperty()
+    prop.bloomFilter.merge(this.bloomFilter)
+
+    val scaled = value.toBigIntExact match {
+      case Some(int) => int.toByteArray
+      case None      => value.toString.getBytes
+    }
+    prop.bloomFilter.add(scaled)
 
     prop
   }

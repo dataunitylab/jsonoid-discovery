@@ -23,6 +23,11 @@ class NumberSchemaSpec extends UnitSpec {
     hyperLogLogProp.hll.count() should be (2)
   }
 
+  it should "keep a Bloom filter of observed elements" in {
+    val bloomFilterProp = numberSchema.properties.find(_.isInstanceOf[NumBloomFilterProperty]).fold(NumBloomFilterProperty())(_.asInstanceOf[NumBloomFilterProperty])
+    bloomFilterProp.bloomFilter.contains(BigDecimal(3.14).toString.getBytes) shouldBe true
+  }
+
   it should "track the maximum value when merged with an integer schema" in {
     mixedSchema.properties should contain (MaxNumValueProperty(Some(5)))
   }
@@ -34,5 +39,10 @@ class NumberSchemaSpec extends UnitSpec {
   it should "track the distinct elements when merged with an integer schema" in {
     val hyperLogLogProp = mixedSchema.properties.find(_.isInstanceOf[NumHyperLogLogProperty]).fold(NumHyperLogLogProperty())(_.asInstanceOf[NumHyperLogLogProperty])
     hyperLogLogProp.hll.count() should be (3)
+  }
+
+  it should "keep a Bloom filter of observed elements when merged with an integer schema" in {
+    val bloomFilterProp = mixedSchema.properties.find(_.isInstanceOf[NumBloomFilterProperty]).fold(NumBloomFilterProperty())(_.asInstanceOf[NumBloomFilterProperty])
+    bloomFilterProp.bloomFilter.contains(BigInt(5).toByteArray) shouldBe true
   }
 }
