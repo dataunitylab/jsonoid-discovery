@@ -10,8 +10,9 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
+    resolvers += Resolver.githubPackages("michaelmior"),
     libraryDependencies ++= Seq(
-        // Scala
+        bloomFilter,
         json4s,
         json4sScalaz,
         hyperLogLog,

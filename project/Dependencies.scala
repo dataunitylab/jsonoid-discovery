@@ -6,6 +6,7 @@ object Dependencies {
   lazy val json4s              = "org.json4s"                 %% "json4s-jackson"         % "3.7.0-M2"
   lazy val json4sScalaz        = "org.json4s"                 %% "json4s-scalaz"          % "3.7.0-M2"
 
+  lazy val bloomFilter         = "com.sangupta"               % "bloomfilter"             % "0.9.1-SNAPSHOT"
   lazy val hyperLogLog         = "com.github.prasanthj"       %  "hyperloglog"            % "1.1"
   lazy val jsonSchemaValidator = "com.networknt"              %  "json-schema-validator"  % "1.0.49"
   lazy val spark               = "org.apache.spark"           %% "spark-core"             % "3.1.1"

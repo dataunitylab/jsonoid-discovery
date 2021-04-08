@@ -20,4 +20,9 @@ class StringSchemaSpec extends UnitSpec {
     val hyperLogLogProp = stringSchema.find(_.isInstanceOf[StringHyperLogLogProperty]).fold(StringHyperLogLogProperty())(_.asInstanceOf[StringHyperLogLogProperty])
     hyperLogLogProp.hll.count() should be (2)
   }
+
+  it should "keep a Bloom filter of observed elements" in {
+    val bloomFilterProp = stringSchema.find(_.isInstanceOf[StringBloomFilterProperty]).fold(StringBloomFilterProperty())(_.asInstanceOf[StringBloomFilterProperty])
+    bloomFilterProp.bloomFilter.contains("foo") shouldBe true
+  }
 }

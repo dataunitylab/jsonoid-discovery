@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -17,7 +18,8 @@ object StringSchema {
   def initialProperties: SchemaProperties[String] = SchemaProperties(
     MinLengthProperty(),
     MaxLengthProperty(),
-    StringHyperLogLogProperty()
+    StringHyperLogLogProperty(),
+    StringBloomFilterProperty()
   )
 }
 
@@ -82,6 +84,41 @@ final case class StringHyperLogLogProperty(
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.addString(value)
+
+    prop
+  }
+}
+
+object StringBloomFilterProperty {
+  val ExpectedElements: Int = 100000
+  val FalsePositive: Double = 0.01
+}
+
+final case class StringBloomFilterProperty(
+    bloomFilter: InMemoryBloomFilter[String] = new InMemoryBloomFilter[String](
+      StringBloomFilterProperty.ExpectedElements,
+      StringBloomFilterProperty.FalsePositive
+    )
+) extends SchemaProperty[String] {
+  override def toJson: JObject = JObject(Nil)
+
+  override def merge(
+      otherProp: SchemaProperty[String]
+  ): StringBloomFilterProperty = {
+    val prop = StringBloomFilterProperty()
+    prop.bloomFilter.merge(this.bloomFilter)
+    prop.bloomFilter.merge(
+      otherProp.asInstanceOf[StringBloomFilterProperty].bloomFilter
+    )
+
+    prop
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def merge(value: String): StringBloomFilterProperty = {
+    val prop = StringBloomFilterProperty()
+    prop.bloomFilter.merge(this.bloomFilter)
+    prop.bloomFilter.add(value)
 
     prop
   }
