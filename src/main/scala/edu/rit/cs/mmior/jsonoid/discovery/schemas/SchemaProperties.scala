@@ -27,6 +27,10 @@ final case class SchemaProperties[T](
     SchemaProperties(properties + (tag -> prop))
   }
 
+  def get[S <: SchemaProperty[T]](implicit tag: ClassTag[S]): S = {
+    properties(tag).asInstanceOf[S]
+  }
+
   def merge(value: T): SchemaProperties[T] = {
     val mergedProperties = properties.mapValues(_.merge(value)).map(identity(_))
     SchemaProperties(mergedProperties)
