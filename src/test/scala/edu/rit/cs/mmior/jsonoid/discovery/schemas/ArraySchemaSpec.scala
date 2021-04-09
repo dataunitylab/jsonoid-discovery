@@ -7,7 +7,7 @@ class ArraySchemaSpec extends UnitSpec {
   behavior of "ArraySchema"
 
   private val itemType = BooleanSchema()
-  private val arraySchema = ArraySchema(List(itemType)).properties.merge(List(itemType, itemType))
+  private val arraySchema = ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
 
   it should "track item schemas" in {
     arraySchema should contain (ItemTypeProperty(itemType))

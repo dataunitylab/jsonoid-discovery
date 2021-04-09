@@ -12,7 +12,7 @@ import utils.HyperLogLog
 
 object StringSchema {
   def apply(value: String): StringSchema = {
-    StringSchema(StringSchema.initialProperties.merge(value))
+    StringSchema(StringSchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[String] =
@@ -37,51 +37,47 @@ final case class StringSchema(
 }
 
 final case class MinLengthProperty(minLength: Option[Int] = None)
-    extends SchemaProperty[String] {
+    extends SchemaProperty[String, MinLengthProperty] {
   override def toJson: JObject = ("minLength" -> minLength)
 
-  override def merge(otherProp: SchemaProperty[String]): MinLengthProperty = {
-    MinLengthProperty(
-      minOrNone(minLength, otherProp.asInstanceOf[MinLengthProperty].minLength)
-    )
+  override def merge(otherProp: MinLengthProperty): MinLengthProperty = {
+    MinLengthProperty(minOrNone(minLength, otherProp.minLength))
   }
 
-  override def merge(value: String): MinLengthProperty = {
+  override def mergeValue(value: String): MinLengthProperty = {
     MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
-    extends SchemaProperty[String] {
+    extends SchemaProperty[String, MaxLengthProperty] {
   override def toJson: JObject = ("maxLength" -> maxLength)
 
-  override def merge(otherProp: SchemaProperty[String]): MaxLengthProperty = {
-    MaxLengthProperty(
-      maxOrNone(maxLength, otherProp.asInstanceOf[MaxLengthProperty].maxLength)
-    )
+  override def merge(otherProp: MaxLengthProperty): MaxLengthProperty = {
+    MaxLengthProperty(maxOrNone(maxLength, otherProp.maxLength))
   }
 
-  override def merge(value: String): MaxLengthProperty = {
+  override def mergeValue(value: String): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 }
 
 final case class StringHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[String] {
+) extends SchemaProperty[String, StringHyperLogLogProperty] {
   override def toJson: JObject = ("distinctValues" -> hll.count())
 
   override def merge(
-      otherProp: SchemaProperty[String]
+      otherProp: StringHyperLogLogProperty
   ): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
-    prop.hll.merge(otherProp.asInstanceOf[StringHyperLogLogProperty].hll)
+    prop.hll.merge(otherProp.hll)
 
     prop
   }
 
-  override def merge(value: String): StringHyperLogLogProperty = {
+  override def mergeValue(value: String): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.addString(value)
@@ -100,23 +96,21 @@ final case class StringBloomFilterProperty(
       StringBloomFilterProperty.ExpectedElements,
       StringBloomFilterProperty.FalsePositive
     )
-) extends SchemaProperty[String] {
+) extends SchemaProperty[String, StringBloomFilterProperty] {
   override def toJson: JObject = JObject(Nil)
 
   override def merge(
-      otherProp: SchemaProperty[String]
+      otherProp: StringBloomFilterProperty
   ): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.merge(
-      otherProp.asInstanceOf[StringBloomFilterProperty].bloomFilter
-    )
+    prop.bloomFilter.merge(otherProp.bloomFilter)
 
     prop
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  override def merge(value: String): StringBloomFilterProperty = {
+  override def mergeValue(value: String): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.add(value)

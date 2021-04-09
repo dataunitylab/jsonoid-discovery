@@ -8,7 +8,7 @@ import org.json4s._
 
 object ProductSchema {
   def apply(value: JsonSchema[_]): ProductSchema = {
-    ProductSchema(ProductSchema.initialProperties.merge(value))
+    ProductSchema(ProductSchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[JsonSchema[_]] =
@@ -33,7 +33,7 @@ final case class ProductSchema(
     other match {
       case prod: ProductSchema => this.mergeSameType(prod)
       case zero: ZeroSchema    => this
-      case _                   => ProductSchema(this.properties.merge(other))
+      case _                   => ProductSchema(this.properties.mergeValue(other))
     }
   }
 }
@@ -42,16 +42,13 @@ final case class ProductSchemaTypesProperty(
     val schemaTypes: Map[Class[_ <: JsonSchema[_]], JsonSchema[_]] = Map
       .empty[Class[_ <: JsonSchema[_]], JsonSchema[_]]
       .withDefaultValue(ZeroSchema())
-) extends SchemaProperty[JsonSchema[_]] {
+) extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject = ("anyOf" -> schemaTypes.values.map(_.toJson))
 
   override def merge(
-      otherProp: SchemaProperty[JsonSchema[_]]
+      otherProp: ProductSchemaTypesProperty
   ): ProductSchemaTypesProperty = {
-    val merged = schemaTypes.toSeq ++ otherProp
-      .asInstanceOf[ProductSchemaTypesProperty]
-      .schemaTypes
-      .toSeq
+    val merged = schemaTypes.toSeq ++ otherProp.schemaTypes.toSeq
     val grouped = merged.groupBy(_._1)
     ProductSchemaTypesProperty(
       // .map(identity) below is necessary to
@@ -63,7 +60,7 @@ final case class ProductSchemaTypesProperty(
     )
   }
 
-  override def merge(value: JsonSchema[_]): ProductSchemaTypesProperty = {
+  override def mergeValue(value: JsonSchema[_]): ProductSchemaTypesProperty = {
     val newType = (value.getClass -> schemaTypes(value.getClass).merge(value))
     ProductSchemaTypesProperty(schemaTypes + newType)
   }

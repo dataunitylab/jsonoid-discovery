@@ -12,7 +12,7 @@ import utils.HyperLogLog
 
 object NumberSchema {
   def apply(value: BigDecimal): NumberSchema = {
-    NumberSchema(NumberSchema.initialProperties.merge(value))
+    NumberSchema(NumberSchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[BigDecimal] =
@@ -64,61 +64,51 @@ final case class NumberSchema(
 }
 
 final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal] {
+    extends SchemaProperty[BigDecimal, MinNumValueProperty] {
   override def toJson: JObject = ("minimum" -> minNumValue)
 
   override def merge(
-      otherProp: SchemaProperty[BigDecimal]
+      otherProp: MinNumValueProperty
   ): MinNumValueProperty = {
-    MinNumValueProperty(
-      minOrNone(
-        minNumValue,
-        otherProp.asInstanceOf[MinNumValueProperty].minNumValue
-      )
-    )
+    MinNumValueProperty(minOrNone(minNumValue, otherProp.minNumValue))
   }
 
-  override def merge(value: BigDecimal): MinNumValueProperty = {
+  override def mergeValue(value: BigDecimal): MinNumValueProperty = {
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
 }
 
 final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal] {
+    extends SchemaProperty[BigDecimal, MaxNumValueProperty] {
   override def toJson: JObject = ("maximum" -> maxNumValue)
 
   override def merge(
-      otherProp: SchemaProperty[BigDecimal]
+      otherProp: MaxNumValueProperty
   ): MaxNumValueProperty = {
-    MaxNumValueProperty(
-      maxOrNone(
-        maxNumValue,
-        otherProp.asInstanceOf[MaxNumValueProperty].maxNumValue
-      )
-    )
+    MaxNumValueProperty(maxOrNone(maxNumValue, otherProp.maxNumValue))
   }
 
-  override def merge(value: BigDecimal): MaxNumValueProperty = {
+  override def mergeValue(value: BigDecimal): MaxNumValueProperty = {
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue))
   }
 }
 
 final case class NumHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[BigDecimal] {
+) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
   override def toJson: JObject = ("distinctValues" -> hll.count())
 
   override def merge(
-      otherProp: SchemaProperty[BigDecimal]
+      otherProp: NumHyperLogLogProperty
   ): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
-    prop.hll.merge(otherProp.asInstanceOf[NumHyperLogLogProperty].hll)
+    prop.hll.merge(otherProp.hll)
 
     prop
   }
 
-  override def merge(value: BigDecimal): NumHyperLogLogProperty = {
+  override def mergeValue(value: BigDecimal): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     val longVal = if (value.isValidLong) {
@@ -145,23 +135,21 @@ final case class NumBloomFilterProperty(
       NumBloomFilterProperty.ExpectedElements,
       NumBloomFilterProperty.FalsePositive
     )
-) extends SchemaProperty[BigDecimal] {
+) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
   override def toJson: JObject = JObject(Nil)
 
   override def merge(
-      otherProp: SchemaProperty[BigDecimal]
+      otherProp: NumBloomFilterProperty
   ): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.merge(
-      otherProp.asInstanceOf[NumBloomFilterProperty].bloomFilter
-    )
+    prop.bloomFilter.merge(otherProp.bloomFilter)
 
     prop
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  override def merge(value: BigDecimal): NumBloomFilterProperty = {
+  override def mergeValue(value: BigDecimal): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
 

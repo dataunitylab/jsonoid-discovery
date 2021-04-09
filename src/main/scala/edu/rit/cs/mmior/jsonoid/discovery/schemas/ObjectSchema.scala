@@ -8,7 +8,7 @@ import Helpers._
 
 object ObjectSchema {
   def apply(value: Map[String, JsonSchema[_]]): ObjectSchema = {
-    ObjectSchema(ObjectSchema.initialProperties.merge(value))
+    ObjectSchema(ObjectSchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] =
@@ -32,19 +32,21 @@ final case class ObjectSchema(
 
 final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
-) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+) extends SchemaProperty[Map[String, JsonSchema[_]], ObjectTypesProperty] {
   override def toJson: JObject = ("properties" -> objectTypes.map {
     case (propType, schema) => (propType -> schema.toJson)
   }) ~ ("additionalProperties" -> false)
 
   override def merge(
-      otherProp: SchemaProperty[Map[String, JsonSchema[_]]]
+      otherProp: ObjectTypesProperty
   ): ObjectTypesProperty = {
-    val other = otherProp.asInstanceOf[ObjectTypesProperty].objectTypes
-    this.merge(other)
+    val other = otherProp.objectTypes
+    this.mergeValue(other)
   }
 
-  override def merge(value: Map[String, JsonSchema[_]]): ObjectTypesProperty = {
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  ): ObjectTypesProperty = {
     val merged = objectTypes.toSeq ++ value.toSeq
     val grouped = merged.groupBy(_._1)
     ObjectTypesProperty(
@@ -60,17 +62,19 @@ final case class ObjectTypesProperty(
 
 final case class RequiredProperty(
     required: Option[Set[String]] = None
-) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+) extends SchemaProperty[Map[String, JsonSchema[_]], RequiredProperty] {
   override def toJson: JObject = ("required" -> required)
 
   override def merge(
-      otherProp: SchemaProperty[Map[String, JsonSchema[_]]]
+      otherProp: RequiredProperty
   ): RequiredProperty = {
-    val other = otherProp.asInstanceOf[RequiredProperty].required
+    val other = otherProp.required
     RequiredProperty(intersectOrNone(other, required))
   }
 
-  override def merge(value: Map[String, JsonSchema[_]]): RequiredProperty = {
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  ): RequiredProperty = {
     RequiredProperty(intersectOrNone(Some(value.keySet), required))
   }
 }

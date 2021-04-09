@@ -3,7 +3,7 @@ package schemas
 
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
-    BooleanSchema(BooleanSchema.initialProperties.merge(value))
+    BooleanSchema(BooleanSchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[Boolean] =

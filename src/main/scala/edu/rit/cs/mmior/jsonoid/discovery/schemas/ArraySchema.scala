@@ -10,7 +10,7 @@ import Helpers._
 
 object ArraySchema {
   def apply(value: List[JsonSchema[_]]): ArraySchema = {
-    ArraySchema(ArraySchema.initialProperties.merge(value))
+    ArraySchema(ArraySchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[List[JsonSchema[_]]] =
@@ -34,58 +34,62 @@ final case class ArraySchema(
 }
 
 final case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
-    extends SchemaProperty[List[JsonSchema[_]]] {
+    extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
   override def toJson: JObject = ("items" -> itemType.toJson)
 
   override def merge(
-      otherProp: SchemaProperty[List[JsonSchema[_]]]
+      otherProp: ItemTypeProperty
   ): ItemTypeProperty = {
     ItemTypeProperty(
-      itemType.merge(otherProp.asInstanceOf[ItemTypeProperty].itemType)
+      itemType.merge(otherProp.itemType)
     )
   }
 
-  override def merge(value: List[JsonSchema[_]]): ItemTypeProperty = {
+  override def mergeValue(value: List[JsonSchema[_]]): ItemTypeProperty = {
     ItemTypeProperty(value.fold(itemType)(_.merge(_)))
   }
 }
 
 final case class MinArrayLengthProperty(minLength: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]]] {
+    extends SchemaProperty[List[JsonSchema[_]], MinArrayLengthProperty] {
   override def toJson: JObject = ("minLength" -> minLength)
 
   override def merge(
-      otherProp: SchemaProperty[List[JsonSchema[_]]]
+      otherProp: MinArrayLengthProperty
   ): MinArrayLengthProperty = {
     MinArrayLengthProperty(
       minOrNone(
         minLength,
-        otherProp.asInstanceOf[MinArrayLengthProperty].minLength
+        otherProp.minLength
       )
     )
   }
 
-  override def merge(value: List[JsonSchema[_]]): MinArrayLengthProperty = {
+  override def mergeValue(
+      value: List[JsonSchema[_]]
+  ): MinArrayLengthProperty = {
     MinArrayLengthProperty(minOrNone(Some(value.length), minLength))
   }
 }
 
 final case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]]] {
+    extends SchemaProperty[List[JsonSchema[_]], MaxArrayLengthProperty] {
   override def toJson: JObject = ("maxLength" -> maxLength)
 
   override def merge(
-      otherProp: SchemaProperty[List[JsonSchema[_]]]
+      otherProp: MaxArrayLengthProperty
   ): MaxArrayLengthProperty = {
     MaxArrayLengthProperty(
       maxOrNone(
         maxLength,
-        otherProp.asInstanceOf[MaxArrayLengthProperty].maxLength
+        otherProp.maxLength
       )
     )
   }
 
-  override def merge(value: List[JsonSchema[_]]): MaxArrayLengthProperty = {
+  override def mergeValue(
+      value: List[JsonSchema[_]]
+  ): MaxArrayLengthProperty = {
     MaxArrayLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 }

@@ -12,7 +12,7 @@ import utils.HyperLogLog
 
 object IntegerSchema {
   def apply(value: BigInt): IntegerSchema = {
-    IntegerSchema(IntegerSchema.initialProperties.merge(value))
+    IntegerSchema(IntegerSchema.initialProperties.mergeValue(value))
   }
 
   def initialProperties: SchemaProperties[BigInt] =
@@ -38,57 +38,47 @@ final case class IntegerSchema(
 }
 
 final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
-    extends SchemaProperty[BigInt] {
+    extends SchemaProperty[BigInt, MinIntValueProperty] {
   override def toJson: JObject = ("minimum" -> minIntValue)
 
-  override def merge(otherProp: SchemaProperty[BigInt]): MinIntValueProperty = {
-    MinIntValueProperty(
-      minOrNone(
-        minIntValue,
-        otherProp.asInstanceOf[MinIntValueProperty].minIntValue
-      )
-    )
+  override def merge(otherProp: MinIntValueProperty): MinIntValueProperty = {
+    MinIntValueProperty(minOrNone(minIntValue, otherProp.minIntValue))
   }
 
-  override def merge(value: BigInt): MinIntValueProperty = {
+  override def mergeValue(value: BigInt): MinIntValueProperty = {
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
   }
 }
 
 final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
-    extends SchemaProperty[BigInt] {
+    extends SchemaProperty[BigInt, MaxIntValueProperty] {
   override def toJson: JObject = ("maximum" -> maxIntValue)
 
-  override def merge(otherProp: SchemaProperty[BigInt]): MaxIntValueProperty = {
-    MaxIntValueProperty(
-      maxOrNone(
-        maxIntValue,
-        otherProp.asInstanceOf[MaxIntValueProperty].maxIntValue
-      )
-    )
+  override def merge(otherProp: MaxIntValueProperty): MaxIntValueProperty = {
+    MaxIntValueProperty(maxOrNone(maxIntValue, otherProp.maxIntValue))
   }
 
-  override def merge(value: BigInt): MaxIntValueProperty = {
+  override def mergeValue(value: BigInt): MaxIntValueProperty = {
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue))
   }
 }
 
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[BigInt] {
+) extends SchemaProperty[BigInt, IntHyperLogLogProperty] {
   override def toJson: JObject = ("distinctValues" -> hll.count())
 
   override def merge(
-      otherProp: SchemaProperty[BigInt]
+      otherProp: IntHyperLogLogProperty
   ): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
-    prop.hll.merge(otherProp.asInstanceOf[IntHyperLogLogProperty].hll)
+    prop.hll.merge(otherProp.hll)
 
     prop
   }
 
-  override def merge(value: BigInt): IntHyperLogLogProperty = {
+  override def mergeValue(value: BigInt): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.add(value.toLong)
@@ -108,23 +98,21 @@ final case class IntBloomFilterProperty(
         IntBloomFilterProperty.ExpectedElements,
         IntBloomFilterProperty.FalsePositive
       )
-) extends SchemaProperty[BigInt] {
+) extends SchemaProperty[BigInt, IntBloomFilterProperty] {
   override def toJson: JObject = JObject(Nil)
 
   override def merge(
-      otherProp: SchemaProperty[BigInt]
+      otherProp: IntBloomFilterProperty
   ): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.merge(
-      otherProp.asInstanceOf[IntBloomFilterProperty].bloomFilter
-    )
+    prop.bloomFilter.merge(otherProp.bloomFilter)
 
     prop
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  override def merge(value: BigInt): IntBloomFilterProperty = {
+  override def mergeValue(value: BigInt): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.add(value.toByteArray)

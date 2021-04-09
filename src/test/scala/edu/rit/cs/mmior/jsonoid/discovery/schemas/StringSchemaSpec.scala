@@ -6,7 +6,7 @@ import UnitSpec._
 class StringSchemaSpec extends UnitSpec {
   behavior of "StringSchema"
 
-  private val stringSchema = StringSchema("foo").properties.merge("foobar")
+  private val stringSchema = StringSchema("foo").properties.mergeValue("foobar")
 
   it should "track the maximum length" in {
     stringSchema should contain (MaxLengthProperty(Some(6)))
