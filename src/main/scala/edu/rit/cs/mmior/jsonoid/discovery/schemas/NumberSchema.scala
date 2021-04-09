@@ -15,12 +15,13 @@ object NumberSchema {
     NumberSchema(NumberSchema.initialProperties.merge(value))
   }
 
-  def initialProperties: SchemaProperties[BigDecimal] = SchemaProperties(
-    MinNumValueProperty(),
-    MaxNumValueProperty(),
-    NumHyperLogLogProperty(),
-    NumBloomFilterProperty()
-  )
+  def initialProperties: SchemaProperties[BigDecimal] =
+    SchemaProperties
+      .empty[BigDecimal]
+      .add(MinNumValueProperty())
+      .add(MaxNumValueProperty())
+      .add(NumHyperLogLogProperty())
+      .add(NumBloomFilterProperty())
 }
 
 final case class NumberSchema(
@@ -29,30 +30,35 @@ final case class NumberSchema(
 ) extends JsonSchema[BigDecimal] {
   override val schemaType = "number"
 
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>
       NumberSchema(properties.merge(otherProperties))
 
     case other @ IntegerSchema(otherProperties) => {
-      val newProperties: Seq[SchemaProperty[BigDecimal]] =
-        otherProperties.collect {
+      var props = SchemaProperties.empty[BigDecimal]
+      otherProperties.foreach { prop =>
+        prop match {
           case MinIntValueProperty(minValue) =>
-            MinNumValueProperty(minValue.map(_.toDouble))
+            props = props.add(MinNumValueProperty(minValue.map(_.toDouble)))
           case MaxIntValueProperty(maxValue) =>
-            MaxNumValueProperty(maxValue.map(_.toDouble))
+            props = props.add(MaxNumValueProperty(maxValue.map(_.toDouble)))
           case IntHyperLogLogProperty(hll) =>
             // XXX This can give some false positives due to how
             //     decimal values are tracked, but should not be
             //     a problem unless integer values are several
             //     orders of magnitude larger
-            NumHyperLogLogProperty(hll)
+            props = props.add(NumHyperLogLogProperty(hll))
           case IntBloomFilterProperty(bloomfilter) =>
-            NumBloomFilterProperty(
-              bloomfilter.asInstanceOf[InMemoryBloomFilter[Double]]
+            props = props.add(
+              NumBloomFilterProperty(
+                bloomfilter.asInstanceOf[InMemoryBloomFilter[Double]]
+              )
             )
-        }.toSeq
+        }
+      }
 
-      NumberSchema(properties.merge(SchemaProperties(newProperties)))
+      NumberSchema(properties.merge(props))
     }
   }
 }

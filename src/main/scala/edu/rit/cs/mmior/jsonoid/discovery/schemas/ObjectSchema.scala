@@ -12,10 +12,10 @@ object ObjectSchema {
   }
 
   def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] =
-    SchemaProperties(
-      ObjectTypesProperty(),
-      RequiredProperty()
-    )
+    SchemaProperties
+      .empty[Map[String, JsonSchema[_]]]
+      .add(ObjectTypesProperty())
+      .add(RequiredProperty())
 }
 
 final case class ObjectSchema(

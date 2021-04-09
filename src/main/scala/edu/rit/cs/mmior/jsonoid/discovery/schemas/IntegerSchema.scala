@@ -15,12 +15,13 @@ object IntegerSchema {
     IntegerSchema(IntegerSchema.initialProperties.merge(value))
   }
 
-  def initialProperties: SchemaProperties[BigInt] = SchemaProperties(
-    MinIntValueProperty(),
-    MaxIntValueProperty(),
-    IntHyperLogLogProperty(),
-    IntBloomFilterProperty()
-  )
+  def initialProperties: SchemaProperties[BigInt] =
+    SchemaProperties
+      .empty[BigInt]
+      .add(MinIntValueProperty())
+      .add(MaxIntValueProperty())
+      .add(IntHyperLogLogProperty())
+      .add(IntBloomFilterProperty())
 }
 
 final case class IntegerSchema(

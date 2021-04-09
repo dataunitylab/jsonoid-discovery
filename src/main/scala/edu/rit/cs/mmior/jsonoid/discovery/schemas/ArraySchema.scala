@@ -14,11 +14,11 @@ object ArraySchema {
   }
 
   def initialProperties: SchemaProperties[List[JsonSchema[_]]] =
-    SchemaProperties(
-      ItemTypeProperty(),
-      MinArrayLengthProperty(),
-      MaxArrayLengthProperty()
-    )
+    SchemaProperties
+      .empty[List[JsonSchema[_]]]
+      .add(ItemTypeProperty())
+      .add(MinArrayLengthProperty())
+      .add(MaxArrayLengthProperty())
 }
 
 final case class ArraySchema(

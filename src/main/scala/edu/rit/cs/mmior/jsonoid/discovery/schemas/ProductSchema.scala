@@ -11,9 +11,8 @@ object ProductSchema {
     ProductSchema(ProductSchema.initialProperties.merge(value))
   }
 
-  def initialProperties: SchemaProperties[JsonSchema[_]] = SchemaProperties(
-    ProductSchemaTypesProperty()
-  )
+  def initialProperties: SchemaProperties[JsonSchema[_]] =
+    SchemaProperties.empty[JsonSchema[_]].add(ProductSchemaTypesProperty())
 }
 
 final case class ProductSchema(

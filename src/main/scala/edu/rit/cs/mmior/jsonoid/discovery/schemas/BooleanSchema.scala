@@ -6,7 +6,8 @@ object BooleanSchema {
     BooleanSchema(BooleanSchema.initialProperties.merge(value))
   }
 
-  def initialProperties: SchemaProperties[Boolean] = SchemaProperties()
+  def initialProperties: SchemaProperties[Boolean] =
+    SchemaProperties.empty[Boolean]
 }
 
 final case class BooleanSchema(

@@ -15,12 +15,13 @@ object StringSchema {
     StringSchema(StringSchema.initialProperties.merge(value))
   }
 
-  def initialProperties: SchemaProperties[String] = SchemaProperties(
-    MinLengthProperty(),
-    MaxLengthProperty(),
-    StringHyperLogLogProperty(),
-    StringBloomFilterProperty()
-  )
+  def initialProperties: SchemaProperties[String] =
+    SchemaProperties
+      .empty[String]
+      .add(MinLengthProperty())
+      .add(MaxLengthProperty())
+      .add(StringHyperLogLogProperty())
+      .add(StringBloomFilterProperty())
 }
 
 final case class StringSchema(
