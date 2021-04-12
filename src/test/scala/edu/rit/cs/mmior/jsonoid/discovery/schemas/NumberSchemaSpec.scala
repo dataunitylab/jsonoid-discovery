@@ -1,6 +1,9 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import org.json4s.JsonDSL._
+import org.json4s._
+
 import UnitSpec._
 
 class NumberSchemaSpec extends UnitSpec {
@@ -35,7 +38,7 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "keep examples" in {
     val examplesProp = numberSchema.properties.find(_.isInstanceOf[NumExamplesProperty]).fold(NumExamplesProperty())(_.asInstanceOf[NumExamplesProperty])
-    examplesProp.examples.examples.toSet shouldBe Set(BigDecimal(3.14), BigDecimal(4.28))
+    (examplesProp.toJson \ "examples") shouldEqual JArray(List(BigDecimal(3.14), BigDecimal(4.28)))
   }
 
   it should "track the maximum value when merged with an integer schema" in {
@@ -63,6 +66,6 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "keep examples when merged with an integer schema" in {
     val examplesProp = mixedSchema.properties.find(_.isInstanceOf[NumExamplesProperty]).fold(NumExamplesProperty())(_.asInstanceOf[NumExamplesProperty])
-    examplesProp.examples.examples.toSet shouldBe Set(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5))
+    (examplesProp.toJson \ "examples") shouldEqual JArray(List(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5)))
   }
 }

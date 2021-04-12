@@ -141,7 +141,8 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
 final case class IntExamplesProperty(
     examples: ExamplesProperty[BigInt] = ExamplesProperty()
 ) extends SchemaProperty[BigInt, IntExamplesProperty] {
-  override def toJson: JObject = ("examples" -> examples.examples.distinct)
+  override def toJson: JObject = ("examples" ->
+    examples.examples.distinct.sorted)
 
   override def merge(
       otherProp: IntExamplesProperty

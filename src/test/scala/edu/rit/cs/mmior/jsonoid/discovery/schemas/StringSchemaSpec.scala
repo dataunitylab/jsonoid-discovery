@@ -1,6 +1,9 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import org.json4s.JsonDSL._
+import org.json4s._
+
 import UnitSpec._
 
 class StringSchemaSpec extends UnitSpec {
@@ -28,6 +31,6 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "keep examples" in {
     val examplesProp = stringSchema.find(_.isInstanceOf[StringExamplesProperty]).fold(StringExamplesProperty())(_.asInstanceOf[StringExamplesProperty])
-    examplesProp.examples.examples.toSet shouldBe Set("foo", "foobar")
+    (examplesProp.toJson \ "examples") shouldEqual JArray(List("foo", "foobar"))
   }
 }
