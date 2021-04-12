@@ -25,4 +25,9 @@ class IntegerSchemaSpec extends UnitSpec {
     val bloomFilterProp = integerSchema.properties.find(_.isInstanceOf[IntBloomFilterProperty]).fold(IntBloomFilterProperty())(_.asInstanceOf[IntBloomFilterProperty])
     bloomFilterProp.bloomFilter.contains(BigInt(3).toByteArray) shouldBe true
   }
+
+  it should "keep statistics" in {
+    val statsProp = integerSchema.properties.find(_.isInstanceOf[IntStatsProperty]).fold(IntStatsProperty())(_.asInstanceOf[IntStatsProperty])
+    statsProp.stats.mean shouldBe (BigDecimal(3.5))
+  }
 }

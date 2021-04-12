@@ -28,6 +28,11 @@ class NumberSchemaSpec extends UnitSpec {
     bloomFilterProp.bloomFilter.contains(BigDecimal(3.14).toString.getBytes) shouldBe true
   }
 
+  it should "keep statistics" in {
+    val statsProp = numberSchema.properties.find(_.isInstanceOf[NumStatsProperty]).fold(NumStatsProperty())(_.asInstanceOf[NumStatsProperty])
+    statsProp.stats.mean shouldBe (BigDecimal(3.71))
+  }
+
   it should "track the maximum value when merged with an integer schema" in {
     mixedSchema.properties should contain (MaxNumValueProperty(Some(5)))
   }
@@ -44,5 +49,10 @@ class NumberSchemaSpec extends UnitSpec {
   it should "keep a Bloom filter of observed elements when merged with an integer schema" in {
     val bloomFilterProp = mixedSchema.properties.find(_.isInstanceOf[NumBloomFilterProperty]).fold(NumBloomFilterProperty())(_.asInstanceOf[NumBloomFilterProperty])
     bloomFilterProp.bloomFilter.contains(BigInt(5).toByteArray) shouldBe true
+  }
+
+  it should "keep statistics when merged with an integer schema" in {
+    val statsProp = mixedSchema.properties.find(_.isInstanceOf[NumStatsProperty]).fold(NumStatsProperty())(_.asInstanceOf[NumStatsProperty])
+    statsProp.stats.mean shouldBe (BigDecimal(4.14))
   }
 }

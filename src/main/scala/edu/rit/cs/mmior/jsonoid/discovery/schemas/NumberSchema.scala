@@ -22,6 +22,7 @@ object NumberSchema {
       .add(MaxNumValueProperty())
       .add(NumHyperLogLogProperty())
       .add(NumBloomFilterProperty())
+      .add(NumStatsProperty())
 }
 
 final case class NumberSchema(
@@ -55,6 +56,8 @@ final case class NumberSchema(
                 bloomfilter.asInstanceOf[InMemoryBloomFilter[Double]]
               )
             )
+          case IntStatsProperty(stats) =>
+            props = props.add(NumStatsProperty(stats))
         }
       }
 
@@ -160,5 +163,20 @@ final case class NumBloomFilterProperty(
     prop.bloomFilter.add(scaled)
 
     prop
+  }
+}
+
+final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
+    extends SchemaProperty[BigDecimal, NumStatsProperty] {
+  override def toJson: JObject = ("stats" -> stats.toJson)
+
+  override def merge(
+      otherProp: NumStatsProperty
+  ): NumStatsProperty = {
+    NumStatsProperty(stats.merge(otherProp.stats))
+  }
+
+  override def mergeValue(value: BigDecimal): NumStatsProperty = {
+    NumStatsProperty(stats.merge(StatsProperty(value)))
   }
 }
