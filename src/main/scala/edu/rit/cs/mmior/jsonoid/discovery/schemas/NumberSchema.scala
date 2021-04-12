@@ -23,6 +23,7 @@ object NumberSchema {
       .add(NumHyperLogLogProperty())
       .add(NumBloomFilterProperty())
       .add(NumStatsProperty())
+      .add(NumSamplesProperty())
 }
 
 final case class NumberSchema(
@@ -58,6 +59,17 @@ final case class NumberSchema(
             )
           case IntStatsProperty(stats) =>
             props = props.add(NumStatsProperty(stats))
+          case IntSamplesProperty(samples) =>
+            props = props.add(
+              NumSamplesProperty(
+                SamplesProperty[BigDecimal](
+                  samples.samples.map(BigDecimal(_)),
+                  samples.totalSamples,
+                  samples.nextSample,
+                  samples.sampleW
+                )
+              )
+            )
         }
       }
 
@@ -178,5 +190,21 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 
   override def mergeValue(value: BigDecimal): NumStatsProperty = {
     NumStatsProperty(stats.merge(StatsProperty(value)))
+  }
+}
+
+final case class NumSamplesProperty(
+    samples: SamplesProperty[BigDecimal] = SamplesProperty()
+) extends SchemaProperty[BigDecimal, NumSamplesProperty] {
+  override def toJson: JObject = ("samples" -> samples.samples)
+
+  override def merge(
+      otherProp: NumSamplesProperty
+  ): NumSamplesProperty = {
+    NumSamplesProperty(samples.merge(otherProp.samples))
+  }
+
+  override def mergeValue(value: BigDecimal): NumSamplesProperty = {
+    NumSamplesProperty(samples.merge(SamplesProperty(value)))
   }
 }

@@ -33,6 +33,11 @@ class NumberSchemaSpec extends UnitSpec {
     statsProp.stats.mean shouldBe (BigDecimal(3.71))
   }
 
+  it should "keep samples" in {
+    val samplesProp = numberSchema.properties.find(_.isInstanceOf[NumSamplesProperty]).fold(NumSamplesProperty())(_.asInstanceOf[NumSamplesProperty])
+    samplesProp.samples.samples.toSet shouldBe Set(BigDecimal(3.14), BigDecimal(4.28))
+  }
+
   it should "track the maximum value when merged with an integer schema" in {
     mixedSchema.properties should contain (MaxNumValueProperty(Some(5)))
   }
@@ -54,5 +59,10 @@ class NumberSchemaSpec extends UnitSpec {
   it should "keep statistics when merged with an integer schema" in {
     val statsProp = mixedSchema.properties.find(_.isInstanceOf[NumStatsProperty]).fold(NumStatsProperty())(_.asInstanceOf[NumStatsProperty])
     statsProp.stats.mean shouldBe (BigDecimal(4.14))
+  }
+
+  it should "keep samples when merged with an integer schema" in {
+    val samplesProp = mixedSchema.properties.find(_.isInstanceOf[NumSamplesProperty]).fold(NumSamplesProperty())(_.asInstanceOf[NumSamplesProperty])
+    samplesProp.samples.samples.toSet shouldBe Set(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5))
   }
 }
