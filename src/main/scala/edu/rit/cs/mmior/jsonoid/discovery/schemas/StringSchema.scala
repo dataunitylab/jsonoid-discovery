@@ -22,7 +22,7 @@ object StringSchema {
       .add(MaxLengthProperty())
       .add(StringHyperLogLogProperty())
       .add(StringBloomFilterProperty())
-      .add(StringSamplesProperty())
+      .add(StringExamplesProperty())
 }
 
 final case class StringSchema(
@@ -120,18 +120,18 @@ final case class StringBloomFilterProperty(
   }
 }
 
-final case class StringSamplesProperty(
-    samples: SamplesProperty[String] = SamplesProperty()
-) extends SchemaProperty[String, StringSamplesProperty] {
-  override def toJson: JObject = ("samples" -> samples.samples)
+final case class StringExamplesProperty(
+    examples: ExamplesProperty[String] = ExamplesProperty()
+) extends SchemaProperty[String, StringExamplesProperty] {
+  override def toJson: JObject = ("examples" -> examples.examples)
 
   override def merge(
-      otherProp: StringSamplesProperty
-  ): StringSamplesProperty = {
-    StringSamplesProperty(samples.merge(otherProp.samples))
+      otherProp: StringExamplesProperty
+  ): StringExamplesProperty = {
+    StringExamplesProperty(examples.merge(otherProp.examples))
   }
 
-  override def mergeValue(value: String): StringSamplesProperty = {
-    StringSamplesProperty(samples.merge(SamplesProperty(value)))
+  override def mergeValue(value: String): StringExamplesProperty = {
+    StringExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }

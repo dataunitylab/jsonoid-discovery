@@ -26,8 +26,8 @@ class StringSchemaSpec extends UnitSpec {
     bloomFilterProp.bloomFilter.contains("foo") shouldBe true
   }
 
-  it should "keep samples" in {
-    val samplesProp = stringSchema.find(_.isInstanceOf[StringSamplesProperty]).fold(StringSamplesProperty())(_.asInstanceOf[StringSamplesProperty])
-    samplesProp.samples.samples.toSet shouldBe Set("foo", "foobar")
+  it should "keep examples" in {
+    val examplesProp = stringSchema.find(_.isInstanceOf[StringExamplesProperty]).fold(StringExamplesProperty())(_.asInstanceOf[StringExamplesProperty])
+    examplesProp.examples.examples.toSet shouldBe Set("foo", "foobar")
   }
 }

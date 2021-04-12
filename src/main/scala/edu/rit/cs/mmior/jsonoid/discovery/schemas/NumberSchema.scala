@@ -23,7 +23,7 @@ object NumberSchema {
       .add(NumHyperLogLogProperty())
       .add(NumBloomFilterProperty())
       .add(NumStatsProperty())
-      .add(NumSamplesProperty())
+      .add(NumExamplesProperty())
 }
 
 final case class NumberSchema(
@@ -59,14 +59,14 @@ final case class NumberSchema(
             )
           case IntStatsProperty(stats) =>
             props = props.add(NumStatsProperty(stats))
-          case IntSamplesProperty(samples) =>
+          case IntExamplesProperty(examples) =>
             props = props.add(
-              NumSamplesProperty(
-                SamplesProperty[BigDecimal](
-                  samples.samples.map(BigDecimal(_)),
-                  samples.totalSamples,
-                  samples.nextSample,
-                  samples.sampleW
+              NumExamplesProperty(
+                ExamplesProperty[BigDecimal](
+                  examples.examples.map(BigDecimal(_)),
+                  examples.totalExamples,
+                  examples.nextSample,
+                  examples.sampleW
                 )
               )
             )
@@ -193,18 +193,18 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
   }
 }
 
-final case class NumSamplesProperty(
-    samples: SamplesProperty[BigDecimal] = SamplesProperty()
-) extends SchemaProperty[BigDecimal, NumSamplesProperty] {
-  override def toJson: JObject = ("samples" -> samples.samples)
+final case class NumExamplesProperty(
+    examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
+) extends SchemaProperty[BigDecimal, NumExamplesProperty] {
+  override def toJson: JObject = ("examples" -> examples.examples)
 
   override def merge(
-      otherProp: NumSamplesProperty
-  ): NumSamplesProperty = {
-    NumSamplesProperty(samples.merge(otherProp.samples))
+      otherProp: NumExamplesProperty
+  ): NumExamplesProperty = {
+    NumExamplesProperty(examples.merge(otherProp.examples))
   }
 
-  override def mergeValue(value: BigDecimal): NumSamplesProperty = {
-    NumSamplesProperty(samples.merge(SamplesProperty(value)))
+  override def mergeValue(value: BigDecimal): NumExamplesProperty = {
+    NumExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }

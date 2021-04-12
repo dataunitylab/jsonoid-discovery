@@ -23,7 +23,7 @@ object IntegerSchema {
       .add(IntHyperLogLogProperty())
       .add(IntBloomFilterProperty())
       .add(IntStatsProperty())
-      .add(IntSamplesProperty())
+      .add(IntExamplesProperty())
 }
 
 final case class IntegerSchema(
@@ -138,18 +138,18 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
   }
 }
 
-final case class IntSamplesProperty(
-    samples: SamplesProperty[BigInt] = SamplesProperty()
-) extends SchemaProperty[BigInt, IntSamplesProperty] {
-  override def toJson: JObject = ("samples" -> samples.samples)
+final case class IntExamplesProperty(
+    examples: ExamplesProperty[BigInt] = ExamplesProperty()
+) extends SchemaProperty[BigInt, IntExamplesProperty] {
+  override def toJson: JObject = ("examples" -> examples.examples)
 
   override def merge(
-      otherProp: IntSamplesProperty
-  ): IntSamplesProperty = {
-    IntSamplesProperty(samples.merge(otherProp.samples))
+      otherProp: IntExamplesProperty
+  ): IntExamplesProperty = {
+    IntExamplesProperty(examples.merge(otherProp.examples))
   }
 
-  override def mergeValue(value: BigInt): IntSamplesProperty = {
-    IntSamplesProperty(samples.merge(SamplesProperty(value)))
+  override def mergeValue(value: BigInt): IntExamplesProperty = {
+    IntExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }

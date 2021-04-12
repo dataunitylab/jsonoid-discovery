@@ -31,8 +31,8 @@ class IntegerSchemaSpec extends UnitSpec {
     statsProp.stats.mean shouldBe (BigDecimal(3.5))
   }
 
-  it should "keep samples" in {
-    val samplesProp = integerSchema.properties.find(_.isInstanceOf[IntSamplesProperty]).fold(IntSamplesProperty())(_.asInstanceOf[IntSamplesProperty])
-    samplesProp.samples.samples.toSet shouldBe Set(BigInt(3), BigInt(4))
+  it should "keep examples" in {
+    val examplesProp = integerSchema.properties.find(_.isInstanceOf[IntExamplesProperty]).fold(IntExamplesProperty())(_.asInstanceOf[IntExamplesProperty])
+    examplesProp.examples.examples.toSet shouldBe Set(BigInt(3), BigInt(4))
   }
 }
