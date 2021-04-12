@@ -123,7 +123,7 @@ final case class StringBloomFilterProperty(
 final case class StringExamplesProperty(
     examples: ExamplesProperty[String] = ExamplesProperty()
 ) extends SchemaProperty[String, StringExamplesProperty] {
-  override def toJson: JObject = ("examples" -> examples.examples)
+  override def toJson: JObject = ("examples" -> examples.examples.distinct)
 
   override def merge(
       otherProp: StringExamplesProperty

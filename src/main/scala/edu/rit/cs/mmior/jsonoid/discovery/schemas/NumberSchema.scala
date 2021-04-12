@@ -196,7 +196,7 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 final case class NumExamplesProperty(
     examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
 ) extends SchemaProperty[BigDecimal, NumExamplesProperty] {
-  override def toJson: JObject = ("examples" -> examples.examples)
+  override def toJson: JObject = ("examples" -> examples.examples.distinct)
 
   override def merge(
       otherProp: NumExamplesProperty
