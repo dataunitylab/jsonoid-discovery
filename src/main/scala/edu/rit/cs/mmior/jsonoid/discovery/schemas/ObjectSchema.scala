@@ -24,6 +24,8 @@ final case class ObjectSchema(
 ) extends JsonSchema[Map[String, JsonSchema[_]]] {
   override val schemaType = "object"
 
+  override val staticProperties: JObject = ("additionalProperties" -> false)
+
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ObjectSchema(otherProperties) =>
       ObjectSchema(properties.merge(otherProperties))

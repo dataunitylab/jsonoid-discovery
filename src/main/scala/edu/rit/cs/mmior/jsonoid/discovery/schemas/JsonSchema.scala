@@ -6,13 +6,15 @@ import org.json4s._
 trait JsonSchema[T] {
   def toJson: JObject = {
     val propertyJson =
-      properties.map(_.toJson).foldLeft(JObject(Nil))(_.merge(_))
+      properties.map(_.toJson).foldLeft(staticProperties)(_.merge(_))
     if (hasType) {
       ("type" -> schemaType) ~ propertyJson
     } else {
       propertyJson
     }
   }
+
+  def staticProperties: JObject = Nil
 
   def properties: SchemaProperties[T]
 
