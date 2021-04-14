@@ -68,8 +68,7 @@ class DiscoverSchemaSpec extends UnitSpec {
       val url = getClass.getResource(filename)
       val input = DiscoverSchema.jsonFromSource(Source.fromURL(url))
       val schema = DiscoverSchema.discover(input)
-
-      val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V4)
+      val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
       val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
 
       val errors = jsonSchema.validate(asJsonNode(input(0)))

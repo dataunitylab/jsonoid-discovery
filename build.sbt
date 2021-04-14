@@ -5,6 +5,8 @@ ThisBuild / version           := "0.1.0-SNAPSHOT"
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
 
+mainClass := Some("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema")
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 lazy val root = (project in file("."))
@@ -17,6 +19,7 @@ lazy val root = (project in file("."))
         json4sScalaz,
         hyperLogLog,
         jsonSchemaValidator,
+        scopt,
 
         spark % "provided",
         sparkSql % "provided",

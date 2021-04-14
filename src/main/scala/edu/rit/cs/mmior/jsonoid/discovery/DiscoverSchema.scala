@@ -4,10 +4,17 @@ import java.io.File
 import scala.io.Source
 import scala.annotation.tailrec
 
+import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
+import scopt.OptionParser
+import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import schemas._
+
+final case class Config(
+    input: Option[File] = None
+)
 
 object DiscoverSchema {
   def discover(jsons: Seq[JValue]): JsonSchema[_] = {
@@ -44,5 +51,35 @@ object DiscoverSchema {
 
   def jsonFromSource(source: Source): Seq[JValue] = {
     source.getLines().map(parse(_)).toSeq
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  def main(args: Array[String]): Unit = {
+    val parser = new OptionParser[Config]("jsonoid-discover") {
+      head("jsonoid-discover", "0.1.0-SNAPSHOT")
+
+      help("help")
+      version("version")
+
+      arg[File]("<input>")
+        .optional()
+        .action((x, c) => c.copy(input = Some(x)))
+        .text("a JSON file to perform discovery on, one object per line")
+    }
+
+    parser.parse(args, Config()) match {
+      case Some(config) =>
+        val source = config.input match {
+          case Some(file) => Source.fromFile(file)
+          case None       => Source.stdin
+        }
+
+        val jsons = jsonFromSource(source)
+        val schema = discover(jsons)
+        val schemaObj: JObject =
+          ("$schema" -> "https://json-schema.org/draft/2019-09/schema")
+        println(compact(render(schema.toJson.merge(schemaObj))))
+      case None =>
+    }
   }
 }
