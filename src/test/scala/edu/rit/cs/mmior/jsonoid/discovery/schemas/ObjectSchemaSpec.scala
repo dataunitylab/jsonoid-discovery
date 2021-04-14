@@ -1,6 +1,9 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import org.json4s.JsonDSL._
+import org.json4s._
+
 import UnitSpec._
 
 class ObjectSchemaSpec extends UnitSpec {
@@ -15,5 +18,11 @@ class ObjectSchemaSpec extends UnitSpec {
 
   it should "track property schemas" in {
     objectSchema should contain (ObjectTypesProperty(objectTypes))
+  }
+
+  it should "track the percentage of objects with each field" in {
+    val fieldPresenceProp = objectSchema.find(_.isInstanceOf[FieldPresenceProperty]).fold(FieldPresenceProperty())(_.asInstanceOf[FieldPresenceProperty])
+    val expectedJson: JObject = ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5))))
+    fieldPresenceProp.toJson shouldEqual expectedJson
   }
 }

@@ -15,6 +15,7 @@ object ObjectSchema {
     SchemaProperties
       .empty[Map[String, JsonSchema[_]]]
       .add(ObjectTypesProperty())
+      .add(FieldPresenceProperty())
       .add(RequiredProperty())
 }
 
@@ -59,6 +60,32 @@ final case class ObjectTypesProperty(
         .map(identity)
         .toMap
     )
+  }
+}
+
+final case class FieldPresenceProperty(
+    fieldPresence: Map[String, BigInt] = Map.empty[String, BigInt],
+    totalCount: BigInt = 0
+) extends SchemaProperty[Map[String, JsonSchema[_]], FieldPresenceProperty] {
+  override def toJson: JObject = ("fieldPresence" -> fieldPresence.map {
+    case (key, count) => (key -> BigDecimal(count) / BigDecimal(totalCount))
+  })
+
+  override def merge(
+      otherProp: FieldPresenceProperty
+  ): FieldPresenceProperty = {
+    val merged = fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq
+    val grouped = merged.groupBy(_._1)
+    FieldPresenceProperty(
+      grouped.mapValues(_.map(_._2).sum).map(identity).toMap,
+      totalCount + otherProp.totalCount
+    )
+  }
+
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  ): FieldPresenceProperty = {
+    merge(FieldPresenceProperty(value.mapValues(s => 1), 1))
   }
 }
 
