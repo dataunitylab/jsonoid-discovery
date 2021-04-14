@@ -20,17 +20,17 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "track the distinct elements" in {
-    val hyperLogLogProp = stringSchema.find(_.isInstanceOf[StringHyperLogLogProperty]).fold(StringHyperLogLogProperty())(_.asInstanceOf[StringHyperLogLogProperty])
+    val hyperLogLogProp = stringSchema.get[StringHyperLogLogProperty]
     hyperLogLogProp.hll.count() should be (2)
   }
 
   it should "keep a Bloom filter of observed elements" in {
-    val bloomFilterProp = stringSchema.find(_.isInstanceOf[StringBloomFilterProperty]).fold(StringBloomFilterProperty())(_.asInstanceOf[StringBloomFilterProperty])
+    val bloomFilterProp = stringSchema.get[StringBloomFilterProperty]
     bloomFilterProp.bloomFilter.contains("foo") shouldBe true
   }
 
   it should "keep examples" in {
-    val examplesProp = stringSchema.find(_.isInstanceOf[StringExamplesProperty]).fold(StringExamplesProperty())(_.asInstanceOf[StringExamplesProperty])
+    val examplesProp = stringSchema.get[StringExamplesProperty]
     (examplesProp.toJson \ "examples") shouldEqual JArray(List("foo", "foobar"))
   }
 }

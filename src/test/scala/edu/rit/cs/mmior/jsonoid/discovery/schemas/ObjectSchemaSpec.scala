@@ -21,7 +21,7 @@ class ObjectSchemaSpec extends UnitSpec {
   }
 
   it should "track the percentage of objects with each field" in {
-    val fieldPresenceProp = objectSchema.find(_.isInstanceOf[FieldPresenceProperty]).fold(FieldPresenceProperty())(_.asInstanceOf[FieldPresenceProperty])
+    val fieldPresenceProp = objectSchema.get[FieldPresenceProperty]
     val expectedJson: JObject = ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5))))
     fieldPresenceProp.toJson shouldEqual expectedJson
   }
