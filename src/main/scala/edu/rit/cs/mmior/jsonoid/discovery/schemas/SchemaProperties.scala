@@ -29,7 +29,7 @@ final case class SchemaProperties[T](
     SchemaProperties(properties + (tag -> prop))
   }
 
-  def get[S <: SchemaProperty[T, _]](implicit tag: PropertyTag[T]): S = {
+  def get[S <: SchemaProperty[T, S]](implicit tag: ClassTag[S]): S = {
     properties(tag).asInstanceOf[S]
   }
 
