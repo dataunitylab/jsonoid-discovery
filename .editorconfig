@@ -9,4 +9,5 @@ indent_style = space
 
 [{*.scala,*.sbt}]
 indent_size = 2
+indent_stype = space
 max_line_length = 80
