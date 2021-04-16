@@ -1,6 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
-import scala.language.{higherKinds, implicitConversions}
+import scala.language.higherKinds
 
 import org.apache.log4j.{Level, Logger}
 import org.scalactic.Equality
@@ -10,7 +10,6 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import schemas._
-import Helpers._
 
 abstract class UnitSpec extends AnyFlatSpec with Matchers with BeforeAndAfter {
   before {

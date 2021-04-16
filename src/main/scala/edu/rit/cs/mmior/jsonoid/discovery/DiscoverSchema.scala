@@ -2,9 +2,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 
 import java.io.File
 import scala.io.Source
-import scala.annotation.tailrec
 
-import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
 import scopt.OptionParser
 import org.json4s.JsonDSL._
 import org.json4s._

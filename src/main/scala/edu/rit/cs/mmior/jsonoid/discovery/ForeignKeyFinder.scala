@@ -1,7 +1,5 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
-import scala.reflect.classTag
-
 import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
 
 import schemas._

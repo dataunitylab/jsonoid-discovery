@@ -28,6 +28,10 @@ lazy val root = (project in file("."))
     ),
     dependencyOverrides ++= Seq(
       jacksonDatabind,
+    ),
+    scalacOptions ++= Seq(
+      "-Ywarn-unused-import",
+      "-Xfatal-warnings",
     )
   )
 
