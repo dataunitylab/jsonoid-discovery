@@ -70,6 +70,7 @@ final case class NumberSchema(
                 )
               )
             )
+          case MultipleOfProperty(_) => {}
         }
       }
 

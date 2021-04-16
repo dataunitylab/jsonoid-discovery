@@ -1,5 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
+import scala.annotation.tailrec
+
 import scalaz._
 import Scalaz._
 
@@ -40,4 +42,8 @@ object Helpers {
     def ===(other: A): Boolean = self == other
   }
   // scalastyle:on method.name
+
+  @tailrec
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def gcd(a: BigInt, b: BigInt): BigInt = if (b == 0) a else gcd(b, a % b)
 }

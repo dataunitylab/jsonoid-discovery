@@ -24,6 +24,7 @@ object IntegerSchema {
       .add(IntBloomFilterProperty())
       .add(IntStatsProperty())
       .add(IntExamplesProperty())
+      .add(MultipleOfProperty())
 }
 
 final case class IntegerSchema(
@@ -152,5 +153,28 @@ final case class IntExamplesProperty(
 
   override def mergeValue(value: BigInt): IntExamplesProperty = {
     IntExamplesProperty(examples.merge(ExamplesProperty(value)))
+  }
+}
+
+final case class MultipleOfProperty(multiple: Option[BigInt] = None)
+    extends SchemaProperty[BigInt, MultipleOfProperty] {
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def toJson: JObject =
+    ("multipleOf" -> (if (multiple == Some(1)) None else multiple))
+
+  override def merge(
+      otherProp: MultipleOfProperty
+  ): MultipleOfProperty = {
+    val newMultiple = (multiple, otherProp.multiple) match {
+      case (Some(m), None)    => Some(m)
+      case (None, Some(n))    => Some(n)
+      case (Some(m), Some(n)) => Some(gcd(m, n))
+      case (None, None)       => None
+    }
+    MultipleOfProperty(newMultiple)
+  }
+
+  override def mergeValue(value: BigInt): MultipleOfProperty = {
+    merge(MultipleOfProperty(Some(value)))
   }
 }

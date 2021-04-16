@@ -9,14 +9,14 @@ import UnitSpec._
 class IntegerSchemaSpec extends UnitSpec {
   behavior of "IntegerSchema"
 
-  private val integerSchema = IntegerSchema(3).merge(IntegerSchema(4)).asInstanceOf[IntegerSchema]
+  private val integerSchema = IntegerSchema(8).merge(IntegerSchema(4)).asInstanceOf[IntegerSchema]
 
   it should "track the maximum length" in {
-    integerSchema.properties should contain (MaxIntValueProperty(Some(4)))
+    integerSchema.properties should contain (MaxIntValueProperty(Some(8)))
   }
 
   it should "track the minimum length" in {
-    integerSchema.properties should contain (MinIntValueProperty(Some(3)))
+    integerSchema.properties should contain (MinIntValueProperty(Some(4)))
   }
 
   it should "track the distinct elements" in {
@@ -26,16 +26,21 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "keep a Bloom filter of observed elements" in {
     val bloomFilterProp = integerSchema.properties.get[IntBloomFilterProperty]
-    bloomFilterProp.bloomFilter.contains(BigInt(3).toByteArray) shouldBe true
+    bloomFilterProp.bloomFilter.contains(BigInt(8).toByteArray) shouldBe true
   }
 
   it should "keep statistics" in {
     val statsProp = integerSchema.properties.get[IntStatsProperty]
-    statsProp.stats.mean shouldBe (BigDecimal(3.5))
+    statsProp.stats.mean shouldBe (BigDecimal(6))
   }
 
   it should "keep examples" in {
     val examplesProp = integerSchema.properties.get[IntExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(List(3, 4))
+    (examplesProp.toJson \ "examples") shouldEqual JArray(List(4, 8))
+  }
+
+  it should "track a common multiple" in {
+    val multipleProp = integerSchema.properties.get[MultipleOfProperty]
+    multipleProp.multiple.value shouldBe (4)
   }
 }
