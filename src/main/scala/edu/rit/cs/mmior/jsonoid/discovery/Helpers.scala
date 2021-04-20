@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
 import scala.annotation.tailrec
+import scala.math.BigDecimal.RoundingMode
 
 import scalaz._
 import Scalaz._
@@ -46,4 +47,16 @@ object Helpers {
   @tailrec
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def gcd(a: BigInt, b: BigInt): BigInt = if (b == 0) a else gcd(b, a % b)
+
+  @tailrec
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def gcd(a: BigDecimal, b: BigDecimal): BigDecimal = {
+    if (a < b) {
+      gcd(b, a)
+    } else if (b < 0.0001) {
+      a
+    } else {
+      gcd(b, a - (a / b).setScale(0, RoundingMode.FLOOR) * b)
+    }
+  }
 }
