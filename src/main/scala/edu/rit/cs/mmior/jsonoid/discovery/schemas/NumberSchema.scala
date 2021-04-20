@@ -8,7 +8,7 @@ import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.HyperLogLog
+import utils.{Histogram, HyperLogLog}
 
 object NumberSchema {
   def apply(value: BigDecimal): NumberSchema = {
@@ -24,6 +24,7 @@ object NumberSchema {
       .add(NumBloomFilterProperty())
       .add(NumStatsProperty())
       .add(NumExamplesProperty())
+      .add(NumHistogramProperty())
 }
 
 final case class NumberSchema(
@@ -70,6 +71,8 @@ final case class NumberSchema(
                 )
               )
             )
+          case IntHistogramProperty(hist) =>
+            props = props.add(NumHistogramProperty(hist))
           case MultipleOfProperty(_) => {}
         }
       }
@@ -208,5 +211,21 @@ final case class NumExamplesProperty(
 
   override def mergeValue(value: BigDecimal): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(ExamplesProperty(value)))
+  }
+}
+
+final case class NumHistogramProperty(
+    histogram: Histogram = Histogram()
+) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
+  override def toJson: JObject = ("histogram" -> histogram.bins.map(_.toList))
+
+  override def merge(
+      otherProp: NumHistogramProperty
+  ): NumHistogramProperty = {
+    NumHistogramProperty(histogram.merge(otherProp.histogram))
+  }
+
+  override def mergeValue(value: BigDecimal): NumHistogramProperty = {
+    NumHistogramProperty(histogram.merge(Histogram(List((value, 1)))))
   }
 }

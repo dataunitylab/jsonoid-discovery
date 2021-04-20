@@ -43,4 +43,9 @@ class IntegerSchemaSpec extends UnitSpec {
     val multipleProp = integerSchema.properties.get[MultipleOfProperty]
     multipleProp.multiple.value shouldBe (4)
   }
+
+  it should "keep a running histogram" in {
+    val histProp = integerSchema.properties.get[IntHistogramProperty]
+    histProp.histogram.bins shouldBe List((4, 1), (8, 1))
+  }
 }

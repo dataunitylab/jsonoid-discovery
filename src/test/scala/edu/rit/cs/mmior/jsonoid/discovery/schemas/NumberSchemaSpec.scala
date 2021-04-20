@@ -41,6 +41,11 @@ class NumberSchemaSpec extends UnitSpec {
     (examplesProp.toJson \ "examples") shouldEqual JArray(List(BigDecimal(3.14), BigDecimal(4.28)))
   }
 
+  it should "keep a running histogram" in {
+    val histProp = numberSchema.properties.get[NumHistogramProperty]
+    histProp.histogram.bins shouldBe List((3.14, 1), (4.28, 1))
+  }
+
   it should "track the maximum value when merged with an integer schema" in {
     mixedSchema.properties should contain (MaxNumValueProperty(Some(5)))
   }
@@ -67,5 +72,10 @@ class NumberSchemaSpec extends UnitSpec {
   it should "keep examples when merged with an integer schema" in {
     val examplesProp = mixedSchema.properties.get[NumExamplesProperty]
     (examplesProp.toJson \ "examples") shouldEqual JArray(List(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5)))
+  }
+
+  it should "keep a running histogram when merged with an integer schema" in {
+    val histProp = mixedSchema.properties.get[NumHistogramProperty]
+    histProp.histogram.bins shouldBe List((3.14, 1), (4.28, 1), (5, 1))
   }
 }

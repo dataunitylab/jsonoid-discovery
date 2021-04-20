@@ -8,7 +8,7 @@ import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.HyperLogLog
+import utils.{Histogram, HyperLogLog}
 
 object IntegerSchema {
   def apply(value: BigInt): IntegerSchema = {
@@ -25,6 +25,7 @@ object IntegerSchema {
       .add(IntStatsProperty())
       .add(IntExamplesProperty())
       .add(MultipleOfProperty())
+      .add(IntHistogramProperty())
 }
 
 final case class IntegerSchema(
@@ -176,5 +177,23 @@ final case class MultipleOfProperty(multiple: Option[BigInt] = None)
 
   override def mergeValue(value: BigInt): MultipleOfProperty = {
     merge(MultipleOfProperty(Some(value)))
+  }
+}
+
+final case class IntHistogramProperty(
+    histogram: Histogram = Histogram()
+) extends SchemaProperty[BigInt, IntHistogramProperty] {
+  override def toJson: JObject = ("histogram" -> histogram.bins.map(_.toList))
+
+  override def merge(
+      otherProp: IntHistogramProperty
+  ): IntHistogramProperty = {
+    IntHistogramProperty(histogram.merge(otherProp.histogram))
+  }
+
+  override def mergeValue(value: BigInt): IntHistogramProperty = {
+    IntHistogramProperty(
+      histogram.merge(Histogram(List((BigDecimal(value), 1))))
+    )
   }
 }
