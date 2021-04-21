@@ -183,7 +183,11 @@ final case class MultipleOfProperty(multiple: Option[BigInt] = None)
 final case class IntHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[BigInt, IntHistogramProperty] {
-  override def toJson: JObject = ("histogram" -> histogram.bins.map(_.toList))
+  override def toJson: JObject = {
+    ("histogram" -> histogram.bins.map { case (value, count) =>
+      List(value.doubleValue, count.longValue)
+    })
+  }
 
   override def merge(
       otherProp: IntHistogramProperty

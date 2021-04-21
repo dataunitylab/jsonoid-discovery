@@ -217,7 +217,11 @@ final case class NumExamplesProperty(
 final case class NumHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
-  override def toJson: JObject = ("histogram" -> histogram.bins.map(_.toList))
+  override def toJson: JObject = {
+    ("histogram" -> histogram.bins.map { case (value, count) =>
+      List(value.doubleValue, count.longValue)
+    })
+  }
 
   override def merge(
       otherProp: NumHistogramProperty
