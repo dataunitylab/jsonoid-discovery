@@ -1,3 +1,4 @@
 .bsp/
+.metals/
 target/
 .env
