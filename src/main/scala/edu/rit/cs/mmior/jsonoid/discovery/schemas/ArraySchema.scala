@@ -21,6 +21,7 @@ object ArraySchema {
       .add(ItemTypeProperty())
       .add(MinArrayLengthProperty())
       .add(MaxArrayLengthProperty())
+      .add(UniqueProperty())
 }
 
 final case class ArraySchema(
@@ -119,5 +120,40 @@ final case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
       value: List[JsonSchema[_]]
   ): MaxArrayLengthProperty = {
     MaxArrayLengthProperty(maxOrNone(Some(value.length), maxLength))
+  }
+}
+
+final case class UniqueProperty(unique: Boolean = true)
+    extends SchemaProperty[List[JsonSchema[_]], UniqueProperty] {
+  override def toJson: JObject = if (unique) {
+    ("uniqueItems" -> true)
+  } else {
+    // Since we only check uniqueness for primitive types, we may
+    // have some false negatives, so we omit the property here
+    Nil
+  }
+
+  override def merge(
+      otherProp: UniqueProperty
+  ): UniqueProperty = {
+    UniqueProperty(unique && otherProp.unique)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def mergeValue(
+      value: List[JsonSchema[_]]
+  ): UniqueProperty = {
+    // Use the examples property to check uniqueness
+    val examples = value.fold(ZeroSchema())(_.merge(_)) match {
+      case IntegerSchema(props) =>
+        props.get[IntExamplesProperty].examples.examples
+      case NumberSchema(props) =>
+        props.get[NumExamplesProperty].examples.examples
+      case StringSchema(props) =>
+        props.get[StringExamplesProperty].examples.examples
+      case _ => List()
+    }
+
+    merge(UniqueProperty(examples.length == value.length))
   }
 }
