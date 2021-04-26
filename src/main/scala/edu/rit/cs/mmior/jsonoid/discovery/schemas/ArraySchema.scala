@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.language.existentials
+
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -33,20 +35,46 @@ final case class ArraySchema(
   }
 }
 
-final case class ItemTypeProperty(itemType: JsonSchema[_] = ZeroSchema())
-    extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
-  override def toJson: JObject = ("items" -> itemType.toJson)
+final case class ItemTypeProperty(
+    itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
+) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
+  override def toJson: JObject = ("items" -> (itemType match {
+    case Left(schema)   => schema.toJson
+    case Right(schemas) => JArray(schemas.map(_.toJson))
+  }))
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def merge(
       otherProp: ItemTypeProperty
   ): ItemTypeProperty = {
-    ItemTypeProperty(
-      itemType.merge(otherProp.itemType)
-    )
+    val newType = (itemType, otherProp.itemType) match {
+      case (Right(schema1), Right(schema2)) =>
+        if (schema1.length == schema2.length) {
+          // Merge tuple schemas that are the same length
+          Right((schema1 zip schema2).map(_.fold(_.merge(_))))
+        } else {
+          // Tuple schemas are different length, so convert to list
+          Left((schema1 ++ schema2).fold(ZeroSchema())(_.merge(_)))
+        }
+
+      // Merge two list schemas
+      case (Left(schema1), Left(schema2)) => Left(schema1.merge(schema2))
+
+      // When merging with ZeroSchema, stay as a tuple
+      case (Left(_: ZeroSchema), Right(schema2)) => Right(schema2)
+      case (Right(schema1), Left(_: ZeroSchema)) => Right(schema1)
+
+      // Otherwise, when merging a list and tuple schema, convert to list
+      case (Left(schema1), Right(schema2)) =>
+        Left((schema1 :: schema2).fold(ZeroSchema())(_.merge(_)))
+      case (Right(schema1), Left(schema2)) =>
+        Left((schema2 :: schema1).fold(ZeroSchema())(_.merge(_)))
+    }
+    ItemTypeProperty(newType)
   }
 
   override def mergeValue(value: List[JsonSchema[_]]): ItemTypeProperty = {
-    ItemTypeProperty(value.fold(itemType)(_.merge(_)))
+    merge(ItemTypeProperty(Right(value)))
   }
 }
 

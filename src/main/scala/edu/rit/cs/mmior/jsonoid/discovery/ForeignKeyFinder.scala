@@ -19,9 +19,14 @@ object ForeignKeyFinder {
           collectFiltersWithPrefix(prefix + "." + key, props(key))
         )
       case a: ArraySchema =>
+        val arrayType = a.properties.get[ItemTypeProperty].itemType match {
+          case Left(singleSchema) => singleSchema
+          case Right(multipleSchemas) =>
+            multipleSchemas.fold(ZeroSchema())(_.merge(_))
+        }
         collectFiltersWithPrefix(
           prefix + "[*]",
-          a.properties.get[ItemTypeProperty].itemType
+          arrayType
         )
       case i: IntegerSchema =>
         Seq((prefix, i.properties.get[IntBloomFilterProperty].bloomFilter))
