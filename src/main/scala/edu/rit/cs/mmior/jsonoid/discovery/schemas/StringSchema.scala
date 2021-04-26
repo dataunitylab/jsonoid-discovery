@@ -1,6 +1,11 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import java.net.URI
+import java.time.{LocalDate, OffsetDateTime, OffsetTime}
+import scala.util.matching.Regex
+import scala.util.Try
+
 import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
@@ -23,6 +28,7 @@ object StringSchema {
       .add(StringHyperLogLogProperty())
       .add(StringBloomFilterProperty())
       .add(StringExamplesProperty())
+      .add(FormatProperty())
 }
 
 final case class StringSchema(
@@ -134,5 +140,59 @@ final case class StringExamplesProperty(
 
   override def mergeValue(value: String): StringExamplesProperty = {
     StringExamplesProperty(examples.merge(ExamplesProperty(value)))
+  }
+}
+
+object FormatProperty {
+  def regex(expr: Regex): Function1[String, Boolean] = { str =>
+    !expr.anchored.findFirstIn(str.trim).isEmpty
+  }
+
+  val FormatCheckers: Map[String, Function1[String, Boolean]] = Map(
+    ("date", str => Try { LocalDate.parse(str) }.isSuccess),
+    ("date-time", str => Try { OffsetDateTime.parse(str) }.isSuccess),
+    ("time", str => Try { OffsetTime.parse(str) }.isSuccess),
+    ("uri", str => Try { new URI(str).getScheme().length > 0 }.isSuccess),
+    ("email", regex("(?=[^\\s]+)(?=(\\w+)@([\\w\\.]+))".r)),
+    (
+      "ipv4",
+      regex(
+        "(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)".r
+      )
+    ),
+    (
+      "ipv6",
+      regex(
+        "^(?:(?:(?:[a-fA-F0-9]{1,4}:){6}|(?=(?:[A-F0-9]{0,4}:){0,6}(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$)(([0-9a-fA-F]{1,4}:){0,5}|:)((:[0-9a-fA-F]{1,4}){1,5}:|:))(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|(?:[a-fA-F0-9]{1,4}:){7}[a-fA-F0-9]{1,4}|(?=(?:[a-fA-F0-9]{0,4}:){0,7}[a-fA-F0-9]{0,4}$)(([0-9a-fA-F]{1,4}:){1,7}|:)((:[0-9a-fA-F]{1,4}){1,7}|:))$".r
+      )
+    )
+  )
+}
+
+final case class FormatProperty(
+    formats: Map[String, BigInt] = Map.empty[String, BigInt]
+) extends SchemaProperty[String, FormatProperty] {
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  override def toJson: JObject = if (formats.isEmpty) {
+    Nil
+  } else {
+    ("format" -> formats.maxBy(_._2)._1)
+  }
+
+  override def merge(
+      otherProp: FormatProperty
+  ): FormatProperty = {
+    val merged = formats.toSeq ++ otherProp.formats.toSeq
+    val grouped = merged.groupBy(_._1)
+    FormatProperty(grouped.mapValues(_.map(_._2).sum).map(identity).toMap)
+  }
+
+  override def mergeValue(value: String): FormatProperty = {
+    FormatProperty.FormatCheckers.toSeq.find { case (format, fn) =>
+      fn(value)
+    } match {
+      case Some(format) => merge(FormatProperty(Map((format._1, 1))))
+      case None         => this
+    }
   }
 }
