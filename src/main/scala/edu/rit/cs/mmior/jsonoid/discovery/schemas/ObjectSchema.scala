@@ -17,6 +17,7 @@ object ObjectSchema {
       .add(ObjectTypesProperty())
       .add(FieldPresenceProperty())
       .add(RequiredProperty())
+      .add(DependenciesProperty())
 }
 
 final case class ObjectSchema(
@@ -105,5 +106,75 @@ final case class RequiredProperty(
       value: Map[String, JsonSchema[_]]
   ): RequiredProperty = {
     RequiredProperty(intersectOrNone(Some(value.keySet), required))
+  }
+}
+
+object DependenciesProperty {
+  val MaxProperties: Int = 50
+}
+
+final case class DependenciesProperty(
+    totalCount: BigInt = 0,
+    counts: Map[String, BigInt] = Map.empty,
+    cooccurrence: Map[(String, String), BigInt] = Map.empty,
+    overloaded: Boolean = false
+) extends SchemaProperty[Map[String, JsonSchema[_]], DependenciesProperty] {
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def toJson: JObject = ("dependencies" ->
+    // Use cooccurrence count to check dependencies in both directions,
+    // excluding cases where properties are required (count is totalCount)
+    cooccurrence.toSeq
+      .flatMap { case ((key1, key2), count) =>
+        (if (counts(key1) == count && count != totalCount) {
+           List((key1, key2))
+         } else {
+           List()
+         }) ++ (if (counts(key2) == count && count != totalCount) {
+                  List((key2, key1))
+                } else {
+                  List()
+                })
+      }
+      .groupBy(_._1)
+      .mapValues(_.map(_._2))
+      .map(identity))
+
+  override def merge(
+      otherProp: DependenciesProperty
+  ): DependenciesProperty = {
+    val mergedCounts = (counts.toSeq ++ otherProp.counts.toSeq)
+      .groupBy(_._1)
+      .mapValues(_.map(_._2).sum)
+      .map(identity)
+      .toMap
+    val mergedCooccurrence =
+      (cooccurrence.toSeq ++ otherProp.cooccurrence.toSeq)
+        .groupBy(_._1)
+        .mapValues(_.map(_._2).sum)
+        .map(identity)
+        .toMap
+    DependenciesProperty(
+      totalCount + otherProp.totalCount,
+      mergedCounts,
+      mergedCooccurrence
+    )
+  }
+
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  ): DependenciesProperty = {
+    if (overloaded || value.size > DependenciesProperty.MaxProperties) {
+      // If we have too many properties on any object, give up
+      DependenciesProperty(overloaded = true)
+    } else {
+      val counts = value.keySet.map(_ -> BigInt(1)).toMap
+      val cooccurrence = value.keySet.toSeq
+        .combinations(2)
+        .map(_.sorted match {
+          case Seq(a, b) => (a, b) -> BigInt(1)
+        })
+        .toMap
+      merge(DependenciesProperty(1, counts, cooccurrence))
+    }
   }
 }
