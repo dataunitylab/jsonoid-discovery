@@ -120,10 +120,10 @@ final case class DependenciesProperty(
     overloaded: Boolean = false
 ) extends SchemaProperty[Map[String, JsonSchema[_]], DependenciesProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject = ("dependencies" ->
+  override def toJson: JObject =  {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
-    cooccurrence.toSeq
+    val dependencies = cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
         (if (counts(key1) == count && count != totalCount) {
            List((key1, key2))
@@ -137,7 +137,14 @@ final case class DependenciesProperty(
       }
       .groupBy(_._1)
       .mapValues(_.map(_._2))
-      .map(identity))
+      .map(identity)
+
+    if (dependencies.isEmpty) {
+      Nil
+    } else {
+      ("dependencies" -> dependencies)
+    }
+  }
 
   override def merge(
       otherProp: DependenciesProperty
