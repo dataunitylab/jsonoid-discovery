@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import org.json4s.{DefaultFormats, Formats}
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -8,6 +9,8 @@ import UnitSpec._
 
 class StringSchemaSpec extends UnitSpec {
   behavior of "StringSchema"
+
+  implicit val formats: Formats = DefaultFormats
 
   private val stringSchema = StringSchema("foo").properties.mergeValue("foobar")
 
@@ -37,43 +40,43 @@ class StringSchemaSpec extends UnitSpec {
   it should "detect the IPv4 format" in {
     val ipSchema = StringSchema("127.0.0.1")
     val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("ipv4")
+    (formatProp.toJson \ "format").extract[String] shouldBe "ipv4"
   }
 
   it should "detect the IPv6 format" in {
     val ipSchema = StringSchema("::1")
     val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("ipv6")
+    (formatProp.toJson \ "format").extract[String] shouldBe "ipv6"
   }
 
   it should "detect the email format" in {
     val ipSchema = StringSchema("foo@bar.com")
     val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("email")
+    (formatProp.toJson \ "format").extract[String] shouldBe "email"
   }
 
   it should "detect the uri format" in {
     val ipSchema = StringSchema("http://example.com")
     val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("uri")
+    (formatProp.toJson \ "format").extract[String] shouldBe "uri"
   }
 
   it should "detect the date format" in {
     val dateSchema = StringSchema("2008-11-13")
     val formatProp = dateSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("date")
+    (formatProp.toJson \ "format").extract[String] shouldBe "date"
   }
 
   it should "detect the date-time format" in {
     val dateTimeSchema = StringSchema("2018-11-13T20:20:39+00:00")
     val formatProp = dateTimeSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("date-time")
+    (formatProp.toJson \ "format").extract[String] shouldBe "date-time"
   }
 
   it should "detect the time format" in {
     val timeSchema = StringSchema("20:20:39+00:00")
     val formatProp = timeSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JString("time")
+    (formatProp.toJson \ "format").extract[String] shouldBe "time"
   }
 
   it should "not assign a format to normal text" in {
