@@ -1,10 +1,15 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import org.json4s.{DefaultFormats, Formats}
+import org.json4s._
+
 import UnitSpec._
 
 class ProductSchemaSpec extends UnitSpec {
   behavior of "ProductSchema"
+
+  implicit val formats: Formats = DefaultFormats
 
   private val schema1 = BooleanSchema()
   private val schema2 = IntegerSchema()
@@ -20,5 +25,11 @@ class ProductSchemaSpec extends UnitSpec {
   it should "merge all types in multiple ProductSchemas" in {
     ProductSchema(schema3).merge(productSchema1).properties should contain (ProductSchemaTypesProperty(Map(
       schema1.getClass -> schema1, schema2.getClass -> schema2, schema3.getClass -> schema3)))
+  }
+
+  it should "convert to JSON using anyOf" in {
+    val anyTypes = (productSchema1.toJson \ "anyOf").extract[JArray]
+    ((anyTypes \ "type")(0).extract[String] shouldBe "boolean").asInstanceOf[Unit]
+    (anyTypes \ "type")(1).extract[String] shouldBe "integer"
   }
 }
