@@ -15,5 +15,13 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
 
   def mergeValue(value: T): S
 
+  // This must be implemented for any property which contains schema objects
+  // Currently this is only three properties:
+  // * ObjectTypesProperty in ObjectSchema
+  // * ItemTypeProperty in ArraySchema
+  // * ProductSchemaTypesProperty in ProductSchema
+  def transform(transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]): S =
+    this.asInstanceOf[S]
+
   def toJson: JObject
 }

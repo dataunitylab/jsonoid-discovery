@@ -32,6 +32,11 @@ final case class ObjectSchema(
     case other @ ObjectSchema(otherProperties) =>
       ObjectSchema(properties.merge(otherProperties))
   }
+
+  override def copy(
+      properties: SchemaProperties[Map[String, JsonSchema[_]]]
+  ): ObjectSchema =
+    ObjectSchema(properties)
 }
 
 final case class ObjectTypesProperty(
@@ -40,6 +45,14 @@ final case class ObjectTypesProperty(
   override def toJson: JObject = ("properties" -> objectTypes.map {
     case (propType, schema) => (propType -> schema.toJson)
   }) ~ ("additionalProperties" -> false)
+
+  override def transform(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): ObjectTypesProperty = {
+    ObjectTypesProperty(
+      objectTypes.mapValues(transformer(_)).map(identity).toMap
+    )
+  }
 
   override def merge(
       otherProp: ObjectTypesProperty
@@ -120,7 +133,7 @@ final case class DependenciesProperty(
     overloaded: Boolean = false
 ) extends SchemaProperty[Map[String, JsonSchema[_]], DependenciesProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject =  {
+  override def toJson: JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
     val dependencies = cooccurrence.toSeq

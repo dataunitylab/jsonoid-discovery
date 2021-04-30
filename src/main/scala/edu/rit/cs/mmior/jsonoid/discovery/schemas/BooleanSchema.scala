@@ -20,4 +20,7 @@ final case class BooleanSchema(
     case other @ BooleanSchema(otherProperties) =>
       BooleanSchema(properties.merge(otherProperties))
   }
+
+  override def copy(properties: SchemaProperties[Boolean]): BooleanSchema =
+    BooleanSchema(properties)
 }

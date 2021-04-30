@@ -41,6 +41,9 @@ final case class StringSchema(
     case other @ StringSchema(otherProperties) =>
       StringSchema(properties.merge(otherProperties))
   }
+
+  override def copy(properties: SchemaProperties[String]): StringSchema =
+    StringSchema(properties)
 }
 
 final case class MinLengthProperty(minLength: Option[Int] = None)

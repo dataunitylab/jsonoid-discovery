@@ -9,4 +9,7 @@ final case class ZeroSchema(
   def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case _ @other => other
   }
+
+  override def copy(properties: SchemaProperties[Nothing]): ZeroSchema =
+    ZeroSchema(properties)
 }

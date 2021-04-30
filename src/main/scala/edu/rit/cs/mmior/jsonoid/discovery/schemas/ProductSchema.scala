@@ -36,6 +36,11 @@ final case class ProductSchema(
       case _                   => ProductSchema(this.properties.mergeValue(other))
     }
   }
+
+  override def copy(
+      properties: SchemaProperties[JsonSchema[_]]
+  ): ProductSchema =
+    ProductSchema(properties)
 }
 
 final case class ProductSchemaTypesProperty(
@@ -44,6 +49,19 @@ final case class ProductSchemaTypesProperty(
       .withDefaultValue(ZeroSchema())
 ) extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject = ("anyOf" -> schemaTypes.values.map(_.toJson))
+
+  override def transform(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): ProductSchemaTypesProperty = {
+    ProductSchemaTypesProperty(
+      schemaTypes
+        .map { case (cls, schema) => (cls, transformer(schema)) }
+        .groupBy(_._1)
+        .mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_)))
+        .map(identity)
+        .toMap
+    )
+  }
 
   override def merge(
       otherProp: ProductSchemaTypesProperty

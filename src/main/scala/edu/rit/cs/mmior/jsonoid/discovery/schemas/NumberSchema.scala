@@ -80,6 +80,9 @@ final case class NumberSchema(
       NumberSchema(properties.merge(props))
     }
   }
+
+  override def copy(properties: SchemaProperties[BigDecimal]): NumberSchema =
+    NumberSchema(properties)
 }
 
 final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)

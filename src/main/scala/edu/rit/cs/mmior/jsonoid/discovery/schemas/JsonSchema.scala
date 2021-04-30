@@ -31,4 +31,12 @@ trait JsonSchema[T] {
   def merge(other: JsonSchema[_]): JsonSchema[_] = {
     mergeSameType.orElse(createProduct).apply(other)
   }
+
+  def copy(properties: SchemaProperties[T]): JsonSchema[_]
+
+  def transformProperties(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): JsonSchema[_] = {
+    copy(properties.transform(transformer))
+  }
 }

@@ -48,4 +48,16 @@ final case class SchemaProperties[T](
     }
     SchemaProperties(mergedProperties.asInstanceOf[PropertyMap[T]])
   }
+
+  def transform(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): SchemaProperties[T] = {
+    SchemaProperties(
+      properties
+        .mapValues(_.transform(transformer.orElse { case x =>
+          x.transformProperties(transformer)
+        }))
+        .asInstanceOf[PropertyMap[T]]
+    )
+  }
 }

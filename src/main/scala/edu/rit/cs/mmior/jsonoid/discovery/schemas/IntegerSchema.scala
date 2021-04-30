@@ -39,6 +39,9 @@ final case class IntegerSchema(
       IntegerSchema(properties.merge(otherProperties))
     case other: NumberSchema => other.mergeSameType(this)
   }
+
+  override def copy(properties: SchemaProperties[BigInt]): IntegerSchema =
+    IntegerSchema(properties)
 }
 
 final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)

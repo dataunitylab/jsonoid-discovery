@@ -73,7 +73,7 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        val schema = discover(jsons)
+        val schema = EnumTransformer.transformSchema(discover(jsons))
         val schemaObj: JObject =
           ("$schema" -> "https://json-schema.org/draft/2019-09/schema")
         println(compact(render(schema.toJson.merge(schemaObj))))

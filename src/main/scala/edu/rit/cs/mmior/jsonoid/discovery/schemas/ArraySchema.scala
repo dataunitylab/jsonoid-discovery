@@ -34,6 +34,11 @@ final case class ArraySchema(
     case other @ ArraySchema(otherProperties) =>
       ArraySchema(properties.merge(otherProperties))
   }
+
+  override def copy(
+      properties: SchemaProperties[List[JsonSchema[_]]]
+  ): ArraySchema =
+    ArraySchema(properties)
 }
 
 final case class ItemTypeProperty(
@@ -43,6 +48,15 @@ final case class ItemTypeProperty(
     case Left(schema)   => schema.toJson
     case Right(schemas) => JArray(schemas.map(_.toJson))
   }))
+
+  override def transform(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): ItemTypeProperty = {
+    ItemTypeProperty(itemType match {
+      case Left(singleType) => Left(transformer(singleType))
+      case Right(typeList)  => Right(typeList.map(transformer(_)))
+    })
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def merge(
