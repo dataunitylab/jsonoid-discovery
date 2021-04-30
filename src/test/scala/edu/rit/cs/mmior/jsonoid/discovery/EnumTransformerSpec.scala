@@ -9,23 +9,36 @@ class EnumTransformerSpec extends UnitSpec {
 
   implicit val formats: Formats = DefaultFormats
 
-  it should "convert single examples to constants" in {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
-    var stringSchema: JsonSchema[_] = StringSchema("foo")
-    for (_ <- 1 to 4) { stringSchema = stringSchema.merge(stringSchema) }
+  def schemaWithOneValue[T](schema: JsonSchema[T], value: T) {
+    it should s"convert single examples to constants for ${schema.getClass.getSimpleName}" in {
+      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+      var valueSchema: JsonSchema[_] = schema
+      for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
 
-    val transformedSchema = EnumTransformer.transformSchema(ObjectSchema(Map(("foo", stringSchema))))
+      val transformedSchema = EnumTransformer.transformSchema(ObjectSchema(Map(("foo", valueSchema))))
 
-    (transformedSchema.toJson \ "properties" \ "foo").extract[Map[String, String]] shouldBe Map(("const", "foo"))
+      (transformedSchema.toJson \ "properties" \ "foo").extract[Map[String, String]] shouldBe Map(("const", value.toString))
+    }
   }
 
-  it should "convert multiple examples to enums" in {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
-    var stringSchema: JsonSchema[_] = StringSchema("foo").merge(StringSchema("bar"))
-    for (_ <- 1 to 4) { stringSchema = stringSchema.merge(stringSchema) }
+  schemaWithOneValue(IntegerSchema(1337), BigInt(1337))
+  schemaWithOneValue(NumberSchema(3.14),  BigDecimal(3.14))
+  schemaWithOneValue(StringSchema("foo"), "foo")
 
-    val transformedSchema = EnumTransformer.transformSchema(ObjectSchema(Map(("foo", stringSchema))))
 
-    (transformedSchema.toJson \ "properties" \ "foo").extract[Map[String, Set[String]]] shouldBe Map(("enum", Set("bar", "foo")))
+  def schemaWithMultipleValues[T](schema: JsonSchema[T], values: Set[T]) {
+    it should s"convert multiple examples to enums for ${schema.getClass.getSimpleName}" in {
+      @SuppressWarnings(Array("org.wartremover.warts.Var"))
+      var valueSchema: JsonSchema[_] = schema
+      for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
+
+      val transformedSchema = EnumTransformer.transformSchema(ObjectSchema(Map(("foo", valueSchema))))
+
+      (transformedSchema.toJson \ "properties" \ "foo").extract[Map[String, Set[String]]] shouldBe Map(("enum", values.map(_.toString)))
+    }
   }
+
+  schemaWithMultipleValues(IntegerSchema(1).merge(IntegerSchema(2)).asInstanceOf[IntegerSchema],      Set(BigInt(1), BigInt(2)))
+  schemaWithMultipleValues(NumberSchema(2.4).merge(NumberSchema(3.6)).asInstanceOf[NumberSchema],     Set(BigDecimal(2.4), BigDecimal(3.6)))
+  schemaWithMultipleValues(StringSchema("foo").merge(StringSchema("bar")).asInstanceOf[StringSchema], Set("foo", "bar"))
 }
