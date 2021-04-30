@@ -9,9 +9,21 @@ import Helpers._
 
 object ExamplesProperty {
   val MaxExamples: Int = 100
+
   val MaxStringLength: Int = 100
+
   def apply[T](value: T): ExamplesProperty[T] = {
-    ExamplesProperty[T](List(value))
+    ExamplesProperty[T](List(sampleValue(value)), 1)
+  }
+
+  def sampleValue[T](value: T): T = value match {
+    case strVal: String =>
+      if (strVal.length > ExamplesProperty.MaxStringLength) {
+        (strVal.take(ExamplesProperty.MaxStringLength) + "…").asInstanceOf[T]
+      } else {
+        strVal.asInstanceOf[T]
+      }
+    case _ => value
   }
 }
 
@@ -24,15 +36,7 @@ final case class ExamplesProperty[T](
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def mergeValue(value: T): ExamplesProperty[T] = {
     // Only keep the first ExamplesProperty.MaxStringLength characters of strings
-    val sampleValue = value match {
-      case strVal: String =>
-        if (strVal.length > ExamplesProperty.MaxStringLength) {
-          (strVal.take(ExamplesProperty.MaxStringLength) + "…").asInstanceOf[T]
-        } else {
-          strVal
-        }
-      case _ => value
-    }
+    val sampleValue = ExamplesProperty.sampleValue(value)
 
     // Fill the reservoir with examples
     var newSampleW = sampleW
