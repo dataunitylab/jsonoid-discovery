@@ -51,6 +51,7 @@ object DiscoverSchema {
     source.getLines().map(parse(_)).toSeq
   }
 
+  // $COVERAGE-OFF$ No automated testing of CLI
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
@@ -80,4 +81,5 @@ object DiscoverSchema {
       case None =>
     }
   }
+  // $COVERAGE-ON$
 }
