@@ -138,11 +138,19 @@ final case class DependenciesProperty(
     // excluding cases where properties are required (count is totalCount)
     val dependencies = cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
-        (if (counts(key1) == count && count != totalCount) {
+        (if (
+           counts(key1) == count && count != totalCount && counts(
+             key2
+           ) != totalCount
+         ) {
            List((key1, key2))
          } else {
            List()
-         }) ++ (if (counts(key2) == count && count != totalCount) {
+         }) ++ (if (
+                  counts(key2) == count && count != totalCount && counts(
+                    key1
+                  ) != totalCount
+                ) {
                   List((key2, key1))
                 } else {
                   List()
