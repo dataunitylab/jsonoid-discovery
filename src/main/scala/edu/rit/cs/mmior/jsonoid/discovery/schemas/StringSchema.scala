@@ -3,6 +3,7 @@ package schemas
 
 import java.net.URI
 import java.time.{LocalDate, OffsetDateTime, OffsetTime}
+import java.util.UUID
 import scala.util.matching.Regex
 import scala.util.Try
 
@@ -156,6 +157,7 @@ object FormatProperty {
     ("date-time", str => Try { OffsetDateTime.parse(str) }.isSuccess),
     ("time", str => Try { OffsetTime.parse(str) }.isSuccess),
     ("uri", str => Try { new URI(str).getScheme().length > 0 }.isSuccess),
+    ("uuid", str => Try { UUID.fromString(str) }.isSuccess),
     ("email", regex("(?=[^\\s]+)(?=(\\w+)@([\\w\\.]+))".r)),
     (
       "ipv4",

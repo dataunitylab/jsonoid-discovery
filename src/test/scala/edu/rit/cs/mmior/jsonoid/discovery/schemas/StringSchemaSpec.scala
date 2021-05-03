@@ -79,6 +79,12 @@ class StringSchemaSpec extends UnitSpec {
     (formatProp.toJson \ "format").extract[String] shouldBe "time"
   }
 
+  it should "detect the uuid format" in {
+    val timeSchema = StringSchema("01020304-0506-0708-090a-0b0c0d0e0f10")
+    val formatProp = timeSchema.properties.get[FormatProperty]
+    (formatProp.toJson \ "format").extract[String] shouldBe "uuid"
+  }
+
   it should "not assign a format to normal text" in {
     val formatProp = stringSchema.get[FormatProperty]
     (formatProp.toJson \ "format") shouldBe JNothing
