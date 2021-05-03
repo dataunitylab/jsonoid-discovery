@@ -6,6 +6,7 @@ import schemas._
 
 object EnumTransformer {
   val EnumRatio: Int = 10
+  val MaxValues: Int = 50
 
   def transformSchema(schema: JsonSchema[_]): JsonSchema[_] = {
     schema.transformProperties {
@@ -27,9 +28,8 @@ object EnumTransformer {
   ): Option[JsonSchema[_]] = {
     val distinctExamples = examples.examples.distinct
     if (
-      examples.totalExamples < ExamplesProperty.MaxExamples &&
       examples.totalExamples > (distinctExamples.length *
-        EnumTransformer.EnumRatio)
+        EnumTransformer.EnumRatio) && distinctExamples.length < EnumTransformer.MaxValues
     ) {
       Some(EnumSchema(distinctExamples.map(exampleTransformer)))
     } else {

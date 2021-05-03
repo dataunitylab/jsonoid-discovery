@@ -41,7 +41,9 @@ final case class ExamplesProperty[T](
     // Fill the reservoir with examples
     var newSampleW = sampleW
     var newNextSample = nextSample
-    val newExamples = if (examples.length < ExamplesProperty.MaxExamples) {
+    val newExamples = if (examples.contains(sampleValue)) {
+      examples
+    } else if (examples.length < ExamplesProperty.MaxExamples) {
       sampleValue :: examples
     } else if ((totalExamples + 1) <= nextSample) {
       // Use Algorithm L to determine the next sample to take
@@ -87,7 +89,7 @@ final case class ExamplesProperty[T](
     }
 
     ExamplesProperty(
-      newExamples.toList,
+      newExamples.toList.distinct,
       totalExamples + other.totalExamples,
       nextSample + other.nextSample,
       0
