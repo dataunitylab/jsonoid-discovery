@@ -39,7 +39,12 @@ final case class EnumValuesProperty(values: List[JValue] = List.empty)
   override def toJson: JObject = if (values.length == 1) {
     ("const" -> values(0))
   } else {
-    ("enum" -> values)
+    val sortedValues = if (values(0).isInstanceOf[JString]) {
+      values.asInstanceOf[List[JString]].sortBy(_.s)
+    } else {
+      values
+    }
+    ("enum" -> sortedValues)
   }
 
   override def merge(otherProp: EnumValuesProperty): EnumValuesProperty = {
