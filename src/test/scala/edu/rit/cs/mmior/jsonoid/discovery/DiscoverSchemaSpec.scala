@@ -13,8 +13,8 @@ class DiscoverSchemaSpec extends UnitSpec {
   behavior of "DiscoverSchema"
 
   it should "produce a product schema" in {
-    val schema = DiscoverSchema.discover(Seq(JBool(true), JString("foo")))
-    DiscoverSchema.discover(Seq(JBool(true), JString("foo"))) shouldBe a [ProductSchema]
+    val schema = DiscoverSchema.discover(Seq(JBool(true), JString("foo")).iterator)
+    DiscoverSchema.discover(Seq(JBool(true), JString("foo")).iterator) shouldBe a [ProductSchema]
   }
 
   it should "produce an array schema" in {
@@ -66,12 +66,13 @@ class DiscoverSchemaSpec extends UnitSpec {
 
     forAll(files) { filename: String =>
       val url = getClass.getResource(filename)
-      val input = DiscoverSchema.jsonFromSource(Source.fromURL(url))
+      val input = DiscoverSchema.jsonFromSource(Source.fromURL(url)).buffered
+      val firstDoc = input.head
       val schema = DiscoverSchema.discover(input)
       val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
       val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
 
-      val errors = jsonSchema.validate(asJsonNode(input(0)))
+      val errors = jsonSchema.validate(asJsonNode(firstDoc))
       errors shouldBe empty
     }
   }

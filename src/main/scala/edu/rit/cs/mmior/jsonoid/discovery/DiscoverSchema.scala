@@ -15,7 +15,7 @@ final case class Config(
 )
 
 object DiscoverSchema {
-  def discover(jsons: Seq[JValue]): JsonSchema[_] = {
+  def discover(jsons: Iterator[JValue]): JsonSchema[_] = {
     jsons.map(discoverFromValue(_)).fold(ZeroSchema())(_.merge(_))
   }
 
@@ -47,8 +47,8 @@ object DiscoverSchema {
     )
   }
 
-  def jsonFromSource(source: Source): Seq[JValue] = {
-    source.getLines().map(parse(_)).toSeq
+  def jsonFromSource(source: Source): Iterator[JValue] = {
+    source.getLines().map(parse(_))
   }
 
   // $COVERAGE-OFF$ No automated testing of CLI
