@@ -89,4 +89,20 @@ class StringSchemaSpec extends UnitSpec {
     val formatProp = stringSchema.get[FormatProperty]
     (formatProp.toJson \ "format") shouldBe JNothing
   }
+
+  it should "should find common prefixes" in {
+    @SuppressWarnings(Array("org.wartremover.warts.Var"))
+    var prefixSchema = StringSchema("foobar").properties
+    for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("foobaz") }
+    val prefixProp = prefixSchema.get[PrefixProperty]
+    (prefixProp.toJson \ "pattern").extract[String] shouldBe "^fooba"
+  }
+
+  it should "should not generate a pattern with no prefixes" in {
+    @SuppressWarnings(Array("org.wartremover.warts.Var"))
+    var randomSchema = StringSchema().properties
+    for (c <- 'a' to 'z') { randomSchema = randomSchema.mergeValue(c.toString) }
+    val prefixProp = randomSchema.get[PrefixProperty]
+    (prefixProp.toJson \ "pattern").extractOpt[String] shouldBe None
+  }
 }

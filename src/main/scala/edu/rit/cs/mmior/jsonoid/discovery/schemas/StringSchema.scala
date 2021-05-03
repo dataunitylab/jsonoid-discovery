@@ -30,6 +30,7 @@ object StringSchema {
       .add(StringBloomFilterProperty())
       .add(StringExamplesProperty())
       .add(FormatProperty())
+      .add(PrefixProperty())
 }
 
 final case class StringSchema(
@@ -199,5 +200,45 @@ final case class FormatProperty(
       case Some(format) => merge(FormatProperty(Map((format._1, 1))))
       case None         => this
     }
+  }
+}
+
+object PrefixProperty {
+  val ReplaceRegex: Regex =
+    ("[" + ".^$()|[]+*?{}".replaceAll(".", "\\\\$0") + "]").r
+  val MinExamples: Int = 10
+}
+
+final case class PrefixProperty(
+    prefix: Option[String] = None,
+    examples: Int = 0
+) extends SchemaProperty[String, PrefixProperty] {
+  override def toJson: JObject = prefix match {
+    case Some("") => Nil
+    case Some(str) if examples >= PrefixProperty.MinExamples =>
+      ("pattern" -> ("^" +
+        PrefixProperty.ReplaceRegex.replaceAllIn(str, "\\\\$0")))
+    case _ => Nil
+  }
+
+  override def merge(
+      otherProp: PrefixProperty
+  ): PrefixProperty = {
+    val newPrefix = (prefix, otherProp.prefix) match {
+      case (Some(str1), Some(str2)) =>
+        Some(
+          (str1, str2).zipped
+            .takeWhile(Function.tupled(_ == _))
+            .map(_._1)
+            .mkString
+        )
+      case (None, x) => x
+      case (x, None) => x
+    }
+    PrefixProperty(newPrefix, examples + otherProp.examples)
+  }
+
+  override def mergeValue(value: String): PrefixProperty = {
+    merge(PrefixProperty(Some(value), 1))
   }
 }
