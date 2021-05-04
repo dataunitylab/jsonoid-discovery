@@ -1,7 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
+import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -100,11 +100,10 @@ object IntBloomFilterProperty {
 }
 
 final case class IntBloomFilterProperty(
-    bloomFilter: InMemoryBloomFilter[Integer] =
-      new InMemoryBloomFilter[Integer](
-        IntBloomFilterProperty.ExpectedElements,
-        IntBloomFilterProperty.FalsePositive
-      )
+    bloomFilter: RoaringBloomFilter[Integer] = new RoaringBloomFilter[Integer](
+      IntBloomFilterProperty.ExpectedElements,
+      IntBloomFilterProperty.FalsePositive
+    )
 ) extends SchemaProperty[BigInt, IntBloomFilterProperty] {
   override def toJson: JObject = JObject(Nil)
 

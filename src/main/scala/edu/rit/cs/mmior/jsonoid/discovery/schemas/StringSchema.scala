@@ -7,7 +7,7 @@ import java.util.UUID
 import scala.util.matching.Regex
 import scala.util.Try
 
-import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
+import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -104,7 +104,7 @@ object StringBloomFilterProperty {
 }
 
 final case class StringBloomFilterProperty(
-    bloomFilter: InMemoryBloomFilter[String] = new InMemoryBloomFilter[String](
+    bloomFilter: RoaringBloomFilter[String] = new RoaringBloomFilter[String](
       StringBloomFilterProperty.ExpectedElements,
       StringBloomFilterProperty.FalsePositive
     )

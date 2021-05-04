@@ -1,7 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
+import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -55,7 +55,7 @@ final case class NumberSchema(
           case IntBloomFilterProperty(bloomfilter) =>
             props = props.add(
               NumBloomFilterProperty(
-                bloomfilter.asInstanceOf[InMemoryBloomFilter[Double]]
+                bloomfilter.asInstanceOf[RoaringBloomFilter[Double]]
               )
             )
           case IntStatsProperty(stats) =>
@@ -153,7 +153,7 @@ object NumBloomFilterProperty {
 }
 
 final case class NumBloomFilterProperty(
-    bloomFilter: InMemoryBloomFilter[Double] = new InMemoryBloomFilter[Double](
+    bloomFilter: RoaringBloomFilter[Double] = new RoaringBloomFilter[Double](
       NumBloomFilterProperty.ExpectedElements,
       NumBloomFilterProperty.FalsePositive
     )

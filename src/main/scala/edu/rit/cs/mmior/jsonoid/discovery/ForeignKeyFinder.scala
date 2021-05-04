@@ -1,6 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
-import com.sangupta.bloomfilter.impl.InMemoryBloomFilter
+import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 
 import schemas._
 
@@ -11,7 +11,7 @@ object ForeignKeyFinder {
   private def collectFiltersWithPrefix(
       prefix: String,
       schema: JsonSchema[_]
-  ): Seq[(String, InMemoryBloomFilter[_])] = {
+  ): Seq[(String, RoaringBloomFilter[_])] = {
     schema match {
       case o: ObjectSchema =>
         val props = o.properties.get[ObjectTypesProperty].objectTypes
@@ -34,13 +34,13 @@ object ForeignKeyFinder {
         Seq((prefix, n.properties.get[NumBloomFilterProperty].bloomFilter))
       case s: StringSchema =>
         Seq((prefix, s.properties.get[StringBloomFilterProperty].bloomFilter))
-      case _ => Seq.empty[(String, InMemoryBloomFilter[_])]
+      case _ => Seq.empty[(String, RoaringBloomFilter[_])]
     }
   }
 
   def collectFiltersByPath(
       schema: JsonSchema[_]
-  ): Map[String, InMemoryBloomFilter[_]] = {
+  ): Map[String, RoaringBloomFilter[_]] = {
     collectFiltersWithPrefix("$", schema).toMap
   }
 
