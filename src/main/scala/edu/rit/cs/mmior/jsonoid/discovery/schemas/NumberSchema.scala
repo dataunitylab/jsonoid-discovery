@@ -15,16 +15,18 @@ object NumberSchema {
     NumberSchema(NumberSchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[BigDecimal] =
-    SchemaProperties
-      .empty[BigDecimal]
-      .add(MinNumValueProperty())
-      .add(MaxNumValueProperty())
-      .add(NumHyperLogLogProperty())
-      .add(NumBloomFilterProperty())
-      .add(NumStatsProperty())
-      .add(NumExamplesProperty())
-      .add(NumHistogramProperty())
+  def initialProperties: SchemaProperties[BigDecimal] = {
+    val props = SchemaProperties.empty[BigDecimal]
+    props.add(MinNumValueProperty())
+    props.add(MaxNumValueProperty())
+    props.add(NumHyperLogLogProperty())
+    props.add(NumBloomFilterProperty())
+    props.add(NumStatsProperty())
+    props.add(NumExamplesProperty())
+    props.add(NumHistogramProperty())
+
+    props
+  }
 }
 
 final case class NumberSchema(
@@ -39,29 +41,29 @@ final case class NumberSchema(
       NumberSchema(properties.merge(otherProperties))
 
     case other @ IntegerSchema(otherProperties) => {
-      var props = SchemaProperties.empty[BigDecimal]
+      val props = SchemaProperties.empty[BigDecimal]
       otherProperties.foreach { prop =>
         prop match {
           case MinIntValueProperty(minValue) =>
-            props = props.add(MinNumValueProperty(minValue.map(_.toDouble)))
+            props.add(MinNumValueProperty(minValue.map(_.toDouble)))
           case MaxIntValueProperty(maxValue) =>
-            props = props.add(MaxNumValueProperty(maxValue.map(_.toDouble)))
+            props.add(MaxNumValueProperty(maxValue.map(_.toDouble)))
           case IntHyperLogLogProperty(hll) =>
             // XXX This can give some false positives due to how
             //     decimal values are tracked, but should not be
             //     a problem unless integer values are several
             //     orders of magnitude larger
-            props = props.add(NumHyperLogLogProperty(hll))
+            props.add(NumHyperLogLogProperty(hll))
           case IntBloomFilterProperty(bloomfilter) =>
-            props = props.add(
+            props.add(
               NumBloomFilterProperty(
                 bloomfilter.asInstanceOf[RoaringBloomFilter[Double]]
               )
             )
           case IntStatsProperty(stats) =>
-            props = props.add(NumStatsProperty(stats))
+            props.add(NumStatsProperty(stats))
           case IntExamplesProperty(examples) =>
-            props = props.add(
+            props.add(
               NumExamplesProperty(
                 ExamplesProperty[BigDecimal](
                   examples.examples.map(BigDecimal(_)),
@@ -72,7 +74,7 @@ final case class NumberSchema(
               )
             )
           case IntHistogramProperty(hist) =>
-            props = props.add(NumHistogramProperty(hist))
+            props.add(NumHistogramProperty(hist))
           case MultipleOfProperty(_) => {}
         }
       }

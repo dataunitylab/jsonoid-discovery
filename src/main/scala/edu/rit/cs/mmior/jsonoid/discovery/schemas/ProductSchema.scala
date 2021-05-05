@@ -11,8 +11,12 @@ object ProductSchema {
     ProductSchema(ProductSchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[JsonSchema[_]] =
-    SchemaProperties.empty[JsonSchema[_]].add(ProductSchemaTypesProperty())
+  def initialProperties: SchemaProperties[JsonSchema[_]] = {
+    val props = SchemaProperties.empty[JsonSchema[_]]
+    props.add(ProductSchemaTypesProperty())
+
+    props
+  }
 }
 
 final case class ProductSchema(

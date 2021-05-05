@@ -15,17 +15,19 @@ object IntegerSchema {
     IntegerSchema(IntegerSchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[BigInt] =
-    SchemaProperties
-      .empty[BigInt]
-      .add(MinIntValueProperty())
-      .add(MaxIntValueProperty())
-      .add(IntHyperLogLogProperty())
-      .add(IntBloomFilterProperty())
-      .add(IntStatsProperty())
-      .add(IntExamplesProperty())
-      .add(MultipleOfProperty())
-      .add(IntHistogramProperty())
+  def initialProperties: SchemaProperties[BigInt] = {
+    val props = SchemaProperties.empty[BigInt]
+    props.add(MinIntValueProperty())
+    props.add(MaxIntValueProperty())
+    props.add(IntHyperLogLogProperty())
+    props.add(IntBloomFilterProperty())
+    props.add(IntStatsProperty())
+    props.add(IntExamplesProperty())
+    props.add(MultipleOfProperty())
+    props.add(IntHistogramProperty())
+
+    props
+  }
 }
 
 final case class IntegerSchema(

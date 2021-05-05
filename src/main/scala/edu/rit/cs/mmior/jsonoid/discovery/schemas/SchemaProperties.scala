@@ -15,8 +15,9 @@ object SchemaProperties {
 
 import SchemaProperties._
 
+@SuppressWarnings(Array("org.wartremover.warts.Var"))
 final case class SchemaProperties[T](
-    val properties: PropertyMap[T] =
+    var properties: PropertyMap[T] =
       Map.empty[PropertyTag[T], SchemaProperty[T, _ <: SchemaProperty[T, _]]]
 ) extends Iterable[SchemaProperty[T, _]] {
 
@@ -25,8 +26,8 @@ final case class SchemaProperties[T](
 
   def add[S <: SchemaProperty[T, S]](
       prop: S
-  )(implicit tag: ClassTag[S]): SchemaProperties[T] = {
-    SchemaProperties(properties + (tag -> prop))
+  )(implicit tag: ClassTag[S]): Unit = {
+    properties += (tag -> prop)
   }
 
   def get[S <: SchemaProperty[T, S]](implicit tag: ClassTag[S]): S = {

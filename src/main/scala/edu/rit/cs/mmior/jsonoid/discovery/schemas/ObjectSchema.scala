@@ -11,13 +11,15 @@ object ObjectSchema {
     ObjectSchema(ObjectSchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] =
-    SchemaProperties
-      .empty[Map[String, JsonSchema[_]]]
-      .add(ObjectTypesProperty())
-      .add(FieldPresenceProperty())
-      .add(RequiredProperty())
-      .add(DependenciesProperty())
+  def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(ObjectTypesProperty())
+    props.add(FieldPresenceProperty())
+    props.add(RequiredProperty())
+    props.add(DependenciesProperty())
+
+    props
+  }
 }
 
 final case class ObjectSchema(

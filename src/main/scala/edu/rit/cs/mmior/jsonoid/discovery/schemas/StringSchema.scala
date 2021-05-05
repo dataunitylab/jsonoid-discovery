@@ -21,16 +21,18 @@ object StringSchema {
     StringSchema(StringSchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[String] =
-    SchemaProperties
-      .empty[String]
-      .add(MinLengthProperty())
-      .add(MaxLengthProperty())
-      .add(StringHyperLogLogProperty())
-      .add(StringBloomFilterProperty())
-      .add(StringExamplesProperty())
-      .add(FormatProperty())
-      .add(PrefixProperty())
+  def initialProperties: SchemaProperties[String] = {
+    val props = SchemaProperties.empty[String]
+    props.add(MinLengthProperty())
+    props.add(MaxLengthProperty())
+    props.add(StringHyperLogLogProperty())
+    props.add(StringBloomFilterProperty())
+    props.add(StringExamplesProperty())
+    props.add(FormatProperty())
+    props.add(PrefixProperty())
+
+    props
+  }
 }
 
 final case class StringSchema(

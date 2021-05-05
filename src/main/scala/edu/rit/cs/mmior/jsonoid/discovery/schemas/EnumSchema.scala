@@ -9,10 +9,12 @@ object EnumSchema {
     EnumSchema(EnumSchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[List[JValue]] =
-    SchemaProperties
-      .empty[List[JValue]]
-      .add(EnumValuesProperty())
+  def initialProperties: SchemaProperties[List[JValue]] = {
+    val props = SchemaProperties.empty[List[JValue]]
+    props.add(EnumValuesProperty())
+
+    props
+  }
 }
 
 final case class EnumSchema(

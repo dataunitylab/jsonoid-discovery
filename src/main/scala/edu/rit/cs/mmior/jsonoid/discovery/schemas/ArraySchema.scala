@@ -15,13 +15,15 @@ object ArraySchema {
     ArraySchema(ArraySchema.initialProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[List[JsonSchema[_]]] =
-    SchemaProperties
-      .empty[List[JsonSchema[_]]]
-      .add(ItemTypeProperty())
-      .add(MinArrayLengthProperty())
-      .add(MaxArrayLengthProperty())
-      .add(UniqueProperty())
+  def initialProperties: SchemaProperties[List[JsonSchema[_]]] = {
+    val props = SchemaProperties.empty[List[JsonSchema[_]]]
+    props.add(ItemTypeProperty())
+    props.add(MinArrayLengthProperty())
+    props.add(MaxArrayLengthProperty())
+    props.add(UniqueProperty())
+
+    props
+  }
 }
 
 final case class ArraySchema(
