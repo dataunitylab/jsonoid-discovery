@@ -170,22 +170,26 @@ final case class DependenciesProperty(
   override def merge(
       otherProp: DependenciesProperty
   ): DependenciesProperty = {
-    val mergedCounts = (counts.toSeq ++ otherProp.counts.toSeq)
-      .groupBy(_._1)
-      .mapValues(_.map(_._2).sum)
-      .map(identity)
-      .toMap
-    val mergedCooccurrence =
-      (cooccurrence.toSeq ++ otherProp.cooccurrence.toSeq)
+    if (overloaded || otherProp.overloaded) {
+      DependenciesProperty(overloaded = true)
+    } else {
+      val mergedCounts = (counts.toSeq ++ otherProp.counts.toSeq)
         .groupBy(_._1)
         .mapValues(_.map(_._2).sum)
         .map(identity)
         .toMap
-    DependenciesProperty(
-      totalCount + otherProp.totalCount,
-      mergedCounts,
-      mergedCooccurrence
-    )
+      val mergedCooccurrence =
+        (cooccurrence.toSeq ++ otherProp.cooccurrence.toSeq)
+          .groupBy(_._1)
+          .mapValues(_.map(_._2).sum)
+          .map(identity)
+          .toMap
+      DependenciesProperty(
+        totalCount + otherProp.totalCount,
+        mergedCounts,
+        mergedCooccurrence
+      )
+    }
   }
 
   override def mergeValue(
