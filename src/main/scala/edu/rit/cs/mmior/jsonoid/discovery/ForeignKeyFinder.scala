@@ -6,42 +6,19 @@ import schemas._
 
 final case class ForeignKey(localPath: String, foreignPath: String)
 
-object ForeignKeyFinder {
-  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  private def collectFiltersWithPrefix(
-      prefix: String,
-      schema: JsonSchema[_]
-  ): Seq[(String, RoaringBloomFilter[_])] = {
-    schema match {
-      case o: ObjectSchema =>
-        val props = o.properties.get[ObjectTypesProperty].objectTypes
-        props.keySet.toSeq.flatMap(key =>
-          collectFiltersWithPrefix(prefix + "." + key, props(key))
-        )
-      case a: ArraySchema =>
-        val arrayType = a.properties.get[ItemTypeProperty].itemType match {
-          case Left(singleSchema) => singleSchema
-          case Right(multipleSchemas) =>
-            multipleSchemas.fold(ZeroSchema())(_.merge(_))
-        }
-        collectFiltersWithPrefix(
-          prefix + "[*]",
-          arrayType
-        )
-      case i: IntegerSchema =>
-        Seq((prefix, i.properties.get[IntBloomFilterProperty].bloomFilter))
-      case n: NumberSchema =>
-        Seq((prefix, n.properties.get[NumBloomFilterProperty].bloomFilter))
-      case s: StringSchema =>
-        Seq((prefix, s.properties.get[StringBloomFilterProperty].bloomFilter))
-      case _ => Seq.empty[(String, RoaringBloomFilter[_])]
-    }
-  }
-
+object ForeignKeyFinder extends SchemaWalker[RoaringBloomFilter[_]] {
   def collectFiltersByPath(
       schema: JsonSchema[_]
   ): Map[String, RoaringBloomFilter[_]] = {
-    collectFiltersWithPrefix("$", schema).toMap
+    val extractor: PartialFunction[JsonSchema[_], RoaringBloomFilter[_]] = {
+      case i: IntegerSchema =>
+        i.properties.get[IntBloomFilterProperty].bloomFilter
+      case n: NumberSchema =>
+        n.properties.get[NumBloomFilterProperty].bloomFilter
+      case s: StringSchema =>
+        s.properties.get[StringBloomFilterProperty].bloomFilter
+    }
+    walk(schema, extractor).toMap
   }
 
   def findForeignKeys(schema: JsonSchema[_]): List[ForeignKey] = {
