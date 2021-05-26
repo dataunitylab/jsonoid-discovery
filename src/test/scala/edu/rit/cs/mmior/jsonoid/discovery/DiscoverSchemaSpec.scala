@@ -60,6 +60,8 @@ class DiscoverSchemaSpec extends UnitSpec {
   it should "produce a valid schema for given documents" in {
     val files = Table(
       "filename",
+      "/earthquakes.json",
+      "/nobel.json",
       "/test.json",
       "/jsonlines-example.json",
     )
