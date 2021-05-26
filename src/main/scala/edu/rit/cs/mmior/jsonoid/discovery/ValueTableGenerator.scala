@@ -19,13 +19,13 @@ object ValueTableGenerator extends SchemaWalker[List[String]] {
     val values = walk(schema, exampleExtractor)
 
     val csvWriter = CSVWriter.open(output)
-    val keys = values.keys.toList
+    val keys = values.keys.toList.sorted
 
     // Write the header
     csvWriter.writeRow(keys)
 
     // Write values for each row
-    val allValues = keys.map(k => values(k))
+    val allValues = keys.map(k => values(k).sorted)
     val maxLen = allValues.map(_.length).foldLeft(0)(_ max _)
     csvWriter.writeAll(allValues.map(_.padTo(maxLen, "")).transpose)
     csvWriter.close()
