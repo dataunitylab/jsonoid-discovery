@@ -20,6 +20,7 @@ lazy val root = (project in file("."))
         hyperLogLog,
         jsonSchemaValidator,
         scopt,
+        scalaCsv,
 
         spark % "provided",
         sparkSql % "provided",

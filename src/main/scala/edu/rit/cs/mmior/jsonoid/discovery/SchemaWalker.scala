@@ -22,11 +22,12 @@ trait SchemaWalker[T] {
             multipleSchemas.fold(ZeroSchema())(_.merge(_))
         }
         extractValues(arrayType, extractor, prefix + "[*]")
-      case x => if (extractor.isDefinedAt(x)) {
-        Seq((prefix, extractor(x)))
-      } else {
-        Seq.empty[(String, T)]
-      }
+      case x =>
+        if (extractor.isDefinedAt(x)) {
+          Seq((prefix, extractor(x)))
+        } else {
+          Seq.empty[(String, T)]
+        }
     }
   }
 

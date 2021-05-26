@@ -10,6 +10,7 @@ object Dependencies {
   lazy val hyperLogLog         = "com.github.prasanthj"       %  "hyperloglog"            % "1.1"
   lazy val jsonSchemaValidator = "com.networknt"              %  "json-schema-validator"  % "1.0.49"
   lazy val scopt               = "com.github.scopt"           %% "scopt"                  % "4.0.1"
+  lazy val scalaCsv            = "com.github.tototoshi"       %% "scala-csv"              % "1.3.8"
   lazy val spark               = "org.apache.spark"           %% "spark-core"             % "3.1.1"
   lazy val sparkSql            = "org.apache.spark"           %% "spark-sql"              % "3.1.1"
 

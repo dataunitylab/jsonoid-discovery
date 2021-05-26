@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
 import java.io.File
+import java.io.FileOutputStream
 import scala.io.Source
 
 import scopt.OptionParser
@@ -11,7 +12,8 @@ import org.json4s.jackson.JsonMethods._
 import schemas._
 
 final case class Config(
-    input: Option[File] = None
+    input: Option[File] = None,
+    writeValues: Option[File] = None
 )
 
 object DiscoverSchema {
@@ -52,7 +54,12 @@ object DiscoverSchema {
   }
 
   // $COVERAGE-OFF$ No automated testing of CLI
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.OptionPartial"
+    )
+  )
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
       head("jsonoid-discover", "0.1.0-SNAPSHOT")
@@ -64,6 +71,11 @@ object DiscoverSchema {
         .optional()
         .action((x, c) => c.copy(input = Some(x)))
         .text("a JSON file to perform discovery on, one object per line")
+
+      opt[File]('v', "values")
+        .action((x, c) => c.copy(writeValues = Some(x)))
+        .valueName("<file>")
+        .text("a file where a table of collected values should be written")
     }
 
     parser.parse(args, Config()) match {
@@ -74,10 +86,19 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        val schema = EnumTransformer.transformSchema(discover(jsons))
+        val schema = discover(jsons)
+
+        if (!config.writeValues.isEmpty) {
+          val objectSchema = schema.asInstanceOf[ObjectSchema]
+          val outputStream = new FileOutputStream(config.writeValues.get)
+          ValueTableGenerator.writeValueTable(objectSchema, outputStream)
+        }
+
+        val transformedSchema = EnumTransformer.transformSchema(schema)
         val schemaObj: JObject =
           ("$schema" -> "https://json-schema.org/draft/2019-09/schema")
-        println(compact(render(schema.toJson.merge(schemaObj))))
+
+        println(compact(render(transformedSchema.toJson.merge(schemaObj))))
       case None =>
     }
   }
