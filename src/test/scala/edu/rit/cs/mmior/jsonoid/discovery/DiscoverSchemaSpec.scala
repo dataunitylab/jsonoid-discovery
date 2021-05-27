@@ -61,7 +61,10 @@ class DiscoverSchemaSpec extends UnitSpec {
     val files = Table(
       "filename",
       "/earthquakes.json",
+      "/gdp.json",
+      "/mr-robot.json",
       "/nobel.json",
+      "/rickandmorty.json",
       "/test.json",
       "/jsonlines-example.json",
     )
