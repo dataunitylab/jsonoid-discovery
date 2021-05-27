@@ -27,23 +27,29 @@ class ArraySchemaSpec extends UnitSpec {
     arraySchema should contain (MaxArrayLengthProperty(Some(2)))
   }
 
+  it should "not consider single element lists unique" in {
+    val schemaList: List[JsonSchema[_]] = List(StringSchema("foo"))
+    val uniqueArraySchema = ArraySchema(schemaList)
+    uniqueArraySchema.properties should contain (UniqueProperty(true, true))
+  }
+
   it should "track whether string elements are unique" in {
     val schemaList: List[JsonSchema[_]] = List(StringSchema("foo"), StringSchema("bar"))
     val uniqueArraySchema = ArraySchema(schemaList)
-    uniqueArraySchema.properties should contain (UniqueProperty(true))
+    uniqueArraySchema.properties should contain (UniqueProperty(true, false))
   }
 
   it should "track whether integer elements are unique" in {
     val schemaList: List[JsonSchema[_]] = List(IntegerSchema(0),
       IntegerSchema(1))
     val uniqueArraySchema = ArraySchema(schemaList)
-    uniqueArraySchema.properties should contain (UniqueProperty(true))
+    uniqueArraySchema.properties should contain (UniqueProperty(true, false))
   }
 
   it should "track whether numeric elements are unique" in {
     val schemaList: List[JsonSchema[_]] = List(NumberSchema(1.0),
       NumberSchema(2.0))
     val uniqueArraySchema = ArraySchema(schemaList)
-    uniqueArraySchema.properties should contain (UniqueProperty(true))
+    uniqueArraySchema.properties should contain (UniqueProperty(true, false))
   }
 }

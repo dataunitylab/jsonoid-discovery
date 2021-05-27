@@ -139,9 +139,9 @@ final case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
   }
 }
 
-final case class UniqueProperty(unique: Boolean = true)
+final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     extends SchemaProperty[List[JsonSchema[_]], UniqueProperty] {
-  override def toJson: JObject = if (unique) {
+  override def toJson: JObject = if (unique && !unary) {
     ("uniqueItems" -> true)
   } else {
     // Since we only check uniqueness for primitive types, we may
@@ -152,7 +152,7 @@ final case class UniqueProperty(unique: Boolean = true)
   override def merge(
       otherProp: UniqueProperty
   ): UniqueProperty = {
-    UniqueProperty(unique && otherProp.unique)
+    UniqueProperty(unique && otherProp.unique, unary && otherProp.unary)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -170,6 +170,6 @@ final case class UniqueProperty(unique: Boolean = true)
       case _ => List()
     }
 
-    merge(UniqueProperty(examples.length == value.length))
+    merge(UniqueProperty(examples.length == value.length, value.length <= 1))
   }
 }
