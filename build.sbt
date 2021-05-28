@@ -1,7 +1,6 @@
 import Dependencies._
 
 ThisBuild / scalaVersion      := "2.12.12"
-ThisBuild / version           := "0.1.0-SNAPSHOT"
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
 
@@ -60,9 +59,11 @@ wartremoverErrors ++= Seq(
 )
 
 enablePlugins(GhpagesPlugin)
+enablePlugins(GitVersioning)
 enablePlugins(SiteScaladocPlugin)
 
 git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
+git.useGitDescribe := true
 
 Test / fork := true
 
