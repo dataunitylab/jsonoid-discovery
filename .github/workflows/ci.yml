@@ -20,12 +20,19 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: sbt coverage test coverageReport
-    - name: Publish package
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sbt publish
     - name: Upload coverage
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: olafurpg/setup-scala@v10
+    - name: Publish package
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt publish
