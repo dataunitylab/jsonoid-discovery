@@ -1,6 +1,7 @@
 import Dependencies._
 
 ThisBuild / scalaVersion      := "2.12.12"
+ThisBuild / versionScheme     := Some("early-semver")
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
 ThisBuild / githubOwner       := "michaelmior"
