@@ -3,6 +3,8 @@ import Dependencies._
 ThisBuild / scalaVersion      := "2.12.12"
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
+ThisBuild / githubOwner       := "michaelmior"
+ThisBuild / githubRepository  := "jsonoid-discovery"
 
 mainClass := Some("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema")
 
