@@ -39,6 +39,13 @@ final case class ObjectSchema(
       properties: SchemaProperties[Map[String, JsonSchema[_]]]
   ): ObjectSchema =
     ObjectSchema(properties)
+
+  def toJsonSchema: JObject = {
+    val schemaObj: JObject =
+      ("$schema" -> "https://json-schema.org/draft/2019-09/schema")
+
+    toJson.merge(schemaObj)
+  }
 }
 
 final case class ObjectTypesProperty(

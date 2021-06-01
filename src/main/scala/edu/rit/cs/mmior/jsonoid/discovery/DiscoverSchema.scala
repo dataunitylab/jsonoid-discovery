@@ -5,7 +5,6 @@ import java.io.FileOutputStream
 import scala.io.Source
 
 import scopt.OptionParser
-import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
@@ -53,6 +52,10 @@ object DiscoverSchema {
     source.getLines().map(parse(_))
   }
 
+  def transformSchema(schema: JsonSchema[_]): JsonSchema[_] = {
+    EnumTransformer.transformSchema(schema)
+  }
+
   // $COVERAGE-OFF$ No automated testing of CLI
   @SuppressWarnings(
     Array(
@@ -94,11 +97,9 @@ object DiscoverSchema {
           ValueTableGenerator.writeValueTable(objectSchema, outputStream)
         }
 
-        val transformedSchema = EnumTransformer.transformSchema(schema)
-        val schemaObj: JObject =
-          ("$schema" -> "https://json-schema.org/draft/2019-09/schema")
-
-        println(compact(render(transformedSchema.toJson.merge(schemaObj))))
+        val transformedSchema: ObjectSchema =
+          transformSchema(schema).asInstanceOf[ObjectSchema]
+        println(compact(render(transformedSchema.toJsonSchema)))
       case None =>
     }
   }
