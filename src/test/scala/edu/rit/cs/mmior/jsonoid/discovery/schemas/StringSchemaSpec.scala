@@ -94,7 +94,7 @@ class StringSchemaSpec extends UnitSpec {
     @SuppressWarnings(Array("org.wartremover.warts.Var"))
     var prefixSchema = StringSchema("foobar").properties
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("foobaz") }
-    val prefixProp = prefixSchema.get[PrefixProperty]
+    val prefixProp = prefixSchema.get[PatternProperty]
     (prefixProp.toJson \ "pattern").extract[String] shouldBe "^fooba"
   }
 
@@ -102,7 +102,15 @@ class StringSchemaSpec extends UnitSpec {
     @SuppressWarnings(Array("org.wartremover.warts.Var"))
     var randomSchema = StringSchema().properties
     for (c <- 'a' to 'z') { randomSchema = randomSchema.mergeValue(c.toString) }
-    val prefixProp = randomSchema.get[PrefixProperty]
+    val prefixProp = randomSchema.get[PatternProperty]
     (prefixProp.toJson \ "pattern").extractOpt[String] shouldBe None
+  }
+
+  it should "should find prefixes and suffixes together" in {
+    @SuppressWarnings(Array("org.wartremover.warts.Var"))
+    var prefixSchema = StringSchema("barfoo").properties
+    for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("bazfoo") }
+    val prefixProp = prefixSchema.get[PatternProperty]
+    (prefixProp.toJson \ "pattern").extract[String] shouldBe "^ba.*foo$"
   }
 }

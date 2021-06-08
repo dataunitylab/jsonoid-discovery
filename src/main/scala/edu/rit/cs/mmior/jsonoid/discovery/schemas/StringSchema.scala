@@ -29,7 +29,7 @@ object StringSchema {
     props.add(StringBloomFilterProperty())
     props.add(StringExamplesProperty())
     props.add(FormatProperty())
-    props.add(PrefixProperty())
+    props.add(PatternProperty())
 
     props
   }
@@ -205,28 +205,49 @@ final case class FormatProperty(
   }
 }
 
-object PrefixProperty {
+object PatternProperty {
   val ReplaceRegex: Regex =
     ("[" + ".^$()|[]+*?{}".replaceAll(".", "\\\\$0") + "]").r
   val MinExamples: Int = 10
 }
 
-final case class PrefixProperty(
+final case class PatternProperty(
     prefix: Option[String] = None,
-    examples: Int = 0
-) extends SchemaProperty[String, PrefixProperty] {
-  override def toJson: JObject = prefix match {
-    case Some("") => Nil
-    case Some(str) if examples >= PrefixProperty.MinExamples =>
-      ("pattern" -> ("^" +
-        PrefixProperty.ReplaceRegex.replaceAllIn(str, "\\\\$0")))
-    case _ => Nil
+    suffix: Option[String] = None,
+    examples: Int = 0,
+    minLength: Option[Int] = None
+) extends SchemaProperty[String, PatternProperty] {
+  override def toJson: JObject = if (examples >= PatternProperty.MinExamples) {
+    (prefix.getOrElse(""), suffix.getOrElse("")) match {
+      case (str1, str2)
+          if str1.length > 0 && str2.length > 0 &&
+            // The length checks below ensures we don't end up with
+            // prefixes and suffixes which overlap since these can't
+            // be converted into a meaningful regex with this approach
+            (str1.length + str2.length) < minLength.getOrElse(0) =>
+        ("pattern" ->
+          ("^" +
+            PatternProperty.ReplaceRegex.replaceAllIn(str1, "\\\\$0") +
+            ".*" +
+            PatternProperty.ReplaceRegex.replaceAllIn(str2, "\\\\$0") +
+            "$"))
+      case (str, "") if str.length > 0 =>
+        ("pattern" -> ("^" +
+          PatternProperty.ReplaceRegex.replaceAllIn(str, "\\\\$0")))
+      case ("", str) if str.length > 0 =>
+        ("pattern" ->
+          (PatternProperty.ReplaceRegex.replaceAllIn(str, "\\\\$0") + "$"))
+      case (_, _) => Nil
+    }
+  } else {
+    Nil
   }
 
-  override def merge(
-      otherProp: PrefixProperty
-  ): PrefixProperty = {
-    val newPrefix = (prefix, otherProp.prefix) match {
+  private def findCommonPrefix(
+      str1: Option[String],
+      str2: Option[String]
+  ): Option[String] = {
+    (str1, str2) match {
       case (Some(str1), Some(str2)) =>
         Some(
           (str1, str2).zipped
@@ -237,10 +258,26 @@ final case class PrefixProperty(
       case (None, x) => x
       case (x, None) => x
     }
-    PrefixProperty(newPrefix, examples + otherProp.examples)
   }
 
-  override def mergeValue(value: String): PrefixProperty = {
-    merge(PrefixProperty(Some(value), 1))
+  override def merge(
+      otherProp: PatternProperty
+  ): PatternProperty = {
+    val newPrefix = findCommonPrefix(prefix, otherProp.prefix)
+    val newSuffix =
+      findCommonPrefix(
+        suffix.map(_.reverse),
+        otherProp.suffix.map(_.reverse)
+      ).map(_.reverse)
+    PatternProperty(
+      newPrefix,
+      newSuffix,
+      examples + otherProp.examples,
+      minOrNone(minLength, otherProp.minLength)
+    )
+  }
+
+  override def mergeValue(value: String): PatternProperty = {
+    merge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
 }
