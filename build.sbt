@@ -61,6 +61,8 @@ wartremoverErrors ++= Seq(
   Wart.While,
 )
 
+Compile / console / scalacOptions := (console / scalacOptions).value.filterNot(_.contains("wartremover"))
+
 enablePlugins(GhpagesPlugin)
 enablePlugins(GitVersioning)
 enablePlugins(SiteScaladocPlugin)
