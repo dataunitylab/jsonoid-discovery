@@ -54,9 +54,11 @@ final case class ExamplesProperty[T](
       examples.slice(0, replaceIndex) ++ List(sampleValue) ++ examples.drop(
         replaceIndex + 1
       )
+    } else {
+      examples
     }
 
-    ExamplesProperty[T](examples, totalExamples + 1, newNextSample, newSampleW)
+    ExamplesProperty[T](newExamples, totalExamples + 1, newNextSample, newSampleW)
   }
 
   @SuppressWarnings(
@@ -73,7 +75,7 @@ final case class ExamplesProperty[T](
 
     val sampleRatio = totalExamples.toDouble * 1.0 /
       (totalExamples.toDouble + other.totalExamples.toDouble)
-    var newExamples: ListBuffer[T] = ListBuffer.empty[T]
+    val newExamples: ListBuffer[T] = ListBuffer.empty[T]
 
     // Randomly sample elements proportional to their original frequency
     while (
