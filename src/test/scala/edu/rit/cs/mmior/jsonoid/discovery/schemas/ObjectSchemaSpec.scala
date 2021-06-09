@@ -11,18 +11,19 @@ class ObjectSchemaSpec extends UnitSpec {
   behavior of "ObjectSchema"
 
   private val objectTypes = Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
-  private val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema())).properties.mergeValue(objectTypes)
+  private val schemaProperties = ObjectSchema(Map("foo" -> BooleanSchema())).properties.mergeValue(objectTypes)
+  private val objectSchema = ObjectSchema(schemaProperties)
 
   it should "track required properties" in {
-    objectSchema should contain (RequiredProperty(Some(Set("foo"))))
+    schemaProperties should contain (RequiredProperty(Some(Set("foo"))))
   }
 
   it should "track property schemas" in {
-    objectSchema should contain (ObjectTypesProperty(objectTypes))
+    schemaProperties should contain (ObjectTypesProperty(objectTypes))
   }
 
   it should "track the percentage of objects with each field" in {
-    val fieldPresenceProp = objectSchema.get[FieldPresenceProperty]
+    val fieldPresenceProp = schemaProperties.get[FieldPresenceProperty]
     val expectedJson: JObject = ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5))))
     fieldPresenceProp.toJson shouldEqual expectedJson
   }
@@ -34,5 +35,14 @@ class ObjectSchemaSpec extends UnitSpec {
     val dependenciesProp = dependentSchema.get[DependenciesProperty]
     implicit val formats: Formats = DefaultFormats
     (dependenciesProp.toJson \ "dependencies").extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
+  }
+
+  it should "be able to find subschemas by pointer" in {
+    objectSchema.findByPointer("/foo") shouldBe Some(BooleanSchema())
+  }
+
+  it should "be able to find nested subschemas by pointer" in {
+    val nestedSchema = ObjectSchema(Map("baz" -> objectSchema))
+    nestedSchema.findByPointer("/baz/foo") shouldBe Some(BooleanSchema())
   }
 }

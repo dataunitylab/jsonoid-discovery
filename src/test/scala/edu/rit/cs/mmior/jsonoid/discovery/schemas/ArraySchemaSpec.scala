@@ -8,6 +8,8 @@ class ArraySchemaSpec extends UnitSpec {
 
   private val itemType = BooleanSchema()
   private val arraySchema = ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
+  private val schemaList = List(NullSchema(), BooleanSchema(true))
+  private val tupleSchema = ArraySchema(ArraySchema(schemaList).properties.mergeValue(schemaList))
 
   it should "track item schemas" in {
     arraySchema should contain (ItemTypeProperty(Left(itemType)))
@@ -51,5 +53,15 @@ class ArraySchemaSpec extends UnitSpec {
       NumberSchema(2.0))
     val uniqueArraySchema = ArraySchema(schemaList)
     uniqueArraySchema.properties should contain (UniqueProperty(true, false))
+  }
+
+  it should "be able to find subschemas by pointer" in {
+    tupleSchema.findByPointer("/1") shouldBe Some(BooleanSchema())
+  }
+
+  it should "be able to find nested subschemas by pointer" in {
+    val nestedList = List(tupleSchema, tupleSchema)
+    val nestedSchema = ArraySchema(ArraySchema(nestedList).properties.mergeValue(nestedList))
+    nestedSchema.findByPointer("/0/1") shouldBe Some(BooleanSchema())
   }
 }

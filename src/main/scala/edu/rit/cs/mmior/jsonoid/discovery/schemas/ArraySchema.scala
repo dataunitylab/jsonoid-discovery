@@ -41,6 +41,22 @@ final case class ArraySchema(
       properties: SchemaProperties[List[JsonSchema[_]]]
   ): ArraySchema =
     ArraySchema(properties)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+    properties.get[ItemTypeProperty].itemType match {
+      // We can only follow pointers for tuple schemas, not real array schemas
+      case Left(_)        => None
+      case Right(schemas) =>
+        pointer.split("/", 3) match {
+          case Array(_)              => None
+          case Array(_, "")          => Some(this)
+          case Array(_, first)       => Some(schemas(first.toInt))
+          case Array(_, first, rest) =>
+            schemas(first.toInt).findByPointer("/" + rest)
+        }
+    }
+  }
 }
 
 final case class ItemTypeProperty(

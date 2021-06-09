@@ -39,4 +39,6 @@ trait JsonSchema[T] {
   ): JsonSchema[_] = {
     copy(properties.transform(transformer))
   }
+
+  def findByPointer(pointer: String): Option[JsonSchema[_]] = None
 }

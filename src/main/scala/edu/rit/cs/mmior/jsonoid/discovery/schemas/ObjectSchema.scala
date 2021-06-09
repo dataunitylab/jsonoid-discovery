@@ -46,6 +46,22 @@ final case class ObjectSchema(
 
     toJson.merge(schemaObj)
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+    val objectTypes = properties.get[ObjectTypesProperty].objectTypes
+    pointer.split("/", 3) match {
+      case Array(_)              => None
+      case Array(_, "")          => Some(this)
+      case Array(_, first)       => objectTypes.get(first)
+      case Array(_, first, rest) =>
+        objectTypes.get(first) match {
+          case Some(schema: JsonSchema[_]) => schema.findByPointer("/" + rest)
+          case Some(_)                     => None
+          case None                        => None
+        }
+    }
+  }
 }
 
 final case class ObjectTypesProperty(
