@@ -11,6 +11,12 @@ mainClass := Some("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+val nonConsoleCompilerOptions = Seq(
+  "-feature",
+  "-Xfatal-warnings",
+  "-Ywarn-unused-import"
+)
+
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
@@ -32,11 +38,7 @@ lazy val root = (project in file("."))
     dependencyOverrides ++= Seq(
       jacksonDatabind,
     ),
-    scalacOptions ++= Seq(
-      "-feature",
-      "-Ywarn-unused-import",
-      "-Xfatal-warnings",
-    )
+    scalacOptions ++= nonConsoleCompilerOptions
   )
 
 wartremoverErrors ++= Seq(
@@ -61,7 +63,11 @@ wartremoverErrors ++= Seq(
   Wart.While,
 )
 
-Compile / console / scalacOptions := (console / scalacOptions).value.filterNot(_.contains("wartremover"))
+Compile / console / scalacOptions := (console / scalacOptions)
+  .value.filterNot(opt =>
+    opt.contains("wartremover") ||
+    nonConsoleCompilerOptions.contains(opt)
+)
 
 enablePlugins(GhpagesPlugin)
 enablePlugins(GitVersioning)
