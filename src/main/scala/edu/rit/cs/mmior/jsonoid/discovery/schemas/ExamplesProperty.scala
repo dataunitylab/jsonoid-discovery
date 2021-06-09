@@ -58,7 +58,12 @@ final case class ExamplesProperty[T](
       examples
     }
 
-    ExamplesProperty[T](newExamples, totalExamples + 1, newNextSample, newSampleW)
+    ExamplesProperty[T](
+      newExamples,
+      totalExamples + 1,
+      newNextSample,
+      newSampleW
+    )
   }
 
   @SuppressWarnings(
