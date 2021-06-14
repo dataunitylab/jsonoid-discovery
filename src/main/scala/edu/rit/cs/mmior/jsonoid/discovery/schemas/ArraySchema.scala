@@ -62,10 +62,10 @@ final case class ArraySchema(
 final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
 ) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
-  override def toJson: JObject = ("items" -> (itemType match {
-    case Left(schema)   => schema.toJson
-    case Right(schemas) => JArray(schemas.map(_.toJson))
-  }))
+  override def toJson: JObject = itemType match {
+    case Left(schema)   => ("items" -> schema.toJson)
+    case Right(schemas) => ("prefixItems" -> JArray(schemas.map(_.toJson)))
+  }
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
