@@ -42,7 +42,11 @@ final case class ObjectSchema(
 
   def toJsonSchema: JObject = {
     val schemaObj: JObject =
-      ("$schema" -> "https://json-schema.org/draft/2019-09/schema")
+      ("$schema" -> "https://json-schema.org/draft/2020-12/schema") ~
+        ("$vocabulary" ->
+          ("https://json-schema.org/draft/2020-12/meta/core" -> true) ~
+          ("https://json-schema.org/draft/2020-12/meta/validation" -> true) ~
+          ("https://json-schema.org/draft/2020-12/meta/format" -> true))
 
     toJson.merge(schemaObj)
   }

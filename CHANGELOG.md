@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - `PrimaryKeyFinder` now searches recursively and returns JSON Paths
+- Generate schema using 2020-12 spec
 
 ### Fixed
 - Arrays now correctly use `minItems` and `maxItems` instead of `minLength` and `maxLength`
