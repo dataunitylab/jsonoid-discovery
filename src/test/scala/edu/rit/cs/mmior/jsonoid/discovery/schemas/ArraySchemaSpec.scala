@@ -22,11 +22,11 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "track minimum array length" in {
-    arraySchema should contain (MinArrayLengthProperty(Some(1)))
+    arraySchema should contain (MinItemsProperty(Some(1)))
   }
 
   it should "track maximum array length" in {
-    arraySchema should contain (MaxArrayLengthProperty(Some(2)))
+    arraySchema should contain (MaxItemsProperty(Some(2)))
   }
 
   it should "not consider single element lists unique" in {

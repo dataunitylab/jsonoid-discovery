@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `PrimaryKeyFinder` now searches recursively and returns JSON Paths
 
+### Fixed
+- Arrays now correctly use `minItems` and `maxItems` instead of `minLength` and `maxLength`
+
 ## [v0.1.3] - 2021-06-09
 ### Added
 - Subschemas can now be extracted using a JSON pointer string

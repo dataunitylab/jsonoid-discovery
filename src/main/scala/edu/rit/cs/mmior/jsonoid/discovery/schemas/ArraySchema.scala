@@ -18,8 +18,8 @@ object ArraySchema {
   def initialProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
-    props.add(MinArrayLengthProperty())
-    props.add(MaxArrayLengthProperty())
+    props.add(MinItemsProperty())
+    props.add(MaxItemsProperty())
     props.add(UniqueProperty())
 
     props
@@ -111,47 +111,47 @@ final case class ItemTypeProperty(
   }
 }
 
-final case class MinArrayLengthProperty(minLength: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]], MinArrayLengthProperty] {
-  override def toJson: JObject = ("minLength" -> minLength)
+final case class MinItemsProperty(minItems: Option[Int] = None)
+    extends SchemaProperty[List[JsonSchema[_]], MinItemsProperty] {
+  override def toJson: JObject = ("minItems" -> minItems)
 
   override def merge(
-      otherProp: MinArrayLengthProperty
-  ): MinArrayLengthProperty = {
-    MinArrayLengthProperty(
+      otherProp: MinItemsProperty
+  ): MinItemsProperty = {
+    MinItemsProperty(
       minOrNone(
-        minLength,
-        otherProp.minLength
+        minItems,
+        otherProp.minItems
       )
     )
   }
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  ): MinArrayLengthProperty = {
-    MinArrayLengthProperty(minOrNone(Some(value.length), minLength))
+  ): MinItemsProperty = {
+    MinItemsProperty(minOrNone(Some(value.length), minItems))
   }
 }
 
-final case class MaxArrayLengthProperty(maxLength: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]], MaxArrayLengthProperty] {
-  override def toJson: JObject = ("maxLength" -> maxLength)
+final case class MaxItemsProperty(maxItems: Option[Int] = None)
+    extends SchemaProperty[List[JsonSchema[_]], MaxItemsProperty] {
+  override def toJson: JObject = ("maxItems" -> maxItems)
 
   override def merge(
-      otherProp: MaxArrayLengthProperty
-  ): MaxArrayLengthProperty = {
-    MaxArrayLengthProperty(
+      otherProp: MaxItemsProperty
+  ): MaxItemsProperty = {
+    MaxItemsProperty(
       maxOrNone(
-        maxLength,
-        otherProp.maxLength
+        maxItems,
+        otherProp.maxItems
       )
     )
   }
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  ): MaxArrayLengthProperty = {
-    MaxArrayLengthProperty(maxOrNone(Some(value.length), maxLength))
+  ): MaxItemsProperty = {
+    MaxItemsProperty(maxOrNone(Some(value.length), maxItems))
   }
 }
 
