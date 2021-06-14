@@ -11,6 +11,6 @@ class PrimaryKeyFinderSpec extends UnitSpec {
     val schema = DiscoverSchema.discover(jsons.iterator)
     val primaryKeys = PrimaryKeyFinder.findPrimaryKeys(schema)
 
-    primaryKeys shouldEqual List(PrimaryKey("b"))
+    primaryKeys shouldEqual List(PrimaryKey("$.b"))
   }
 }

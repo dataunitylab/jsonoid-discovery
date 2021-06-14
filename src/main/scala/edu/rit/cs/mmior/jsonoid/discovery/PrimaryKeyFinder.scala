@@ -5,18 +5,15 @@ import utils.HyperLogLog
 
 final case class PrimaryKey(path: String)
 
-object PrimaryKeyFinder {
-  private def getHLL(schema: JsonSchema[_]): Option[HyperLogLog] = {
+object PrimaryKeyFinder extends SchemaWalker[HyperLogLog] {
+  private val getHLL: PartialFunction[JsonSchema[_], HyperLogLog] = {
     // Get the HyperLogLog object for the specific type
-    schema match {
-      case i: IntegerSchema =>
-        Some(i.properties.get[IntHyperLogLogProperty].hll)
-      case n: NumberSchema =>
-        Some(n.properties.get[NumHyperLogLogProperty].hll)
-      case s: StringSchema =>
-        Some(s.properties.get[StringHyperLogLogProperty].hll)
-      case _ => None
-    }
+    case i: IntegerSchema =>
+      i.properties.get[IntHyperLogLogProperty].hll
+    case n: NumberSchema =>
+      n.properties.get[NumHyperLogLogProperty].hll
+    case s: StringSchema =>
+      s.properties.get[StringHyperLogLogProperty].hll
   }
 
   def findPrimaryKeys(schema: JsonSchema[_]): List[PrimaryKey] = {
@@ -27,9 +24,7 @@ object PrimaryKeyFinder {
 
         // Build a map from field names to their HLL objects
         val objectTypes = o.properties.get[ObjectTypesProperty].objectTypes
-        val fieldHLLs = objectTypes.mapValues(getHLL).collect {
-          case (k, Some(v)) => k -> v
-        }
+        val fieldHLLs = walk(schema, getHLL)
 
         // Check if the estimated cardinality falls within the
         // bounds that make the field a possible primary key
