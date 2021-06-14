@@ -164,8 +164,10 @@ final case class IntExamplesProperty(
 final case class MultipleOfProperty(multiple: Option[BigInt] = None)
     extends SchemaProperty[BigInt, MultipleOfProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject =
-    ("multipleOf" -> (if (multiple == Some(1)) None else multiple))
+  override def toJson: JObject = multiple match {
+    case Some(intVal) if intVal > 1 => ("multipleOf" -> intVal)
+    case _                          => Nil
+  }
 
   override def merge(
       otherProp: MultipleOfProperty

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Arrays now correctly use `minItems` and `maxItems` instead of `minLength` and `maxLength`
+- `multipleOf` is not included if the multiple is zero (only happens for constants)
 
 ## [v0.1.3] - 2021-06-09
 ### Added

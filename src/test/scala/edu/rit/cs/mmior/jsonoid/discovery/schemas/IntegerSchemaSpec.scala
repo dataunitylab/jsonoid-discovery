@@ -44,6 +44,12 @@ class IntegerSchemaSpec extends UnitSpec {
     multipleProp.multiple.value shouldBe (4)
   }
 
+  it should "not track multiples of zero" in {
+    val zeroIntSchema = IntegerSchema(0).merge(IntegerSchema(0)).asInstanceOf[IntegerSchema]
+    val multipleProp = zeroIntSchema.properties.get[MultipleOfProperty]
+    multipleProp.toJson shouldBe JObject()
+  }
+
   it should "keep a running histogram" in {
     val histProp = integerSchema.properties.get[IntHistogramProperty]
     histProp.histogram.bins shouldBe List((4, 1), (8, 1))
