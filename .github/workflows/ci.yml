@@ -26,8 +26,25 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         fail_ci_if_error: true
 
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: olafurpg/setup-scala@v10
+    - name: Assemble
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt assembly
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+    - name: Validate generated schema
+      run: |
+        java -jar target/scala-2.12/*-assembly-*.jar < src/test/resources/earthquakes.json > /tmp/earthquakes.schema.json
+        npx ajv-cli compile --spec=draft2020 --strict-schema=false -s /tmp/earthquakes.schema.json
+
   publish:
-    needs: test
+    needs: [test, validate]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
