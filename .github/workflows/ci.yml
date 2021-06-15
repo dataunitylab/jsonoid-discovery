@@ -44,6 +44,7 @@ jobs:
         npx ajv-cli compile --spec=draft2020 --strict-schema=false -s /tmp/earthquakes.schema.json
 
   publish:
+    if: ${{ github.event_name != 'pull_request' }}
     needs: [test, validate]
     runs-on: ubuntu-latest
     steps:
