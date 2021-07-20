@@ -66,7 +66,7 @@ class DiscoverSchemaSpec extends UnitSpec {
       "/nobel.json",
       "/rickandmorty.json",
       "/test.json",
-      "/jsonlines-example.json",
+      "/jsonlines-example.json"
     )
 
     forAll(files) { filename: String =>

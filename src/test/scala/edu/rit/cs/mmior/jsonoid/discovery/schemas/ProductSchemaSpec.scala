@@ -29,7 +29,6 @@ class ProductSchemaSpec extends UnitSpec {
 
   it should "convert to JSON using anyOf" in {
     val anyTypes = (productSchema1.toJson \ "anyOf").extract[JArray]
-    ((anyTypes \ "type")(0).extract[String] shouldBe "boolean").asInstanceOf[Unit]
-    (anyTypes \ "type")(1).extract[String] shouldBe "integer"
+    ((anyTypes \ "type")(0).extract[String], (anyTypes \ "type")(1).extract[String]) shouldBe ("boolean", "integer")
   }
 }
