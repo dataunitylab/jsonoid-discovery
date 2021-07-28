@@ -23,7 +23,6 @@ object PrimaryKeyFinder extends SchemaWalker[HyperLogLog] {
         val totalCount = o.properties.get[FieldPresenceProperty].totalCount
 
         // Build a map from field names to their HLL objects
-        val objectTypes = o.properties.get[ObjectTypesProperty].objectTypes
         val fieldHLLs = walk(schema, getHLL)
 
         // Check if the estimated cardinality falls within the
