@@ -8,10 +8,10 @@ import org.json4s._
 
 object ProductSchema {
   def apply(value: JsonSchema[_]): ProductSchema = {
-    ProductSchema(ProductSchema.initialProperties.mergeValue(value))
+    ProductSchema(ProductSchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[JsonSchema[_]] = {
+  val AllProperties: SchemaProperties[JsonSchema[_]] = {
     val props = SchemaProperties.empty[JsonSchema[_]]
     props.add(ProductSchemaTypesProperty())
 
@@ -21,7 +21,7 @@ object ProductSchema {
 
 final case class ProductSchema(
     override val properties: SchemaProperties[JsonSchema[_]] =
-      ProductSchema.initialProperties
+      ProductSchema.AllProperties
 ) extends JsonSchema[JsonSchema[_]] {
   override def hasType: Boolean = false
 

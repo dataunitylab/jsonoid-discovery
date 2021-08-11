@@ -12,10 +12,10 @@ import utils.{Histogram, HyperLogLog}
 
 object IntegerSchema {
   def apply(value: BigInt): IntegerSchema = {
-    IntegerSchema(IntegerSchema.initialProperties.mergeValue(value))
+    IntegerSchema(IntegerSchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[BigInt] = {
+  val AllProperties: SchemaProperties[BigInt] = {
     val props = SchemaProperties.empty[BigInt]
     props.add(MinIntValueProperty())
     props.add(MaxIntValueProperty())
@@ -32,7 +32,7 @@ object IntegerSchema {
 
 final case class IntegerSchema(
     override val properties: SchemaProperties[BigInt] =
-      IntegerSchema.initialProperties
+      IntegerSchema.AllProperties
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
 

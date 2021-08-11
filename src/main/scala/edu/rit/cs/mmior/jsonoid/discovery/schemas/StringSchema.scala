@@ -18,10 +18,10 @@ import utils.HyperLogLog
 
 object StringSchema {
   def apply(value: String): StringSchema = {
-    StringSchema(StringSchema.initialProperties.mergeValue(value))
+    StringSchema(StringSchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[String] = {
+  val AllProperties: SchemaProperties[String] = {
     val props = SchemaProperties.empty[String]
     props.add(MinLengthProperty())
     props.add(MaxLengthProperty())
@@ -37,7 +37,7 @@ object StringSchema {
 
 final case class StringSchema(
     override val properties: SchemaProperties[String] =
-      StringSchema.initialProperties
+      StringSchema.AllProperties
 ) extends JsonSchema[String] {
   override val schemaType = "string"
 

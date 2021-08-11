@@ -6,10 +6,10 @@ import org.json4s._
 
 object EnumSchema {
   def apply(value: List[JValue]): EnumSchema = {
-    EnumSchema(EnumSchema.initialProperties.mergeValue(value))
+    EnumSchema(EnumSchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[List[JValue]] = {
+  val AllProperties: SchemaProperties[List[JValue]] = {
     val props = SchemaProperties.empty[List[JValue]]
     props.add(EnumValuesProperty())
 
@@ -19,7 +19,7 @@ object EnumSchema {
 
 final case class EnumSchema(
     override val properties: SchemaProperties[List[JValue]] =
-      SchemaProperties.empty[List[JValue]]
+      EnumSchema.AllProperties
 ) extends JsonSchema[List[JValue]] {
   override def hasType: Boolean = false
 

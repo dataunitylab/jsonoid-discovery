@@ -8,10 +8,10 @@ import Helpers._
 
 object ObjectSchema {
   def apply(value: Map[String, JsonSchema[_]]): ObjectSchema = {
-    ObjectSchema(ObjectSchema.initialProperties.mergeValue(value))
+    ObjectSchema(ObjectSchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+  val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(ObjectTypesProperty())
     props.add(FieldPresenceProperty())
@@ -24,7 +24,7 @@ object ObjectSchema {
 
 final case class ObjectSchema(
     override val properties: SchemaProperties[Map[String, JsonSchema[_]]] =
-      ObjectSchema.initialProperties
+      ObjectSchema.AllProperties
 ) extends JsonSchema[Map[String, JsonSchema[_]]] {
   override val schemaType = "object"
 

@@ -12,10 +12,10 @@ import utils.{Histogram, HyperLogLog}
 
 object NumberSchema {
   def apply(value: BigDecimal): NumberSchema = {
-    NumberSchema(NumberSchema.initialProperties.mergeValue(value))
+    NumberSchema(NumberSchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[BigDecimal] = {
+  val AllProperties: SchemaProperties[BigDecimal] = {
     val props = SchemaProperties.empty[BigDecimal]
     props.add(MinNumValueProperty())
     props.add(MaxNumValueProperty())
@@ -31,7 +31,7 @@ object NumberSchema {
 
 final case class NumberSchema(
     override val properties: SchemaProperties[BigDecimal] =
-      NumberSchema.initialProperties
+      NumberSchema.AllProperties
 ) extends JsonSchema[BigDecimal] {
   override val schemaType = "number"
 

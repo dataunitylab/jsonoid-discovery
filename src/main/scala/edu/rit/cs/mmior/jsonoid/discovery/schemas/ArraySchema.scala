@@ -12,10 +12,10 @@ import Helpers._
 
 object ArraySchema {
   def apply(value: List[JsonSchema[_]]): ArraySchema = {
-    ArraySchema(ArraySchema.initialProperties.mergeValue(value))
+    ArraySchema(ArraySchema.AllProperties.mergeValue(value))
   }
 
-  def initialProperties: SchemaProperties[List[JsonSchema[_]]] = {
+  val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
     props.add(MinItemsProperty())
@@ -28,7 +28,7 @@ object ArraySchema {
 
 final case class ArraySchema(
     override val properties: SchemaProperties[List[JsonSchema[_]]] =
-      ArraySchema.initialProperties
+      ArraySchema.AllProperties
 ) extends JsonSchema[List[JsonSchema[_]]] {
   override val schemaType = "array"
 
