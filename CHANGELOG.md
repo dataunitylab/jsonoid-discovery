@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add class to directly run JSONoid on Spark
 
+### Changed
+- Version number (incorrect) removed from CLI output
+
 ## [v0.2.0] - 2021-06-15
 ### Changed
 - `PrimaryKeyFinder` now searches recursively and returns JSON Paths

@@ -65,10 +65,9 @@ object DiscoverSchema {
   )
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
-      head("jsonoid-discover", "0.1.0-SNAPSHOT")
+      head("jsonoid-discover")
 
       help("help")
-      version("version")
 
       arg[File]("<input>")
         .optional()
