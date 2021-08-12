@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Add class to directly run JSONoid on Spark
+- Add different sets of properties which can be discovered with Spark
 
 ### Changed
 - Version number (incorrect) removed from CLI output

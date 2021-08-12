@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
 import schemas._
+import PropertySets._
 
 import java.io.ByteArrayOutputStream
 

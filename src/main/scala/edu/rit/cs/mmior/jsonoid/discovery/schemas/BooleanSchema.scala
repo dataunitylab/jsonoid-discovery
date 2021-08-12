@@ -6,6 +6,9 @@ object BooleanSchema {
     BooleanSchema(BooleanSchema.AllProperties.mergeValue(value))
   }
 
+  val MinProperties: SchemaProperties[Boolean] =
+    SchemaProperties.empty[Boolean]
+
   val AllProperties: SchemaProperties[Boolean] =
     SchemaProperties.empty[Boolean]
 }

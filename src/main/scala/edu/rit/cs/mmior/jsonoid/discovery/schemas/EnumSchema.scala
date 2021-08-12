@@ -9,6 +9,13 @@ object EnumSchema {
     EnumSchema(EnumSchema.AllProperties.mergeValue(value))
   }
 
+  val MinProperties: SchemaProperties[List[JValue]] = {
+    val props = SchemaProperties.empty[List[JValue]]
+    props.add(EnumValuesProperty())
+
+    props
+  }
+
   val AllProperties: SchemaProperties[List[JValue]] = {
     val props = SchemaProperties.empty[List[JValue]]
     props.add(EnumValuesProperty())

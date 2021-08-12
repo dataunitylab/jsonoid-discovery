@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import PropertySets._
 import UnitSpec._
 
 class ArraySchemaSpec extends UnitSpec {

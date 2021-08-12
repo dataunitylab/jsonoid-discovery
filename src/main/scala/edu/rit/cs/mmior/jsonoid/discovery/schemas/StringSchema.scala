@@ -17,8 +17,8 @@ import Helpers._
 import utils.HyperLogLog
 
 object StringSchema {
-  def apply(value: String): StringSchema = {
-    StringSchema(StringSchema.AllProperties.mergeValue(value))
+  def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
+    StringSchema(propSet.stringProperties.mergeValue(value))
   }
 
   val AllProperties: SchemaProperties[String] = {
@@ -33,6 +33,11 @@ object StringSchema {
 
     props
   }
+
+  val MinProperties: SchemaProperties[String] = {
+    SchemaProperties.empty[String]
+  }
+
 }
 
 final case class StringSchema(

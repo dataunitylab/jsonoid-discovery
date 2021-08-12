@@ -7,8 +7,10 @@ import org.json4s._
 import Helpers._
 
 object ObjectSchema {
-  def apply(value: Map[String, JsonSchema[_]]): ObjectSchema = {
-    ObjectSchema(ObjectSchema.AllProperties.mergeValue(value))
+  def apply(
+      value: Map[String, JsonSchema[_]]
+  )(implicit propSet: PropertySet): ObjectSchema = {
+    ObjectSchema(propSet.objectProperties.mergeValue(value))
   }
 
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
@@ -17,6 +19,13 @@ object ObjectSchema {
     props.add(FieldPresenceProperty())
     props.add(RequiredProperty())
     props.add(DependenciesProperty())
+
+    props
+  }
+
+  val MinProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(ObjectTypesProperty())
 
     props
   }

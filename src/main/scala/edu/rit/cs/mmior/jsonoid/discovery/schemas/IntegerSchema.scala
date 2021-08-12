@@ -11,8 +11,8 @@ import Helpers._
 import utils.{Histogram, HyperLogLog}
 
 object IntegerSchema {
-  def apply(value: BigInt): IntegerSchema = {
-    IntegerSchema(IntegerSchema.AllProperties.mergeValue(value))
+  def apply(value: BigInt)(implicit propSet: PropertySet): IntegerSchema = {
+    IntegerSchema(propSet.integerProperties.mergeValue(value))
   }
 
   val AllProperties: SchemaProperties[BigInt] = {
@@ -27,6 +27,10 @@ object IntegerSchema {
     props.add(IntHistogramProperty())
 
     props
+  }
+
+  val MinProperties: SchemaProperties[BigInt] = {
+    SchemaProperties.empty[BigInt]
   }
 }
 

@@ -11,8 +11,10 @@ import Scalaz._
 import Helpers._
 
 object ArraySchema {
-  def apply(value: List[JsonSchema[_]]): ArraySchema = {
-    ArraySchema(ArraySchema.AllProperties.mergeValue(value))
+  def apply(
+      value: List[JsonSchema[_]]
+  )(implicit propSet: PropertySet): ArraySchema = {
+    ArraySchema(propSet.arrayProperties.mergeValue(value))
   }
 
   val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
@@ -21,6 +23,13 @@ object ArraySchema {
     props.add(MinItemsProperty())
     props.add(MaxItemsProperty())
     props.add(UniqueProperty())
+
+    props
+  }
+
+  val MinProperties: SchemaProperties[List[JsonSchema[_]]] = {
+    val props = SchemaProperties.empty[List[JsonSchema[_]]]
+    props.add(ItemTypeProperty())
 
     props
   }

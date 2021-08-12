@@ -7,12 +7,12 @@ import org.apache.spark.rdd.RDD
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import schemas.{JsonSchema, ZeroSchema}
+import schemas._
 
 object JsonoidRDD {
-  def fromStringRDD(rdd: RDD[String]): JsonoidRDD = {
+  def fromStringRDD(rdd: RDD[String], propSet: PropertySet = PropertySets.AllProperties): JsonoidRDD = {
     val discoverFromString = (jsonString: String) =>
-      DiscoverSchema.discoverFromValue(parse(jsonString))
+      DiscoverSchema.discoverFromValue(parse(jsonString), propSet)
     new JsonoidRDD(rdd.map(discoverFromString))
   }
 

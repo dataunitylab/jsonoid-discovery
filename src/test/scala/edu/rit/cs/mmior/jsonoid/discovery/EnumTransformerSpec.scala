@@ -3,6 +3,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import org.json4s.{DefaultFormats, Formats}
 
 import schemas._
+import PropertySets._
 
 class EnumTransformerSpec extends UnitSpec {
   behavior of "EnumTransformer"

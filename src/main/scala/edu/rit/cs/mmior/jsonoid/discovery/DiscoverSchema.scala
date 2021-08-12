@@ -16,36 +16,44 @@ final case class Config(
 )
 
 object DiscoverSchema {
-  def discover(jsons: Iterator[JValue]): JsonSchema[_] = {
-    jsons.map(discoverFromValue(_)).fold(ZeroSchema())(_.merge(_))
+  def discover(jsons: Iterator[JValue], propSet: PropertySet = PropertySets.AllProperties): JsonSchema[_] = {
+    jsons.map(discoverFromValue(_, propSet)).fold(ZeroSchema())(_.merge(_))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  def discoverFromValue(value: JValue): JsonSchema[_] = {
+  def discoverFromValue(
+      value: JValue,
+      propSet: PropertySet = PropertySets.AllProperties
+  ): JsonSchema[_] = {
     value match {
-      case JArray(items)   => ArraySchema(items.map(discoverFromValue))
+      case JArray(items) =>
+        ArraySchema(items.map(discoverFromValue(_, propSet)))(propSet)
       case JBool(bool)     => BooleanSchema(bool)
-      case JDecimal(dec)   => NumberSchema(dec)
-      case JDouble(dbl)    => NumberSchema(dbl)
-      case JInt(int)       => IntegerSchema(int)
-      case JLong(long)     => IntegerSchema(long)
+      case JDecimal(dec)   => NumberSchema(dec)(propSet)
+      case JDouble(dbl)    => NumberSchema(dbl)(propSet)
+      case JInt(int)       => IntegerSchema(int)(propSet)
+      case JLong(long)     => IntegerSchema(long)(propSet)
       case JNothing        => NullSchema()
       case JNull           => NullSchema()
-      case JObject(fields) => discoverObjectFields(fields)
-      case JSet(items)     => ArraySchema(items.map(discoverFromValue).toList)
-      case JString(str)    => StringSchema(str)
+      case JObject(fields) => discoverObjectFields(fields, propSet)
+      case JSet(items) =>
+        ArraySchema(items.map(discoverFromValue(_, propSet)).toList)(propSet)
+      case JString(str) => StringSchema(str)(propSet)
     }
   }
 
-  def discoverObjectFields(fields: Seq[JField]): JsonSchema[_] = {
+  def discoverObjectFields(
+      fields: Seq[JField],
+      propSet: PropertySet
+  ): JsonSchema[_] = {
     ObjectSchema(
       fields
         .map { case (k, v) =>
-          (k, discoverFromValue(v))
+          (k, discoverFromValue(v, propSet))
         }
         .asInstanceOf[Seq[(String, JsonSchema[_])]]
         .toMap
-    )
+    )(propSet)
   }
 
   def jsonFromSource(source: Source): Iterator[JValue] = {
