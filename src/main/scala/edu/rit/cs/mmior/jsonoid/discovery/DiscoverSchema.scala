@@ -16,7 +16,10 @@ final case class Config(
 )
 
 object DiscoverSchema {
-  def discover(jsons: Iterator[JValue], propSet: PropertySet = PropertySets.AllProperties): JsonSchema[_] = {
+  def discover(
+      jsons: Iterator[JValue],
+      propSet: PropertySet = PropertySets.AllProperties
+  ): JsonSchema[_] = {
     jsons.map(discoverFromValue(_, propSet)).fold(ZeroSchema())(_.merge(_))
   }
 

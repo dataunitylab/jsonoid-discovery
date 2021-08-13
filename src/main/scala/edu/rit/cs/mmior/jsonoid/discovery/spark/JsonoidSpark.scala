@@ -15,10 +15,12 @@ final case class Config(
 
 object JsonoidSpark {
   implicit val propertySetRead: scopt.Read[PropertySet] =
-    scopt.Read.reads(typeName => typeName match {
-      case "All" => PropertySets.AllProperties
-      case "Min" => PropertySets.MinProperties
-    })
+    scopt.Read.reads(typeName =>
+      typeName match {
+        case "All" => PropertySets.AllProperties
+        case "Min" => PropertySets.MinProperties
+      }
+    )
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def main(args: Array[String]): Unit = {
