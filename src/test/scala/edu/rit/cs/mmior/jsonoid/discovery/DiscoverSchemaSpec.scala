@@ -57,6 +57,14 @@ class DiscoverSchemaSpec extends UnitSpec {
     DiscoverSchema.discoverFromValue(JString("foo")) shouldBe a [StringSchema]
   }
 
+  it should "produce minimal properties when requested" in {
+    val stringSchema =DiscoverSchema.discover(
+      Seq(JString("foo")).iterator,
+      PropertySets.MinProperties
+    )
+    stringSchema.properties shouldBe empty
+  }
+
   it should "produce a valid schema for given documents" in {
     val files = Table(
       "filename",

@@ -4,14 +4,14 @@ import scala.language.higherKinds
 
 import org.apache.log4j.{Level, Logger}
 import org.scalactic.Equality
-import org.scalatest.{BeforeAndAfter, OptionValues}
+import org.scalatest.{BeforeAndAfter, Checkpoints, OptionValues}
 import org.scalatest.enablers.Containing
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import schemas._
 
-abstract class UnitSpec extends AnyFlatSpec with Matchers with BeforeAndAfter with OptionValues {
+abstract class UnitSpec extends AnyFlatSpec with Matchers with BeforeAndAfter with OptionValues with Checkpoints {
   before {
     Logger.getLogger("org.apache.spark").setLevel(Level.OFF)
   }

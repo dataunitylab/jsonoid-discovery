@@ -49,7 +49,6 @@ wartremoverErrors ++= Seq(
   Wart.ExplicitImplicitTypes,
   Wart.FinalCaseClass,
   Wart.MutableDataStructures,
-  Wart.NonUnitStatements,
   Wart.Null,
   Wart.Option2Iterable,
   Wart.OptionPartial,
@@ -62,6 +61,8 @@ wartremoverErrors ++= Seq(
   Wart.Var,
   Wart.While,
 )
+
+Compile / compile / wartremoverErrors += Wart.NonUnitStatements
 
 Compile / console / scalacOptions := (console / scalacOptions)
   .value.filterNot(opt =>

@@ -46,4 +46,15 @@ class ObjectSchemaSpec extends UnitSpec {
     val nestedSchema = ObjectSchema(Map("baz" -> objectSchema))
     nestedSchema.findByPointer("/baz/foo") shouldBe Some(BooleanSchema())
   }
+
+  it should "have no properties in the minimal property set" in {
+    val cp = new Checkpoint()
+
+    val objectProperties = ObjectSchema(Map("foo" -> BooleanSchema()))(PropertySets.MinProperties).properties
+
+    cp { objectProperties should have size 1 }
+    cp { objectProperties.get[ObjectTypesProperty] }
+
+    cp.reportAll()
+  }
 }

@@ -55,4 +55,8 @@ class IntegerSchemaSpec extends UnitSpec {
     val histProp = integerSchema.properties.get[IntHistogramProperty]
     histProp.histogram.bins shouldBe List((4, 1), (8, 1))
   }
+
+  it should "have no properties in the minimal property set" in {
+    IntegerSchema(0)(PropertySets.MinProperties).properties shouldBe empty
+  }
 }

@@ -114,4 +114,8 @@ class StringSchemaSpec extends UnitSpec {
     val prefixProp = prefixSchema.get[PatternProperty]
     (prefixProp.toJson \ "pattern").extract[String] shouldBe "^ba.*foo$"
   }
+
+  it should "have no properties in the minimal property set" in {
+    StringSchema("foo")(PropertySets.MinProperties).properties shouldBe empty
+  }
 }

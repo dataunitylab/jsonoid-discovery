@@ -79,4 +79,8 @@ class NumberSchemaSpec extends UnitSpec {
     val histProp = mixedSchema.properties.get[NumHistogramProperty]
     histProp.histogram.bins shouldBe List((3.14, 1), (4.28, 1), (5, 1))
   }
+
+  it should "have no properties in the minimal property set" in {
+    NumberSchema(0.0)(PropertySets.MinProperties).properties shouldBe empty
+  }
 }

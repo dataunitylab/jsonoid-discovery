@@ -65,4 +65,15 @@ class ArraySchemaSpec extends UnitSpec {
     val nestedSchema = ArraySchema(ArraySchema(nestedList).properties.mergeValue(nestedList))
     nestedSchema.findByPointer("/0/1") shouldBe Some(BooleanSchema())
   }
+
+  it should "have no properties in the minimal property set" in {
+    val cp = new Checkpoint()
+
+    val arrayProperties = ArraySchema(List(BooleanSchema()))(PropertySets.MinProperties).properties
+
+    cp { arrayProperties should have size 1 }
+    cp { arrayProperties.get[ItemTypeProperty] }
+
+    cp.reportAll()
+  }
 }

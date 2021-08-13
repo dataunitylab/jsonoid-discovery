@@ -3,7 +3,7 @@ package spark
 
 import org.apache.spark.{SparkConf, SparkContext}
 
-import schemas.ObjectSchema
+import schemas.{ObjectSchema, PropertySets}
 
 class JsonoidRDDSpec extends UnitSpec {
   behavior of "JsonoidRDD"
@@ -16,10 +16,15 @@ class JsonoidRDDSpec extends UnitSpec {
     val sc = new SparkContext(conf)
     val rdd = sc.parallelize(jsons)
 
-    val jsonoidRdd = JsonoidRDD.fromStringRDD(rdd)
+    val jsonoidRdd = JsonoidRDD.fromStringRDD(rdd, PropertySets.MinProperties)
     val schema = jsonoidRdd.reduceSchemas()
 
-    schema shouldBe a[ObjectSchema]
-    jsonoidRdd.count should be (2)
+    val cp = new Checkpoint()
+
+    cp { schema shouldBe a[ObjectSchema] }
+    cp { schema.properties should have size 1 }
+    cp { jsonoidRdd.count should be (2) }
+
+    cp.reportAll()
   }
 }
