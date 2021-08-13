@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Version number (incorrect) removed from CLI output
 
-## [v0.2.0] - 2021-06-15
+## [0.2.0] - 2021-06-15
 ### Changed
 - `PrimaryKeyFinder` now searches recursively and returns JSON Paths
 - Generate schema using 2020-12 spec
@@ -23,20 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Arrays now correctly use `minItems` and `maxItems` instead of `minLength` and `maxLength`
 - `multipleOf` is not included if the multiple is zero (only happens for constants)
 
-## [v0.1.3] - 2021-06-09
+## [0.1.3] - 2021-06-09
 ### Added
 - Subschemas can now be extracted using a JSON pointer string
 
 ### Fixed
 - Reservoir sampling for example collection now actually uses new examples
 
-## [v0.1.2] - 2021-06-08
+## [0.1.2] - 2021-06-08
 ### Added
 - Also detect suffix patterns in strings
 
-## [v0.1.1] - 2021-06-01
+## [0.1.1] - 2021-06-01
 ### Added
 - Method for conversion to simple `JObject` JSON Schema
 
-## [v0.1.0] - 2021-05-31
+## [0.1.0] - 2021-05-31
 - Initial release
