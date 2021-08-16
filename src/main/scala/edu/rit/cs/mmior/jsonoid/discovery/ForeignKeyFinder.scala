@@ -11,11 +11,14 @@ object ForeignKeyFinder extends SchemaWalker[RoaringBloomFilter[_]] {
       schema: JsonSchema[_]
   ): Map[String, RoaringBloomFilter[_]] = {
     val extractor: PartialFunction[JsonSchema[_], RoaringBloomFilter[_]] = {
-      case i: IntegerSchema =>
+      case i: IntegerSchema if
+      i.properties.has[IntBloomFilterProperty] =>
         i.properties.get[IntBloomFilterProperty].bloomFilter
-      case n: NumberSchema =>
+      case n: NumberSchema if
+      n.properties.has[NumBloomFilterProperty] =>
         n.properties.get[NumBloomFilterProperty].bloomFilter
-      case s: StringSchema =>
+      case s: StringSchema if
+      s.properties.has[StringBloomFilterProperty] =>
         s.properties.get[StringBloomFilterProperty].bloomFilter
     }
     walk(schema, extractor).toMap

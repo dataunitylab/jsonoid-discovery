@@ -34,6 +34,10 @@ final case class SchemaProperties[T](
     properties(tag).asInstanceOf[S]
   }
 
+  def has[S <: SchemaProperty[T, S]](implicit tag: ClassTag[S]): Boolean = {
+    properties.contains(tag)
+  }
+
   def mergeValue(value: T): SchemaProperties[T] = {
     val mergedProperties =
       properties.mapValues(_.mergeValue(value)).map(identity(_))

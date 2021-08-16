@@ -2,6 +2,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package spark
 
 import schemas._
+import Helpers._
 
 import scopt.OptionParser
 import org.apache.spark.SparkContext
@@ -22,7 +23,8 @@ object JsonoidSpark {
       }
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements",
+                          "org.wartremover.warts.Var"))
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
       head("jsonoid-discover")
@@ -46,10 +48,14 @@ object JsonoidSpark {
           sc.textFile(config.input),
           config.propertySet
         )
-        val schema = jsonRdd.reduceSchemas
-        val transformedSchema: ObjectSchema =
-          DiscoverSchema.transformSchema(schema).asInstanceOf[ObjectSchema]
-        println(compact(render(transformedSchema.toJsonSchema)))
+        var schema: ObjectSchema = jsonRdd.reduceSchemas.asInstanceOf[ObjectSchema]
+
+        // Skip transformation if we know the required properties don't exist
+        if (!(config.propertySet === PropertySets.MinProperties)) {
+          schema = DiscoverSchema.transformSchema(schema).asInstanceOf[ObjectSchema]
+        }
+
+        println(compact(render(schema.toJsonSchema)))
       case None =>
     }
   }
