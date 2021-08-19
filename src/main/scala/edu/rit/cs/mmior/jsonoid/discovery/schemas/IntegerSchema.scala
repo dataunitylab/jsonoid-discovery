@@ -32,6 +32,15 @@ object IntegerSchema {
   val MinProperties: SchemaProperties[BigInt] = {
     SchemaProperties.empty[BigInt]
   }
+
+  val SimpleProperties: SchemaProperties[BigInt] = {
+    val props = SchemaProperties.empty[BigInt]
+    props.add(MinIntValueProperty())
+    props.add(MaxIntValueProperty())
+    props.add(MultipleOfProperty())
+
+    props
+  }
 }
 
 final case class IntegerSchema(

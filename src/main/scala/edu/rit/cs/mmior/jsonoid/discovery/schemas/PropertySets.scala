@@ -25,4 +25,12 @@ object PropertySets {
     ObjectSchema.MinProperties,
     StringSchema.MinProperties
   )
+
+  val SimpleProperties: PropertySet = PropertySet(
+    ArraySchema.SimpleProperties,
+    IntegerSchema.SimpleProperties,
+    NumberSchema.SimpleProperties,
+    ObjectSchema.SimpleProperties,
+    StringSchema.SimpleProperties
+  )
 }

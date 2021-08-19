@@ -18,13 +18,18 @@ object JsonoidSpark {
   implicit val propertySetRead: scopt.Read[PropertySet] =
     scopt.Read.reads(typeName =>
       typeName match {
-        case "All" => PropertySets.AllProperties
-        case "Min" => PropertySets.MinProperties
+        case "All"    => PropertySets.AllProperties
+        case "Min"    => PropertySets.MinProperties
+        case "Simple" => PropertySets.SimpleProperties
       }
     )
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements",
-                          "org.wartremover.warts.Var"))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.Var"
+    )
+  )
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
       head("jsonoid-discover")
@@ -48,11 +53,13 @@ object JsonoidSpark {
           sc.textFile(config.input),
           config.propertySet
         )
-        var schema: ObjectSchema = jsonRdd.reduceSchemas.asInstanceOf[ObjectSchema]
+        var schema: ObjectSchema =
+          jsonRdd.reduceSchemas.asInstanceOf[ObjectSchema]
 
         // Skip transformation if we know the required properties don't exist
         if (!(config.propertySet === PropertySets.MinProperties)) {
-          schema = DiscoverSchema.transformSchema(schema).asInstanceOf[ObjectSchema]
+          schema =
+            DiscoverSchema.transformSchema(schema).asInstanceOf[ObjectSchema]
         }
 
         println(compact(render(schema.toJsonSchema)))

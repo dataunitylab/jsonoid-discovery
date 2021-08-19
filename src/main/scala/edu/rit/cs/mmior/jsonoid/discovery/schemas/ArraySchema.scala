@@ -33,6 +33,15 @@ object ArraySchema {
 
     props
   }
+
+  val SimpleProperties: SchemaProperties[List[JsonSchema[_]]] = {
+    val props = SchemaProperties.empty[List[JsonSchema[_]]]
+    props.add(ItemTypeProperty())
+    props.add(MinItemsProperty())
+    props.add(MaxItemsProperty())
+
+    props
+  }
 }
 
 final case class ArraySchema(

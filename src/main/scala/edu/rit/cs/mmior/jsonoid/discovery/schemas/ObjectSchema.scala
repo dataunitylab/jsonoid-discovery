@@ -29,6 +29,15 @@ object ObjectSchema {
 
     props
   }
+
+  val SimpleProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(ObjectTypesProperty())
+    props.add(RequiredProperty())
+    props.add(DependenciesProperty())
+
+    props
+  }
 }
 
 final case class ObjectSchema(

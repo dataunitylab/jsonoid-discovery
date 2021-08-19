@@ -38,6 +38,16 @@ object StringSchema {
     SchemaProperties.empty[String]
   }
 
+  val SimpleProperties: SchemaProperties[String] = {
+    val props = SchemaProperties.empty[String]
+    props.add(MinLengthProperty())
+    props.add(MaxLengthProperty())
+    props.add(FormatProperty())
+    props.add(PatternProperty())
+
+    props
+  }
+
 }
 
 final case class StringSchema(

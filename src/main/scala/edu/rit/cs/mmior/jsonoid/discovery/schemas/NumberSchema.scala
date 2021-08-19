@@ -31,6 +31,15 @@ object NumberSchema {
   val MinProperties: SchemaProperties[BigDecimal] = {
     SchemaProperties.empty[BigDecimal]
   }
+
+  val SimpleProperties: SchemaProperties[BigDecimal] = {
+    val props = SchemaProperties.empty[BigDecimal]
+    props.add(MinNumValueProperty())
+    props.add(MaxNumValueProperty())
+    props.add(NumStatsProperty())
+
+    props
+  }
 }
 
 final case class NumberSchema(
