@@ -12,7 +12,8 @@ import schemas._
 
 final case class Config(
     input: Option[File] = None,
-    writeValues: Option[File] = None
+    writeValues: Option[File] = None,
+    propertySet: PropertySet = PropertySets.AllProperties
 )
 
 object DiscoverSchema {
@@ -67,6 +68,15 @@ object DiscoverSchema {
     EnumTransformer.transformSchema(schema)
   }
 
+  implicit val propertySetRead: scopt.Read[PropertySet] =
+    scopt.Read.reads(typeName =>
+      typeName match {
+        case "All"    => PropertySets.AllProperties
+        case "Min"    => PropertySets.MinProperties
+        case "Simple" => PropertySets.SimpleProperties
+      }
+    )
+
   // $COVERAGE-OFF$ No automated testing of CLI
   @SuppressWarnings(
     Array(
@@ -89,6 +99,10 @@ object DiscoverSchema {
         .action((x, c) => c.copy(writeValues = Some(x)))
         .valueName("<file>")
         .text("a file where a table of collected values should be written")
+
+      opt[PropertySet]('p', "prop")
+        .action((x, c) => c.copy(propertySet = x))
+        .text("the set of properties to calculate [All, Min, Simple]")
     }
 
     parser.parse(args, Config()) match {
@@ -99,7 +113,7 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        val schema = discover(jsons)
+        val schema = discover(jsons, config.propertySet)
 
         if (!config.writeValues.isEmpty) {
           val objectSchema = schema.asInstanceOf[ObjectSchema]
