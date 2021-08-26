@@ -38,7 +38,9 @@ lazy val root = (project in file("."))
     dependencyOverrides ++= Seq(
       jacksonDatabind,
     ),
-    scalacOptions ++= nonConsoleCompilerOptions
+    scalacOptions ++= nonConsoleCompilerOptions,
+    buildInfoKeys := Seq[BuildInfoKey](version),
+    buildInfoPackage := "edu.rit.cs.mmior.jsonoid"
   )
 
 wartremoverErrors ++= Seq(
@@ -70,6 +72,7 @@ Compile / console / scalacOptions := (console / scalacOptions)
     nonConsoleCompilerOptions.contains(opt)
 )
 
+enablePlugins(BuildInfoPlugin)
 enablePlugins(GhpagesPlugin)
 enablePlugins(GitVersioning)
 enablePlugins(SiteScaladocPlugin)

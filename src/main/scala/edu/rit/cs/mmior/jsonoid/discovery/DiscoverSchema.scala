@@ -8,6 +8,7 @@ import scopt.OptionParser
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
+import edu.rit.cs.mmior.jsonoid.BuildInfo
 import schemas._
 
 final case class Config(
@@ -86,7 +87,7 @@ object DiscoverSchema {
   )
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
-      head("jsonoid-discover")
+      head("jsonoid-discover", BuildInfo.version)
 
       help("help")
 

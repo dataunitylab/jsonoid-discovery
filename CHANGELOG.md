@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add option for property sets to main CLI
 
+### Changed
+- Include version number in CLI output
+
 ## [0.2.2] - 2021-08-24
 ### Changed
 - Removed `$vocabulary` from the generated schema

@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package spark
 
+import edu.rit.cs.mmior.jsonoid.BuildInfo
 import schemas._
 import Helpers._
 
@@ -32,7 +33,7 @@ object JsonoidSpark {
   )
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("jsonoid-discover") {
-      head("jsonoid-discover")
+      head("jsonoid-discover", BuildInfo.version)
 
       help("help")
 
