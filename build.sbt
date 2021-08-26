@@ -14,7 +14,8 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 val nonConsoleCompilerOptions = Seq(
   "-feature",
   "-Xfatal-warnings",
-  "-Ywarn-unused-import"
+  "-Ywarn-unused-import",
+  "-deprecation"
 )
 
 lazy val root = (project in file("."))
