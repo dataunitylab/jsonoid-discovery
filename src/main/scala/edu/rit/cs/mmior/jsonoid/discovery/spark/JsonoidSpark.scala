@@ -42,7 +42,7 @@ object JsonoidSpark {
 
       opt[PropertySet]('p', "prop")
         .action((x, c) => c.copy(propertySet = x))
-        .text("the set of properties to calculate [All, Min]")
+        .text("the set of properties to calculate [All, Min, Simple]")
     }
 
     parser.parse(args, Config()) match {
