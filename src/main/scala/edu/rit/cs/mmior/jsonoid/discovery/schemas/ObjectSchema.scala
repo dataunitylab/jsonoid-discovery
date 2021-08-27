@@ -211,7 +211,7 @@ final case class DependenciesProperty(
     if (dependencies.isEmpty) {
       Nil
     } else {
-      ("dependencies" -> dependencies)
+      ("dependentRequired" -> dependencies)
     }
   }
 

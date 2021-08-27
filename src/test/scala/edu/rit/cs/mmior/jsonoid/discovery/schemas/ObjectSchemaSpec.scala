@@ -35,7 +35,7 @@ class ObjectSchemaSpec extends UnitSpec {
       BooleanSchema())).mergeValue(Map("foo" -> BooleanSchema()))
     val dependenciesProp = dependentSchema.get[DependenciesProperty]
     implicit val formats: Formats = DefaultFormats
-    (dependenciesProp.toJson \ "dependencies").extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
+    (dependenciesProp.toJson \ "dependentRequired").extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
 
   it should "be able to find subschemas by pointer" in {
