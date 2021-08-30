@@ -6,8 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+## Changed
+- Produce 2019 draft version schemas
+
 ## Fixed
 - Change `dependencies` property to `dependentRequired` to match latest schema version
+- Change `prefixItems` back to `items` for now since we are using draft 2019
 
 ## [0.2.4] - 2021-08-27
 ## Fixed
