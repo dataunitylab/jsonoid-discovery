@@ -37,14 +37,18 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: sbt assembly
+    - name: Generate schema
+      run: java -jar target/scala-2.11/*-assembly-*.jar -p Simple < src/test/resources/earthquakes.json > /tmp/earthquakes.schema.json
     - uses: actions/setup-node@v2
       with:
         node-version: '14'
+    - name: Install ajv
+      run: |
+        yarn global add ajv-cli ajv-formats
+        yarn global bin >> $GITHUB_PATH
     - name: Validate generated schema
       run: |
-        java -jar target/scala-2.11/*-assembly-*.jar -p Simple < src/test/resources/earthquakes.json > /tmp/earthquakes.schema.json
-        yarn global add ajv-formats
-        npx ajv-cli compile --spec=draft2019 -s /tmp/earthquakes.schema.json -c ajv-formats
+          ajv compile --spec=draft2019 -s /tmp/earthquakes.schema.json -c ajv-formats
 
   publish:
     if: ${{ github.event_name != 'pull_request' }}
