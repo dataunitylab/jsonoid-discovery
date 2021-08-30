@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import java.io.PrintWriter
+import java.nio.file.{FileSystems,Files}
 import scala.io.Source
 
 import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
@@ -68,22 +70,32 @@ class DiscoverSchemaSpec extends UnitSpec {
   it should "produce a valid schema for given documents" in {
     val files = Table(
       "filename",
-      "/earthquakes.json",
-      "/gdp.json",
-      "/mr-robot.json",
-      "/nobel.json",
-      "/rickandmorty.json",
-      "/test.json",
-      "/jsonlines-example.json"
+      "earthquakes.json",
+      "gdp.json",
+      "mr-robot.json",
+      "nobel.json",
+      "rickandmorty.json",
+      "test.json",
+      "jsonlines-example.json"
     )
 
+    // Generate the output directory to store generated schemas
+    val schemaPath = FileSystems.getDefault().getPath("target", "jsonoid-schemas")
+    Files.createDirectories(schemaPath)
+
     forAll(files) { filename: String =>
-      val url = getClass.getResource(filename)
+      val url = getClass.getResource("/" + filename)
       val input = DiscoverSchema.jsonFromSource(Source.fromURL(url)).buffered
       val firstDoc = input.head
-      val schema = DiscoverSchema.discover(input)
+      val schema = DiscoverSchema.discover(input, PropertySets.SimpleProperties)
       val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
       val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
+
+      // Save a copy of the generated schema
+      new PrintWriter(schemaPath.resolve(filename).toFile) {
+        write(compact(render(schema.toJson)))
+        close
+      }
 
       val errors = jsonSchema.validate(asJsonNode(firstDoc))
       errors shouldBe empty
