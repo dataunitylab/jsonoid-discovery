@@ -42,7 +42,7 @@ jobs:
         node-version: '14'
     - name: Validate generated schema
       run: |
-        java -jar target/scala-2.11/*-assembly-*.jar < src/test/resources/earthquakes.json > /tmp/earthquakes.schema.json
+        java -jar target/scala-2.11/*-assembly-*.jar -p Simple < src/test/resources/earthquakes.json > /tmp/earthquakes.schema.json
         npx ajv-cli compile --spec=draft2019 -s /tmp/earthquakes.schema.json
 
   publish:
