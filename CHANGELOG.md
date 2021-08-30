@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ## Changed
 - Produce 2019 draft version schemas
+- Remove statistics from `NumberSchema` simple properties
 
 ## Fixed
 - Change `dependencies` property to `dependentRequired` to match latest schema version

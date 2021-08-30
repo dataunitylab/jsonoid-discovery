@@ -36,7 +36,6 @@ object NumberSchema {
     val props = SchemaProperties.empty[BigDecimal]
     props.add(MinNumValueProperty())
     props.add(MaxNumValueProperty())
-    props.add(NumStatsProperty())
 
     props
   }
