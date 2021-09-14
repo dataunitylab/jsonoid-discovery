@@ -88,8 +88,6 @@ class DiscoverSchemaSpec extends UnitSpec {
       val input = DiscoverSchema.jsonFromSource(Source.fromURL(url)).buffered
       val firstDoc = input.head
       val schema = DiscoverSchema.discover(input, PropertySets.SimpleProperties)
-      val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
-      val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
 
       // Save a copy of the generated schema
       new PrintWriter(schemaPath.resolve(filename).toFile) {
@@ -97,6 +95,10 @@ class DiscoverSchemaSpec extends UnitSpec {
         close
       }
 
+      // XXX This validation is not perfect, but we'll check later with AJV
+      //     Specifically, version 2020-12 of the spec is not yet supported
+      val factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+      val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
       val errors = jsonSchema.validate(asJsonNode(firstDoc))
       errors shouldBe empty
     }
