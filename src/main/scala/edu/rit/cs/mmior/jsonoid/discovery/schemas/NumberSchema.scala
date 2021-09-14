@@ -201,7 +201,7 @@ final case class NumBloomFilterProperty(
 
 final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigDecimal, NumStatsProperty] {
-  override def toJson: JObject = ("stats" -> stats.toJson)
+  override def toJson: JObject = ("statistics" -> stats.toJson)
 
   override def merge(
       otherProp: NumStatsProperty

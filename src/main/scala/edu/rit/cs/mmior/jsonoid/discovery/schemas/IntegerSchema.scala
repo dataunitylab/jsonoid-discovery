@@ -144,7 +144,7 @@ final case class IntBloomFilterProperty(
 
 final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigInt, IntStatsProperty] {
-  override def toJson: JObject = ("stats" -> stats.toJson)
+  override def toJson: JObject = ("statistics" -> stats.toJson)
 
   override def merge(
       otherProp: IntStatsProperty
