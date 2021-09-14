@@ -50,4 +50,6 @@ jobs:
     - name: Publish package
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sbt publish
+      run: |
+          sbt publish
+          sbt ghpagesPushSite
