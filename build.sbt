@@ -74,9 +74,13 @@ Compile / console / scalacOptions := (console / scalacOptions)
 )
 
 enablePlugins(BuildInfoPlugin)
-enablePlugins(GhpagesPlugin)
+enablePlugins(GitHubPagesPlugin)
 enablePlugins(GitVersioning)
 enablePlugins(SiteScaladocPlugin)
+
+gitHubPagesOrgName := "michaelmior"
+gitHubPagesRepoName := "jsonoid-discovery"
+gitHubPagesSiteDir := baseDirectory.value / "target/site"
 
 git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
 git.useGitDescribe := true

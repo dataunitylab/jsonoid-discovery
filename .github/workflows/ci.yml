@@ -52,4 +52,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
           sbt publish
-          sbt ghpagesPushSite
+          sbt makeSite
+          sbt publishToGitHubPages
