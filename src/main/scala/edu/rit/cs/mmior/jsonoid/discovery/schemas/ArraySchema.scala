@@ -82,7 +82,7 @@ final case class ItemTypeProperty(
 ) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
   override def toJson: JObject = itemType match {
     case Left(schema)   => ("items" -> schema.toJson)
-    case Right(schemas) => ("items" -> JArray(schemas.map(_.toJson)))
+    case Right(schemas) => ("prefixItems" -> JArray(schemas.map(_.toJson)))
   }
 
   override def transform(

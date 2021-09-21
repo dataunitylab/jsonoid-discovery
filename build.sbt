@@ -83,6 +83,28 @@ git.useGitDescribe := true
 
 Test / fork := true
 
+val metaschemaFile = settingKey[File]("Metaschema file object")
+metaschemaFile := (Compile / resourceManaged).value / "site" / "metaschema.json"
+
+val metaschemaUrl = settingKey[String]("Metaschema URL")
+metaschemaUrl := {if (sys.env.getOrElse("METASCHEMA_LOCAL", "0").toInt == 1)
+  "file://" + metaschemaFile.value.getPath.toString
+else
+  "file://" + metaschemaFile.value.getPath.toString
+}
+
+Compile / resourceGenerators += Def.task {
+  val metaschema = IO.read(new java.io.File("metaschema-template.json"))
+  IO.write(metaschemaFile.value, metaschema.replaceAll("METASCHEMA_URL", metaschemaUrl.value))
+  Seq(metaschemaFile.value)
+}.taskValue
+
+Compile / sourceGenerators += Def.task {
+  val file = (Compile / sourceManaged).value / "edu" / "rit" / "cs" / "mmior" / "jsonoid" / "discovery" / "Metaschema.scala"
+  IO.write(file, "package edu.rit.cs.mmior.jsonoid.discovery\nobject Metaschema { val url = \"" + metaschemaUrl.value + "\" }")
+  Seq(file)
+}.taskValue
+
 assembly / assemblyMergeStrategy := {
   case "module-info.class" => MergeStrategy.discard
   case x =>

@@ -1,0 +1,60 @@
+{
+  "$id": "METASCHEMA_URL",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$vocabulary": {
+    "https://json-schema.org/draft/2020-12/vocab/core": true,
+    "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+    "https://json-schema.org/draft/2020-12/vocab/unevaluated": true,
+    "https://json-schema.org/draft/2020-12/vocab/validation": true,
+    "https://json-schema.org/draft/2020-12/vocab/meta-data": true,
+    "https://json-schema.org/draft/2020-12/vocab/format-annotation": true,
+    "https://json-schema.org/draft/2020-12/vocab/content": true,
+    "METASCHEMA_URL": true
+  },
+  "$dynamicAnchor": "meta",
+
+  "title": "Core and Validation specifications meta-schema",
+  "allOf": [
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/core"},
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/applicator"},
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/unevaluated"},
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/validation"},
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/meta-data"},
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/format-annotation"},
+    {"$ref": "https://json-schema.org/draft/2020-12/meta/content"},
+    {"$ref": "#/$defs/vocab"}
+  ],
+
+  "$defs": {
+    "vocab": {
+      "properties": {
+        "distinctValues": {"type": "integer", "minimum": 0},
+
+        "histogram": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {"type": "number"},
+              {"type": "integer", "exclusiveMinimum": 0}
+            ]
+          }
+        },
+
+        "statistics": {
+          "type": "object",
+          "properties": {
+            "mean": {"type": "number"},
+            "variance": {"type": "number", "minimum": 0},
+            "stdev": {"type": "number", "minimum": 0},
+            "skewness": {"type": "number"},
+            "kurtosis": {"type": "number"}
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+
+  "type": ["object", "boolean"]
+}
