@@ -3,16 +3,28 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import schemas._
 
 trait SchemaWalker[T] {
+  private def extractSingle(
+      schema: JsonSchema[_],
+      extractor: PartialFunction[(String, JsonSchema[_]), T],
+      path: String
+  ): Seq[(String, T)] = {
+    if (extractor.isDefinedAt((path, schema))) {
+      Seq((path, extractor(path, schema)))
+    } else {
+      Seq.empty[(String, T)]
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def extractValues(
       schema: JsonSchema[_],
-      extractor: PartialFunction[JsonSchema[_], T],
+      extractor: PartialFunction[(String, JsonSchema[_]), T],
       prefix: String = "$"
   ): Seq[(String, T)] = {
     schema match {
       case o: ObjectSchema =>
         val props = o.properties.get[ObjectTypesProperty].objectTypes
-        props.keySet.toSeq.flatMap(key =>
+        extractSingle(o, extractor, prefix) ++ props.keySet.toSeq.flatMap(key =>
           extractValues(props(key), extractor, prefix + "." + key)
         )
       case a: ArraySchema =>
@@ -21,19 +33,19 @@ trait SchemaWalker[T] {
           case Right(multipleSchemas) =>
             multipleSchemas.fold(ZeroSchema())(_.merge(_))
         }
-        extractValues(arrayType, extractor, prefix + "[*]")
+        extractSingle(a, extractor, prefix) ++ extractValues(
+          arrayType,
+          extractor,
+          prefix + "[*]"
+        )
       case x =>
-        if (extractor.isDefinedAt(x)) {
-          Seq((prefix, extractor(x)))
-        } else {
-          Seq.empty[(String, T)]
-        }
+        extractSingle(x, extractor, prefix)
     }
   }
 
   def walk(
       schema: JsonSchema[_],
-      extractor: PartialFunction[JsonSchema[_], T]
+      extractor: PartialFunction[(String, JsonSchema[_]), T]
   ): Map[String, T] = {
     extractValues(schema, extractor, "$").toMap
   }

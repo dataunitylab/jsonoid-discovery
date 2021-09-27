@@ -10,12 +10,14 @@ object ForeignKeyFinder extends SchemaWalker[RoaringBloomFilter[_]] {
   def collectFiltersByPath(
       schema: JsonSchema[_]
   ): Map[String, RoaringBloomFilter[_]] = {
-    val extractor: PartialFunction[JsonSchema[_], RoaringBloomFilter[_]] = {
-      case i: IntegerSchema if i.properties.has[IntBloomFilterProperty] =>
+    val extractor
+        : PartialFunction[(String, JsonSchema[_]), RoaringBloomFilter[_]] = {
+      case (_, i: IntegerSchema) if i.properties.has[IntBloomFilterProperty] =>
         i.properties.get[IntBloomFilterProperty].bloomFilter
-      case n: NumberSchema if n.properties.has[NumBloomFilterProperty] =>
+      case (_, n: NumberSchema) if n.properties.has[NumBloomFilterProperty] =>
         n.properties.get[NumBloomFilterProperty].bloomFilter
-      case s: StringSchema if s.properties.has[StringBloomFilterProperty] =>
+      case (_, s: StringSchema)
+          if s.properties.has[StringBloomFilterProperty] =>
         s.properties.get[StringBloomFilterProperty].bloomFilter
     }
     walk(schema, extractor).toMap
