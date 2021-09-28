@@ -28,16 +28,16 @@ trait SchemaWalker[T] {
           extractValues(props(key), extractor, prefix + "." + key)
         )
       case a: ArraySchema =>
-        val arrayType = a.properties.get[ItemTypeProperty].itemType match {
-          case Left(singleSchema) => singleSchema
+        extractSingle(a, extractor, prefix) ++ (a.properties
+          .get[ItemTypeProperty]
+          .itemType match {
+          case Left(singleSchema) =>
+            extractValues(singleSchema, extractor, prefix + "[*]")
           case Right(multipleSchemas) =>
-            multipleSchemas.fold(ZeroSchema())(_.merge(_))
-        }
-        extractSingle(a, extractor, prefix) ++ extractValues(
-          arrayType,
-          extractor,
-          prefix + "[*]"
-        )
+            multipleSchemas.zipWithIndex.flatMap { case (schema, index) =>
+              extractValues(schema, extractor, s"$prefix[$index]")
+            }
+        })
       case x =>
         extractSingle(x, extractor, prefix)
     }

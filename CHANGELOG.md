@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Produce 2019 draft version schemas
 - Remove statistics from `NumberSchema` simple properties
 - Rename `stats` property to `statistics`
+- Separate elements of tuple schemas when generating value tables
 
 ## Fixed
 - Change `dependencies` property to `dependentRequired` to match latest schema version

@@ -17,6 +17,6 @@ class ValueTableGeneratorSpec extends UnitSpec {
     val output = new ByteArrayOutputStream()
     ValueTableGenerator.writeValueTable(objectSchema, output)
 
-    output.toString("UTF-8") should equal ("$.baz[*],$.foo\r\ncorge,bar\r\nquux,\r\n")
+    output.toString("UTF-8") should equal ("$.baz[0],$.baz[1],$.foo\r\nquux,corge,bar\r\n")
   }
 }
