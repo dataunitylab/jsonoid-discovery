@@ -38,6 +38,12 @@ final case class SchemaProperties[T](
     properties.contains(tag)
   }
 
+  def replaceProperty[S <: SchemaProperty[T, S]](
+      prop: S
+  )(implicit tag: ClassTag[S]): SchemaProperties[T] = {
+    SchemaProperties(properties + (tag -> prop))
+  }
+
   def mergeValue(value: T): SchemaProperties[T] = {
     val mergedProperties =
       properties.mapValues(_.mergeValue(value)).map(identity(_))

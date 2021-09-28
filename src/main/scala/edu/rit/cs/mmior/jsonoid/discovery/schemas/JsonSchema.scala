@@ -41,4 +41,7 @@ trait JsonSchema[T] {
   }
 
   def findByPointer(pointer: String): Option[JsonSchema[_]] = None
+
+  def replaceWithReference(pointer: String, reference: String): JsonSchema[_] =
+    this
 }

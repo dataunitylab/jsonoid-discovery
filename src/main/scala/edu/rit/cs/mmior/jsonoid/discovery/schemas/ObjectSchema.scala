@@ -85,6 +85,73 @@ final case class ObjectSchema(
         }
     }
   }
+
+  def withDefinition(definition: JsonSchema[_], name: String): ObjectSchema = {
+    val newProperties = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    newProperties.add(DefinitionsProperty(Map(name -> definition)))
+    ObjectSchema(newProperties.merge(this.properties))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def replaceWithReference(
+      pointer: String,
+      reference: String
+  ): JsonSchema[_] = {
+    val objectTypes = properties.get[ObjectTypesProperty].objectTypes
+    pointer.split("/", 3) match {
+      case Array(_) | Array(_, "") =>
+        throw new IllegalArgumentException("Invalid path for reference")
+      case Array(_, first) =>
+        // Build a new type property that replaces the required type
+        val newTypes = properties.get[ObjectTypesProperty].objectTypes
+        val typeProp = ObjectTypesProperty(
+          newTypes + (first -> ReferenceSchema(reference))
+        )
+
+        ObjectSchema(this.properties.replaceProperty(typeProp))
+      case Array(_, first, rest) =>
+        objectTypes.get(first) match {
+          case Some(schema: JsonSchema[_]) =>
+            schema.replaceWithReference(pointer, reference)
+          case _ =>
+            throw new IllegalArgumentException("Invalid path for reference")
+        }
+    }
+  }
+}
+
+final case class DefinitionsProperty(
+    definitions: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
+) extends SchemaProperty[Map[String, JsonSchema[_]], DefinitionsProperty] {
+  override def toJson: JObject = if (definitions.size > 0) {
+    "$defs" -> definitions.map { case (defn, schema) =>
+      (defn -> schema.toJson)
+    }
+  } else {
+    Nil
+  }
+
+  override def merge(
+      otherProp: DefinitionsProperty
+  ): DefinitionsProperty = {
+    val other = otherProp.definitions
+    this.mergeValue(other)
+  }
+
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  ): DefinitionsProperty = {
+    val merged = definitions.toSeq ++ value.toSeq
+    val grouped = merged.groupBy(_._1)
+    DefinitionsProperty(
+      // .map(identity) below is necessary to
+      // produce a map which is serializable
+      grouped
+        .mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_)))
+        .map(identity)
+        .toMap
+    )
+  }
 }
 
 final case class ObjectTypesProperty(

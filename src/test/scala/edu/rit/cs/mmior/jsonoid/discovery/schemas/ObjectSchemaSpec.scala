@@ -11,9 +11,12 @@ import UnitSpec._
 class ObjectSchemaSpec extends UnitSpec {
   behavior of "ObjectSchema"
 
+  implicit val formats: Formats = DefaultFormats
+
   private val objectTypes = Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
   private val schemaProperties = ObjectSchema(Map("foo" -> BooleanSchema())).properties.mergeValue(objectTypes)
   private val objectSchema = ObjectSchema(schemaProperties)
+
 
   it should "track required properties" in {
     schemaProperties should contain (RequiredProperty(Some(Set("foo"))))
@@ -34,7 +37,6 @@ class ObjectSchemaSpec extends UnitSpec {
       BooleanSchema())).properties.mergeValue(Map("baz" ->
       BooleanSchema())).mergeValue(Map("foo" -> BooleanSchema()))
     val dependenciesProp = dependentSchema.get[DependenciesProperty]
-    implicit val formats: Formats = DefaultFormats
     (dependenciesProp.toJson \ "dependentRequired").extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
 
@@ -56,5 +58,17 @@ class ObjectSchemaSpec extends UnitSpec {
     cp { objectProperties.get[ObjectTypesProperty] }
 
     cp.reportAll()
+  }
+
+  it should "allow use of definitions" in {
+    val definitionSchema = BooleanSchema()
+    val objectSchema = ObjectSchema().withDefinition(definitionSchema, "foo")
+
+    (objectSchema.toJson \ "$defs" \ "foo") shouldEqual definitionSchema.toJson
+  }
+
+  it should "allow replacement of a schema with a reference" in {
+    val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema())).replaceWithReference("/foo", "foo")
+    (objectSchema.toJson \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 }

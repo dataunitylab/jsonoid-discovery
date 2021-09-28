@@ -75,6 +75,41 @@ final case class ArraySchema(
         }
     }
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def replaceWithReference(
+      pointer: String,
+      reference: String
+  ): JsonSchema[_] = {
+    val itemTypes = properties.get[ItemTypeProperty].itemType
+    itemTypes match {
+      case Left(_) =>
+        pointer.split("/", 3) match {
+          case Array(_, "*") =>
+            // Build a new type property that replaces the required type
+            val typeProp = ItemTypeProperty(Left(ReferenceSchema(reference)))
+            ArraySchema(this.properties.replaceProperty(typeProp))
+          case _ =>
+            throw new IllegalArgumentException("Invalid path for reference")
+        }
+      case Right(schemas) =>
+        pointer.split("/", 3) match {
+          case Array(_) =>
+            throw new IllegalArgumentException("Invalid path for reference")
+          case Array(_, "") =>
+            throw new IllegalArgumentException("Invalid path for reference")
+          case Array(_, first) =>
+            // Build a new type property that replaces the required type
+            val newSchemas =
+              schemas.updated(first.toInt, ReferenceSchema(reference))
+            val typeProp = ItemTypeProperty(Right(newSchemas))
+
+            ArraySchema(this.properties.replaceProperty(typeProp))
+          case Array(_, first, rest) =>
+            schemas(first.toInt).replaceWithReference("/" + rest, reference)
+        }
+    }
+  }
 }
 
 final case class ItemTypeProperty(

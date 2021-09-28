@@ -4,8 +4,12 @@ package schemas
 import PropertySets._
 import UnitSpec._
 
+import org.json4s.{DefaultFormats, Formats}
+
 class ArraySchemaSpec extends UnitSpec {
   behavior of "ArraySchema"
+
+  implicit val formats: Formats = DefaultFormats
 
   private val itemType = BooleanSchema()
   private val arraySchema = ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
@@ -75,5 +79,16 @@ class ArraySchemaSpec extends UnitSpec {
     cp { arrayProperties.get[ItemTypeProperty] }
 
     cp.reportAll()
+  }
+
+  it should "allow replacement of a schema with a reference in a tuple schema" in {
+    val refSchema = tupleSchema.replaceWithReference("/0", "foo")
+    (refSchema.toJson \ "items").extract[List[Map[String, String]]] shouldEqual List(Map("$ref" -> "foo"), Map("type" -> "boolean"))
+  }
+
+  it should "allow replacement of a schema with a reference in a array schema" in {
+    val arraySchema = ArraySchema(List(NullSchema())).merge(ArraySchema(List(NullSchema(), NullSchema())))
+    val refSchema = arraySchema.replaceWithReference("/*", "foo")
+    (refSchema.toJson \ "items").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 }
