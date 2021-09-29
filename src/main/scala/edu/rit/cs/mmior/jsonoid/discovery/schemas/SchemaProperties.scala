@@ -50,13 +50,22 @@ final case class SchemaProperties[T](
     SchemaProperties(mergedProperties.asInstanceOf[PropertyMap[T]])
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def merge(other: SchemaProperties[T]): SchemaProperties[T] = {
-    val mergedProperties = properties.transform { case (key, prop) =>
+    var mergedProperties = properties.transform { case (key, prop) =>
       other.properties.get(key) match {
         case Some(otherProp) => prop.mergeOnlySameType(otherProp)
         case None            => prop
       }
     }
+
+    // Add "other" properties which did not originally exist
+    other.properties.foreach { case (tag, prop) =>
+      if (!properties.contains(tag)) {
+        mergedProperties += (tag -> prop)
+      }
+    }
+
     SchemaProperties(mergedProperties.asInstanceOf[PropertyMap[T]])
   }
 
