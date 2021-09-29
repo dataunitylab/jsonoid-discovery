@@ -71,4 +71,9 @@ class ObjectSchemaSpec extends UnitSpec {
     val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema())).replaceWithReference("/foo", "foo")
     (objectSchema.toJson \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
+
+  it should "allow replacement of a nested schema with a reference" in {
+    val objectSchema = ObjectSchema(Map("foo" -> ObjectSchema(Map("bar" -> BooleanSchema())))).replaceWithReference("/foo/bar", "bar")
+    (objectSchema.toJson \ "properties" \ "foo" \ "properties" \ "bar").extract[Map[String, String]] shouldEqual Map("$ref" -> "bar")
+  }
 }

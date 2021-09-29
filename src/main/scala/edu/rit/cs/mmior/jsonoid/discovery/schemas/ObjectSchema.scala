@@ -97,26 +97,30 @@ final case class ObjectSchema(
       pointer: String,
       reference: String
   ): JsonSchema[_] = {
+    // Build a new type map that replaces the required type
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    pointer.split("/", 3) match {
+    val newTypes = pointer.split("/", 3) match {
       case Array(_) | Array(_, "") =>
         throw new IllegalArgumentException("Invalid path for reference")
       case Array(_, first) =>
-        // Build a new type property that replaces the required type
-        val newTypes = properties.get[ObjectTypesProperty].objectTypes
-        val typeProp = ObjectTypesProperty(
-          newTypes + (first -> ReferenceSchema(reference))
-        )
+        objectTypes + (first -> ReferenceSchema(reference))
 
-        ObjectSchema(this.properties.replaceProperty(typeProp))
       case Array(_, first, rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
-            schema.replaceWithReference(pointer, reference)
+            // Replace the type along the path with
+            // one which has the replaced reference
+            objectTypes + (first -> schema.replaceWithReference(
+              "/" + rest,
+              reference
+            ))
           case _ =>
             throw new IllegalArgumentException("Invalid path for reference")
         }
     }
+
+    val typeProp = ObjectTypesProperty(newTypes)
+    ObjectSchema(this.properties.replaceProperty(typeProp))
   }
 }
 

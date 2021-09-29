@@ -91,4 +91,10 @@ class ArraySchemaSpec extends UnitSpec {
     val refSchema = arraySchema.replaceWithReference("/*", "foo")
     (refSchema.toJson \ "items").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
+
+  it should "allow replacement of a schema with a reference in a nested array schema" in {
+    val arraySchema = ArraySchema(List(tupleSchema)).merge(ArraySchema(List(tupleSchema, tupleSchema)))
+    val refSchema = arraySchema.replaceWithReference("/*/0", "foo")
+    (refSchema.toJson \ "items" \ "items")(0).extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
+  }
 }

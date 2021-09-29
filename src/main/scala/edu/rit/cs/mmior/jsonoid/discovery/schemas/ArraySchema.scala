@@ -83,31 +83,40 @@ final case class ArraySchema(
   ): JsonSchema[_] = {
     val itemTypes = properties.get[ItemTypeProperty].itemType
     itemTypes match {
-      case Left(_) =>
-        pointer.split("/", 3) match {
+      case Left(schema) =>
+        // XXX The * is not real JSON Pointer syntax
+        //     but allows us to work with array schemas
+        // Build a new type property that replaces the required type
+        val typeProp = pointer.split("/", 3) match {
           case Array(_, "*") =>
-            // Build a new type property that replaces the required type
-            val typeProp = ItemTypeProperty(Left(ReferenceSchema(reference)))
-            ArraySchema(this.properties.replaceProperty(typeProp))
+            ItemTypeProperty(Left(ReferenceSchema(reference)))
+          case Array(_, "*", rest) =>
+            ItemTypeProperty(
+              Left(schema.replaceWithReference("/" + rest, reference))
+            )
           case _ =>
             throw new IllegalArgumentException("Invalid path for reference")
         }
+
+        ArraySchema(this.properties.replaceProperty(typeProp))
       case Right(schemas) =>
-        pointer.split("/", 3) match {
+        // Build a new type list that replaces the required type
+        val newSchemas = pointer.split("/", 3) match {
           case Array(_) =>
             throw new IllegalArgumentException("Invalid path for reference")
           case Array(_, "") =>
             throw new IllegalArgumentException("Invalid path for reference")
           case Array(_, first) =>
-            // Build a new type property that replaces the required type
-            val newSchemas =
-              schemas.updated(first.toInt, ReferenceSchema(reference))
-            val typeProp = ItemTypeProperty(Right(newSchemas))
-
-            ArraySchema(this.properties.replaceProperty(typeProp))
+            schemas.updated(first.toInt, ReferenceSchema(reference))
           case Array(_, first, rest) =>
-            schemas(first.toInt).replaceWithReference("/" + rest, reference)
+            schemas.updated(
+              first.toInt,
+              schemas(first.toInt).replaceWithReference("/" + rest, reference)
+            )
         }
+
+        val typeProp = ItemTypeProperty(Right(newSchemas))
+        ArraySchema(this.properties.replaceProperty(typeProp))
     }
   }
 }
