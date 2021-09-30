@@ -135,6 +135,14 @@ final case class DefinitionsProperty(
     Nil
   }
 
+  override def transform(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): DefinitionsProperty = {
+    DefinitionsProperty(
+      definitions.mapValues(transformer(_)).map(identity).toMap
+    )
+  }
+
   override def merge(
       otherProp: DefinitionsProperty
   ): DefinitionsProperty = {

@@ -66,8 +66,10 @@ object DiscoverSchema {
   }
 
   def transformSchema(schema: JsonSchema[_]): JsonSchema[_] = {
-    DefinitionTransformer.transformSchema(
-      EnumTransformer.transformSchema(schema).asInstanceOf[ObjectSchema]
+    EnumTransformer.transformSchema(
+      DefinitionTransformer
+        .transformSchema(schema.asInstanceOf[ObjectSchema])
+        .asInstanceOf[ObjectSchema]
     )
   }
 
