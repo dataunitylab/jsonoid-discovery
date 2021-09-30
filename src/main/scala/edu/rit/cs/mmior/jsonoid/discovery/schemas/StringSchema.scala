@@ -258,23 +258,6 @@ final case class PatternProperty(
     Nil
   }
 
-  private def findCommonPrefix(
-      str1: Option[String],
-      str2: Option[String]
-  ): Option[String] = {
-    (str1, str2) match {
-      case (Some(str1), Some(str2)) =>
-        Some(
-          (str1, str2).zipped
-            .takeWhile(Function.tupled(_ == _))
-            .map(_._1)
-            .mkString
-        )
-      case (None, x) => x
-      case (x, None) => x
-    }
-  }
-
   override def merge(
       otherProp: PatternProperty
   ): PatternProperty = {

@@ -22,10 +22,13 @@ lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
     resolvers += Resolver.githubPackages("michaelmior"),
+    resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
         bloomFilter,
         json4s,
         json4sScalaz,
+        dbscan,
+        fuzzySets,
         hyperLogLog,
         jsonSchemaValidator,
         scopt,

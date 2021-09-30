@@ -64,7 +64,14 @@ final case class ArraySchema(
   override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
     properties.get[ItemTypeProperty].itemType match {
       // We can only follow pointers for tuple schemas, not real array schemas
-      case Left(_) => None
+      case Left(schema) =>
+        // XXX The * is not real JSON Pointer syntax
+        //     but allows us to work with array schemas
+        pointer.split("/", 3) match {
+          case Array(_, "*")       => Some(schema)
+          case Array(_, "*", rest) => schema.findByPointer("/" + rest)
+          case _                   => None
+        }
       case Right(schemas) =>
         pointer.split("/", 3) match {
           case Array(_)        => None

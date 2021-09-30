@@ -89,7 +89,7 @@ final case class ObjectSchema(
   def withDefinition(definition: JsonSchema[_], name: String): ObjectSchema = {
     val newProperties = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     newProperties.add(DefinitionsProperty(Map(name -> definition)))
-    ObjectSchema(newProperties.merge(this.properties))
+    ObjectSchema(newProperties.merge(properties))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))

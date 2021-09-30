@@ -36,6 +36,25 @@ object Helpers {
     case (None, None)       => None
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def findCommonPrefix(str1: String, str2: String): String = {
+    (str1, str2).zipped
+      .takeWhile(Function.tupled(_ == _))
+      .map(_._1)
+      .mkString
+  }
+
+  def findCommonPrefix(
+      str1: Option[String],
+      str2: Option[String]
+  ): Option[String] = {
+    (str1, str2) match {
+      case (Some(str1), Some(str2)) => Some(findCommonPrefix(str1, str2))
+      case (None, x)                => x
+      case (x, None)                => x
+    }
+  }
+
   // scalastyle:off method.name
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit final class AnyOps[A](self: A) {

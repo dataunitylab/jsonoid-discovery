@@ -7,6 +7,8 @@ object Dependencies {
   lazy val json4sScalaz        = "org.json4s"                 %% "json4s-scalaz"          % "3.5.3"
 
   lazy val bloomFilter         = "com.sangupta"               % "bloomfilter"             % "0.9.1-SNAPSHOT"
+  lazy val dbscan              = "com.github.chrfrantz"       % "DBSCAN"                  % "1de90e7"
+  lazy val fuzzySets           = "com.github.dataunitylab"    % "fuzzy-sets"              % "v0.2.0"
   lazy val hyperLogLog         = "com.github.prasanthj"       %  "hyperloglog"            % "1.1"
   lazy val jsonSchemaValidator = "com.networknt"              %  "json-schema-validator"  % "1.0.49"
   lazy val scopt               = "com.github.scopt"           %% "scopt"                  % "4.0.1"

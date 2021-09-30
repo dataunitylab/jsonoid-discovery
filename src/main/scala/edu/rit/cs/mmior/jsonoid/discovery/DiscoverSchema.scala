@@ -66,7 +66,9 @@ object DiscoverSchema {
   }
 
   def transformSchema(schema: JsonSchema[_]): JsonSchema[_] = {
-    EnumTransformer.transformSchema(schema)
+    DefinitionTransformer.transformSchema(
+      EnumTransformer.transformSchema(schema).asInstanceOf[ObjectSchema]
+    )
   }
 
   implicit val propertySetRead: scopt.Read[PropertySet] =
