@@ -29,10 +29,10 @@ object EnumTransformer {
       examples: ExamplesProperty[_],
       exampleTransformer: PartialFunction[Any, JValue]
   ): Option[JsonSchema[_]] = {
-    val distinctExamples = examples.examples.distinct
+    val distinctExamples = examples.examples.toSet
     if (
-      examples.totalExamples > (distinctExamples.length *
-        EnumTransformer.EnumRatio) && distinctExamples.length < EnumTransformer.MaxValues
+      examples.totalExamples > (distinctExamples.size *
+        EnumTransformer.EnumRatio) && distinctExamples.size < EnumTransformer.MaxValues
     ) {
       Some(EnumSchema(distinctExamples.map(exampleTransformer)))
     } else {

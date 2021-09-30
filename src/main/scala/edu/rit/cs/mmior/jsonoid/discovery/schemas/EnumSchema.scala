@@ -5,19 +5,19 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 object EnumSchema {
-  def apply(value: List[JValue]): EnumSchema = {
+  def apply(value: Set[JValue]): EnumSchema = {
     EnumSchema(EnumSchema.AllProperties.mergeValue(value))
   }
 
-  val MinProperties: SchemaProperties[List[JValue]] = {
-    val props = SchemaProperties.empty[List[JValue]]
+  val MinProperties: SchemaProperties[Set[JValue]] = {
+    val props = SchemaProperties.empty[Set[JValue]]
     props.add(EnumValuesProperty())
 
     props
   }
 
-  val AllProperties: SchemaProperties[List[JValue]] = {
-    val props = SchemaProperties.empty[List[JValue]]
+  val AllProperties: SchemaProperties[Set[JValue]] = {
+    val props = SchemaProperties.empty[Set[JValue]]
     props.add(EnumValuesProperty())
 
     props
@@ -25,9 +25,9 @@ object EnumSchema {
 }
 
 final case class EnumSchema(
-    override val properties: SchemaProperties[List[JValue]] =
+    override val properties: SchemaProperties[Set[JValue]] =
       EnumSchema.AllProperties
-) extends JsonSchema[List[JValue]] {
+) extends JsonSchema[Set[JValue]] {
   override def hasType: Boolean = false
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
@@ -38,18 +38,23 @@ final case class EnumSchema(
       EnumSchema(properties.merge(otherProperties))
   }
 
-  override def copy(properties: SchemaProperties[List[JValue]]): EnumSchema =
+  override def copy(properties: SchemaProperties[Set[JValue]]): EnumSchema =
     EnumSchema(properties)
 }
 
-final case class EnumValuesProperty(values: List[JValue] = List.empty)
-    extends SchemaProperty[List[JValue], EnumValuesProperty] {
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject = if (values.length == 1) {
-    ("const" -> values(0))
+final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
+    extends SchemaProperty[Set[JValue], EnumValuesProperty] {
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.Equals",
+      "org.wartremover.warts.TraversableOps"
+    )
+  )
+  override def toJson: JObject = if (values.size == 1) {
+    ("const" -> values.head)
   } else {
-    val sortedValues = if (values(0).isInstanceOf[JString]) {
-      values.asInstanceOf[List[JString]].sortBy(_.s)
+    val sortedValues = if (values.head.isInstanceOf[JString]) {
+      values.asInstanceOf[Set[JString]].toList.sortBy(_.s)
     } else {
       values
     }
@@ -60,7 +65,7 @@ final case class EnumValuesProperty(values: List[JValue] = List.empty)
     EnumValuesProperty(values ++ otherProp.values)
   }
 
-  override def mergeValue(value: List[JValue]): EnumValuesProperty = {
+  override def mergeValue(value: Set[JValue]): EnumValuesProperty = {
     EnumValuesProperty(value ++ values)
   }
 }
