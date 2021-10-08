@@ -1,4 +1,5 @@
-package edu.rit.cs.mmior.jsonoid.discovery.schemas
+package edu.rit.cs.mmior.jsonoid.discovery
+package schemas
 
 import scala.reflect.ClassTag
 
@@ -44,14 +45,18 @@ final case class SchemaProperties[T](
     SchemaProperties(properties + (tag -> prop))
   }
 
-  def mergeValue(value: T): SchemaProperties[T] = {
+  def mergeValue(
+      value: T
+  )(implicit er: EquivalenceRelation): SchemaProperties[T] = {
     val mergedProperties =
       properties.mapValues(_.mergeValue(value)).map(identity(_))
     SchemaProperties(mergedProperties.asInstanceOf[PropertyMap[T]])
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  def merge(other: SchemaProperties[T]): SchemaProperties[T] = {
+  def merge(
+      other: SchemaProperties[T]
+  )(implicit er: EquivalenceRelation): SchemaProperties[T] = {
     var mergedProperties = properties.transform { case (key, prop) =>
       other.properties.get(key) match {
         case Some(otherProp) => prop.mergeOnlySameType(otherProp)

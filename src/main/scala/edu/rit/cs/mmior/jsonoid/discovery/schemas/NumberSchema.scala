@@ -12,7 +12,11 @@ import utils.{Histogram, HyperLogLog}
 
 object NumberSchema {
   def apply(value: BigDecimal)(implicit propSet: PropertySet): NumberSchema = {
-    NumberSchema(propSet.numberProperties.mergeValue(value))
+    NumberSchema(
+      propSet.numberProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val AllProperties: SchemaProperties[BigDecimal] = {
@@ -48,7 +52,9 @@ final case class NumberSchema(
   override val schemaType = "number"
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>
       NumberSchema(properties.merge(otherProperties))
 
@@ -105,11 +111,13 @@ final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
 
   override def merge(
       otherProp: MinNumValueProperty
-  ): MinNumValueProperty = {
+  )(implicit er: EquivalenceRelation): MinNumValueProperty = {
     MinNumValueProperty(minOrNone(minNumValue, otherProp.minNumValue))
   }
 
-  override def mergeValue(value: BigDecimal): MinNumValueProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): MinNumValueProperty = {
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
 }
@@ -120,11 +128,13 @@ final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
 
   override def merge(
       otherProp: MaxNumValueProperty
-  ): MaxNumValueProperty = {
+  )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
     MaxNumValueProperty(maxOrNone(maxNumValue, otherProp.maxNumValue))
   }
 
-  override def mergeValue(value: BigDecimal): MaxNumValueProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue))
   }
 }
@@ -136,7 +146,7 @@ final case class NumHyperLogLogProperty(
 
   override def merge(
       otherProp: NumHyperLogLogProperty
-  ): NumHyperLogLogProperty = {
+  )(implicit er: EquivalenceRelation): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.hll)
@@ -144,7 +154,9 @@ final case class NumHyperLogLogProperty(
     prop
   }
 
-  override def mergeValue(value: BigDecimal): NumHyperLogLogProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     val longVal = if (value.isValidLong) {
@@ -176,7 +188,7 @@ final case class NumBloomFilterProperty(
 
   override def merge(
       otherProp: NumBloomFilterProperty
-  ): NumBloomFilterProperty = {
+  )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.merge(otherProp.bloomFilter)
@@ -185,7 +197,9 @@ final case class NumBloomFilterProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  override def mergeValue(value: BigDecimal): NumBloomFilterProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
 
@@ -205,11 +219,13 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 
   override def merge(
       otherProp: NumStatsProperty
-  ): NumStatsProperty = {
+  )(implicit er: EquivalenceRelation): NumStatsProperty = {
     NumStatsProperty(stats.merge(otherProp.stats))
   }
 
-  override def mergeValue(value: BigDecimal): NumStatsProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): NumStatsProperty = {
     NumStatsProperty(stats.merge(StatsProperty(value)))
   }
 }
@@ -222,11 +238,13 @@ final case class NumExamplesProperty(
 
   override def merge(
       otherProp: NumExamplesProperty
-  ): NumExamplesProperty = {
+  )(implicit er: EquivalenceRelation): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(otherProp.examples))
   }
 
-  override def mergeValue(value: BigDecimal): NumExamplesProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }
@@ -242,11 +260,13 @@ final case class NumHistogramProperty(
 
   override def merge(
       otherProp: NumHistogramProperty
-  ): NumHistogramProperty = {
+  )(implicit er: EquivalenceRelation): NumHistogramProperty = {
     NumHistogramProperty(histogram.merge(otherProp.histogram))
   }
 
-  override def mergeValue(value: BigDecimal): NumHistogramProperty = {
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): NumHistogramProperty = {
     NumHistogramProperty(histogram.merge(Histogram(List((value, 1)))))
   }
 }

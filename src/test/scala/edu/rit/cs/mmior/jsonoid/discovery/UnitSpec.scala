@@ -18,6 +18,8 @@ abstract class UnitSpec extends AnyFlatSpec with Matchers with BeforeAndAfter wi
 }
 
 object UnitSpec {
+  implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+
   implicit def containingNatureOfSchemaProperties[SchemaProperties[_] <: Iterable[SchemaProperty[_, _]]](implicit equality: Equality[SchemaProperty[_, _]]): Containing[SchemaProperties[_]] = new
   Containing[SchemaProperties[_]] {
     def contains(props: SchemaProperties[_], elem: Any): Boolean = {

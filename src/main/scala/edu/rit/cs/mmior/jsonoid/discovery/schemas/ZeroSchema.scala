@@ -6,8 +6,10 @@ final case class ZeroSchema(
 ) extends JsonSchema[Nothing] {
   override val schemaType = "zero"
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
-    case _ @other => other
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
+    other
   }
 
   override def copy(properties: SchemaProperties[Nothing]): ZeroSchema =

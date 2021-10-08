@@ -1,19 +1,22 @@
-package edu.rit.cs.mmior.jsonoid.discovery.schemas
+package edu.rit.cs.mmior.jsonoid.discovery
+package schemas
 
 import org.json4s._
 
 trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   // XXX: This should really take and return the same
   //      concrete type, but it does not currently
-  def merge(prop: S): S
+  def merge(prop: S)(implicit er: EquivalenceRelation): S
 
-  def mergeOnlySameType(prop: SchemaProperty[T, _]): S = {
+  def mergeOnlySameType(
+      prop: SchemaProperty[T, _]
+  )(implicit er: EquivalenceRelation): S = {
     // XXX This only works if the S is the same as the wildcard type
     //     but this is needed since we can't cast to an unknown type
     merge(prop.asInstanceOf[S])
   }
 
-  def mergeValue(value: T): S
+  def mergeValue(value: T)(implicit er: EquivalenceRelation): S
 
   // This must be implemented for any property which contains schema objects
   // Currently this is only three properties:

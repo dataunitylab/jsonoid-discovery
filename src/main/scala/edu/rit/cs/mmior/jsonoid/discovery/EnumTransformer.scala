@@ -8,7 +8,9 @@ object EnumTransformer {
   val EnumRatio: Int = 10
   val MaxValues: Int = 50
 
-  def transformSchema(schema: JsonSchema[_]): JsonSchema[_] = {
+  def transformSchema(
+      schema: JsonSchema[_]
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     schema.transformProperties {
       case i @ IntegerSchema(properties)
           if properties.has[IntExamplesProperty] =>

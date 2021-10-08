@@ -11,7 +11,11 @@ object ObjectSchema {
   def apply(
       value: Map[String, JsonSchema[_]]
   )(implicit propSet: PropertySet): ObjectSchema = {
-    ObjectSchema(propSet.objectProperties.mergeValue(value))
+    ObjectSchema(
+      propSet.objectProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
@@ -49,7 +53,9 @@ final case class ObjectSchema(
 
   override val staticProperties: JObject = ("additionalProperties" -> false)
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ObjectSchema(otherProperties) =>
       ObjectSchema(properties.merge(otherProperties))
   }
@@ -89,7 +95,11 @@ final case class ObjectSchema(
   def withDefinition(definition: JsonSchema[_], name: String): ObjectSchema = {
     val newProperties = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     newProperties.add(DefinitionsProperty(Map(name -> definition)))
-    ObjectSchema(newProperties.merge(properties))
+    ObjectSchema(
+      newProperties.merge(properties)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
@@ -145,14 +155,14 @@ final case class DefinitionsProperty(
 
   override def merge(
       otherProp: DefinitionsProperty
-  ): DefinitionsProperty = {
+  )(implicit er: EquivalenceRelation): DefinitionsProperty = {
     val other = otherProp.definitions
     this.mergeValue(other)
   }
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  ): DefinitionsProperty = {
+  )(implicit er: EquivalenceRelation): DefinitionsProperty = {
     val merged = definitions.toSeq ++ value.toSeq
     val grouped = merged.groupBy(_._1)
     DefinitionsProperty(
@@ -183,14 +193,14 @@ final case class ObjectTypesProperty(
 
   override def merge(
       otherProp: ObjectTypesProperty
-  ): ObjectTypesProperty = {
+  )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
     val other = otherProp.objectTypes
     this.mergeValue(other)
   }
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  ): ObjectTypesProperty = {
+  )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
     val merged = objectTypes.toSeq ++ value.toSeq
     val grouped = merged.groupBy(_._1)
     ObjectTypesProperty(
@@ -214,7 +224,7 @@ final case class FieldPresenceProperty(
 
   override def merge(
       otherProp: FieldPresenceProperty
-  ): FieldPresenceProperty = {
+  )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
     val merged = fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq
     val grouped = merged.groupBy(_._1)
     FieldPresenceProperty(
@@ -225,7 +235,7 @@ final case class FieldPresenceProperty(
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  ): FieldPresenceProperty = {
+  )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
     merge(FieldPresenceProperty(value.mapValues(s => 1), 1))
   }
 }
@@ -237,14 +247,14 @@ final case class RequiredProperty(
 
   override def merge(
       otherProp: RequiredProperty
-  ): RequiredProperty = {
+  )(implicit er: EquivalenceRelation): RequiredProperty = {
     val other = otherProp.required
     RequiredProperty(intersectOrNone(other, required))
   }
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  ): RequiredProperty = {
+  )(implicit er: EquivalenceRelation): RequiredProperty = {
     RequiredProperty(intersectOrNone(Some(value.keySet), required))
   }
 }
@@ -296,7 +306,7 @@ final case class DependenciesProperty(
 
   override def merge(
       otherProp: DependenciesProperty
-  ): DependenciesProperty = {
+  )(implicit er: EquivalenceRelation): DependenciesProperty = {
     if (overloaded || otherProp.overloaded) {
       DependenciesProperty(overloaded = true)
     } else {
@@ -321,7 +331,7 @@ final case class DependenciesProperty(
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  ): DependenciesProperty = {
+  )(implicit er: EquivalenceRelation): DependenciesProperty = {
     if (overloaded || value.size > DependenciesProperty.MaxProperties) {
       // If we have too many properties on any object, give up
       DependenciesProperty(overloaded = true)

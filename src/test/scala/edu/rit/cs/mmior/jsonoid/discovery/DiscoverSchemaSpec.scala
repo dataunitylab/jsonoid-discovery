@@ -14,6 +14,8 @@ import org.scalatest.prop.TableDrivenPropertyChecks._
 class DiscoverSchemaSpec extends UnitSpec {
   behavior of "DiscoverSchema"
 
+  implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+
   it should "produce a product schema" in {
     val schema = DiscoverSchema.discover(Seq(JBool(true), JString("foo")).iterator)
     DiscoverSchema.discover(Seq(JBool(true), JString("foo")).iterator) shouldBe a [ProductSchema]

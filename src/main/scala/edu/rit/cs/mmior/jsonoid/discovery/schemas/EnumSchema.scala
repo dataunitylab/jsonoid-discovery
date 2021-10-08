@@ -6,7 +6,11 @@ import org.json4s._
 
 object EnumSchema {
   def apply(value: Set[JValue]): EnumSchema = {
-    EnumSchema(EnumSchema.AllProperties.mergeValue(value))
+    EnumSchema(
+      EnumSchema.AllProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val MinProperties: SchemaProperties[Set[JValue]] = {
@@ -33,7 +37,9 @@ final case class EnumSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ EnumSchema(otherProperties) =>
       EnumSchema(properties.merge(otherProperties))
   }
@@ -61,11 +67,15 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     ("enum" -> sortedValues)
   }
 
-  override def merge(otherProp: EnumValuesProperty): EnumValuesProperty = {
+  override def merge(
+      otherProp: EnumValuesProperty
+  )(implicit er: EquivalenceRelation): EnumValuesProperty = {
     EnumValuesProperty(values ++ otherProp.values)
   }
 
-  override def mergeValue(value: Set[JValue]): EnumValuesProperty = {
+  override def mergeValue(
+      value: Set[JValue]
+  )(implicit er: EquivalenceRelation): EnumValuesProperty = {
     EnumValuesProperty(value ++ values)
   }
 }

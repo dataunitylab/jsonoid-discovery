@@ -9,6 +9,7 @@ class DefinitionTransformerSpec extends UnitSpec {
   behavior of "DefinitionTransformer"
 
   implicit val formats: Formats = DefaultFormats
+  implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
 
   val json: JValue = parse("""{
     "foo": {

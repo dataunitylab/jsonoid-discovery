@@ -21,7 +21,9 @@ final case class ReferenceSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
 
   override def copy(properties: SchemaProperties[String]): ReferenceSchema =
     ReferenceSchema(properties)
@@ -33,11 +35,13 @@ final case class ReferencePathProperty(path: String)
 
   override def merge(
       otherProp: ReferencePathProperty
-  ): ReferencePathProperty = {
+  )(implicit er: EquivalenceRelation): ReferencePathProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 
-  override def mergeValue(otherPath: String): ReferencePathProperty = {
+  override def mergeValue(
+      otherPath: String
+  )(implicit er: EquivalenceRelation): ReferencePathProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 }

@@ -1,4 +1,5 @@
-package edu.rit.cs.mmior.jsonoid.discovery.schemas
+package edu.rit.cs.mmior.jsonoid.discovery
+package schemas
 
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -22,14 +23,26 @@ trait JsonSchema[T] {
 
   def hasType: Boolean = true
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]]
 
-  def createProduct: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
-    case other => ProductSchema().merge(this).merge(other)
+  def createProduct()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case other =>
+    ProductSchema(this)(er).merge(other)
   }
 
-  def merge(other: JsonSchema[_]): JsonSchema[_] = {
-    mergeSameType.orElse(createProduct).apply(other)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  def merge(
+      other: JsonSchema[_]
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+    val sameType = mergeSameType()(er)
+    if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
+      sameType(other)
+    } else {
+      createProduct()(er)(other)
+    }
   }
 
   def copy(properties: SchemaProperties[T]): JsonSchema[_]

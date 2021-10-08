@@ -14,7 +14,11 @@ object ArraySchema {
   def apply(
       value: List[JsonSchema[_]]
   )(implicit propSet: PropertySet): ArraySchema = {
-    ArraySchema(propSet.arrayProperties.mergeValue(value))
+    ArraySchema(
+      propSet.arrayProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
@@ -50,7 +54,9 @@ final case class ArraySchema(
 ) extends JsonSchema[List[JsonSchema[_]]] {
   override val schemaType = "array"
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ArraySchema(otherProperties) =>
       ArraySchema(properties.merge(otherProperties))
   }
@@ -148,7 +154,7 @@ final case class ItemTypeProperty(
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def merge(
       otherProp: ItemTypeProperty
-  ): ItemTypeProperty = {
+  )(implicit er: EquivalenceRelation): ItemTypeProperty = {
     val newType = (itemType, otherProp.itemType) match {
       case (Right(schema1), Right(schema2)) =>
         if (schema1.length == schema2.length) {
@@ -175,7 +181,9 @@ final case class ItemTypeProperty(
     ItemTypeProperty(newType)
   }
 
-  override def mergeValue(value: List[JsonSchema[_]]): ItemTypeProperty = {
+  override def mergeValue(
+      value: List[JsonSchema[_]]
+  )(implicit er: EquivalenceRelation): ItemTypeProperty = {
     merge(ItemTypeProperty(Right(value)))
   }
 }
@@ -186,7 +194,7 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 
   override def merge(
       otherProp: MinItemsProperty
-  ): MinItemsProperty = {
+  )(implicit er: EquivalenceRelation): MinItemsProperty = {
     MinItemsProperty(
       minOrNone(
         minItems,
@@ -197,7 +205,7 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  ): MinItemsProperty = {
+  )(implicit er: EquivalenceRelation): MinItemsProperty = {
     MinItemsProperty(minOrNone(Some(value.length), minItems))
   }
 }
@@ -208,7 +216,7 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
   override def merge(
       otherProp: MaxItemsProperty
-  ): MaxItemsProperty = {
+  )(implicit er: EquivalenceRelation): MaxItemsProperty = {
     MaxItemsProperty(
       maxOrNone(
         maxItems,
@@ -219,7 +227,7 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  ): MaxItemsProperty = {
+  )(implicit er: EquivalenceRelation): MaxItemsProperty = {
     MaxItemsProperty(maxOrNone(Some(value.length), maxItems))
   }
 }
@@ -236,14 +244,14 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 
   override def merge(
       otherProp: UniqueProperty
-  ): UniqueProperty = {
+  )(implicit er: EquivalenceRelation): UniqueProperty = {
     UniqueProperty(unique && otherProp.unique, unary && otherProp.unary)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def mergeValue(
       value: List[JsonSchema[_]]
-  ): UniqueProperty = {
+  )(implicit er: EquivalenceRelation): UniqueProperty = {
     // Use the examples property to check uniqueness
     val examples = value.fold(ZeroSchema())(_.merge(_)) match {
       case IntegerSchema(props) =>

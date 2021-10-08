@@ -14,14 +14,16 @@ import schemas._
 final case class Config(
     input: Option[File] = None,
     writeValues: Option[File] = None,
-    propertySet: PropertySet = PropertySets.AllProperties
+    propertySet: PropertySet = PropertySets.AllProperties,
+    equivalenceRelation: EquivalenceRelation =
+      EquivalenceRelations.KindEquivalenceRelation
 )
 
 object DiscoverSchema {
   def discover(
       jsons: Iterator[JValue],
       propSet: PropertySet = PropertySets.AllProperties
-  ): JsonSchema[_] = {
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     jsons.map(discoverFromValue(_, propSet)).fold(ZeroSchema())(_.merge(_))
   }
 
@@ -29,7 +31,7 @@ object DiscoverSchema {
   def discoverFromValue(
       value: JValue,
       propSet: PropertySet = PropertySets.AllProperties
-  ): JsonSchema[_] = {
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     value match {
       case JArray(items) =>
         ArraySchema(items.map(discoverFromValue(_, propSet)))(propSet)
@@ -50,7 +52,7 @@ object DiscoverSchema {
   def discoverObjectFields(
       fields: Seq[JField],
       propSet: PropertySet
-  ): JsonSchema[_] = {
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     ObjectSchema(
       fields
         .map { case (k, v) =>
@@ -65,12 +67,14 @@ object DiscoverSchema {
     source.getLines().map(parse(_))
   }
 
-  def transformSchema(schema: JsonSchema[_]): JsonSchema[_] = {
+  def transformSchema(
+      schema: JsonSchema[_]
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     EnumTransformer.transformSchema(
       DefinitionTransformer
-        .transformSchema(schema.asInstanceOf[ObjectSchema])
+        .transformSchema(schema.asInstanceOf[ObjectSchema])(er)
         .asInstanceOf[ObjectSchema]
-    )
+    )(er)
   }
 
   implicit val propertySetRead: scopt.Read[PropertySet] =
@@ -79,6 +83,14 @@ object DiscoverSchema {
         case "All"    => PropertySets.AllProperties
         case "Min"    => PropertySets.MinProperties
         case "Simple" => PropertySets.SimpleProperties
+      }
+    )
+
+  implicit val equivalenceRelationRead: scopt.Read[EquivalenceRelation] =
+    scopt.Read.reads(erName =>
+      erName match {
+        case "Kind"  => EquivalenceRelations.KindEquivalenceRelation
+        case "Label" => EquivalenceRelations.LabelEquivalenceRelation
       }
     )
 
@@ -108,6 +120,10 @@ object DiscoverSchema {
       opt[PropertySet]('p', "prop")
         .action((x, c) => c.copy(propertySet = x))
         .text("the set of properties to calculate [All, Min, Simple]")
+
+      opt[EquivalenceRelation]('e', "equivalence-relation")
+        .action((x, c) => c.copy(equivalenceRelation = x))
+        .text("the equivalence relation to use when merging [Kind, Label]")
     }
 
     parser.parse(args, Config()) match {
@@ -118,7 +134,8 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        val schema = discover(jsons, config.propertySet)
+        val schema =
+          discover(jsons, config.propertySet)(config.equivalenceRelation)
 
         if (!config.writeValues.isEmpty) {
           val objectSchema = schema.asInstanceOf[ObjectSchema]
@@ -127,7 +144,8 @@ object DiscoverSchema {
         }
 
         val transformedSchema: ObjectSchema =
-          transformSchema(schema).asInstanceOf[ObjectSchema]
+          transformSchema(schema)(config.equivalenceRelation)
+            .asInstanceOf[ObjectSchema]
         println(compact(render(transformedSchema.toJsonSchema)))
       case None =>
     }

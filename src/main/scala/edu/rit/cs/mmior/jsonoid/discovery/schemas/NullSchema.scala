@@ -7,7 +7,9 @@ final case class NullSchema(
 ) extends JsonSchema[Nothing] {
   override val schemaType = "null"
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NullSchema(otherProperties) =>
       NullSchema(properties.merge(otherProperties))
   }

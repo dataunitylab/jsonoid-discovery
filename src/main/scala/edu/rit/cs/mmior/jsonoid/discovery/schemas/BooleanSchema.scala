@@ -3,7 +3,11 @@ package schemas
 
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
-    BooleanSchema(BooleanSchema.AllProperties.mergeValue(value))
+    BooleanSchema(
+      BooleanSchema.AllProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val MinProperties: SchemaProperties[Boolean] =
@@ -19,7 +23,9 @@ final case class BooleanSchema(
 ) extends JsonSchema[Boolean] {
   override val schemaType = "boolean"
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ BooleanSchema(otherProperties) =>
       BooleanSchema(properties.merge(otherProperties))
   }

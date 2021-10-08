@@ -18,7 +18,11 @@ import utils.HyperLogLog
 
 object StringSchema {
   def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
-    StringSchema(propSet.stringProperties.mergeValue(value))
+    StringSchema(
+      propSet.stringProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val AllProperties: SchemaProperties[String] = {
@@ -56,7 +60,9 @@ final case class StringSchema(
 ) extends JsonSchema[String] {
   override val schemaType = "string"
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ StringSchema(otherProperties) =>
       StringSchema(properties.merge(otherProperties))
   }
@@ -69,11 +75,15 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String, MinLengthProperty] {
   override def toJson: JObject = ("minLength" -> minLength)
 
-  override def merge(otherProp: MinLengthProperty): MinLengthProperty = {
+  override def merge(
+      otherProp: MinLengthProperty
+  )(implicit er: EquivalenceRelation): MinLengthProperty = {
     MinLengthProperty(minOrNone(minLength, otherProp.minLength))
   }
 
-  override def mergeValue(value: String): MinLengthProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): MinLengthProperty = {
     MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
 }
@@ -82,11 +92,15 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String, MaxLengthProperty] {
   override def toJson: JObject = ("maxLength" -> maxLength)
 
-  override def merge(otherProp: MaxLengthProperty): MaxLengthProperty = {
+  override def merge(
+      otherProp: MaxLengthProperty
+  )(implicit er: EquivalenceRelation): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(maxLength, otherProp.maxLength))
   }
 
-  override def mergeValue(value: String): MaxLengthProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 }
@@ -98,7 +112,7 @@ final case class StringHyperLogLogProperty(
 
   override def merge(
       otherProp: StringHyperLogLogProperty
-  ): StringHyperLogLogProperty = {
+  )(implicit er: EquivalenceRelation): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.hll)
@@ -106,7 +120,9 @@ final case class StringHyperLogLogProperty(
     prop
   }
 
-  override def mergeValue(value: String): StringHyperLogLogProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.addString(value)
@@ -130,7 +146,7 @@ final case class StringBloomFilterProperty(
 
   override def merge(
       otherProp: StringBloomFilterProperty
-  ): StringBloomFilterProperty = {
+  )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.merge(otherProp.bloomFilter)
@@ -139,7 +155,9 @@ final case class StringBloomFilterProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  override def mergeValue(value: String): StringBloomFilterProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.add(value)
@@ -156,11 +174,13 @@ final case class StringExamplesProperty(
 
   override def merge(
       otherProp: StringExamplesProperty
-  ): StringExamplesProperty = {
+  )(implicit er: EquivalenceRelation): StringExamplesProperty = {
     StringExamplesProperty(examples.merge(otherProp.examples))
   }
 
-  override def mergeValue(value: String): StringExamplesProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): StringExamplesProperty = {
     StringExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }
@@ -204,13 +224,15 @@ final case class FormatProperty(
 
   override def merge(
       otherProp: FormatProperty
-  ): FormatProperty = {
+  )(implicit er: EquivalenceRelation): FormatProperty = {
     val merged = formats.toSeq ++ otherProp.formats.toSeq
     val grouped = merged.groupBy(_._1)
     FormatProperty(grouped.mapValues(_.map(_._2).sum).map(identity).toMap)
   }
 
-  override def mergeValue(value: String): FormatProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): FormatProperty = {
     FormatProperty.FormatCheckers.toSeq.find { case (format, fn) =>
       fn(value)
     } match {
@@ -260,7 +282,7 @@ final case class PatternProperty(
 
   override def merge(
       otherProp: PatternProperty
-  ): PatternProperty = {
+  )(implicit er: EquivalenceRelation): PatternProperty = {
     val newPrefix = findCommonPrefix(prefix, otherProp.prefix)
     val newSuffix =
       findCommonPrefix(
@@ -275,7 +297,9 @@ final case class PatternProperty(
     )
   }
 
-  override def mergeValue(value: String): PatternProperty = {
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): PatternProperty = {
     merge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
 }

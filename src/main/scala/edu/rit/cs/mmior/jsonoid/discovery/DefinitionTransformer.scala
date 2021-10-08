@@ -28,7 +28,9 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
       "org.wartremover.warts.While"
     )
   )
-  def transformSchema(schema: ObjectSchema): JsonSchema[_] = {
+  def transformSchema(
+      schema: ObjectSchema
+  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     // Discover clusters within the schema
     val clusters = findClusters(schema).map(_.map(pathToPointer _))
 

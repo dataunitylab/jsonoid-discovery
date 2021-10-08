@@ -50,17 +50,19 @@ object JsonoidSpark {
       case Some(config) =>
         val conf = new SparkConf().setAppName("JSONoid")
         val sc = new SparkContext(conf)
+        val er = EquivalenceRelations.KindEquivalenceRelation
         val jsonRdd = JsonoidRDD.fromStringRDD(
           sc.textFile(config.input),
           config.propertySet
-        )
+        )(er)
         var schema: ObjectSchema =
-          jsonRdd.reduceSchemas.asInstanceOf[ObjectSchema]
+          jsonRdd.reduceSchemas().asInstanceOf[ObjectSchema]
 
         // Skip transformation if we know the required properties don't exist
         if (!(config.propertySet === PropertySets.MinProperties)) {
-          schema =
-            DiscoverSchema.transformSchema(schema).asInstanceOf[ObjectSchema]
+          schema = DiscoverSchema
+            .transformSchema(schema)(er)
+            .asInstanceOf[ObjectSchema]
         }
 
         println(compact(render(schema.toJsonSchema)))

@@ -12,7 +12,11 @@ import utils.{Histogram, HyperLogLog}
 
 object IntegerSchema {
   def apply(value: BigInt)(implicit propSet: PropertySet): IntegerSchema = {
-    IntegerSchema(propSet.integerProperties.mergeValue(value))
+    IntegerSchema(
+      propSet.integerProperties.mergeValue(value)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+    )
   }
 
   val AllProperties: SchemaProperties[BigInt] = {
@@ -49,10 +53,12 @@ final case class IntegerSchema(
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
 
-  def mergeSameType: PartialFunction[JsonSchema[_], JsonSchema[_]] = {
+  def mergeSameType()(implicit
+      er: EquivalenceRelation
+  ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ IntegerSchema(otherProperties) =>
       IntegerSchema(properties.merge(otherProperties))
-    case other: NumberSchema => other.mergeSameType(this)
+    case other: NumberSchema => other.mergeSameType()(er)(this)
   }
 
   override def copy(properties: SchemaProperties[BigInt]): IntegerSchema =
@@ -63,11 +69,15 @@ final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt, MinIntValueProperty] {
   override def toJson: JObject = ("minimum" -> minIntValue)
 
-  override def merge(otherProp: MinIntValueProperty): MinIntValueProperty = {
+  override def merge(
+      otherProp: MinIntValueProperty
+  )(implicit er: EquivalenceRelation): MinIntValueProperty = {
     MinIntValueProperty(minOrNone(minIntValue, otherProp.minIntValue))
   }
 
-  override def mergeValue(value: BigInt): MinIntValueProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): MinIntValueProperty = {
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
   }
 }
@@ -76,11 +86,15 @@ final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
     extends SchemaProperty[BigInt, MaxIntValueProperty] {
   override def toJson: JObject = ("maximum" -> maxIntValue)
 
-  override def merge(otherProp: MaxIntValueProperty): MaxIntValueProperty = {
+  override def merge(
+      otherProp: MaxIntValueProperty
+  )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
     MaxIntValueProperty(maxOrNone(maxIntValue, otherProp.maxIntValue))
   }
 
-  override def mergeValue(value: BigInt): MaxIntValueProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue))
   }
 }
@@ -92,7 +106,7 @@ final case class IntHyperLogLogProperty(
 
   override def merge(
       otherProp: IntHyperLogLogProperty
-  ): IntHyperLogLogProperty = {
+  )(implicit er: EquivalenceRelation): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.hll)
@@ -100,7 +114,9 @@ final case class IntHyperLogLogProperty(
     prop
   }
 
-  override def mergeValue(value: BigInt): IntHyperLogLogProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.add(value.toLong)
@@ -124,7 +140,7 @@ final case class IntBloomFilterProperty(
 
   override def merge(
       otherProp: IntBloomFilterProperty
-  ): IntBloomFilterProperty = {
+  )(implicit er: EquivalenceRelation): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.merge(otherProp.bloomFilter)
@@ -133,7 +149,9 @@ final case class IntBloomFilterProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
-  override def mergeValue(value: BigInt): IntBloomFilterProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
     prop.bloomFilter.add(value.toByteArray)
@@ -148,11 +166,13 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
 
   override def merge(
       otherProp: IntStatsProperty
-  ): IntStatsProperty = {
+  )(implicit er: EquivalenceRelation): IntStatsProperty = {
     IntStatsProperty(stats.merge(otherProp.stats))
   }
 
-  override def mergeValue(value: BigInt): IntStatsProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): IntStatsProperty = {
     IntStatsProperty(stats.merge(StatsProperty(BigDecimal(value))))
   }
 }
@@ -165,11 +185,13 @@ final case class IntExamplesProperty(
 
   override def merge(
       otherProp: IntExamplesProperty
-  ): IntExamplesProperty = {
+  )(implicit er: EquivalenceRelation): IntExamplesProperty = {
     IntExamplesProperty(examples.merge(otherProp.examples))
   }
 
-  override def mergeValue(value: BigInt): IntExamplesProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): IntExamplesProperty = {
     IntExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }
@@ -184,7 +206,7 @@ final case class MultipleOfProperty(multiple: Option[BigInt] = None)
 
   override def merge(
       otherProp: MultipleOfProperty
-  ): MultipleOfProperty = {
+  )(implicit er: EquivalenceRelation): MultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
@@ -194,7 +216,9 @@ final case class MultipleOfProperty(multiple: Option[BigInt] = None)
     MultipleOfProperty(newMultiple)
   }
 
-  override def mergeValue(value: BigInt): MultipleOfProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): MultipleOfProperty = {
     merge(MultipleOfProperty(Some(value)))
   }
 }
@@ -210,11 +234,13 @@ final case class IntHistogramProperty(
 
   override def merge(
       otherProp: IntHistogramProperty
-  ): IntHistogramProperty = {
+  )(implicit er: EquivalenceRelation): IntHistogramProperty = {
     IntHistogramProperty(histogram.merge(otherProp.histogram))
   }
 
-  override def mergeValue(value: BigInt): IntHistogramProperty = {
+  override def mergeValue(
+      value: BigInt
+  )(implicit er: EquivalenceRelation): IntHistogramProperty = {
     IntHistogramProperty(
       histogram.merge(Histogram(List((BigDecimal(value), 1))))
     )
