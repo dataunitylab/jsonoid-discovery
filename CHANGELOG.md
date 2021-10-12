@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add option to select whether definitions should be found
 - Allow conversion of any type to a full JSON Schema
 
+### Changed
+- Use `oneOf` instead of `anyOf` in `ProductSchema`
+
 ## [0.3.0] - 2021-10-05
 ### Added
 - Use clustering of related objects to automatically create definitions

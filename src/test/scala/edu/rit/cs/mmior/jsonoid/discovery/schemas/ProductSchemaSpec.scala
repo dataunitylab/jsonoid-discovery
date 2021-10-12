@@ -27,13 +27,13 @@ class ProductSchemaSpec extends UnitSpec {
     types should contain theSameElementsAs List(schema1, schema2, schema3)
   }
 
-  it should "convert to JSON using anyOf" in {
-    val anyTypes = (productSchema1.toJson \ "anyOf").extract[JArray]
+  it should "convert to JSON using oneOf" in {
+    val anyTypes = (productSchema1.toJson \ "oneOf").extract[JArray]
     ((anyTypes \ "type")(0).extract[String], (anyTypes \ "type")(1).extract[String]) shouldBe ("boolean", "integer")
   }
 
   it should "allow replacement of a schema with a reference" in {
     val productSchema = ProductSchema(ObjectSchema(Map("foo" -> BooleanSchema()))).merge(BooleanSchema()).replaceWithReference("/0/foo", "foo")
-    (((productSchema.toJson \ "anyOf")(0)) \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
+    (((productSchema.toJson \ "oneOf")(0)) \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 }
