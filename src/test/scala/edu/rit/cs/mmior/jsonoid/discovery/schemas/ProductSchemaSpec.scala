@@ -9,6 +9,7 @@ class ProductSchemaSpec extends UnitSpec {
 
   implicit val formats: Formats = DefaultFormats
   implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+  implicit val propSet: PropertySet = PropertySets.MinProperties
 
   private val schema1 = BooleanSchema()
   private val schema2 = IntegerSchema()
@@ -29,5 +30,10 @@ class ProductSchemaSpec extends UnitSpec {
   it should "convert to JSON using anyOf" in {
     val anyTypes = (productSchema1.toJson \ "anyOf").extract[JArray]
     ((anyTypes \ "type")(0).extract[String], (anyTypes \ "type")(1).extract[String]) shouldBe ("boolean", "integer")
+  }
+
+  it should "allow replacement of a schema with a reference" in {
+    val productSchema = ProductSchema(ObjectSchema(Map("foo" -> BooleanSchema()))).merge(BooleanSchema()).replaceWithReference("/0/foo", "foo")
+    (((productSchema.toJson \ "anyOf")(0)) \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 }

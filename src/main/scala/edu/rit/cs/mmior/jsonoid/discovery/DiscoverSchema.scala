@@ -16,7 +16,8 @@ final case class Config(
     writeValues: Option[File] = None,
     propertySet: PropertySet = PropertySets.AllProperties,
     equivalenceRelation: EquivalenceRelation =
-      EquivalenceRelations.KindEquivalenceRelation
+      EquivalenceRelations.KindEquivalenceRelation,
+    addDefinitions: Boolean = false
 )
 
 object DiscoverSchema {
@@ -98,7 +99,8 @@ object DiscoverSchema {
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
-      "org.wartremover.warts.OptionPartial"
+      "org.wartremover.warts.OptionPartial",
+      "org.wartremover.warts.Var"
     )
   )
   def main(args: Array[String]): Unit = {
@@ -124,6 +126,10 @@ object DiscoverSchema {
       opt[EquivalenceRelation]('e', "equivalence-relation")
         .action((x, c) => c.copy(equivalenceRelation = x))
         .text("the equivalence relation to use when merging [Kind, Label]")
+
+      opt[Unit]('d', "add-definitions")
+        .action((x, c) => c.copy(addDefinitions = true))
+        .text("extract similar objects to create definitions")
     }
 
     parser.parse(args, Config()) match {
@@ -137,15 +143,21 @@ object DiscoverSchema {
         val schema =
           discover(jsons, config.propertySet)(config.equivalenceRelation)
 
+        var transformedSchema: JsonSchema[_] = schema
+        if (config.addDefinitions) {
+          transformedSchema = DefinitionTransformer
+            .transformSchema(transformedSchema.asInstanceOf[ObjectSchema])(
+              config.equivalenceRelation
+            )
+        }
+        transformedSchema = EnumTransformer
+          .transformSchema(transformedSchema)(config.equivalenceRelation)
+
         if (!config.writeValues.isEmpty) {
-          val objectSchema = schema.asInstanceOf[ObjectSchema]
           val outputStream = new FileOutputStream(config.writeValues.get)
-          ValueTableGenerator.writeValueTable(objectSchema, outputStream)
+          ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
         }
 
-        val transformedSchema: ObjectSchema =
-          transformSchema(schema)(config.equivalenceRelation)
-            .asInstanceOf[ObjectSchema]
         println(compact(render(transformedSchema.toJsonSchema)))
       case None =>
     }

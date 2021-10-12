@@ -7,7 +7,7 @@ import com.github.tototoshi.csv.CSVWriter
 import schemas._
 
 object ValueTableGenerator extends SchemaWalker[List[String]] {
-  def writeValueTable(schema: ObjectSchema, output: OutputStream): Unit = {
+  def writeValueTable(schema: JsonSchema[_], output: OutputStream): Unit = {
     val exampleExtractor
         : PartialFunction[(String, JsonSchema[_]), List[String]] = {
       case (_, i: IntegerSchema) =>

@@ -38,6 +38,12 @@ trait SchemaWalker[T] {
               extractValues(schema, extractor, s"$prefix[$index]")
             }
         })
+      case p: ProductSchema =>
+        val types = p.properties.get[ProductSchemaTypesProperty].schemaTypes
+        extractSingle(p, extractor, prefix) ++ types.zipWithIndex.flatMap {
+          case (schema, index) =>
+            extractValues(schema, extractor, s"$prefix[$index]")
+        }
       case x =>
         extractSingle(x, extractor, prefix)
     }

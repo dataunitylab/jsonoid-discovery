@@ -48,6 +48,43 @@ final case class ProductSchema(
       properties: SchemaProperties[JsonSchema[_]]
   ): ProductSchema =
     ProductSchema(properties)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+    val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
+    pointer.split("/", 3) match {
+      case Array(_)        => None
+      case Array(_, "")    => Some(this)
+      case Array(_, first) => Some(schemas(first.toInt))
+      case Array(_, first, rest) =>
+        schemas(first.toInt).findByPointer("/" + rest)
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def replaceWithReference(
+      pointer: String,
+      reference: String
+  ): JsonSchema[_] = {
+    val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
+    // Build a new type list that replaces the required type
+    val newSchemas = pointer.split("/", 3) match {
+      case Array(_) =>
+        throw new IllegalArgumentException("Invalid path for reference")
+      case Array(_, "") =>
+        throw new IllegalArgumentException("Invalid path for reference")
+      case Array(_, first) =>
+        schemas.updated(first.toInt, ReferenceSchema(reference))
+      case Array(_, first, rest) =>
+        schemas.updated(
+          first.toInt,
+          schemas(first.toInt).replaceWithReference("/" + rest, reference)
+        )
+    }
+
+    val typeProp = ProductSchemaTypesProperty(newSchemas)
+    ProductSchema(this.properties.replaceProperty(typeProp))
+  }
 }
 
 final case class ProductSchemaTypesProperty(

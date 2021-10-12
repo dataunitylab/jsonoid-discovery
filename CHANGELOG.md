@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Allow configurable equivalence relations when merging
+- Add option to select whether definitions should be found
+- Allow conversion of any type to a full JSON Schema
 
 ## [0.3.0] - 2021-10-05
 ### Added
