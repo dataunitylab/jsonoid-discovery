@@ -12,19 +12,21 @@ class ProductSchemaSpec extends UnitSpec {
   implicit val propSet: PropertySet = PropertySets.MinProperties
 
   private val schema1 = BooleanSchema()
-  private val schema2 = IntegerSchema()
+  private val schema2 = IntegerSchema(0)
   private val schema3 = StringSchema()
   private val productSchema1 = ProductSchema(schema1).merge(schema2).asInstanceOf[ProductSchema]
   private val productSchema2 = ProductSchema(schema3)
 
   it should "track required properties" in {
-    val types = productSchema1.properties.get[ProductSchemaTypesProperty].schemaTypes
-    types should contain theSameElementsAs List(schema1, schema2)
+    val typesProp = productSchema1.merge(schema2).asInstanceOf[ProductSchema].properties.get[ProductSchemaTypesProperty]
+    val types = typesProp.schemaTypes.zip(typesProp.schemaCounts)
+    types should contain theSameElementsAs List((schema1, 1), (schema2, 2))
   }
 
   it should "merge all types in multiple ProductSchemas" in {
-    val types = ProductSchema(schema3).merge(productSchema1).asInstanceOf[ProductSchema].properties.get[ProductSchemaTypesProperty].schemaTypes
-    types should contain theSameElementsAs List(schema1, schema2, schema3)
+    val typesProp = ProductSchema(schema3).merge(productSchema1).asInstanceOf[ProductSchema].properties.get[ProductSchemaTypesProperty]
+    val types = typesProp.schemaTypes.zip(typesProp.schemaCounts)
+    types should contain theSameElementsAs List((schema1, 1), (schema2, 1), (schema3, 1))
   }
 
   it should "convert to JSON using oneOf" in {

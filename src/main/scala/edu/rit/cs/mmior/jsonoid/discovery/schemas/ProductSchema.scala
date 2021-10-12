@@ -13,8 +13,7 @@ object ProductSchema {
     ProductSchema(
       SchemaProperties
         .empty[JsonSchema[_]]
-        .replaceProperty(ProductSchemaTypesProperty(List(value))(er))
-    )
+        .replaceProperty(ProductSchemaTypesProperty(List(value), List(1))))(er)
   }
 }
 
@@ -66,7 +65,7 @@ final case class ProductSchema(
       pointer: String,
       reference: String
   ): JsonSchema[_] = {
-    val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
+    val typesProp = properties.get[ProductSchemaTypesProperty]
     // Build a new type list that replaces the required type
     val newSchemas = pointer.split("/", 3) match {
       case Array(_) =>
@@ -74,53 +73,63 @@ final case class ProductSchema(
       case Array(_, "") =>
         throw new IllegalArgumentException("Invalid path for reference")
       case Array(_, first) =>
-        schemas.updated(first.toInt, ReferenceSchema(reference))
+        typesProp.schemaTypes.updated(first.toInt, ReferenceSchema(reference))
       case Array(_, first, rest) =>
-        schemas.updated(
+        val schema = typesProp.schemaTypes(first.toInt)
+        typesProp.schemaTypes.updated(
           first.toInt,
-          schemas(first.toInt).replaceWithReference("/" + rest, reference)
+          schema.replaceWithReference("/" + rest, reference)
         )
     }
 
-    val typeProp = ProductSchemaTypesProperty(newSchemas)
+    val typeProp = ProductSchemaTypesProperty(newSchemas, typesProp.schemaCounts)
     ProductSchema(this.properties.replaceProperty(typeProp))
   }
 }
 
 final case class ProductSchemaTypesProperty(
-    val schemaTypes: List[JsonSchema[_]] = List.empty[JsonSchema[_]]
+    val schemaTypes: List[JsonSchema[_]] = List.empty[JsonSchema[_]],
+    val schemaCounts: List[BigInt] = List.empty[BigInt]
 )(implicit er: EquivalenceRelation)
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
-  override def toJson: JObject = ("oneOf" -> schemaTypes.map(_.toJson))
+  override def toJson: JObject =
+    ("oneOf" -> schemaTypes.map(_.toJson)) ~
+    ("counts" -> schemaCounts)
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(schemaTypes.map { s =>
-      if (transformer.isDefinedAt(s)) {
-        transformer(s)
-      } else {
-        s
-      }
-    })
+      transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
+    }, schemaCounts)
   }
 
   override def merge(
       otherProp: ProductSchemaTypesProperty
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
-    otherProp.schemaTypes.foldLeft(this)(_.mergeValue(_))
+    otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>
+      p.mergeWithCount(otherProp.schemaCounts(i), s)
+    }
+  }
+
+  def mergeWithCount(
+    count: BigInt,
+    schema: JsonSchema[_]
+  )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
+    val newTypes = schemaTypes.zipWithIndex.find { case (s, i) =>
+      s.schemaType === schema.schemaType
+    } match {
+      case Some((s, i)) if er.fuse(s, schema) =>
+        (schemaTypes.updated(i, s.merge(schema)),
+         schemaCounts.updated(i, count + schemaCounts(i)))
+      case _ => (schemaTypes :+ schema, schemaCounts :+ count)
+    }
+    (ProductSchemaTypesProperty.apply _).tupled(newTypes)
   }
 
   override def mergeValue(
       value: JsonSchema[_]
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
-    val newTypes = schemaTypes.zipWithIndex.find { case (s, i) =>
-      s.schemaType === value.schemaType
-    } match {
-      case Some((s, i)) if er.fuse(s, value) =>
-        schemaTypes.updated(i, s.merge(value))
-      case _ => schemaTypes :+ value
-    }
-    ProductSchemaTypesProperty(newTypes)
+    mergeWithCount(1, value)
   }
 }
