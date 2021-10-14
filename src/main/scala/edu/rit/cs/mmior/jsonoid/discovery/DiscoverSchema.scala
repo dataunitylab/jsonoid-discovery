@@ -146,7 +146,7 @@ object DiscoverSchema {
         var transformedSchema: JsonSchema[_] = schema
         if (config.addDefinitions) {
           transformedSchema = DefinitionTransformer
-            .transformSchema(transformedSchema.asInstanceOf[ObjectSchema])(
+            .transformSchema(transformedSchema)(
               config.equivalenceRelation
             )
         }

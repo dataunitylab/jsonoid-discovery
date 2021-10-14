@@ -29,7 +29,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     )
   )
   def transformSchema(
-      schema: ObjectSchema
+      schema: JsonSchema[_]
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     // Discover clusters within the schema
     val clusters = findClusters(schema).map(_.map(pathToPointer _))
@@ -89,7 +89,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     definitionSchema
   }
 
-  def findClusters(schema: ObjectSchema): Set[Set[String]] = {
+  def findClusters(schema: JsonSchema[_]): Set[Set[String]] = {
     // Build fuzzy sets representing key occurrence in all objects
     val fuzzySets = walk(schema, buildFuzzySet)
     val clusterer = new DBSCANClusterer(
