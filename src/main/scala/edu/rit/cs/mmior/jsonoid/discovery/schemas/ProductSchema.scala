@@ -13,7 +13,8 @@ object ProductSchema {
     ProductSchema(
       SchemaProperties
         .empty[JsonSchema[_]]
-        .replaceProperty(ProductSchemaTypesProperty(List(value), List(1))))(er)
+        .replaceProperty(ProductSchemaTypesProperty(List(value), List(1)))
+    )(er)
   }
 }
 
@@ -82,7 +83,8 @@ final case class ProductSchema(
         )
     }
 
-    val typeProp = ProductSchemaTypesProperty(newSchemas, typesProp.schemaCounts)
+    val typeProp =
+      ProductSchemaTypesProperty(newSchemas, typesProp.schemaCounts)
     ProductSchema(this.properties.replaceProperty(typeProp))
   }
 }
@@ -94,14 +96,17 @@ final case class ProductSchemaTypesProperty(
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject =
     ("oneOf" -> schemaTypes.map(_.toJson)) ~
-    ("counts" -> schemaCounts)
+      ("counts" -> schemaCounts)
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): ProductSchemaTypesProperty = {
-    ProductSchemaTypesProperty(schemaTypes.map { s =>
-      transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
-    }, schemaCounts)
+    ProductSchemaTypesProperty(
+      schemaTypes.map { s =>
+        transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
+      },
+      schemaCounts
+    )
   }
 
   override def merge(
@@ -113,15 +118,17 @@ final case class ProductSchemaTypesProperty(
   }
 
   def mergeWithCount(
-    count: BigInt,
-    schema: JsonSchema[_]
+      count: BigInt,
+      schema: JsonSchema[_]
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     val newTypes = schemaTypes.zipWithIndex.find { case (s, i) =>
       s.schemaType === schema.schemaType
     } match {
       case Some((s, i)) if er.fuse(s, schema) =>
-        (schemaTypes.updated(i, s.merge(schema)),
-         schemaCounts.updated(i, count + schemaCounts(i)))
+        (
+          schemaTypes.updated(i, s.merge(schema)),
+          schemaCounts.updated(i, count + schemaCounts(i))
+        )
       case _ => (schemaTypes :+ schema, schemaCounts :+ count)
     }
     (ProductSchemaTypesProperty.apply _).tupled(newTypes)
