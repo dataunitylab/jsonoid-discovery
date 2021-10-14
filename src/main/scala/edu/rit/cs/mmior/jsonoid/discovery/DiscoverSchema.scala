@@ -9,6 +9,7 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import edu.rit.cs.mmior.jsonoid.BuildInfo
+import Helpers._
 import schemas._
 
 final case class Config(
@@ -145,6 +146,12 @@ object DiscoverSchema {
 
         var transformedSchema: JsonSchema[_] = schema
         if (config.addDefinitions) {
+          if (config.propertySet =/= PropertySets.AllProperties) {
+            throw new IllegalArgumentException(
+              "All properties required to compute definitions"
+            )
+          }
+
           transformedSchema = DefinitionTransformer
             .transformSchema(transformedSchema)(
               config.equivalenceRelation

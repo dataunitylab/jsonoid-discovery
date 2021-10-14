@@ -92,13 +92,17 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
   def findClusters(schema: JsonSchema[_]): Set[Set[String]] = {
     // Build fuzzy sets representing key occurrence in all objects
     val fuzzySets = walk(schema, buildFuzzySet)
-    val clusterer = new DBSCANClusterer(
-      fuzzySets.keySet.asJava,
-      2,
-      0.1f,
-      SimilarityMetric(fuzzySets)
-    )
-    clusterer.performClustering.asScala.map(_.asScala.toSet).toSet
+    if (fuzzySets.isEmpty) {
+      Set.empty[Set[String]]
+    } else {
+      val clusterer = new DBSCANClusterer(
+        fuzzySets.keySet.asJava,
+        2,
+        0.1f,
+        SimilarityMetric(fuzzySets)
+      )
+      clusterer.performClustering.asScala.map(_.asScala.toSet).toSet
+    }
   }
 
   private val buildFuzzySet

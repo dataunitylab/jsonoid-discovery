@@ -59,6 +59,8 @@ object Helpers {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit final class AnyOps[A](self: A) {
     def ===(other: A): Boolean = self == other
+
+    def =/=(other: A): Boolean = self != other
   }
   // scalastyle:on method.name
 

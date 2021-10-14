@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Allow `ProductSchema` as a top-level result
 
+### Fixed
+- Better handling of clustering failures
+
 ## [0.4.0] - 2021-10-14
 ### Added
 - Allow configurable equivalence relations when merging
