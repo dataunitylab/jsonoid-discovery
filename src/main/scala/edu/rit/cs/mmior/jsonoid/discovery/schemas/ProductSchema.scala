@@ -95,8 +95,7 @@ final case class ProductSchemaTypesProperty(
 )(implicit er: EquivalenceRelation)
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject =
-    ("oneOf" -> schemaTypes.map(_.toJson)) ~
-      ("counts" -> schemaCounts)
+    ("oneOf" -> schemaTypes.map(_.toJson))
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
