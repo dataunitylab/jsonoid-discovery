@@ -18,7 +18,7 @@ final case class SimilarityMetric(val fuzzySets: Map[String, FuzzySet[String]])
 
 object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
   def pathToPointer(path: String): String = {
-    path.substring(1).replace(".", "/").replace("[*]", "/*")
+    path.substring(1).replace(".", "/").replaceAll("""\[(.+?)\]""", "/$1")
   }
 
   @SuppressWarnings(
@@ -55,7 +55,9 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           // (reverse the values and find a prefix)
           // We also only take the part of the name after the last slash
           val lastParts =
-            cluster.map(_.split("/").reverse.dropWhile(_ === "*").head)
+            cluster.map(_.split("/").reverse.dropWhile { x =>
+              x === "*" || (x forall Character.isDigit)
+            }.head)
           var definition = if (lastParts.size > 1) {
             s"defn${index}"
           } else {
