@@ -59,7 +59,14 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
               x === "*" || (x forall Character.isDigit)
             }.head)
           var definition = if (lastParts.size > 1) {
-            s"defn${index}"
+            val afterUnderscore = lastParts.map(_.split("_").last)
+            if (
+              afterUnderscore.size === 1 && afterUnderscore.headOption.get.length > 0
+            ) {
+              afterUnderscore.headOption.get
+            } else {
+              s"defn${index}"
+            }
           } else {
             lastParts.headOption.get
           }
