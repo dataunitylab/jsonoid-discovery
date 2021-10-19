@@ -9,6 +9,7 @@ import org.json4s._
 import Scalaz._
 
 import Helpers._
+import utils.Histogram
 
 object ArraySchema {
   def apply(
@@ -27,6 +28,7 @@ object ArraySchema {
     props.add(MinItemsProperty())
     props.add(MaxItemsProperty())
     props.add(UniqueProperty())
+    props.add(ArrayLengthHistogramProperty())
 
     props
   }
@@ -264,5 +266,29 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     }
 
     merge(UniqueProperty(examples.length == value.length, value.length <= 1))
+  }
+}
+
+final case class ArrayLengthHistogramProperty(
+    histogram: Histogram = Histogram()
+) extends SchemaProperty[List[JsonSchema[_]], ArrayLengthHistogramProperty] {
+  override def toJson: JObject = {
+    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
+      List(value.doubleValue, count.longValue)
+    })
+  }
+
+  override def merge(
+      otherProp: ArrayLengthHistogramProperty
+  )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
+    ArrayLengthHistogramProperty(histogram.merge(otherProp.histogram))
+  }
+
+  override def mergeValue(
+      value: List[JsonSchema[_]]
+  )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
+    ArrayLengthHistogramProperty(
+      histogram.merge(Histogram(List((value.length, 1))))
+    )
   }
 }

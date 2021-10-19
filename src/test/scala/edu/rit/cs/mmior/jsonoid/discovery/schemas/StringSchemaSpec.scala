@@ -118,4 +118,9 @@ class StringSchemaSpec extends UnitSpec {
   it should "have no properties in the minimal property set" in {
     StringSchema("foo")(PropertySets.MinProperties).properties shouldBe empty
   }
+
+  it should "keep a running histogram of lengths" in {
+    val histProp = stringSchema.get[StringLengthHistogramProperty]
+    histProp.histogram.bins shouldBe List((3, 1), (6, 1))
+  }
 }

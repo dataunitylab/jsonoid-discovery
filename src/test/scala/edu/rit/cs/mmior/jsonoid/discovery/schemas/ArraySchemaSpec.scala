@@ -97,4 +97,9 @@ class ArraySchemaSpec extends UnitSpec {
     val refSchema = arraySchema.replaceWithReference("/*/0", "foo")
     (refSchema.toJson \ "items" \ "items")(0).extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
+
+  it should "keep a running histogram of array lengths" in {
+    val histProp = arraySchema.get[ArrayLengthHistogramProperty]
+    histProp.histogram.bins shouldBe List((1, 1), (2, 1))
+  }
 }

@@ -14,7 +14,7 @@ import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.HyperLogLog
+import utils.{Histogram, HyperLogLog}
 
 object StringSchema {
   def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
@@ -34,6 +34,7 @@ object StringSchema {
     props.add(StringExamplesProperty())
     props.add(FormatProperty())
     props.add(PatternProperty())
+    props.add(StringLengthHistogramProperty())
 
     props
   }
@@ -301,5 +302,29 @@ final case class PatternProperty(
       value: String
   )(implicit er: EquivalenceRelation): PatternProperty = {
     merge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
+  }
+}
+
+final case class StringLengthHistogramProperty(
+    histogram: Histogram = Histogram()
+) extends SchemaProperty[String, StringLengthHistogramProperty] {
+  override def toJson: JObject = {
+    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
+      List(value.doubleValue, count.longValue)
+    })
+  }
+
+  override def merge(
+      otherProp: StringLengthHistogramProperty
+  )(implicit er: EquivalenceRelation): StringLengthHistogramProperty = {
+    StringLengthHistogramProperty(histogram.merge(otherProp.histogram))
+  }
+
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): StringLengthHistogramProperty = {
+    StringLengthHistogramProperty(
+      histogram.merge(Histogram(List((value.length, 1))))
+    )
   }
 }
