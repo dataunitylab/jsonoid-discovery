@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Histograms are tracked for array and string lengths
+- JSON values can be checked for anomalies against a schema
 
 ### Changed
 - Better names for generated definitions

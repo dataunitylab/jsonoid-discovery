@@ -1,6 +1,9 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect._
+import scala.reflect.ClassTag
+
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -36,6 +39,13 @@ trait JsonSchema[T] {
 
   def hasType: Boolean = true
 
+  def validTypes: Set[ClassTag[_ <: JValue]]
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def isValidType[S <: JValue](value: S)(implicit tag: ClassTag[S]): Boolean = {
+    validTypes.contains(tag)
+  }
+
   def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]]
@@ -70,4 +80,18 @@ trait JsonSchema[T] {
 
   def replaceWithReference(pointer: String, reference: String): JsonSchema[_] =
     this
+
+  def isAnomalous(value: JValue, path: String = "$"): Boolean =
+    !collectAnomalies(value, path).isEmpty
+
+  def collectAnomalies[S <: JValue](
+      value: S,
+      path: String = "$"
+  )(implicit tag: ClassTag[S]): Seq[Anomaly] = {
+    if (isValidType(value)(tag)) {
+      properties.flatMap(_.collectAnomalies(value, path)).toSeq
+    } else {
+      Seq(Anomaly(path, f"${value} has wrong type", Fatal))
+    }
+  }
 }

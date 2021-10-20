@@ -27,4 +27,10 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
     this.asInstanceOf[S]
 
   def toJson: JObject
+
+  def isAnomalous(value: JValue, path: String = "$"): Boolean =
+    !collectAnomalies(value, path).isEmpty
+
+  def collectAnomalies(value: JValue, path: String = "$"): Seq[Anomaly] =
+    Seq.empty
 }

@@ -76,4 +76,16 @@ class ObjectSchemaSpec extends UnitSpec {
     val objectSchema = ObjectSchema(Map("foo" -> ObjectSchema(Map("bar" -> BooleanSchema())))).replaceWithReference("/foo/bar", "bar")
     (objectSchema.toJson \ "properties" \ "foo" \ "properties" \ "bar").extract[Map[String, String]] shouldEqual Map("$ref" -> "bar")
   }
+
+  it should "not detect anomalies for valid values" in {
+    objectSchema.isAnomalous(JObject(List(("foo", JBool(true))))).shouldBe (false)
+  }
+
+  it should "not detect anomalies for non-object values" in {
+    objectSchema.properties.flatMap(_.collectAnomalies(JString("foo"))) shouldBe empty
+  }
+
+  it should "detect anomalies of missing required properties" in {
+    schemaProperties.get[RequiredProperty].collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(Anomaly("$.foo", "missing required field", Fatal))
+  }
 }

@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect._
+
 import java.net.URI
 import java.time.{LocalDate, OffsetDateTime, OffsetTime}
 import java.util.UUID
@@ -52,7 +54,6 @@ object StringSchema {
 
     props
   }
-
 }
 
 final case class StringSchema(
@@ -60,6 +61,8 @@ final case class StringSchema(
       StringSchema.AllProperties
 ) extends JsonSchema[String] {
   override val schemaType = "string"
+
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JString])
 
   def mergeSameType()(implicit
       er: EquivalenceRelation
@@ -87,6 +90,24 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
   )(implicit er: EquivalenceRelation): MinLengthProperty = {
     MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JString(str) =>
+        minLength match {
+          case Some(length) =>
+            if (str.length < length) {
+              Seq(
+                Anomaly(path, "string shorter than minimum length", Warning)
+              )
+            } else {
+              Seq.empty
+            }
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
@@ -103,6 +124,24 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
       value: String
   )(implicit er: EquivalenceRelation): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JString(str) =>
+        maxLength match {
+          case Some(length) =>
+            if (str.length > length) {
+              Seq(
+                Anomaly(path, "string longer than maximum length", Warning)
+              )
+            } else {
+              Seq.empty
+            }
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -164,6 +203,19 @@ final case class StringBloomFilterProperty(
     prop.bloomFilter.add(value)
 
     prop
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    val inFilter = value match {
+      case JString(str) => Some(bloomFilter.contains(str))
+      case _            => None
+    }
+
+    inFilter match {
+      case Some(false) =>
+        Seq(Anomaly(path, "value not found in Bloom filter", Info))
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -303,6 +355,37 @@ final case class PatternProperty(
   )(implicit er: EquivalenceRelation): PatternProperty = {
     merge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JString(str) =>
+        val prefixMatch = str.startsWith(prefix.getOrElse(""))
+        val suffixMatch = str.endsWith(suffix.getOrElse(""))
+
+        (if (prefixMatch) {
+           Seq.empty
+         } else {
+           Seq(
+             Anomaly(
+               path,
+               "value does not have the required prefix",
+               Fatal
+             )
+           )
+         }) ++ (if (suffixMatch) {
+                  Seq.empty
+                } else {
+                  Seq(
+                    Anomaly(
+                      path,
+                      "value does not have the required suffix",
+                      Fatal
+                    )
+                  )
+                })
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class StringLengthHistogramProperty(
@@ -326,5 +409,19 @@ final case class StringLengthHistogramProperty(
     StringLengthHistogramProperty(
       histogram.merge(Histogram(List((value.length, 1))))
     )
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JString(str) =>
+        if (histogram.isAnomalous(str.length)) {
+          Seq(
+            Anomaly(path, "string length outside histogram range", Warning)
+          )
+        } else {
+          Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }

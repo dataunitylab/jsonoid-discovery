@@ -2,6 +2,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import scala.language.existentials
+import scala.reflect._
 
 import scalaz._
 import org.json4s.JsonDSL._
@@ -55,6 +56,8 @@ final case class ArraySchema(
       ArraySchema.AllProperties
 ) extends JsonSchema[List[JsonSchema[_]]] {
   override val schemaType = "array"
+
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JArray])
 
   def mergeSameType()(implicit
       er: EquivalenceRelation
@@ -189,6 +192,36 @@ final case class ItemTypeProperty(
   )(implicit er: EquivalenceRelation): ItemTypeProperty = {
     merge(ItemTypeProperty(Right(value)))
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JArray(arr) =>
+        itemType match {
+          case Left(singleType) =>
+            arr.zipWithIndex.flatMap { case (schema, index) =>
+              singleType.collectAnomalies(schema, f"${path}[$index]")
+            }
+
+          case Right(typeList) =>
+            if (arr.length != typeList.length) {
+              Seq(
+                Anomaly(
+                  path,
+                  "wrong length for tuple schema",
+                  Fatal
+                )
+              )
+            } else {
+              typeList.zip(arr).zipWithIndex.flatMap {
+                case ((schema, arrayValue), index) =>
+                  schema.collectAnomalies(arrayValue, f"${path}[$index]")
+              }
+            }
+        }
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class MinItemsProperty(minItems: Option[Int] = None)
@@ -211,6 +244,24 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
   )(implicit er: EquivalenceRelation): MinItemsProperty = {
     MinItemsProperty(minOrNone(Some(value.length), minItems))
   }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JArray(arr) =>
+        minItems match {
+          case Some(items) =>
+            if (arr.length < items) {
+              Seq(
+                Anomaly(path, "array smaller than minimum length", Warning)
+              )
+            } else {
+              Seq.empty
+            }
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
@@ -232,6 +283,24 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
       value: List[JsonSchema[_]]
   )(implicit er: EquivalenceRelation): MaxItemsProperty = {
     MaxItemsProperty(maxOrNone(Some(value.length), maxItems))
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JArray(arr) =>
+        maxItems match {
+          case Some(items) =>
+            if (arr.length > items) {
+              Seq(
+                Anomaly(path, "array larger than maximum length", Warning)
+              )
+            } else {
+              Seq.empty
+            }
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -268,6 +337,22 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 
     merge(UniqueProperty(examples.length == value.length, value.length <= 1))
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JArray(arr) =>
+        if (
+          unique && !unary && (arr.toSet.size !=
+            arr.length)
+        ) {
+          Seq(Anomaly(path, "array items are not unique", Fatal))
+        } else {
+          Seq.empty
+        }
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class ArrayLengthHistogramProperty(
@@ -291,5 +376,19 @@ final case class ArrayLengthHistogramProperty(
     ArrayLengthHistogramProperty(
       histogram.merge(Histogram(List((value.length, 1))))
     )
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JArray(arr) =>
+        if (histogram.isAnomalous(arr.length)) {
+          Seq(
+            Anomaly(path, "array length outside histogram bounds", Warning)
+          )
+        } else {
+          Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }

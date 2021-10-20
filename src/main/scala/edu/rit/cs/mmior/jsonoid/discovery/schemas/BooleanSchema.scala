@@ -1,6 +1,10 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect._
+
+import org.json4s._
+
 object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
     BooleanSchema(
@@ -23,6 +27,8 @@ final case class BooleanSchema(
 ) extends JsonSchema[Boolean] {
   override val schemaType = "boolean"
 
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JBool])
+
   def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
@@ -32,4 +38,14 @@ final case class BooleanSchema(
 
   override def copy(properties: SchemaProperties[Boolean]): BooleanSchema =
     BooleanSchema(properties)
+
+  override def collectAnomalies[S <: JValue](
+      value: S,
+      path: String
+  )(implicit tag: ClassTag[S]) = {
+    value match {
+      case JBool(_) => Seq.empty
+      case _        => Seq(Anomaly(path, "expected boolean type", Fatal))
+    }
+  }
 }

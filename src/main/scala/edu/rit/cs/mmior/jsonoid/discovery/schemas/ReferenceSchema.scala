@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect.ClassTag
+
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -21,12 +23,29 @@ final case class ReferenceSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
 
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+
+  override def isValidType[S <: JValue](value: S)(implicit
+      tag: ClassTag[S]
+  ): Boolean = {
+    throw new UnsupportedOperationException("$ref cannot be type checked")
+  }
+
   def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
 
   override def copy(properties: SchemaProperties[String]): ReferenceSchema =
     ReferenceSchema(properties)
+
+  override def collectAnomalies[S <: JValue](
+      value: S,
+      path: String
+  )(implicit tag: ClassTag[S]) = {
+    Seq(
+      Anomaly(path, "$ref cannot be checked for anomalies", Fatal)
+    )
+  }
 }
 
 final case class ReferencePathProperty(path: String)

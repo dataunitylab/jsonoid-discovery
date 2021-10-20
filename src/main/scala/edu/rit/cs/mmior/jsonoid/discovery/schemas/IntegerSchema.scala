@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect._
+
 import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
@@ -53,6 +55,8 @@ final case class IntegerSchema(
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
 
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JInt])
+
   def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
@@ -80,6 +84,22 @@ final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
   )(implicit er: EquivalenceRelation): MinIntValueProperty = {
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
   }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JInt(num) =>
+        minIntValue match {
+          case Some(min) =>
+            if (num < min) {
+              Seq(Anomaly(path, "value is below minimum", Warning))
+            } else {
+              Seq.empty
+            }
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
@@ -96,6 +116,22 @@ final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
       value: BigInt
   )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue))
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JInt(num) =>
+        maxIntValue match {
+          case Some(max) =>
+            if (num > max) {
+              Seq(Anomaly(path, "value is above maximum", Warning))
+            } else {
+              Seq.empty
+            }
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -157,6 +193,19 @@ final case class IntBloomFilterProperty(
     prop.bloomFilter.add(value.toByteArray)
 
     prop
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    val inFilter = value match {
+      case JInt(num) => Some(bloomFilter.contains(num.toByteArray))
+      case _         => None
+    }
+
+    inFilter match {
+      case Some(false) =>
+        Seq(Anomaly(path, "value not found in Bloom filter", Info))
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -244,5 +293,17 @@ final case class IntHistogramProperty(
     IntHistogramProperty(
       histogram.merge(Histogram(List((BigDecimal(value), 1))))
     )
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JInt(num) =>
+        if (histogram.isAnomalous(BigDecimal(num))) {
+          Seq(Anomaly(path, "value outside histogram bounds", Warning))
+        } else {
+          Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }

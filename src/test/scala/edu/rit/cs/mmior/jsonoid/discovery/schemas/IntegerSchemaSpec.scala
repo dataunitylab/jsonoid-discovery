@@ -59,4 +59,36 @@ class IntegerSchemaSpec extends UnitSpec {
   it should "have no properties in the minimal property set" in {
     IntegerSchema(0)(PropertySets.MinProperties).properties shouldBe empty
   }
+
+  it should "show integers as a valid type" in {
+    integerSchema.isValidType(JInt(3)) shouldBe (true)
+  }
+
+  it should "show numbers as an invalid type" in {
+    integerSchema.isValidType(JDouble(3.4)) shouldBe (false)
+  }
+
+  it should "not detect anomalies when an integer is in range" in {
+    integerSchema.collectAnomalies(JInt(4)) shouldBe empty
+  }
+
+  it should "not detect anomalies for non-integer values" in {
+    integerSchema.properties.flatMap(_.collectAnomalies(JDouble(3.4))) shouldBe empty
+  }
+
+  it should "detect anomalies when a value is too small" in {
+    integerSchema.properties.get[MinIntValueProperty].collectAnomalies(JInt(3)) shouldBe Seq(Anomaly("$", "value is below minimum", Warning))
+  }
+
+  it should "detect anomalies when a value is too large" in {
+    integerSchema.properties.get[MaxIntValueProperty].collectAnomalies(JInt(50)) shouldBe Seq(Anomaly("$", "value is above maximum", Warning))
+  }
+
+  it should "detect anomalies when a value has not been observed" in {
+    integerSchema.properties.get[IntBloomFilterProperty].collectAnomalies(JInt(2)) shouldBe Seq(Anomaly("$", "value not found in Bloom filter", Info))
+  }
+
+  it should "detect anomalies when a value outside of the histogram range" in {
+    integerSchema.properties.get[IntHistogramProperty].collectAnomalies(JInt(30)) shouldBe Seq(Anomaly("$", "value outside histogram bounds", Warning))
+  }
 }

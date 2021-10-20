@@ -43,4 +43,8 @@ class ProductSchemaSpec extends UnitSpec {
     val transformedSchema = productSchema1.transformProperties { case _ => NullSchema() }
     transformedSchema.asInstanceOf[ProductSchema].properties.get[ProductSchemaTypesProperty].schemaTypes.shouldEqual (List(NullSchema(), NullSchema()))
   }
+
+  it should "detect anomalies of incorrect type" in {
+    productSchema1.isAnomalous(JString("foo")).shouldBe (true)
+  }
 }

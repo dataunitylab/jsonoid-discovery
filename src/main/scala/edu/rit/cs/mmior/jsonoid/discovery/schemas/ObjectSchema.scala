@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect._
+
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -49,6 +51,15 @@ final case class ObjectSchema(
       ObjectSchema.AllProperties
 ) extends JsonSchema[Map[String, JsonSchema[_]]] {
   override val schemaType = "object"
+
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JObject])
+
+  override def isValidType[S <: JValue](
+      value: S
+  )(implicit tag: ClassTag[S]): Boolean = {
+    // We can't check the ClassTag here
+    value.isInstanceOf[JObject]
+  }
 
   override val staticProperties: JObject = ("additionalProperties" -> false)
 
@@ -200,6 +211,26 @@ final case class ObjectTypesProperty(
         .toMap
     )
   }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JObject(fields) =>
+        val fieldMap = fields.toMap
+        val unknownFields = fieldMap.keySet -- objectTypes.keySet
+        if (unknownFields.size > 0) {
+          unknownFields
+            .map(f => Anomaly(f"$path.$f", "found unknown field", Fatal))
+            .toSeq
+        } else {
+          fieldMap.keySet
+            .flatMap(key =>
+              objectTypes(key).collectAnomalies(fieldMap(key), f"$path.$key")
+            )
+            .toSeq
+        }
+      case _ => Seq.empty
+    }
+  }
 }
 
 final case class FieldPresenceProperty(
@@ -244,6 +275,26 @@ final case class RequiredProperty(
       value: Map[String, JsonSchema[_]]
   )(implicit er: EquivalenceRelation): RequiredProperty = {
     RequiredProperty(intersectOrNone(Some(value.keySet), required))
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JObject(fields) =>
+        required match {
+          case Some(requiredFields) =>
+            (requiredFields -- fields.map(_._1).toSet)
+              .map(f =>
+                Anomaly(
+                  f"$path.$f",
+                  "missing required field",
+                  Fatal
+                )
+              )
+              .toSeq
+          case None => Seq.empty
+        }
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -332,6 +383,15 @@ final case class DependenciesProperty(
         })
         .toMap
       merge(DependenciesProperty(1, counts, cooccurrence))
+    }
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JObject(fields) =>
+        // TODO: Check dependencies are satisfied
+        Seq.empty
+      case _ => Seq.empty
     }
   }
 }

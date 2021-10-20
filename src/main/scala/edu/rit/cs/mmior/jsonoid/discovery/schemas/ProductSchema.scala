@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect.ClassTag
+
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -23,6 +25,15 @@ final case class ProductSchema(
 )(implicit er: EquivalenceRelation)
     extends JsonSchema[JsonSchema[_]] {
   override def hasType: Boolean = false
+
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+
+  override def isValidType[S <: JValue](
+      value: S
+  )(implicit tag: ClassTag[S]): Boolean = {
+    // Any type is potentially valid
+    true
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
@@ -137,5 +148,15 @@ final case class ProductSchemaTypesProperty(
       value: JsonSchema[_]
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     mergeWithCount(1, value)
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    // Check that there is some type that matches this value
+    // TODO: Check frequency for outliers
+    if (schemaTypes.exists(!_.isAnomalous(value, path))) {
+      Seq.empty
+    } else {
+      Seq(Anomaly(path, f"no alternative found for ${value}", Fatal))
+    }
   }
 }

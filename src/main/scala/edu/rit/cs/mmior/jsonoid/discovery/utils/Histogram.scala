@@ -45,4 +45,21 @@ final case class Histogram(bins: List[(BigDecimal, BigInt)] = List.empty) {
   def merge(other: Histogram): Histogram = {
     Histogram(mergeBins((bins ++ other.bins).sorted))
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  def isAnomalous(value: BigDecimal): Boolean = {
+    if (bins.length > 0) {
+      // Find the maximum observed window between bins
+      val window: BigDecimal = if (bins.length >= 2) {
+        bins.zip(bins.drop(1)).map(t => t._2._1 - t._1._1).max
+      } else {
+        0
+      }
+
+      // Check if this value is more than the window size outside the bin range
+      ((value + window) < bins.head._1) || ((value - window) > bins.last._1)
+    } else {
+      false
+    }
+  }
 }

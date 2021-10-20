@@ -2,7 +2,6 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import org.json4s.{DefaultFormats, Formats}
-import org.json4s.JsonDSL._
 import org.json4s._
 
 import PropertySets._
@@ -13,29 +12,29 @@ class StringSchemaSpec extends UnitSpec {
 
   implicit val formats: Formats = DefaultFormats
 
-  private val stringSchema = StringSchema("foo").properties.mergeValue("foobar")
+  private val stringSchema = StringSchema(StringSchema("foor").properties.mergeValue("foobar"))
 
   it should "track the maximum length" in {
-    stringSchema should contain (MaxLengthProperty(Some(6)))
+    stringSchema.properties should contain (MaxLengthProperty(Some(6)))
   }
 
   it should "track the minimum length" in {
-    stringSchema should contain (MinLengthProperty(Some(3)))
+    stringSchema.properties should contain (MinLengthProperty(Some(4)))
   }
 
   it should "track the distinct elements" in {
-    val hyperLogLogProp = stringSchema.get[StringHyperLogLogProperty]
+    val hyperLogLogProp = stringSchema.properties.get[StringHyperLogLogProperty]
     hyperLogLogProp.hll.count() should be (2)
   }
 
   it should "keep a Bloom filter of observed elements" in {
-    val bloomFilterProp = stringSchema.get[StringBloomFilterProperty]
-    bloomFilterProp.bloomFilter.contains("foo") shouldBe true
+    val bloomFilterProp = stringSchema.properties.get[StringBloomFilterProperty]
+    bloomFilterProp.bloomFilter.contains("foor") shouldBe true
   }
 
   it should "keep examples" in {
-    val examplesProp = stringSchema.get[StringExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(List("foo", "foobar"))
+    val examplesProp = stringSchema.properties.get[StringExamplesProperty]
+    (examplesProp.toJson \ "examples").extract[List[String]] should contain theSameElementsAs List("foor", "foobar")
   }
 
   it should "detect the IPv4 format" in {
@@ -87,7 +86,7 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "not assign a format to normal text" in {
-    val formatProp = stringSchema.get[FormatProperty]
+    val formatProp = stringSchema.properties.get[FormatProperty]
     (formatProp.toJson \ "format") shouldBe JNothing
   }
 
@@ -120,7 +119,53 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "keep a running histogram of lengths" in {
-    val histProp = stringSchema.get[StringLengthHistogramProperty]
-    histProp.histogram.bins shouldBe List((3, 1), (6, 1))
+    val histProp = stringSchema.properties.get[StringLengthHistogramProperty]
+    histProp.histogram.bins shouldBe List((4, 1), (6, 1))
+  }
+
+  it should "show strings as a valid type" in {
+    stringSchema.isValidType(JString("foo")).shouldBe (true)
+  }
+
+  it should "show numbers as an invalid type" in {
+    stringSchema.isValidType(JDouble(3.4)) shouldBe (false)
+  }
+
+  it should "not detect anomalies for a valid string" in {
+    stringSchema.collectAnomalies(JString("foor")) shouldBe empty
+  }
+
+  it should "not detect anomalies for a non-string value" in {
+    stringSchema.properties.flatMap(_.collectAnomalies(JInt(3))) shouldBe empty
+  }
+
+  it should "detect anomalies when a string is too short" in {
+    stringSchema.properties.get[MinLengthProperty].collectAnomalies(JString("a")) should contain (Anomaly("$", "string shorter than minimum length", Warning))
+  }
+
+  it should "detect anomalies when a string is too long" in {
+    stringSchema.properties.get[MaxLengthProperty].collectAnomalies(JString("foobarbaz")) should contain (Anomaly("$", "string longer than maximum length", Warning))
+  }
+
+  it should "not detect anomalies for an observed value" in {
+    stringSchema.properties.get[StringBloomFilterProperty].collectAnomalies(JString("foor")) shouldBe empty
+  }
+
+  it should "detect anomalies when a value has not been observed" in {
+    stringSchema.properties.get[StringBloomFilterProperty].collectAnomalies(JString("quux")) should contain (Anomaly("$", "value not found in Bloom filter", Info))
+  }
+
+  it should "detect anomalies when a string length outside of the histogram range" in {
+    stringSchema.properties.get[StringLengthHistogramProperty].collectAnomalies(JString("foobarbazquux")) should contain (Anomaly("$", "string length outside histogram range", Warning))
+  }
+
+  it should "detect anomalies when a string does not have the required prefix" in {
+    val anomalies = stringSchema.properties.get[PatternProperty].collectAnomalies(JString("quuxr"))
+    anomalies shouldBe List(Anomaly("$", "value does not have the required prefix", Fatal))
+  }
+
+  it should "detect anomalies when a string does not have the required suffix" in {
+    val anomalies = stringSchema.properties.get[PatternProperty].collectAnomalies(JString("foo"))
+    anomalies shouldBe List(Anomaly("$", "value does not have the required suffix", Fatal))
   }
 }

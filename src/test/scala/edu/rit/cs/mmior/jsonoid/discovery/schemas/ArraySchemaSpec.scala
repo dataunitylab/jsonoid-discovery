@@ -4,6 +4,7 @@ package schemas
 import PropertySets._
 import UnitSpec._
 
+import org.json4s._
 import org.json4s.{DefaultFormats, Formats}
 
 class ArraySchemaSpec extends UnitSpec {
@@ -136,5 +137,51 @@ class ArraySchemaSpec extends UnitSpec {
 
   it should "find the tuple schema itself" in {
     tupleSchema.findByPointer("/").shouldEqual (Some(tupleSchema))
+  }
+
+  it should "not show anomalies in for non-array values" in {
+    arraySchema.properties.flatMap(_.collectAnomalies(JString("foo"))) shouldBe empty
+  }
+
+  it should "not show anomalies in array schemas with the correct type" in {
+    arraySchema.properties.get[ItemTypeProperty].isAnomalous(JArray(List(JBool(true)))).shouldBe (false)
+  }
+
+  it should "detect type anomalies in array schemas" in {
+    arraySchema.properties.get[ItemTypeProperty].isAnomalous(JArray(List(JInt(3)))).shouldBe (true)
+  }
+
+  it should "not show anomalies in tuple schemas with the correct type" in {
+    tupleSchema.properties.get[ItemTypeProperty].isAnomalous(JArray(List(JNull, JBool(true)))).shouldBe (false)
+  }
+
+  it should "detect type anomalies in tuple schemas" in {
+    tupleSchema.properties.get[ItemTypeProperty].isAnomalous(JArray(List(JNull, JInt(3)))).shouldBe (true)
+  }
+
+  it should "detect anomalies when tuple schemas are the wrong length" in {
+    tupleSchema.properties.get[ItemTypeProperty].collectAnomalies(JArray(List(JNull))) shouldBe Seq(Anomaly("$", "wrong length for tuple schema", Fatal))
+  }
+
+  it should "detect no anomalies when arrays are within length bounds" in {
+    arraySchema.collectAnomalies(JArray(List(JBool(true)))) shouldBe empty
+  }
+
+  it should "detect anomalies when the array is too small" in {
+    arraySchema.properties.get[MinItemsProperty].collectAnomalies(JArray(List())) shouldBe Seq(Anomaly("$", "array smaller than minimum length", Warning))
+  }
+
+  it should "detect anomalies when the array is too large" in {
+    arraySchema.properties.get[MaxItemsProperty].collectAnomalies(JArray(List(JBool(true), JBool(false), JBool(true)))) shouldBe Seq(Anomaly("$", "array larger than maximum length", Warning))
+  }
+
+  it should "detect anomalies when the array is too large via histogram" in {
+    arraySchema.properties.get[ArrayLengthHistogramProperty].collectAnomalies(JArray(List(JBool(true), JBool(false), JBool(true), JBool(false)))) shouldBe Seq(Anomaly("$", "array length outside histogram bounds", Warning))
+  }
+
+  it should "detect anomalies when array elements are not unique" in {
+    val schemaList: List[JsonSchema[_]] = List(StringSchema("foo"), StringSchema("bar"))
+    val uniqueArraySchema = ArraySchema(schemaList)
+    uniqueArraySchema.properties.get[UniqueProperty].collectAnomalies(JArray(List(JString("foo"), JString("foo")))) shouldBe Seq(Anomaly("$", "array items are not unique", Fatal))
   }
 }

@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect._
+
 import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
@@ -50,6 +52,9 @@ final case class NumberSchema(
       NumberSchema.AllProperties
 ) extends JsonSchema[BigDecimal] {
   override val schemaType = "number"
+
+  override val validTypes: Set[ClassTag[_ <: JValue]] =
+    Set(classTag[JInt], classTag[JDouble], classTag[JDecimal])
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def mergeSameType()(implicit
@@ -120,6 +125,25 @@ final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
   )(implicit er: EquivalenceRelation): MinNumValueProperty = {
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    minNumValue match {
+      case Some(min) =>
+        val exceedsMin = value match {
+          case JDouble(num)  => Some(num < min)
+          case JDecimal(num) => Some(num < min)
+          case JInt(num)     => Some(BigDecimal(num) < min)
+          case _             => None
+        }
+
+        exceedsMin match {
+          case Some(true) =>
+            Seq(Anomaly(path, "value is below minimum", Warning))
+          case _ => Seq.empty
+        }
+      case None => Seq.empty
+    }
+  }
 }
 
 final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
@@ -136,6 +160,25 @@ final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
       value: BigDecimal
   )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue))
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    maxNumValue match {
+      case Some(max) =>
+        val exceedsMax = value match {
+          case JDouble(num)  => Some(num > max)
+          case JDecimal(num) => Some(num > max)
+          case JInt(num)     => Some(BigDecimal(num) > max)
+          case _             => None
+        }
+
+        exceedsMax match {
+          case Some(true) =>
+            Seq(Anomaly(path, "value is above maximum", Warning))
+          case _ => Seq.empty
+        }
+      case None => Seq.empty
+    }
   }
 }
 
@@ -196,6 +239,13 @@ final case class NumBloomFilterProperty(
     prop
   }
 
+  def scaleValue(value: BigDecimal): Array[Byte] = {
+    value.toBigIntExact match {
+      case Some(int) => int.toByteArray
+      case None      => value.toString.getBytes
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def mergeValue(
       value: BigDecimal
@@ -203,13 +253,26 @@ final case class NumBloomFilterProperty(
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.merge(this.bloomFilter)
 
-    val scaled = value.toBigIntExact match {
-      case Some(int) => int.toByteArray
-      case None      => value.toString.getBytes
-    }
+    val scaled = scaleValue(value)
     prop.bloomFilter.add(scaled)
 
     prop
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    val inFilter = value match {
+      case JDouble(num) =>
+        Some(bloomFilter.contains(scaleValue(BigDecimal(num))))
+      case JDecimal(num) => Some(bloomFilter.contains(scaleValue(num)))
+      case JInt(num)     => Some(bloomFilter.contains(num.toByteArray))
+      case _             => None
+    }
+
+    inFilter match {
+      case Some(false) =>
+        Seq(Anomaly(path, "value not found in Bloom filter", Info))
+      case _ => Seq.empty
+    }
   }
 }
 
@@ -268,5 +331,20 @@ final case class NumHistogramProperty(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): NumHistogramProperty = {
     NumHistogramProperty(histogram.merge(Histogram(List((value, 1)))))
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    val histAnomaly = value match {
+      case JDouble(num)  => histogram.isAnomalous(num)
+      case JDecimal(num) => histogram.isAnomalous(num)
+      case JInt(num)     => histogram.isAnomalous(BigDecimal(num))
+      case _             => false
+    }
+
+    if (histAnomaly) {
+      Seq(Anomaly(path, "value outside histogram bounds", Warning))
+    } else {
+      Seq.empty
+    }
   }
 }

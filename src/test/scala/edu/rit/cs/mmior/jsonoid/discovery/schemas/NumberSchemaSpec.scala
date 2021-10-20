@@ -32,6 +32,11 @@ class NumberSchemaSpec extends UnitSpec {
     bloomFilterProp.bloomFilter.contains(BigDecimal(3.14).toString.getBytes) shouldBe true
   }
 
+  it should "not encode the Bloom filter in the generated json" in {
+    val bloomJson = numberSchema.properties.get[NumBloomFilterProperty].toJson
+    bloomJson shouldBe JObject(Nil)
+  }
+
   it should "keep statistics" in {
     val statsProp = numberSchema.properties.get[NumStatsProperty]
     statsProp.stats.mean shouldBe (BigDecimal(3.71))
@@ -82,5 +87,50 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "have no properties in the minimal property set" in {
     NumberSchema(0.0)(PropertySets.MinProperties).properties shouldBe empty
+  }
+
+  it should "show integers as a valid type" in {
+    numberSchema.isValidType(JInt(3)) shouldBe (true)
+  }
+
+  it should "show numbers as a valid type" in {
+    numberSchema.isValidType(JDouble(3.4)) shouldBe (true)
+  }
+
+  it should "show strings as an invalid type" in {
+    numberSchema.isValidType(JString("foo")).shouldBe (false)
+  }
+
+  it should "not detect anomalies when a double is in range" in {
+    numberSchema.collectAnomalies(JDouble(3.14)) shouldBe empty
+  }
+
+  it should "not detect anomalies when a decimal is in range" in {
+    numberSchema.collectAnomalies(JDecimal(3.14)) shouldBe empty
+  }
+
+  it should "not detect anomalies when an integer is in range" in {
+    mixedSchema.collectAnomalies(JInt(5)) shouldBe empty
+  }
+
+  it should "not detect anomalies for non-numerical values" in {
+    mixedSchema.properties.flatMap(_.collectAnomalies(JString("foo"))) shouldBe empty
+  }
+
+
+  it should "detect anomalies when a value is too small" in {
+    numberSchema.properties.get[MinNumValueProperty].collectAnomalies(JInt(3)) shouldBe Seq(Anomaly("$", "value is below minimum", Warning))
+  }
+
+  it should "detect anomalies when a value is too large" in {
+    numberSchema.properties.get[MaxNumValueProperty].collectAnomalies(JInt(50)) shouldBe Seq(Anomaly("$", "value is above maximum", Warning))
+  }
+
+  it should "detect anomalies when a value has not been observed" in {
+    numberSchema.properties.get[NumBloomFilterProperty].collectAnomalies(JInt(4)) shouldBe Seq(Anomaly("$", "value not found in Bloom filter", Info))
+  }
+
+  it should "detect anomalies when a value outside of the histogram range" in {
+    numberSchema.properties.get[NumHistogramProperty].collectAnomalies(JInt(30)) shouldBe Seq(Anomaly("$", "value outside histogram bounds", Warning))
   }
 }

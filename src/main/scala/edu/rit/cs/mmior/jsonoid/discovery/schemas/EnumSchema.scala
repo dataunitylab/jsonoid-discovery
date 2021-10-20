@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect.ClassTag
+
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -36,6 +38,15 @@ final case class EnumSchema(
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
+
+  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+
+  override def isValidType[S <: JValue](
+      value: S
+  )(implicit tag: ClassTag[S]): Boolean = {
+    // Any type is potentially valid
+    true
+  }
 
   def mergeSameType()(implicit
       er: EquivalenceRelation
@@ -77,5 +88,13 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
       value: Set[JValue]
   )(implicit er: EquivalenceRelation): EnumValuesProperty = {
     EnumValuesProperty(value ++ values)
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    if (values.contains(value)) {
+      Seq.empty
+    } else {
+      Seq(Anomaly(path, "enum value not found", Fatal))
+    }
   }
 }
