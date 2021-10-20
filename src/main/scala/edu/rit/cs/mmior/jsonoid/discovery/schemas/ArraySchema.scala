@@ -76,6 +76,7 @@ final case class ArraySchema(
         // XXX The * is not real JSON Pointer syntax
         //     but allows us to work with array schemas
         pointer.split("/", 3) match {
+          case Array(_, "")        => Some(this)
           case Array(_, "*")       => Some(schema)
           case Array(_, "*", rest) => schema.findByPointer("/" + rest)
           case _                   => None

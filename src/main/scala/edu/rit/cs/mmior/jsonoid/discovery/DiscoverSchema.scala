@@ -79,6 +79,7 @@ object DiscoverSchema {
     )(er)
   }
 
+  // $COVERAGE-OFF$ No automated testing of CLI
   implicit val propertySetRead: scopt.Read[PropertySet] =
     scopt.Read.reads(typeName =>
       typeName match {
@@ -96,7 +97,6 @@ object DiscoverSchema {
       }
     )
 
-  // $COVERAGE-OFF$ No automated testing of CLI
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",

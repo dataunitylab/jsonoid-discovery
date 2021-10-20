@@ -38,4 +38,9 @@ class ProductSchemaSpec extends UnitSpec {
     val productSchema = ProductSchema(ObjectSchema(Map("foo" -> BooleanSchema()))).merge(BooleanSchema()).replaceWithReference("/0/foo", "foo")
     (((productSchema.toJson \ "oneOf")(0)) \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
+
+  it should "transform types" in {
+    val transformedSchema = productSchema1.transformProperties { case _ => NullSchema() }
+    transformedSchema.asInstanceOf[ProductSchema].properties.get[ProductSchemaTypesProperty].schemaTypes.shouldEqual (List(NullSchema(), NullSchema()))
+  }
 }

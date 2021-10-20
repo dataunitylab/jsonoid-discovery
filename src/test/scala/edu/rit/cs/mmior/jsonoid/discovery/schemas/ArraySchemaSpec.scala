@@ -12,12 +12,12 @@ class ArraySchemaSpec extends UnitSpec {
   implicit val formats: Formats = DefaultFormats
 
   private val itemType = BooleanSchema()
-  private val arraySchema = ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
+  private val arraySchema = ArraySchema(ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType)))
   private val schemaList = List(NullSchema(), BooleanSchema(true))
   private val tupleSchema = ArraySchema(ArraySchema(schemaList).properties.mergeValue(schemaList))
 
   it should "track item schemas" in {
-    arraySchema should contain (ItemTypeProperty(Left(itemType)))
+    arraySchema.properties should contain (ItemTypeProperty(Left(itemType)))
   }
 
   it should "track tuple schemas" in {
@@ -27,11 +27,11 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "track minimum array length" in {
-    arraySchema should contain (MinItemsProperty(Some(1)))
+    arraySchema.properties should contain (MinItemsProperty(Some(1)))
   }
 
   it should "track maximum array length" in {
-    arraySchema should contain (MaxItemsProperty(Some(2)))
+    arraySchema.properties should contain (MaxItemsProperty(Some(2)))
   }
 
   it should "not consider single element lists unique" in {
@@ -44,6 +44,7 @@ class ArraySchemaSpec extends UnitSpec {
     val schemaList: List[JsonSchema[_]] = List(StringSchema("foo"), StringSchema("bar"))
     val uniqueArraySchema = ArraySchema(schemaList)
     uniqueArraySchema.properties should contain (UniqueProperty(true, false))
+    (uniqueArraySchema.toJson \ "uniqueItems").extract[Boolean] shouldBe (true)
   }
 
   it should "track whether integer elements are unique" in {
@@ -68,6 +69,16 @@ class ArraySchemaSpec extends UnitSpec {
     val nestedList = List(tupleSchema, tupleSchema)
     val nestedSchema = ArraySchema(ArraySchema(nestedList).properties.mergeValue(nestedList))
     nestedSchema.findByPointer("/0/1") shouldBe Some(BooleanSchema())
+  }
+
+  it should "transform array schemas" in {
+    val transformedSchema = arraySchema.transformProperties { case _ => NullSchema() }
+    transformedSchema.asInstanceOf[ArraySchema].properties.get[ItemTypeProperty].itemType.shouldEqual (Left(NullSchema()))
+  }
+
+  it should "transform tuple schemas" in {
+    val transformedSchema = tupleSchema.transformProperties { case _ => NullSchema() }
+    transformedSchema.asInstanceOf[ArraySchema].properties.get[ItemTypeProperty].itemType.shouldEqual (Right(List(NullSchema(), NullSchema())))
   }
 
   it should "have no properties in the minimal property set" in {
@@ -99,7 +110,31 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "keep a running histogram of array lengths" in {
-    val histProp = arraySchema.get[ArrayLengthHistogramProperty]
+    val histProp = arraySchema.properties.get[ArrayLengthHistogramProperty]
     histProp.histogram.bins shouldBe List((1, 1), (2, 1))
+  }
+
+  it should "find nothing in an array schema with an empty pointer" in {
+    arraySchema.findByPointer("").shouldBe (None)
+  }
+
+  it should "find the single type in an array schema" in {
+    arraySchema.findByPointer("/*").shouldEqual (Some(BooleanSchema()))
+  }
+
+  it should "find the array schema itself" in {
+    arraySchema.findByPointer("/").shouldEqual (Some(arraySchema))
+  }
+
+  it should "find nothing in a tuple schema with an empty pointer" in {
+    tupleSchema.findByPointer("").shouldBe (None)
+  }
+
+  it should "find a type in a tuple schema" in {
+    tupleSchema.findByPointer("/0").shouldEqual (Some(NullSchema()))
+  }
+
+  it should "find the tuple schema itself" in {
+    tupleSchema.findByPointer("/").shouldEqual (Some(tupleSchema))
   }
 }

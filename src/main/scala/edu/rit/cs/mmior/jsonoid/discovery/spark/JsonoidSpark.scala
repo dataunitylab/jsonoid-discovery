@@ -16,6 +16,7 @@ final case class Config(
 )
 
 object JsonoidSpark {
+  // $COVERAGE-OFF$ No automated testing of CLI
   implicit val propertySetRead: scopt.Read[PropertySet] =
     scopt.Read.reads(typeName =>
       typeName match {
@@ -69,4 +70,5 @@ object JsonoidSpark {
       case None =>
     }
   }
+  // $COVERAGE-ON$
 }
