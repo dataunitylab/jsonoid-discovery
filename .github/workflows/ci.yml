@@ -17,7 +17,7 @@ jobs:
     - name: Coursier cache
       uses: coursier/cache-action@v5
     - name: Scalafmt
-      run: sbt scalafmtCheck
+      run: sbt scalafmtCheck test:scalafmtCheck
     - name: Scalastyle
       run: sbt scalastyle
     - name: Test

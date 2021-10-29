@@ -8,10 +8,12 @@ import org.json4s._
 class PrimaryKeyFinderSpec extends UnitSpec {
   behavior of "PrimaryKeyFinder"
 
-  implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+  implicit val er: EquivalenceRelation =
+    EquivalenceRelations.KindEquivalenceRelation
 
   it should "find possible primary keys which are integers" in {
-    val jsons: Seq[JValue] = Seq(("a" -> 3) ~ ("b" -> 4), ("a" -> 3) ~ ("b" -> 3))
+    val jsons: Seq[JValue] =
+      Seq(("a" -> 3) ~ ("b" -> 4), ("a" -> 3) ~ ("b" -> 3))
     val schema = DiscoverSchema.discover(jsons.iterator)
     val primaryKeys = PrimaryKeyFinder.findPrimaryKeys(schema)
 
@@ -19,7 +21,8 @@ class PrimaryKeyFinderSpec extends UnitSpec {
   }
 
   it should "find possible primary keys which are strings" in {
-    val jsons: Seq[JValue] = Seq(("a" -> "c") ~ ("b" -> "d"), ("a" -> "c") ~ ("b" -> "c"))
+    val jsons: Seq[JValue] =
+      Seq(("a" -> "c") ~ ("b" -> "d"), ("a" -> "c") ~ ("b" -> "c"))
     val schema = DiscoverSchema.discover(jsons.iterator)
     val primaryKeys = PrimaryKeyFinder.findPrimaryKeys(schema)
 
@@ -27,7 +30,8 @@ class PrimaryKeyFinderSpec extends UnitSpec {
   }
 
   it should "find possible primary keys which are numbers" in {
-    val jsons: Seq[JValue] = Seq(("a" -> 3.2) ~ ("b" -> 6.5), ("a" -> 3.2) ~ ("b" -> 3.2))
+    val jsons: Seq[JValue] =
+      Seq(("a" -> 3.2) ~ ("b" -> 6.5), ("a" -> 3.2) ~ ("b" -> 3.2))
     val schema = DiscoverSchema.discover(jsons.iterator)
     val primaryKeys = PrimaryKeyFinder.findPrimaryKeys(schema)
 
@@ -35,7 +39,8 @@ class PrimaryKeyFinderSpec extends UnitSpec {
   }
 
   it should "not find primary keys if they do not exist" in {
-    val jsons: Seq[JValue] = Seq(("a" -> 3) ~ ("b" -> 3), ("a" -> 3) ~ ("b" -> 3))
+    val jsons: Seq[JValue] =
+      Seq(("a" -> 3) ~ ("b" -> 3), ("a" -> 3) ~ ("b" -> 3))
     val schema = DiscoverSchema.discover(jsons.iterator)
     val primaryKeys = PrimaryKeyFinder.findPrimaryKeys(schema)
 

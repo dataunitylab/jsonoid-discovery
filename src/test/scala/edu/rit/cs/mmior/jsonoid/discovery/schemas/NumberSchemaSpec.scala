@@ -10,26 +10,30 @@ import UnitSpec._
 class NumberSchemaSpec extends UnitSpec {
   behavior of "NumberSchema"
 
-  private val numberSchema = NumberSchema(3.14).merge(NumberSchema(4.28)).asInstanceOf[NumberSchema]
+  private val numberSchema =
+    NumberSchema(3.14).merge(NumberSchema(4.28)).asInstanceOf[NumberSchema]
   private val integerSchema = IntegerSchema(5)
-  private val mixedSchema = numberSchema.merge(integerSchema).asInstanceOf[NumberSchema]
+  private val mixedSchema =
+    numberSchema.merge(integerSchema).asInstanceOf[NumberSchema]
 
   it should "track the maximum value" in {
-    numberSchema.properties should contain (MaxNumValueProperty(Some(4.28)))
+    numberSchema.properties should contain(MaxNumValueProperty(Some(4.28)))
   }
 
   it should "track the minimum value" in {
-    numberSchema.properties should contain (MinNumValueProperty(Some(3.14)))
+    numberSchema.properties should contain(MinNumValueProperty(Some(3.14)))
   }
 
   it should "track the distinct elements" in {
     val hyperLogLogProp = numberSchema.properties.get[NumHyperLogLogProperty]
-    hyperLogLogProp.hll.count() should be (2)
+    hyperLogLogProp.hll.count() should be(2)
   }
 
   it should "keep a Bloom filter of observed elements" in {
     val bloomFilterProp = numberSchema.properties.get[NumBloomFilterProperty]
-    bloomFilterProp.bloomFilter.contains(BigDecimal(3.14).toString.getBytes) shouldBe true
+    bloomFilterProp.bloomFilter.contains(
+      BigDecimal(3.14).toString.getBytes
+    ) shouldBe true
   }
 
   it should "not encode the Bloom filter in the generated json" in {
@@ -44,7 +48,9 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "keep examples" in {
     val examplesProp = numberSchema.properties.get[NumExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(List(BigDecimal(3.14), BigDecimal(4.28)))
+    (examplesProp.toJson \ "examples") shouldEqual JArray(
+      List(BigDecimal(3.14), BigDecimal(4.28))
+    )
   }
 
   it should "keep a running histogram" in {
@@ -53,16 +59,16 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "track the maximum value when merged with an integer schema" in {
-    mixedSchema.properties should contain (MaxNumValueProperty(Some(5)))
+    mixedSchema.properties should contain(MaxNumValueProperty(Some(5)))
   }
 
   it should "track the minimum value when merged with an integer schema" in {
-    mixedSchema.properties should contain (MinNumValueProperty(Some(3.14)))
+    mixedSchema.properties should contain(MinNumValueProperty(Some(3.14)))
   }
 
   it should "track the distinct elements when merged with an integer schema" in {
     val hyperLogLogProp = mixedSchema.properties.get[NumHyperLogLogProperty]
-    hyperLogLogProp.hll.count() should be (3)
+    hyperLogLogProp.hll.count() should be(3)
   }
 
   it should "keep a Bloom filter of observed elements when merged with an integer schema" in {
@@ -77,7 +83,9 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "keep examples when merged with an integer schema" in {
     val examplesProp = mixedSchema.properties.get[NumExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(List(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5)))
+    (examplesProp.toJson \ "examples") shouldEqual JArray(
+      List(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5))
+    )
   }
 
   it should "keep a running histogram when merged with an integer schema" in {
@@ -98,7 +106,7 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "show strings as an invalid type" in {
-    numberSchema.isValidType(JString("foo")).shouldBe (false)
+    numberSchema.isValidType(JString("foo")).shouldBe(false)
   }
 
   it should "not detect anomalies when a double is in range" in {
@@ -114,23 +122,40 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "not detect anomalies for non-numerical values" in {
-    mixedSchema.properties.flatMap(_.collectAnomalies(JString("foo"))) shouldBe empty
+    mixedSchema.properties.flatMap(
+      _.collectAnomalies(JString("foo"))
+    ) shouldBe empty
   }
 
-
   it should "detect anomalies when a value is too small" in {
-    numberSchema.properties.get[MinNumValueProperty].collectAnomalies(JInt(3)) shouldBe Seq(Anomaly("$", "value is below minimum", Warning))
+    numberSchema.properties
+      .get[MinNumValueProperty]
+      .collectAnomalies(JInt(3)) shouldBe Seq(
+      Anomaly("$", "value is below minimum", Warning)
+    )
   }
 
   it should "detect anomalies when a value is too large" in {
-    numberSchema.properties.get[MaxNumValueProperty].collectAnomalies(JInt(50)) shouldBe Seq(Anomaly("$", "value is above maximum", Warning))
+    numberSchema.properties
+      .get[MaxNumValueProperty]
+      .collectAnomalies(JInt(50)) shouldBe Seq(
+      Anomaly("$", "value is above maximum", Warning)
+    )
   }
 
   it should "detect anomalies when a value has not been observed" in {
-    numberSchema.properties.get[NumBloomFilterProperty].collectAnomalies(JInt(4)) shouldBe Seq(Anomaly("$", "value not found in Bloom filter", Info))
+    numberSchema.properties
+      .get[NumBloomFilterProperty]
+      .collectAnomalies(JInt(4)) shouldBe Seq(
+      Anomaly("$", "value not found in Bloom filter", Info)
+    )
   }
 
   it should "detect anomalies when a value outside of the histogram range" in {
-    numberSchema.properties.get[NumHistogramProperty].collectAnomalies(JInt(30)) shouldBe Seq(Anomaly("$", "value outside histogram bounds", Warning))
+    numberSchema.properties
+      .get[NumHistogramProperty]
+      .collectAnomalies(JInt(30)) shouldBe Seq(
+      Anomaly("$", "value outside histogram bounds", Warning)
+    )
   }
 }

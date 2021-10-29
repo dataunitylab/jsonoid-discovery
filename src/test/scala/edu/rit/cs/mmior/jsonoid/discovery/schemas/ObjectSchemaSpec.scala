@@ -13,31 +13,46 @@ class ObjectSchemaSpec extends UnitSpec {
 
   implicit val formats: Formats = DefaultFormats
 
-  private val objectTypes = Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
-  private val schemaProperties = ObjectSchema(Map("foo" -> BooleanSchema())).properties.mergeValue(objectTypes)
+  private val objectTypes =
+    Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
+  private val schemaProperties = ObjectSchema(
+    Map("foo" -> BooleanSchema())
+  ).properties.mergeValue(objectTypes)
   private val objectSchema = ObjectSchema(schemaProperties)
 
-
   it should "track required properties" in {
-    schemaProperties should contain (RequiredProperty(Some(Set("foo"))))
+    schemaProperties should contain(RequiredProperty(Some(Set("foo"))))
   }
 
   it should "track property schemas" in {
-    schemaProperties should contain (ObjectTypesProperty(objectTypes))
+    schemaProperties should contain(ObjectTypesProperty(objectTypes))
   }
 
   it should "track the percentage of objects with each field" in {
     val fieldPresenceProp = schemaProperties.get[FieldPresenceProperty]
-    val expectedJson: JObject = ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5))))
+    val expectedJson: JObject =
+      ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5))))
     fieldPresenceProp.toJson shouldEqual expectedJson
   }
 
   it should "track dependencies in field occurrence" in {
-    val dependentSchema = ObjectSchema(Map("foo" -> BooleanSchema(), "bar" ->
-      BooleanSchema())).properties.mergeValue(Map("baz" ->
-      BooleanSchema())).mergeValue(Map("foo" -> BooleanSchema()))
+    val dependentSchema = ObjectSchema(
+      Map(
+        "foo" -> BooleanSchema(),
+        "bar" ->
+          BooleanSchema()
+      )
+    ).properties
+      .mergeValue(
+        Map(
+          "baz" ->
+            BooleanSchema()
+        )
+      )
+      .mergeValue(Map("foo" -> BooleanSchema()))
     val dependenciesProp = dependentSchema.get[DependenciesProperty]
-    (dependenciesProp.toJson \ "dependentRequired").extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
+    (dependenciesProp.toJson \ "dependentRequired")
+      .extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
 
   it should "be able to find subschemas by pointer" in {
@@ -52,7 +67,9 @@ class ObjectSchemaSpec extends UnitSpec {
   it should "have no properties in the minimal property set" in {
     val cp = new Checkpoint()
 
-    val objectProperties = ObjectSchema(Map("foo" -> BooleanSchema()))(PropertySets.MinProperties).properties
+    val objectProperties = ObjectSchema(Map("foo" -> BooleanSchema()))(
+      PropertySets.MinProperties
+    ).properties
 
     cp { objectProperties should have size 1 }
     cp { objectProperties.get[ObjectTypesProperty] }
@@ -68,24 +85,37 @@ class ObjectSchemaSpec extends UnitSpec {
   }
 
   it should "allow replacement of a schema with a reference" in {
-    val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema())).replaceWithReference("/foo", "foo")
-    (objectSchema.toJson \ "properties" \ "foo").extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
+    val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))
+      .replaceWithReference("/foo", "foo")
+    (objectSchema.toJson \ "properties" \ "foo")
+      .extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 
   it should "allow replacement of a nested schema with a reference" in {
-    val objectSchema = ObjectSchema(Map("foo" -> ObjectSchema(Map("bar" -> BooleanSchema())))).replaceWithReference("/foo/bar", "bar")
-    (objectSchema.toJson \ "properties" \ "foo" \ "properties" \ "bar").extract[Map[String, String]] shouldEqual Map("$ref" -> "bar")
+    val objectSchema = ObjectSchema(
+      Map("foo" -> ObjectSchema(Map("bar" -> BooleanSchema())))
+    ).replaceWithReference("/foo/bar", "bar")
+    (objectSchema.toJson \ "properties" \ "foo" \ "properties" \ "bar")
+      .extract[Map[String, String]] shouldEqual Map("$ref" -> "bar")
   }
 
   it should "not detect anomalies for valid values" in {
-    objectSchema.isAnomalous(JObject(List(("foo", JBool(true))))).shouldBe (false)
+    objectSchema
+      .isAnomalous(JObject(List(("foo", JBool(true)))))
+      .shouldBe(false)
   }
 
   it should "not detect anomalies for non-object values" in {
-    objectSchema.properties.flatMap(_.collectAnomalies(JString("foo"))) shouldBe empty
+    objectSchema.properties.flatMap(
+      _.collectAnomalies(JString("foo"))
+    ) shouldBe empty
   }
 
   it should "detect anomalies of missing required properties" in {
-    schemaProperties.get[RequiredProperty].collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(Anomaly("$.foo", "missing required field", Fatal))
+    schemaProperties
+      .get[RequiredProperty]
+      .collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(
+      Anomaly("$.foo", "missing required field", Fatal)
+    )
   }
 }

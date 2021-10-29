@@ -9,7 +9,8 @@ class DefinitionTransformerSpec extends UnitSpec {
   behavior of "DefinitionTransformer"
 
   implicit val formats: Formats = DefaultFormats
-  implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+  implicit val er: EquivalenceRelation =
+    EquivalenceRelations.KindEquivalenceRelation
 
   val json: JValue = parse("""{
     "foo": {
@@ -23,13 +24,14 @@ class DefinitionTransformerSpec extends UnitSpec {
   }""")
 
   it should "replace a common schema with a definition" in {
-    val schema = DiscoverSchema.discoverFromValue(json).asInstanceOf[ObjectSchema]
+    val schema =
+      DiscoverSchema.discoverFromValue(json).asInstanceOf[ObjectSchema]
     val transformedSchema = DefinitionTransformer.transformSchema(schema)
 
     // Check that the definition exists
     val defs = transformedSchema.toJson \ "$defs"
-    val defNames = (defs \ "defn0" \ "properties").asInstanceOf[JObject]
-                                                  .obj.map(_._1).toSet
+    val defNames =
+      (defs \ "defn0" \ "properties").asInstanceOf[JObject].obj.map(_._1).toSet
     defNames shouldBe Set("bar", "baz")
 
     // Check that a reference was replaced

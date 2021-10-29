@@ -11,12 +11,17 @@ class EquivalenceRelationSpec extends UnitSpec {
   val objSchema2: ObjectSchema = ObjectSchema(Map("bar" -> BooleanSchema()))
 
   it should "keep schemas separate when merging by label" in {
-    val merged = objSchema1.merge(objSchema2)(EquivalenceRelations.LabelEquivalenceRelation)
+    val merged = objSchema1.merge(objSchema2)(
+      EquivalenceRelations.LabelEquivalenceRelation
+    )
     merged shouldBe a[ProductSchema]
   }
 
   it should "merge object schemas by kind" in {
-    val merged = objSchema1.merge(objSchema2)(EquivalenceRelations.KindEquivalenceRelation)
-    merged shouldEqual (ObjectSchema(Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())))
+    val merged =
+      objSchema1.merge(objSchema2)(EquivalenceRelations.KindEquivalenceRelation)
+    merged shouldEqual (ObjectSchema(
+      Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
+    ))
   }
 }

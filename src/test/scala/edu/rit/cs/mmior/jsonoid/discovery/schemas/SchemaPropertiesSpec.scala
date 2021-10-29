@@ -1,11 +1,11 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-
 class SchemaPropertiesSpec extends UnitSpec {
   behavior of "SchemaProperties"
 
-  implicit val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+  implicit val er: EquivalenceRelation =
+    EquivalenceRelations.KindEquivalenceRelation
 
   it should "merge two property sets" in {
     val prop1 = SchemaProperties.empty[BigInt]

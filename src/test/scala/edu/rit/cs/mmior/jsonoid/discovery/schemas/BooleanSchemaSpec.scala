@@ -17,6 +17,8 @@ class BooleanSchemaSpec extends UnitSpec {
   }
 
   it should "detect no anomalies with a non-boolean type" in {
-    booleanSchema.properties.flatMap(_.collectAnomalies(JDouble(3.4))) shouldBe empty
+    booleanSchema.properties.flatMap(
+      _.collectAnomalies(JDouble(3.4))
+    ) shouldBe empty
   }
 }
