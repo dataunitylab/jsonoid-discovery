@@ -7,8 +7,6 @@ import scala.reflect.ClassTag
 import org.json4s.JsonDSL._
 import org.json4s._
 
-import edu.rit.cs.mmior.jsonoid.BuildInfo
-
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 

@@ -1,7 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package spark
 
-import edu.rit.cs.mmior.jsonoid.BuildInfo
 import schemas._
 import Helpers._
 

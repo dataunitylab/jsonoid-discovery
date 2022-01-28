@@ -44,7 +44,7 @@ lazy val root = (project in file("."))
     ),
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "edu.rit.cs.mmior.jsonoid"
+    buildInfoPackage := "edu.rit.cs.mmior.jsonoid.discovery"
   )
 
 wartremoverErrors ++= Seq(
@@ -96,6 +96,10 @@ assembly / assemblyMergeStrategy := {
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
 }
+assembly / assemblyJarName       := s"jsonoid-discovery-${version.value}.jar"
+
+import sbtassembly.AssemblyPlugin.defaultUniversalScript
+assemblyPrependShellScript := Some(defaultUniversalScript(shebang = false))
 
 run / connectInput := true
 

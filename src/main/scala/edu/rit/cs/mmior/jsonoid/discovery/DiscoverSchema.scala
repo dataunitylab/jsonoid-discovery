@@ -8,7 +8,6 @@ import scopt.OptionParser
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import edu.rit.cs.mmior.jsonoid.BuildInfo
 import Helpers._
 import schemas._
 
