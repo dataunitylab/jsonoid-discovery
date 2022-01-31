@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
-- Throw a more readable exception if `$ref` is found during conversion
+- Throw a more readable exception if `$ref` or `allOf` are found during conversion
 
 ### Fixed
 - Allow objects with no defined properties when converting to JSONoid

@@ -14,6 +14,8 @@ object JsonSchema {
   def fromJson(schema: JObject): JsonSchema[_] = {
     if ((schema \ "$ref") != JNothing) {
       throw new UnsupportedOperationException("$ref not supported")
+    } else if ((schema \ "allOf") != JNothing) {
+      throw new UnsupportedOperationException("allOf not supported")
     } else if ((schema \ "oneOf") != JNothing) {
       productFromJsons((schema \ "oneOf").extract[List[JObject]])
     } else if ((schema \ "anyOf") != JNothing) {
