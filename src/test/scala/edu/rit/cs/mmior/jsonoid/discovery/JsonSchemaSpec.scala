@@ -44,11 +44,13 @@ class JsonSchemaSpec extends UnitSpec {
   it should "convert a string schema" in {
     val intSchema: JObject = ("type" -> "string") ~
       ("minLength" -> 1) ~
-      ("maxLength" -> 10)
+      ("maxLength" -> 10) ~
+      ("format" -> "date")
 
     val convertedSchema = JsonSchema.fromJson(intSchema)
     convertedSchema.properties should contain(MinLengthProperty(Some(1)))
     convertedSchema.properties should contain(MaxLengthProperty(Some(10)))
+    convertedSchema.properties should contain(FormatProperty(Map("date" -> 1)))
   }
 
   it should "convert an object schema" in {

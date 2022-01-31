@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support cases where `type` is an array in JSONoid object conversion
 - Support enums in JSONoid object conversion
+- Add `format` support in JSONoid object conversion
 
 ### Changed
 - Make JSONoid conversion helper methods private

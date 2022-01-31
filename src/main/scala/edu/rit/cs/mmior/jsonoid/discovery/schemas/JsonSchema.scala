@@ -220,9 +220,9 @@ object JsonSchema {
   private def fromJsonString(str: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[String]
 
-    // TODO Add format support
     if ((str \ "format") != JNothing) {
-      throw new UnsupportedOperationException("format not supported")
+      val format = (str \ "format").extract[String]
+      props.add(FormatProperty(Map(format -> 1)))
     }
 
     // TODO Add pattern support
