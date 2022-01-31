@@ -58,7 +58,9 @@ object JsonSchema {
     }
   }
 
-  def buildProductSchema(schemas: List[JsonSchema[_]]): ProductSchema = {
+  private def buildProductSchema(
+      schemas: List[JsonSchema[_]]
+  ): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
     val typesProp = ProductSchemaTypesProperty(
@@ -70,12 +72,12 @@ object JsonSchema {
     ProductSchema(properties)(er)
   }
 
-  def productFromJsons(schemas: List[JObject]): ProductSchema = {
+  private def productFromJsons(schemas: List[JObject]): ProductSchema = {
     buildProductSchema(schemas.map(fromJson(_)))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def fromJsonArray(arr: JObject): JsonSchema[_] = {
+  private def fromJsonArray(arr: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
 
     if ((arr \ "contains") != JNothing) {
@@ -125,7 +127,7 @@ object JsonSchema {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def fromJsonInteger(int: JObject): JsonSchema[_] = {
+  private def fromJsonInteger(int: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[BigInt]
 
     if (int.values.contains("exclusiveMinimum")) {
@@ -152,7 +154,7 @@ object JsonSchema {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def fromJsonNumber(num: JObject): JsonSchema[_] = {
+  private def fromJsonNumber(num: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[BigDecimal]
 
     if ((num \ "exclusiveMinimum") != JNothing) {
@@ -185,7 +187,7 @@ object JsonSchema {
   @SuppressWarnings(
     Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
   )
-  def fromJsonObject(obj: JObject): JsonSchema[_] = {
+  private def fromJsonObject(obj: JObject): JsonSchema[_] = {
     // TODO Add support for dependencies
     if ((obj \ "dependencies") != JNothing) {
       throw new UnsupportedOperationException("dependencies not supported")
@@ -212,7 +214,7 @@ object JsonSchema {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def fromJsonString(str: JObject): JsonSchema[_] = {
+  private def fromJsonString(str: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[String]
 
     // TODO Add format support
