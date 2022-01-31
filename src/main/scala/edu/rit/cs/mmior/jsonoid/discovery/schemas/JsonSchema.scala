@@ -161,7 +161,11 @@ object JsonSchema {
       throw new UnsupportedOperationException("dependencies not supported")
     }
 
-    val objProps = (obj \ "properties").extract[Map[String, JObject]]
+    val objProps = if ((obj \ "properties") != JNothing) {
+      (obj \ "properties").extract[Map[String, JObject]]
+    } else {
+      Map.empty
+    }
     val objTypes: Map[String, JsonSchema[_]] = objProps.map {
       case (prop, value) =>
         (prop -> fromJson(value.asInstanceOf[JObject]))
