@@ -10,18 +10,38 @@ import org.json4s._
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def fromJson(schema: JObject): JsonSchema[_] = {
-    schema.values("type") match {
-      case "array"   => fromJsonArray(schema)
-      case "boolean" => BooleanSchema()
-      case "integer" => fromJsonInteger(schema)
-      case "number"  => fromJsonNumber(schema)
-      case "null"    => NullSchema()
-      case "object"  => fromJsonObject(schema)
-      case "string"  => fromJsonString(schema)
-      case _ =>
-        throw new UnsupportedOperationException("type not supported")
+    if ((schema \ "oneOf") != JNothing) {
+      productFromJsons((schema \ "oneOf").extract[List[JObject]])
+    } else if ((schema \ "anyOf") != JNothing) {
+      // XXX This technically isn't correct since we change anyOf to oneOf
+      productFromJsons((schema \ "anyOf").extract[List[JObject]])
+    } else {
+      (schema \ "type").extract[String] match {
+        case "array"   => fromJsonArray(schema)
+        case "boolean" => BooleanSchema()
+        case "integer" => fromJsonInteger(schema)
+        case "number"  => fromJsonNumber(schema)
+        case "null"    => NullSchema()
+        case "object"  => fromJsonObject(schema)
+        case "string"  => fromJsonString(schema)
+        case _ =>
+          throw new UnsupportedOperationException("type not supported")
+      }
     }
+  }
+
+  def productFromJsons(schemas: List[JObject]): ProductSchema = {
+    val er: EquivalenceRelation =
+      EquivalenceRelations.NonEquivalenceRelation
+    val typesProp = ProductSchemaTypesProperty(
+      schemas.map(fromJson(_)),
+      List.fill(schemas.length)(1)
+    )(er)
+    val properties =
+      SchemaProperties.empty[JsonSchema[_]].replaceProperty(typesProp)
+    ProductSchema(properties)(er)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))

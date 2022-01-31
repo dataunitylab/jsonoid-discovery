@@ -91,4 +91,36 @@ class JsonSchemaSpec extends UnitSpec {
       ItemTypeProperty(Right(List(BooleanSchema(), NullSchema())))
     )
   }
+
+  it should "convert anyOf to a ProductSchema" in {
+    val anyOfSchema: JObject = ("anyOf" -> List(
+      ("type" -> "boolean"),
+      ("type" ->
+        "integer")
+    ))
+
+    val convertedSchema =
+      JsonSchema.fromJson(anyOfSchema).asInstanceOf[ProductSchema]
+    val types =
+      convertedSchema.properties.get[ProductSchemaTypesProperty].schemaTypes
+
+    types(0) shouldBe a[BooleanSchema]
+    types(1) shouldBe a[IntegerSchema]
+  }
+
+  it should "convert oneOf to a ProductSchema" in {
+    val oneOfSchema: JObject = ("oneOf" -> List(
+      ("type" -> "boolean"),
+      ("type" ->
+        "integer")
+    ))
+
+    val convertedSchema =
+      JsonSchema.fromJson(oneOfSchema).asInstanceOf[ProductSchema]
+    val types =
+      convertedSchema.properties.get[ProductSchemaTypesProperty].schemaTypes
+
+    types(0) shouldBe a[BooleanSchema]
+    types(1) shouldBe a[IntegerSchema]
+  }
 }

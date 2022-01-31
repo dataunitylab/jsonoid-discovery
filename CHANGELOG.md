@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - `NonEquivalenceRelation` which never merges
+- Also convert `anyOf` and `oneOf` to `ProductSchema` during conversion
 
 ## [0.5.1]
 ### Added
