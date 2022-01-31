@@ -74,6 +74,14 @@ class JsonSchemaSpec extends UnitSpec {
     convertedSchema.properties should contain(ObjectTypesProperty(Map()))
   }
 
+  it should "convert an object schema with missing type" in {
+    val objSchema: JObject = ("properties" -> Nil)
+
+    val convertedSchema = JsonSchema.fromJson(objSchema)
+
+    convertedSchema shouldBe a[ObjectSchema]
+  }
+
   it should "convert an array schema" in {
     val arraySchema: JObject = ("type" -> "array") ~
       ("items" -> ("type" -> "boolean")) ~

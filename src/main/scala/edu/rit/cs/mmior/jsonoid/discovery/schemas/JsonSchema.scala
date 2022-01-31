@@ -22,7 +22,16 @@ object JsonSchema {
       // XXX This technically isn't correct since we change anyOf to oneOf
       productFromJsons((schema \ "anyOf").extract[List[JObject]])
     } else {
-      (schema \ "type").extract[String] match {
+      val schemaType = if ((schema \ "type") != JNothing) {
+        (schema \ "type").extract[String]
+      } else if ((schema \ "properties") != JNothing) {
+        // If this has properties, assumed it is an object
+        "object"
+      } else {
+        throw new UnsupportedOperationException("missing type encountered")
+      }
+
+      schemaType match {
         case "array"   => fromJsonArray(schema)
         case "boolean" => BooleanSchema()
         case "integer" => fromJsonInteger(schema)
