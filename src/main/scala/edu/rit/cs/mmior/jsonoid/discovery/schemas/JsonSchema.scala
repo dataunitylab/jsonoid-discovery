@@ -22,39 +22,56 @@ object JsonSchema {
       // XXX This technically isn't correct since we change anyOf to oneOf
       productFromJsons((schema \ "anyOf").extract[List[JObject]])
     } else {
-      val schemaType = if ((schema \ "type") != JNothing) {
-        (schema \ "type").extract[String]
+      val schemaTypes = if ((schema \ "type") != JNothing) {
+        (schema \ "type") match {
+          case s: JString => List(s.extract[String])
+          case a: JArray  => a.extract[List[String]]
+          case _ =>
+            throw new UnsupportedOperationException("invalid type")
+        }
       } else if ((schema \ "properties") != JNothing) {
         // If this has properties, assumed it is an object
-        "object"
+        List("object")
       } else {
         throw new UnsupportedOperationException("missing type encountered")
       }
 
-      schemaType match {
-        case "array"   => fromJsonArray(schema)
-        case "boolean" => BooleanSchema()
-        case "integer" => fromJsonInteger(schema)
-        case "number"  => fromJsonNumber(schema)
-        case "null"    => NullSchema()
-        case "object"  => fromJsonObject(schema)
-        case "string"  => fromJsonString(schema)
-        case _ =>
-          throw new UnsupportedOperationException("type not supported")
+      val schemas = schemaTypes.map { schemaType =>
+        schemaType match {
+          case "array"   => fromJsonArray(schema)
+          case "boolean" => BooleanSchema()
+          case "integer" => fromJsonInteger(schema)
+          case "number"  => fromJsonNumber(schema)
+          case "null"    => NullSchema()
+          case "object"  => fromJsonObject(schema)
+          case "string"  => fromJsonString(schema)
+          case _ =>
+            throw new UnsupportedOperationException("type not supported")
+        }
+      }
+
+      if (schemas.length == 1) {
+        schemas(0)
+      } else {
+        buildProductSchema(schemas)
       }
     }
   }
 
-  def productFromJsons(schemas: List[JObject]): ProductSchema = {
+  def buildProductSchema(schemas: List[JsonSchema[_]]): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
     val typesProp = ProductSchemaTypesProperty(
-      schemas.map(fromJson(_)),
+      schemas,
       List.fill(schemas.length)(1)
     )(er)
     val properties =
       SchemaProperties.empty[JsonSchema[_]].replaceProperty(typesProp)
     ProductSchema(properties)(er)
+  }
+
+  def productFromJsons(schemas: List[JObject]): ProductSchema = {
+    buildProductSchema(schemas.map(fromJson(_)))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))

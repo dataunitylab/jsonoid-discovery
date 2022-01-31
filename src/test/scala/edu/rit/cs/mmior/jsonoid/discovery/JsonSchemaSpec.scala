@@ -139,4 +139,16 @@ class JsonSchemaSpec extends UnitSpec {
     types(0) shouldBe a[BooleanSchema]
     types(1) shouldBe a[IntegerSchema]
   }
+
+  it should "convert an array of types to a ProductSchema" in {
+    val productSchema: JObject = ("type" -> List("boolean", "integer"))
+
+    val convertedSchema =
+      JsonSchema.fromJson(productSchema).asInstanceOf[ProductSchema]
+    val types =
+      convertedSchema.properties.get[ProductSchemaTypesProperty].schemaTypes
+
+    types(0) shouldBe a[BooleanSchema]
+    types(1) shouldBe a[IntegerSchema]
+  }
 }
