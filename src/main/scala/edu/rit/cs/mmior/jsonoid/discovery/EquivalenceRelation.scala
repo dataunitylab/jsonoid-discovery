@@ -25,6 +25,10 @@ object EquivalenceRelations {
       kind1.schemaType === kind1.schemaType
     }
   }
+
+  implicit object NonEquivalenceRelation extends EquivalenceRelation {
+    def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = false
+  }
 }
 
 abstract class EquivalenceRelation extends Serializable {

@@ -24,4 +24,10 @@ class EquivalenceRelationSpec extends UnitSpec {
       Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
     ))
   }
+
+  it should "not merge when using non-equivalence" in {
+    val merged =
+      objSchema1.merge(objSchema1)(EquivalenceRelations.NonEquivalenceRelation)
+    merged shouldBe a[ProductSchema]
+  }
 }
