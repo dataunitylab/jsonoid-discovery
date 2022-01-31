@@ -21,6 +21,9 @@ object JsonSchema {
     } else if ((schema \ "anyOf") != JNothing) {
       // XXX This technically isn't correct since we change anyOf to oneOf
       productFromJsons((schema \ "anyOf").extract[List[JObject]])
+    } else if ((schema \ "enum") != JNothing) {
+      val values = (schema \ "enum").extract[Set[JValue]]
+      EnumSchema(values)
     } else {
       val schemaTypes = if ((schema \ "type") != JNothing) {
         (schema \ "type") match {

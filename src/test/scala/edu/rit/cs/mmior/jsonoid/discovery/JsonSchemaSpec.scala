@@ -151,4 +151,15 @@ class JsonSchemaSpec extends UnitSpec {
     types(0) shouldBe a[BooleanSchema]
     types(1) shouldBe a[IntegerSchema]
   }
+
+  it should "convert an enum" in {
+    val enumSchema: JObject = ("enum" -> JArray(List(3, "foo")))
+
+    val convertedSchema =
+      JsonSchema.fromJson(enumSchema).asInstanceOf[EnumSchema]
+    val values =
+      convertedSchema.properties.get[EnumValuesProperty].values
+
+    values shouldBe Set(JInt(3), JString("foo"))
+  }
 }
