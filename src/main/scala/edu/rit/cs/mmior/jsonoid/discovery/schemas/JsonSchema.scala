@@ -12,7 +12,9 @@ object JsonSchema {
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def fromJson(schema: JObject): JsonSchema[_] = {
-    if ((schema \ "oneOf") != JNothing) {
+    if ((schema \ "$ref") != JNothing) {
+      throw new UnsupportedOperationException("$ref not supported")
+    } else if ((schema \ "oneOf") != JNothing) {
       productFromJsons((schema \ "oneOf").extract[List[JObject]])
     } else if ((schema \ "anyOf") != JNothing) {
       // XXX This technically isn't correct since we change anyOf to oneOf
