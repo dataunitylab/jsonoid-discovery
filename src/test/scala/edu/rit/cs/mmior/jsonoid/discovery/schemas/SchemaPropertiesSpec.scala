@@ -18,4 +18,9 @@ class SchemaPropertiesSpec extends UnitSpec {
     (merged.has[MinIntValueProperty]) shouldBe true
     (merged.has[MaxIntValueProperty]) shouldBe true
   }
+
+  it should "return None if a property does not exist" in {
+    val props = SchemaProperties.empty[BigInt]
+    props.getOrNone[MinIntValueProperty] shouldBe None
+  }
 }
