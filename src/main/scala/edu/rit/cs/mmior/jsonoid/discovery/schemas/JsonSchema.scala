@@ -10,15 +10,27 @@ import org.json4s._
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals",
-                          "org.wartremover.warts.Recursion"))
+  def fromJson(schema: JValue): JsonSchema[_] = {
+    schema match {
+      case JBool(true)  => AnySchema()
+      case JBool(false) => ZeroSchema()
+      case o: JObject   => fromJson(o)
+      case _ =>
+        throw new UnsupportedOperationException("invalid schema element")
+    }
+  }
+
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
+  )
   def fromJson(schema: JObject): JsonSchema[_] = {
-    if ((schema \ "$ref") != JNothing) {
+    if (schema.obj.isEmpty) {
+      AnySchema()
+    } else if ((schema \ "$ref") != JNothing) {
       throw new UnsupportedOperationException("$ref not supported")
     } else if ((schema \ "allOf") != JNothing) {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
-        case 0 => ZeroSchema()
         case 1 => fromJson(schemas(0))
         case _ =>
           throw new UnsupportedOperationException("allOf not supported")
@@ -82,8 +94,11 @@ object JsonSchema {
     ProductSchema(properties)(er)
   }
 
-  private def productFromJsons(schemas: List[JObject]): ProductSchema = {
-    buildProductSchema(schemas.map(fromJson(_)))
+  private def productFromJsons(schemas: List[JObject]): JsonSchema[_] = {
+    schemas.length match {
+      case 1 => fromJson(schemas(0))
+      case _ => buildProductSchema(schemas.map(fromJson(_)))
+    }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -118,13 +133,9 @@ object JsonSchema {
           )
         }
 
-        Right(
-          (arr \ "prefixItems")
-            .extract[List[JObject]]
-            .map(s => fromJson(s.asInstanceOf[JObject]))
-        )
+        Right((arr \ "prefixItems").extract[List[JValue]].map(s => fromJson(s)))
       } else if ((arr \ "items") != JNothing) {
-        Left(fromJson((arr \ "items").extract[JObject]))
+        Left(fromJson((arr \ "items").extract[JValue]))
       } else {
         throw new UnsupportedOperationException(
           "items or prefixItems must be specified"
@@ -210,7 +221,7 @@ object JsonSchema {
     }
     val objTypes: Map[String, JsonSchema[_]] = objProps.map {
       case (prop, value) =>
-        (prop -> fromJson(value.asInstanceOf[JObject]))
+        (prop -> fromJson(value))
     }.toMap
 
     val required = (obj \ "required").extract[Set[String]]

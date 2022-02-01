@@ -9,6 +9,14 @@ import UnitSpec._
 class JsonSchemaSpec extends UnitSpec {
   behavior of "JsonSchema"
 
+  it should "convert false" in {
+    JsonSchema.fromJson(JBool(false)) should equal(ZeroSchema())
+  }
+
+  it should "convert true" in {
+    JsonSchema.fromJson(JBool(true)) should equal(AnySchema())
+  }
+
   it should "convert a boolean schema" in {
     val boolSchema: JObject = ("type" -> "boolean")
     JsonSchema.fromJson(boolSchema) should equal(BooleanSchema())
@@ -149,6 +157,19 @@ class JsonSchemaSpec extends UnitSpec {
     convertedSchema shouldBe a[BooleanSchema]
   }
 
+  it should "strip anyOf with a single element" in {
+    val anyOfSchema: JObject = ("anyOf" -> List(("type" -> "boolean")))
+
+    val convertedSchema = JsonSchema.fromJson(anyOfSchema)
+    convertedSchema shouldBe a[BooleanSchema]
+  }
+
+  it should "strip oneOf with a single element" in {
+    val oneOfSchema: JObject = ("oneOf" -> List(("type" -> "boolean")))
+
+    val convertedSchema = JsonSchema.fromJson(oneOfSchema)
+    convertedSchema shouldBe a[BooleanSchema]
+  }
 
   it should "convert an array of types to a ProductSchema" in {
     val productSchema: JObject = ("type" -> List("boolean", "integer"))

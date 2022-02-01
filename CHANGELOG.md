@@ -11,10 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support enums in JSONoid object conversion
 - Add `format` support in JSONoid object conversion
 - Add a separate `StaticPatternProperty` to statically specify regexes
-- Handle `allOf` with zero or one elements in JSONoid conversion
+- Handle `allOf` with a single element in JSONoid conversion
+- Handle `true` and `false` in JSONoid object conversion
 
 ### Changed
 - Make JSONoid conversion helper methods private
+- Don't construct `ProductSchema` with a single element during object conversion
 
 ## [0.5.3]
 ### Changed
