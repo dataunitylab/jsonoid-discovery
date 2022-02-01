@@ -10,12 +10,19 @@ import org.json4s._
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  @SuppressWarnings(Array("org.wartremover.warts.Equals",
+                          "org.wartremover.warts.Recursion"))
   def fromJson(schema: JObject): JsonSchema[_] = {
     if ((schema \ "$ref") != JNothing) {
       throw new UnsupportedOperationException("$ref not supported")
     } else if ((schema \ "allOf") != JNothing) {
-      throw new UnsupportedOperationException("allOf not supported")
+      val schemas = (schema \ "allOf").extract[List[JObject]]
+      schemas.length match {
+        case 0 => ZeroSchema()
+        case 1 => fromJson(schemas(0))
+        case _ =>
+          throw new UnsupportedOperationException("allOf not supported")
+      }
     } else if ((schema \ "oneOf") != JNothing) {
       productFromJsons((schema \ "oneOf").extract[List[JObject]])
     } else if ((schema \ "anyOf") != JNothing) {

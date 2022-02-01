@@ -142,6 +142,14 @@ class JsonSchemaSpec extends UnitSpec {
     types(1) shouldBe a[IntegerSchema]
   }
 
+  it should "strip allOf with a single element" in {
+    val allOfSchema: JObject = ("allOf" -> List(("type" -> "boolean")))
+
+    val convertedSchema = JsonSchema.fromJson(allOfSchema)
+    convertedSchema shouldBe a[BooleanSchema]
+  }
+
+
   it should "convert an array of types to a ProductSchema" in {
     val productSchema: JObject = ("type" -> List("boolean", "integer"))
 

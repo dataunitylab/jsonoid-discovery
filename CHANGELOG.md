@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support enums in JSONoid object conversion
 - Add `format` support in JSONoid object conversion
 - Add a separate `StaticPatternProperty` to statically specify regexes
+- Handle `allOf` with zero or one elements in JSONoid conversion
 
 ### Changed
 - Make JSONoid conversion helper methods private
