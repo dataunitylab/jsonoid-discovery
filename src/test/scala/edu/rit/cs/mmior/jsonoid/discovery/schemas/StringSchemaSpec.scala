@@ -96,6 +96,12 @@ class StringSchemaSpec extends UnitSpec {
     (formatProp.toJson \ "format") shouldBe JNothing
   }
 
+  it should "should not allow merging regex properties" in {
+    val regexProp = StaticPatternProperty("foo.*".r)
+    an[UnsupportedOperationException] should be thrownBy
+      regexProp.merge(regexProp)
+  }
+
   it should "should find common prefixes" in {
     @SuppressWarnings(Array("org.wartremover.warts.Var"))
     var prefixSchema = StringSchema("foobar").properties
@@ -198,6 +204,14 @@ class StringSchemaSpec extends UnitSpec {
       .collectAnomalies(JString("foo"))
     anomalies shouldBe List(
       Anomaly("$", "value does not have the required suffix", Fatal)
+    )
+  }
+
+  it should "detect anomalies when a string does not match a regex" in {
+    val anomalies = StaticPatternProperty("foo.*".r)
+      .collectAnomalies(JString("bar"))
+    anomalies shouldBe List(
+      Anomaly("$", "value does not match the required regex", Fatal)
     )
   }
 }

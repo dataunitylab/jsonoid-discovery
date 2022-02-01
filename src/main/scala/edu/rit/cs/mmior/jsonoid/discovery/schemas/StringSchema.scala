@@ -388,6 +388,41 @@ final case class PatternProperty(
   }
 }
 
+final case class StaticPatternProperty(regex: Regex)
+    extends SchemaProperty[String, StaticPatternProperty] {
+  override def mergeable: Boolean = false
+
+  override def toJson: JObject = ("pattern" -> regex.toString)
+
+  override def merge(
+      otherProp: StaticPatternProperty
+  )(implicit er: EquivalenceRelation): StaticPatternProperty = {
+    throw new UnsupportedOperationException(
+      "StaticPatternProperty cannot be merged"
+    )
+  }
+
+  override def mergeValue(
+      value: String
+  )(implicit er: EquivalenceRelation): StaticPatternProperty = {
+    throw new UnsupportedOperationException(
+      "StaticPatternProperty cannot be merged"
+    )
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    value match {
+      case JString(str) =>
+        if (regex.anchored.findFirstIn(str.trim).isEmpty) {
+          Seq(Anomaly(path, "value does not match the required regex", Fatal))
+        } else {
+          Seq.empty
+        }
+      case _ => Seq.empty
+    }
+  }
+}
+
 final case class StringLengthHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[String, StringLengthHistogramProperty] {

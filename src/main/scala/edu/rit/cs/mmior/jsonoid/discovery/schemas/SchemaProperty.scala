@@ -4,6 +4,8 @@ package schemas
 import org.json4s._
 
 trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
+  def mergeable: Boolean = true
+
   // XXX: This should really take and return the same
   //      concrete type, but it does not currently
   def merge(prop: S)(implicit er: EquivalenceRelation): S

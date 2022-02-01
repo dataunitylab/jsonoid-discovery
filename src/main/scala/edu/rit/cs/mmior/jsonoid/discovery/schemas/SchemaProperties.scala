@@ -68,6 +68,10 @@ final case class SchemaProperties[T](
       other: SchemaProperties[T]
   )(implicit er: EquivalenceRelation): SchemaProperties[T] = {
     var mergedProperties = properties.transform { case (key, prop) =>
+      if (!prop.mergeable) {
+        throw new UnsupportedOperationException("unmergeable property found")
+      }
+
       other.properties.get(key) match {
         case Some(otherProp) => prop.mergeOnlySameType(otherProp)
         case None            => prop
@@ -76,6 +80,10 @@ final case class SchemaProperties[T](
 
     // Add "other" properties which did not originally exist
     other.properties.foreach { case (tag, prop) =>
+      if (!prop.mergeable) {
+        throw new UnsupportedOperationException("unmergeable property found")
+      }
+
       if (!properties.contains(tag)) {
         mergedProperties += (tag -> prop)
       }

@@ -225,9 +225,8 @@ object JsonSchema {
       props.add(FormatProperty(Map(format -> 1)))
     }
 
-    // TODO Add pattern support
     if ((str \ "pattern") != JNothing) {
-      throw new UnsupportedOperationException("pattern not supported")
+      props.add(StaticPatternProperty((str \ "pattern").extract[String].r))
     }
 
     if ((str \ "minLength") != JNothing) {

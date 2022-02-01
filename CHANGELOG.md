@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support cases where `type` is an array in JSONoid object conversion
 - Support enums in JSONoid object conversion
 - Add `format` support in JSONoid object conversion
+- Add a separate `StaticPatternProperty` to statically specify regexes
 
 ### Changed
 - Make JSONoid conversion helper methods private
