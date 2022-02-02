@@ -39,5 +39,20 @@ class DefinitionTransformerSpec extends UnitSpec {
     val ref = Map("$ref" -> "#/$defs/defn0")
     (props \ "foo").extract[Map[String, String]] shouldBe ref
     (props \ "quux").extract[Map[String, String]] shouldBe ref
+
+    // Check that a reference object was defined
+    @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+    val referencedSchema = transformedSchema
+      .findByPointer("/foo")
+      .get
+      .asInstanceOf[ReferenceSchema]
+      .properties
+      .get[ReferenceObjectProperty]
+      .schema
+      .asInstanceOf[ObjectSchema]
+    referencedSchema.properties
+      .get[ObjectTypesProperty]
+      .objectTypes
+      .keys should contain theSameElementsAs Set("bar", "baz")
   }
 }

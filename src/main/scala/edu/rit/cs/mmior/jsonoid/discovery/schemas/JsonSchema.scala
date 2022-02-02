@@ -328,7 +328,11 @@ trait JsonSchema[T] {
 
   def findByPointer(pointer: String): Option[JsonSchema[_]] = None
 
-  def replaceWithReference(pointer: String, reference: String): JsonSchema[_] =
+  def replaceWithReference(
+      pointer: String,
+      reference: String,
+      obj: Option[JsonSchema[_]] = None
+  ): JsonSchema[_] =
     this
 
   def isAnomalous(value: JValue, path: String = "$"): Boolean =

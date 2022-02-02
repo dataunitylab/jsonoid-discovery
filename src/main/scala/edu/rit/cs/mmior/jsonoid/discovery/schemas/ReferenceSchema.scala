@@ -1,15 +1,24 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.language.existentials
 import scala.reflect.ClassTag
 
 import org.json4s.JsonDSL._
 import org.json4s._
 
 object ReferenceSchema {
-  def apply(reference: String): ReferenceSchema = {
+  def apply(
+      reference: String,
+      obj: Option[JsonSchema[_]] = None
+  ): ReferenceSchema = {
     val props = SchemaProperties.empty[String]
     props.add(ReferencePathProperty(reference))
+
+    obj match {
+      case Some(schemaObj) => props.add(ReferenceObjectProperty(schemaObj))
+      case None            =>
+    }
 
     ReferenceSchema(props)
   }
@@ -61,6 +70,23 @@ final case class ReferencePathProperty(path: String)
   override def mergeValue(
       otherPath: String
   )(implicit er: EquivalenceRelation): ReferencePathProperty = {
+    throw new UnsupportedOperationException("$ref cannot be merged")
+  }
+}
+
+final case class ReferenceObjectProperty(schema: JsonSchema[_])
+    extends SchemaProperty[String, ReferenceObjectProperty] {
+  override def toJson: JObject = Nil
+
+  override def merge(
+      otherProp: ReferenceObjectProperty
+  )(implicit er: EquivalenceRelation): ReferenceObjectProperty = {
+    throw new UnsupportedOperationException("$ref cannot be merged")
+  }
+
+  override def mergeValue(
+      otherObject: String
+  )(implicit er: EquivalenceRelation): ReferenceObjectProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 }

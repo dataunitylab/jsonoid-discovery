@@ -86,7 +86,8 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           cluster.foreach { pointer =>
             definitionSchema = definitionSchema.replaceWithReference(
               pointer,
-              s"#/$$defs/${definition}"
+              s"#/$$defs/${definition}",
+              Some(clusterSchema)
             )
           }
         }
