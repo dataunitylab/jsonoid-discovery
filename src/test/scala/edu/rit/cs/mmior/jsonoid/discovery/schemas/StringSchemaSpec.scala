@@ -103,7 +103,6 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "should find common prefixes" in {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
     var prefixSchema = StringSchema("foobar").properties
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("foobaz") }
     val prefixProp = prefixSchema.get[PatternProperty]
@@ -111,7 +110,6 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "should not generate a pattern with no prefixes" in {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
     var randomSchema = StringSchema().properties
     for (c <- 'a' to 'z') { randomSchema = randomSchema.mergeValue(c.toString) }
     val prefixProp = randomSchema.get[PatternProperty]
@@ -119,7 +117,6 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "should find prefixes and suffixes together" in {
-    @SuppressWarnings(Array("org.wartremover.warts.Var"))
     var prefixSchema = StringSchema("barfoo").properties
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("bazfoo") }
     val prefixProp = prefixSchema.get[PatternProperty]

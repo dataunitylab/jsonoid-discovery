@@ -47,7 +47,7 @@ lazy val root = (project in file("."))
     buildInfoPackage := "edu.rit.cs.mmior.jsonoid.discovery"
   )
 
-wartremoverErrors ++= Seq(
+Compile / compile / wartremoverErrors ++= Seq(
   Wart.ArrayEquals,
   Wart.EitherProjectionPartial,
   Wart.Enumeration,
@@ -55,6 +55,7 @@ wartremoverErrors ++= Seq(
   Wart.ExplicitImplicitTypes,
   Wart.FinalCaseClass,
   Wart.MutableDataStructures,
+  Wart.NonUnitStatements,
   Wart.Null,
   Wart.Option2Iterable,
   Wart.OptionPartial,
@@ -68,11 +69,8 @@ wartremoverErrors ++= Seq(
   Wart.While,
 )
 
-Compile / compile / wartremoverErrors += Wart.NonUnitStatements
-
 Compile / console / scalacOptions := (console / scalacOptions)
   .value.filterNot(opt =>
-    opt.contains("wartremover") ||
     nonConsoleCompilerOptions.contains(opt)
 )
 

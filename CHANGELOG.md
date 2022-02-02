@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Allow a reference object to be stored for schema references
 
+### Changed
+- Enable Wartremover only for compilation (not tests)
+
 ## [0.5.4]
 ### Added
 - Support cases where `type` is an array in JSONoid object conversion

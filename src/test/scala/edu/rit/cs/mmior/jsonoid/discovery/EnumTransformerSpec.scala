@@ -14,7 +14,6 @@ class EnumTransformerSpec extends UnitSpec {
 
   def schemaWithOneValue[T](schema: JsonSchema[T], value: T) {
     it should s"convert single examples to constants for ${schema.getClass.getSimpleName}" in {
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
       var valueSchema: JsonSchema[_] = schema
       for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
 
@@ -32,7 +31,6 @@ class EnumTransformerSpec extends UnitSpec {
 
   def schemaWithMultipleValues[T](schema: JsonSchema[T], values: Set[T]) {
     it should s"convert multiple examples to enums for ${schema.getClass.getSimpleName}" in {
-      @SuppressWarnings(Array("org.wartremover.warts.Var"))
       var valueSchema: JsonSchema[_] = schema
       for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
 

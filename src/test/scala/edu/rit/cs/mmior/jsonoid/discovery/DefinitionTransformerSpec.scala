@@ -41,7 +41,6 @@ class DefinitionTransformerSpec extends UnitSpec {
     (props \ "quux").extract[Map[String, String]] shouldBe ref
 
     // Check that a reference object was defined
-    @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
     val referencedSchema = transformedSchema
       .findByPointer("/foo")
       .get
