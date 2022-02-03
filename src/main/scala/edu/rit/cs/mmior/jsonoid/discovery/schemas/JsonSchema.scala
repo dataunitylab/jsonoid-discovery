@@ -35,6 +35,8 @@ object JsonSchema {
         case _ =>
           throw new UnsupportedOperationException("allOf not supported")
       }
+    } else if ((schema \ "patternProperties") != JNothing) {
+      throw new UnsupportedOperationException("patternProperties not supported")
     } else if ((schema \ "oneOf") != JNothing) {
       productFromJsons((schema \ "oneOf").extract[List[JObject]])
     } else if ((schema \ "anyOf") != JNothing) {
