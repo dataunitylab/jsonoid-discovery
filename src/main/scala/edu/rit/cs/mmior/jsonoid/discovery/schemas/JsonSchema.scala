@@ -55,7 +55,6 @@ object JsonSchema {
         // If this has properties, assumed it is an object
         List("object")
       } else {
-        println(schema)
         throw new UnsupportedOperationException("missing type encountered")
       }
 
