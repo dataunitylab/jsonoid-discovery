@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Allow a reference object to be stored for schema references
+- Correctly parse `$ref` during object conversion
+- New `ReferenceResolver` which will add a property to `ReferenceSchema` with the path of the schema object
 
 ### Changed
 - Enable Wartremover only for compilation (not tests)

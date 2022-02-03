@@ -27,7 +27,7 @@ object JsonSchema {
     if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") != JNothing) {
-      throw new UnsupportedOperationException("$ref not supported")
+      ReferenceSchema((schema \ "$ref").extract[String])
     } else if ((schema \ "allOf") != JNothing) {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
@@ -55,6 +55,7 @@ object JsonSchema {
         // If this has properties, assumed it is an object
         List("object")
       } else {
+        println(schema)
         throw new UnsupportedOperationException("missing type encountered")
       }
 

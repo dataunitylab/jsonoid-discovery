@@ -29,7 +29,8 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     )
   )
   def transformSchema(
-      schema: JsonSchema[_]
+      schema: JsonSchema[_],
+      addObject: Boolean = true
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     // Discover clusters within the schema
     val clusters = findClusters(schema).map(_.map(pathToPointer _))
@@ -87,7 +88,8 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
             definitionSchema = definitionSchema.replaceWithReference(
               pointer,
               s"#/$$defs/${definition}",
-              Some(clusterSchema)
+              if (addObject) { Some(clusterSchema) }
+              else { None }
             )
           }
         }
