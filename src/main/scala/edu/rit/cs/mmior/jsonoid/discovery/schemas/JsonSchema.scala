@@ -208,7 +208,11 @@ object JsonSchema {
   }
 
   @SuppressWarnings(
-    Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
+    Array(
+      "org.wartremover.warts.Equals",
+      "org.wartremover.warts.OptionPartial",
+      "org.wartremover.warts.Recursion"
+    )
   )
   private def fromJsonObject(obj: JObject): JsonSchema[_] = {
     // TODO Add support for dependencies
@@ -232,6 +236,20 @@ object JsonSchema {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(ObjectTypesProperty(objTypes))
     props.add(RequiredProperty(Some(required)))
+
+    val definitionsKey = if ((obj \ "definitions") != JNothing) {
+      Some("definitions")
+    } else if ((obj \ "$defs") != JNothing) {
+      Some("$defs")
+    } else {
+      None
+    }
+    if (!definitionsKey.isEmpty) {
+      val defs = (obj \ definitionsKey.get)
+        .extract[Map[String, JObject]]
+        .transform((key, value) => fromJson(value))
+      props.add(DefinitionsProperty(defs))
+    }
 
     ObjectSchema(props)
   }

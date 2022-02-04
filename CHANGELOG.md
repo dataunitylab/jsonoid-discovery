@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Show error message when converting with `patternProperties`
+- Include definitions when converting to JSONoid objects
 
 ## [0.5.5]
 ### Added

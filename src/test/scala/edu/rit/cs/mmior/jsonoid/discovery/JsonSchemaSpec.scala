@@ -193,4 +193,15 @@ class JsonSchemaSpec extends UnitSpec {
 
     values shouldBe Set(JInt(3), JString("foo"))
   }
+
+  it should "convert definitions" in {
+    val defnSchema: JObject =
+      ("type" -> "object") ~ ("definitions" -> ("foo" -> ("type" -> "boolean")))
+
+    val convertedSchema =
+      JsonSchema.fromJson(defnSchema).asInstanceOf[ObjectSchema]
+    val defns = convertedSchema.properties.get[DefinitionsProperty]
+
+    defns.definitions shouldBe Map("foo" -> BooleanSchema())
+  }
 }
