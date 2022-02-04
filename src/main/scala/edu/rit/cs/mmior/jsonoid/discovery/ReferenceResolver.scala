@@ -14,7 +14,7 @@ object ReferenceResolver extends SchemaWalker[Unit] {
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   private def resolvePath(
       path: String,
-      rootSchema: ObjectSchema
+      rootSchema: JsonSchema[_]
   ): JsonSchema[_] = {
     val strippedPath = if (path.startsWith("#")) {
       path.substring(1)
@@ -44,7 +44,7 @@ object ReferenceResolver extends SchemaWalker[Unit] {
         ReferenceObjectProperty(
           resolvePath(
             r.properties.get[ReferencePathProperty].path,
-            rootSchema.asInstanceOf[ObjectSchema]
+            rootSchema
           )
         )
       )
