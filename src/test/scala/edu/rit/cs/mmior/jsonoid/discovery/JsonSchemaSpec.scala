@@ -203,4 +203,29 @@ class JsonSchemaSpec extends UnitSpec {
 
     convertedSchema.definitions shouldBe Map("foo" -> BooleanSchema())
   }
+
+  it should "convert values without an explicit type" in {
+    val unknownSchema: JObject = ("minLength" -> JInt(3))
+
+    val convertedSchema = JsonSchema.fromJson(unknownSchema)
+
+    convertedSchema shouldBe a[StringSchema]
+  }
+
+  it should "convert values with multiple implicit types" in {
+    val unknownSchema: JObject = ("minLength" -> JInt(3)) ~
+      ("minimum" -> JInt(2))
+
+    val convertedSchema = JsonSchema.fromJson(unknownSchema)
+
+    convertedSchema shouldBe a[ProductSchema]
+
+    val schemaTypes = convertedSchema
+      .asInstanceOf[ProductSchema]
+      .properties
+      .get[ProductSchemaTypesProperty]
+      .schemaTypes
+      .map(_.schemaType)
+    schemaTypes should contain theSameElementsAs List("string", "number")
+  }
 }

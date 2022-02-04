@@ -40,8 +40,6 @@ object JsonSchema {
         case _ =>
           throw new UnsupportedOperationException("allOf not supported")
       }
-    } else if ((schema \ "patternProperties") != JNothing) {
-      throw new UnsupportedOperationException("patternProperties not supported")
     } else if ((schema \ "oneOf") != JNothing) {
       productFromJsons((schema \ "oneOf").extract[List[JObject]])
     } else if ((schema \ "anyOf") != JNothing) {
@@ -58,10 +56,11 @@ object JsonSchema {
           case _ =>
             throw new UnsupportedOperationException("invalid type")
         }
-      } else if ((schema \ "properties") != JNothing) {
-        // If this has properties, assumed it is an object
-        List("object")
       } else {
+        TypeDetector.detectAllTypes(schema.obj.toMap)
+      }
+
+      if (schemaTypes.isEmpty) {
         throw new UnsupportedOperationException("missing type encountered")
       }
 
