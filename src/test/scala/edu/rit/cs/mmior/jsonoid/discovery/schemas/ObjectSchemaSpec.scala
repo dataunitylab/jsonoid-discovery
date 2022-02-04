@@ -79,7 +79,8 @@ class ObjectSchemaSpec extends UnitSpec {
 
   it should "allow use of definitions" in {
     val definitionSchema = BooleanSchema()
-    val objectSchema = ObjectSchema().withDefinition(definitionSchema, "foo")
+    val objectSchema = ObjectSchema()
+    objectSchema.addDefinition(definitionSchema, "foo")
 
     (objectSchema.toJson \ "$defs" \ "foo") shouldEqual definitionSchema.toJson
   }

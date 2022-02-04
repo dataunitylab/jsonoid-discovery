@@ -95,7 +95,12 @@ final case class ArraySchema(
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.Recursion"
+    )
+  )
   override def replaceWithReference(
       pointer: String,
       reference: String,
@@ -137,7 +142,9 @@ final case class ArraySchema(
         }
 
         val typeProp = ItemTypeProperty(Right(newSchemas))
-        ArraySchema(this.properties.replaceProperty(typeProp))
+        val newSchema = ArraySchema(this.properties.replaceProperty(typeProp))
+        newSchema.definitions ++= this.definitions
+        newSchema
     }
   }
 }

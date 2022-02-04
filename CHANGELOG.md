@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show error message when converting with `patternProperties`
 - Include definitions when converting to JSONoid objects
 
+### Changed
+- Store definitions directly on the `JsonSchema` object, not as a property
+
 ## [0.5.5]
 ### Added
 - Allow a reference object to be stored for schema references

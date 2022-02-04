@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.collection.mutable
 import scala.reflect._
 import scala.reflect.ClassTag
 
@@ -237,6 +238,8 @@ object JsonSchema {
     props.add(ObjectTypesProperty(objTypes))
     props.add(RequiredProperty(Some(required)))
 
+    val convertedSchema = ObjectSchema(props)
+
     val definitionsKey = if ((obj \ "definitions") != JNothing) {
       Some("definitions")
     } else if ((obj \ "$defs") != JNothing) {
@@ -247,11 +250,12 @@ object JsonSchema {
     if (!definitionsKey.isEmpty) {
       val defs = (obj \ definitionsKey.get)
         .extract[Map[String, JObject]]
-        .transform((key, value) => fromJson(value))
-      props.add(DefinitionsProperty(defs))
+        .foreach { case (key, value) =>
+          convertedSchema.definitions += (key -> fromJson(value))
+        }
     }
 
-    ObjectSchema(props)
+    convertedSchema
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -280,14 +284,25 @@ object JsonSchema {
 }
 
 trait JsonSchema[T] {
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def toJson: JObject = {
     val propertyJson =
       properties.map(_.toJson).foldLeft(staticProperties)(_.merge(_))
-    if (hasType) {
+    val typedPropertyJson = if (hasType) {
       ("type" -> schemaType) ~ propertyJson
     } else {
       propertyJson
     }
+
+    val definitionJson: JObject = if (definitions.isEmpty) {
+      Nil
+    } else {
+      "$defs" -> definitions.map { case (defn, schema) =>
+        (defn -> schema.toJson)
+      }.toMap
+    }
+
+    typedPropertyJson.merge(definitionJson)
   }
 
   def toJsonSchema: JObject = {
@@ -300,6 +315,13 @@ trait JsonSchema[T] {
 
     toJson.merge(schemaObj)
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
+  val definitions: mutable.Map[String, JsonSchema[_]] = mutable.Map.empty
+
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  def addDefinition(definition: JsonSchema[_], name: String): Unit =
+    definitions += (name -> definition)
 
   def staticProperties: JObject = Nil
 
@@ -331,11 +353,16 @@ trait JsonSchema[T] {
       other: JsonSchema[_]
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     val sameType = mergeSameType()(er)
-    if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
+    val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
       sameType(other)
     } else {
       createProduct()(er)(other)
     }
+
+    newSchema.definitions ++= this.definitions
+    newSchema.definitions ++= other.definitions
+
+    newSchema
   }
 
   def copy(properties: SchemaProperties[T]): JsonSchema[_]

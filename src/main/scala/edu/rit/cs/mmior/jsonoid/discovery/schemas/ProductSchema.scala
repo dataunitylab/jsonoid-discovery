@@ -72,7 +72,12 @@ final case class ProductSchema(
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.Recursion"
+    )
+  )
   override def replaceWithReference(
       pointer: String,
       reference: String,
@@ -100,7 +105,9 @@ final case class ProductSchema(
 
     val typeProp =
       ProductSchemaTypesProperty(newSchemas, typesProp.schemaCounts)
-    ProductSchema(this.properties.replaceProperty(typeProp))
+    val newSchema = ProductSchema(this.properties.replaceProperty(typeProp))
+    newSchema.definitions ++= this.definitions
+    newSchema
   }
 }
 

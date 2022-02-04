@@ -38,7 +38,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     // Track a new schema with replaced definitions
     var replaced = Set.empty[String]
     var definitions = Set.empty[String]
-    var definitionSchema: JsonSchema[_] = schema
+    var definitionSchema = schema
     clusters.toList
       // Process clusters with the shortest paths first
       // so we avoid replacing nested definitions later
@@ -79,9 +79,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           definitions += definition
 
           // Add the definition to the schema
-          definitionSchema = definitionSchema
-            .asInstanceOf[ObjectSchema]
-            .withDefinition(clusterSchema, definition)
+          definitionSchema.addDefinition(clusterSchema, definition)
 
           // Replace all instances of the clustered value with the definition
           cluster.foreach { pointer =>

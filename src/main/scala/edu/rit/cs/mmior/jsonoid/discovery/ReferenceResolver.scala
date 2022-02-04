@@ -22,10 +22,7 @@ object ReferenceResolver extends SchemaWalker[Unit] {
       path
     }
 
-    val defs = rootSchema.properties
-      .getOrNone[DefinitionsProperty]
-      .map(_.definitions)
-      .getOrElse(Map.empty)
+    val defs = rootSchema.definitions
     strippedPath.split("/") match {
       case Array("", "$defs", defn)       => defs(defn)
       case Array("", "definitions", defn) => defs(defn)

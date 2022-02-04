@@ -200,8 +200,7 @@ class JsonSchemaSpec extends UnitSpec {
 
     val convertedSchema =
       JsonSchema.fromJson(defnSchema).asInstanceOf[ObjectSchema]
-    val defns = convertedSchema.properties.get[DefinitionsProperty]
 
-    defns.definitions shouldBe Map("foo" -> BooleanSchema())
+    convertedSchema.definitions shouldBe Map("foo" -> BooleanSchema())
   }
 }

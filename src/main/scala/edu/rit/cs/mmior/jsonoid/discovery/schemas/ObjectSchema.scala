@@ -91,17 +91,12 @@ final case class ObjectSchema(
     }
   }
 
-  def withDefinition(definition: JsonSchema[_], name: String): ObjectSchema = {
-    val newProperties = SchemaProperties.empty[Map[String, JsonSchema[_]]]
-    newProperties.add(DefinitionsProperty(Map(name -> definition)))
-    ObjectSchema(
-      newProperties.merge(properties)(
-        EquivalenceRelations.KindEquivalenceRelation
-      )
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.Recursion"
     )
-  }
-
-  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  )
   override def replaceWithReference(
       pointer: String,
       reference: String,
@@ -131,49 +126,9 @@ final case class ObjectSchema(
     }
 
     val typeProp = ObjectTypesProperty(newTypes)
-    ObjectSchema(this.properties.replaceProperty(typeProp))
-  }
-}
-
-final case class DefinitionsProperty(
-    definitions: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
-) extends SchemaProperty[Map[String, JsonSchema[_]], DefinitionsProperty] {
-  override def toJson: JObject = if (definitions.size > 0) {
-    "$defs" -> definitions.map { case (defn, schema) =>
-      (defn -> schema.toJson)
-    }
-  } else {
-    Nil
-  }
-
-  override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
-  ): DefinitionsProperty = {
-    DefinitionsProperty(
-      definitions.mapValues(transformer(_)).map(identity).toMap
-    )
-  }
-
-  override def merge(
-      otherProp: DefinitionsProperty
-  )(implicit er: EquivalenceRelation): DefinitionsProperty = {
-    val other = otherProp.definitions
-    this.mergeValue(other)
-  }
-
-  override def mergeValue(
-      value: Map[String, JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): DefinitionsProperty = {
-    val merged = definitions.toSeq ++ value.toSeq
-    val grouped = merged.groupBy(_._1)
-    DefinitionsProperty(
-      // .map(identity) below is necessary to
-      // produce a map which is serializable
-      grouped
-        .mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_)))
-        .map(identity)
-        .toMap
-    )
+    val newSchema = ObjectSchema(this.properties.replaceProperty(typeProp))
+    newSchema.definitions ++= this.definitions
+    newSchema
   }
 }
 
