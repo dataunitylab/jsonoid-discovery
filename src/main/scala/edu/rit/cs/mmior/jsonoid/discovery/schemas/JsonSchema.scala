@@ -22,10 +22,14 @@ object JsonSchema {
   }
 
   @SuppressWarnings(
-    Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
+    Array(
+      "org.wartremover.warts.Equals",
+      "org.wartremover.warts.OptionPartial",
+      "org.wartremover.warts.Recursion"
+    )
   )
   def fromJson(schema: JObject): JsonSchema[_] = {
-    if (schema.obj.isEmpty) {
+    val convertedSchema = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") != JNothing) {
       ReferenceSchema((schema \ "$ref").extract[String])
@@ -81,6 +85,23 @@ object JsonSchema {
         buildProductSchema(schemas)
       }
     }
+
+    val definitionsKey = if ((schema \ "definitions") != JNothing) {
+      Some("definitions")
+    } else if ((schema \ "$defs") != JNothing) {
+      Some("$defs")
+    } else {
+      None
+    }
+    if (!definitionsKey.isEmpty) {
+      val defs = (schema \ definitionsKey.get)
+        .extract[Map[String, JObject]]
+        .foreach { case (key, value) =>
+          convertedSchema.definitions += (key -> fromJson(value))
+        }
+    }
+
+    convertedSchema
   }
 
   private def buildProductSchema(
@@ -238,24 +259,7 @@ object JsonSchema {
     props.add(ObjectTypesProperty(objTypes))
     props.add(RequiredProperty(Some(required)))
 
-    val convertedSchema = ObjectSchema(props)
-
-    val definitionsKey = if ((obj \ "definitions") != JNothing) {
-      Some("definitions")
-    } else if ((obj \ "$defs") != JNothing) {
-      Some("$defs")
-    } else {
-      None
-    }
-    if (!definitionsKey.isEmpty) {
-      val defs = (obj \ definitionsKey.get)
-        .extract[Map[String, JObject]]
-        .foreach { case (key, value) =>
-          convertedSchema.definitions += (key -> fromJson(value))
-        }
-    }
-
-    convertedSchema
+    ObjectSchema(props)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
