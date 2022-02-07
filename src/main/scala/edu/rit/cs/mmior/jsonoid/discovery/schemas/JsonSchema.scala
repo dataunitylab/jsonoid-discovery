@@ -160,9 +160,8 @@ object JsonSchema {
       } else if ((arr \ "items") != JNothing) {
         Left(fromJson((arr \ "items").extract[JValue]))
       } else {
-        throw new UnsupportedOperationException(
-          "items or prefixItems must be specified"
-        )
+        // items and additionalItems not specified, accept anything
+        Left(AnySchema())
       }
 
     props.add(ItemTypeProperty(itemType))

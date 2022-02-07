@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Perform heuristic type detection during object conversion
 
+### Fixed
+- Allow arrays to be converted without item type
+
 ## [0.6.2]
 ### Fixed
 - Perform definition conversion for all types
