@@ -60,10 +60,6 @@ object JsonSchema {
         TypeDetector.detectAllTypes(schema.obj.toMap)
       }
 
-      if (schemaTypes.isEmpty) {
-        throw new UnsupportedOperationException("missing type encountered")
-      }
-
       val schemas = schemaTypes.map { schemaType =>
         schemaType match {
           case "array"   => fromJsonArray(schema)
@@ -78,10 +74,10 @@ object JsonSchema {
         }
       }
 
-      if (schemas.length == 1) {
-        schemas(0)
-      } else {
-        buildProductSchema(schemas)
+      schemas.length match {
+        case 0 => AnySchema()
+        case 1 => schemas(0)
+        case _ => buildProductSchema(schemas)
       }
     }
 
