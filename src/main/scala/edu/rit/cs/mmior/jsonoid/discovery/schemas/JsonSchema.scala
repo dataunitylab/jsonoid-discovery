@@ -140,10 +140,6 @@ object JsonSchema {
       props.add(UniqueProperty((arr \ "uniqueItems").extract[Boolean], false))
     }
 
-    if ((arr \ "additionalItems") != JNothing) {
-      throw new UnsupportedOperationException("additionalItems not supported")
-    }
-
     val itemType: Either[JsonSchema[_], List[JsonSchema[_]]] =
       if ((arr \ "prefixItems") != JNothing) {
         if ((arr \ "items") != JNothing) {
@@ -155,6 +151,8 @@ object JsonSchema {
         Right((arr \ "prefixItems").extract[List[JValue]].map(s => fromJson(s)))
       } else if ((arr \ "items") != JNothing) {
         Left(fromJson((arr \ "items").extract[JValue]))
+      } else if ((arr \ "additionalItems") != JNothing) {
+        Left(fromJson((arr \ "additionalItems").extract[JValue]))
       } else {
         // items and additionalItems not specified, accept anything
         Left(AnySchema())
