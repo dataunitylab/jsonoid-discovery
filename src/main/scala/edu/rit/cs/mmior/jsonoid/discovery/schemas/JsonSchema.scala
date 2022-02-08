@@ -150,7 +150,12 @@ object JsonSchema {
 
         Right((arr \ "prefixItems").extract[List[JValue]].map(s => fromJson(s)))
       } else if ((arr \ "items") != JNothing) {
-        Left(fromJson((arr \ "items").extract[JValue]))
+        (arr \ "items") match {
+          case a: JArray =>
+            Right(a.extract[List[JValue]].map(s => fromJson(s)))
+          case _ =>
+            Left(fromJson((arr \ "items").extract[JValue]))
+        }
       } else if ((arr \ "additionalItems") != JNothing) {
         Left(fromJson((arr \ "additionalItems").extract[JValue]))
       } else {

@@ -107,6 +107,17 @@ class JsonSchemaSpec extends UnitSpec {
     convertedSchema.properties should contain(MaxItemsProperty(Some(10)))
   }
 
+  it should "convert an array schema where items is an array" in {
+    val arraySchema: JObject = ("type" -> "array") ~
+      ("items" -> List(("type" -> "boolean"), ("type" -> "null")))
+
+    val convertedSchema = JsonSchema.fromJson(arraySchema)
+
+    convertedSchema.properties should contain(
+      ItemTypeProperty(Right(List(BooleanSchema(), NullSchema())))
+    )
+  }
+
   it should "convert an array schema with no item type" in {
     val arraySchema: JObject = ("type" -> "array")
 

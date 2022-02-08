@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use `AnySchema` during conversion when no type detected
+- Allow `items` to be an array during object conversion
 
 ### Fixed
 - Allow arrays to be converted without item type
