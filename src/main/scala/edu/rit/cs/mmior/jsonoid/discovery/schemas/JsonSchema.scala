@@ -174,7 +174,9 @@ object JsonSchema {
     val props = SchemaProperties.empty[BigInt]
 
     if (int.values.contains("multipleOf")) {
-      props.add(MultipleOfProperty(Some((int \ "multipleOf").extract[BigInt])))
+      props.add(
+        IntMultipleOfProperty(Some((int \ "multipleOf").extract[BigInt]))
+      )
     }
 
     if (int.values.contains("minimum")) {
@@ -211,7 +213,9 @@ object JsonSchema {
     val props = SchemaProperties.empty[BigDecimal]
 
     if ((num \ "multipleOf") != JNothing) {
-      throw new UnsupportedOperationException("multipleOf not supported")
+      props.add(
+        NumMultipleOfProperty(Some((num \ "multipleOf").extract[BigDecimal]))
+      )
     }
 
     if ((num \ "minimum") != JNothing) {

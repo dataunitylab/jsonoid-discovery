@@ -35,7 +35,7 @@ class JsonSchemaSpec extends UnitSpec {
 
     val convertedSchema = JsonSchema.fromJson(intSchema)
     convertedSchema.properties should contain(MinIntValueProperty(Some(0)))
-    convertedSchema.properties should contain(MultipleOfProperty(Some(2)))
+    convertedSchema.properties should contain(IntMultipleOfProperty(Some(2)))
     convertedSchema.properties should contain(MaxIntValueProperty(Some(10)))
   }
 
@@ -56,10 +56,12 @@ class JsonSchemaSpec extends UnitSpec {
   it should "convert a number schema" in {
     val intSchema: JObject = ("type" -> "number") ~
       ("minimum" -> 0.5) ~
+      ("multipleOf" -> 0.5) ~
       ("maximum" -> 10.3)
 
     val convertedSchema = JsonSchema.fromJson(intSchema)
     convertedSchema.properties should contain(MinNumValueProperty(Some(0.5)))
+    convertedSchema.properties should contain(NumMultipleOfProperty(Some(0.5)))
     convertedSchema.properties should contain(MaxNumValueProperty(Some(10.3)))
   }
 

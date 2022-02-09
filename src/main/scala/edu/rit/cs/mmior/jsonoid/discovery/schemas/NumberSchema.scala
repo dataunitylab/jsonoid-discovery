@@ -27,6 +27,7 @@ object NumberSchema {
     props.add(MaxNumValueProperty())
     props.add(NumHyperLogLogProperty())
     props.add(NumBloomFilterProperty())
+    props.add(NumMultipleOfProperty())
     props.add(NumStatsProperty())
     props.add(NumExamplesProperty())
     props.add(NumHistogramProperty())
@@ -42,6 +43,7 @@ object NumberSchema {
     val props = SchemaProperties.empty[BigDecimal]
     props.add(MinNumValueProperty())
     props.add(MaxNumValueProperty())
+    props.add(NumMultipleOfProperty())
 
     props
   }
@@ -98,7 +100,8 @@ final case class NumberSchema(
             )
           case IntHistogramProperty(hist) =>
             props.add(NumHistogramProperty(hist))
-          case MultipleOfProperty(_) => {}
+          case IntMultipleOfProperty(multiple) =>
+            NumMultipleOfProperty(multiple.map(_.toDouble))
         }
       }
 
@@ -350,6 +353,33 @@ final case class NumExamplesProperty(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(ExamplesProperty(value)))
+  }
+}
+
+final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
+    extends SchemaProperty[BigDecimal, NumMultipleOfProperty] {
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def toJson: JObject = multiple match {
+    case Some(numVal) if numVal > 1 => ("multipleOf" -> numVal)
+    case _                          => Nil
+  }
+
+  override def merge(
+      otherProp: NumMultipleOfProperty
+  )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
+    val newMultiple = (multiple, otherProp.multiple) match {
+      case (Some(m), None)    => Some(m)
+      case (None, Some(n))    => Some(n)
+      case (Some(m), Some(n)) => Some(gcd(m, n))
+      case (None, None)       => None
+    }
+    NumMultipleOfProperty(newMultiple)
+  }
+
+  override def mergeValue(
+      value: BigDecimal
+  )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
+    merge(NumMultipleOfProperty(Some(value)))
   }
 }
 

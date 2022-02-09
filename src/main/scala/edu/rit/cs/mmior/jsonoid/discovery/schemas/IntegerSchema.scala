@@ -29,7 +29,7 @@ object IntegerSchema {
     props.add(IntBloomFilterProperty())
     props.add(IntStatsProperty())
     props.add(IntExamplesProperty())
-    props.add(MultipleOfProperty())
+    props.add(IntMultipleOfProperty())
     props.add(IntHistogramProperty())
 
     props
@@ -43,7 +43,7 @@ object IntegerSchema {
     val props = SchemaProperties.empty[BigInt]
     props.add(MinIntValueProperty())
     props.add(MaxIntValueProperty())
-    props.add(MultipleOfProperty())
+    props.add(IntMultipleOfProperty())
 
     props
   }
@@ -283,8 +283,8 @@ final case class IntExamplesProperty(
   }
 }
 
-final case class MultipleOfProperty(multiple: Option[BigInt] = None)
-    extends SchemaProperty[BigInt, MultipleOfProperty] {
+final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
+    extends SchemaProperty[BigInt, IntMultipleOfProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson: JObject = multiple match {
     case Some(intVal) if intVal > 1 => ("multipleOf" -> intVal)
@@ -292,21 +292,21 @@ final case class MultipleOfProperty(multiple: Option[BigInt] = None)
   }
 
   override def merge(
-      otherProp: MultipleOfProperty
-  )(implicit er: EquivalenceRelation): MultipleOfProperty = {
+      otherProp: IntMultipleOfProperty
+  )(implicit er: EquivalenceRelation): IntMultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
       case (Some(m), Some(n)) => Some(gcd(m, n))
       case (None, None)       => None
     }
-    MultipleOfProperty(newMultiple)
+    IntMultipleOfProperty(newMultiple)
   }
 
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): MultipleOfProperty = {
-    merge(MultipleOfProperty(Some(value)))
+  )(implicit er: EquivalenceRelation): IntMultipleOfProperty = {
+    merge(IntMultipleOfProperty(Some(value)))
   }
 }
 

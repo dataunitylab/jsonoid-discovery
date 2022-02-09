@@ -77,4 +77,9 @@ object Helpers {
   @tailrec
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def gcd(a: BigInt, b: BigInt): BigInt = if (b == 0) a else gcd(b, a % b)
+
+  @tailrec
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def gcd(a: BigDecimal, b: BigDecimal): BigDecimal =
+    if (b == 0) a else gcd(b, a % b)
 }

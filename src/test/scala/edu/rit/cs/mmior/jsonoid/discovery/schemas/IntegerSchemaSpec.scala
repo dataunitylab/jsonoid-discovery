@@ -42,14 +42,14 @@ class IntegerSchemaSpec extends UnitSpec {
   }
 
   it should "track a common multiple" in {
-    val multipleProp = integerSchema.properties.get[MultipleOfProperty]
+    val multipleProp = integerSchema.properties.get[IntMultipleOfProperty]
     multipleProp.multiple.value shouldBe (4)
   }
 
   it should "not track multiples of zero" in {
     val zeroIntSchema =
       IntegerSchema(0).merge(IntegerSchema(0)).asInstanceOf[IntegerSchema]
-    val multipleProp = zeroIntSchema.properties.get[MultipleOfProperty]
+    val multipleProp = zeroIntSchema.properties.get[IntMultipleOfProperty]
     multipleProp.toJson shouldBe JObject()
   }
 

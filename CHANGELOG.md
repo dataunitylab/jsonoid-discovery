@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support exclusive min/max during conversion
 - Support `allOf` during object conversion
+- Track `multipleOf` for `NumberSchema`
 
 ### Changed
 - Add more explicit object conversion errors

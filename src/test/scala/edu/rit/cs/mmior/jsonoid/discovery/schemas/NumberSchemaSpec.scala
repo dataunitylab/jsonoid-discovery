@@ -53,6 +53,18 @@ class NumberSchemaSpec extends UnitSpec {
     )
   }
 
+  it should "track a common multiple" in {
+    val multipleProp = numberSchema.properties.get[NumMultipleOfProperty]
+    multipleProp.multiple.value shouldBe (0.02)
+  }
+
+  it should "not track multiples of zero" in {
+    val zeroNumSchema =
+      NumberSchema(0).merge(NumberSchema(0)).asInstanceOf[NumberSchema]
+    val multipleProp = zeroNumSchema.properties.get[NumMultipleOfProperty]
+    multipleProp.toJson shouldBe JObject()
+  }
+
   it should "keep a running histogram" in {
     val histProp = numberSchema.properties.get[NumHistogramProperty]
     histProp.histogram.bins shouldBe List((3.14, 1), (4.28, 1))
