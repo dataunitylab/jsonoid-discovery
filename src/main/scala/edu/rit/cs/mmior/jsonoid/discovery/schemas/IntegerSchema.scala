@@ -69,19 +69,36 @@ final case class IntegerSchema(
     IntegerSchema(properties)
 }
 
-final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
-    extends SchemaProperty[BigInt, MinIntValueProperty] {
-  override def toJson: JObject = ("minimum" -> minIntValue)
+final case class MinIntValueProperty(
+    minIntValue: Option[BigInt] = None,
+    exclusive: Boolean = false
+) extends SchemaProperty[BigInt, MinIntValueProperty] {
+  override def toJson: JObject = ((if (exclusive) { "exclusiveMinimum" }
+                                   else { "minimum" }) -> minIntValue)
 
   override def merge(
       otherProp: MinIntValueProperty
   )(implicit er: EquivalenceRelation): MinIntValueProperty = {
-    MinIntValueProperty(minOrNone(minIntValue, otherProp.minIntValue))
+    val exclusive = (minIntValue, otherProp.minIntValue) match {
+      case (None, _)                   => this.exclusive
+      case (_, None)                   => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (Some(x), Some(y)) if x === y =>
+        this.exclusive && otherProp.exclusive
+      case _ => otherProp.exclusive
+    }
+    MinIntValueProperty(
+      minOrNone(minIntValue, otherProp.minIntValue),
+      exclusive
+    )
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigInt
   )(implicit er: EquivalenceRelation): MinIntValueProperty = {
+    val exclusive =
+      this.exclusive && (minIntValue.isEmpty || value < minIntValue.get)
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
   }
 
@@ -90,7 +107,9 @@ final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
       case JInt(num) =>
         minIntValue match {
           case Some(min) =>
-            if (num < min) {
+            if (num <= min && exclusive) {
+              Seq(Anomaly(path, "value is equal or below minimum", Warning))
+            } else if (num < min) {
               Seq(Anomaly(path, "value is below minimum", Warning))
             } else {
               Seq.empty
@@ -102,20 +121,37 @@ final case class MinIntValueProperty(minIntValue: Option[BigInt] = None)
   }
 }
 
-final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
-    extends SchemaProperty[BigInt, MaxIntValueProperty] {
-  override def toJson: JObject = ("maximum" -> maxIntValue)
+final case class MaxIntValueProperty(
+    maxIntValue: Option[BigInt] = None,
+    exclusive: Boolean = false
+) extends SchemaProperty[BigInt, MaxIntValueProperty] {
+  override def toJson: JObject = ((if (exclusive) { "exclusiveMaximum" }
+                                   else { "maximum" }) -> maxIntValue)
 
   override def merge(
       otherProp: MaxIntValueProperty
   )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
-    MaxIntValueProperty(maxOrNone(maxIntValue, otherProp.maxIntValue))
+    val exclusive = (maxIntValue, otherProp.maxIntValue) match {
+      case (None, _)                   => this.exclusive
+      case (_, None)                   => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (Some(x), Some(y)) if x === y =>
+        this.exclusive && otherProp.exclusive
+      case _ => otherProp.exclusive
+    }
+    MaxIntValueProperty(
+      maxOrNone(maxIntValue, otherProp.maxIntValue),
+      exclusive
+    )
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigInt
   )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
-    MaxIntValueProperty(maxOrNone(Some(value), maxIntValue))
+    val exclusive =
+      this.exclusive && (maxIntValue.isEmpty || value < maxIntValue.get)
+    MaxIntValueProperty(maxOrNone(Some(value), maxIntValue), exclusive)
   }
 
   override def collectAnomalies(value: JValue, path: String) = {
@@ -123,7 +159,9 @@ final case class MaxIntValueProperty(maxIntValue: Option[BigInt] = None)
       case JInt(num) =>
         maxIntValue match {
           case Some(max) =>
-            if (num > max) {
+            if (num >= max && exclusive) {
+              Seq(Anomaly(path, "value is equal or above maximum", Warning))
+            } else if (num > max) {
               Seq(Anomaly(path, "value is above maximum", Warning))
             } else {
               Seq.empty

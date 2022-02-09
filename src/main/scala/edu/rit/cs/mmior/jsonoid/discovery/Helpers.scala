@@ -62,6 +62,16 @@ object Helpers {
 
     def =/=(other: A): Boolean = self != other
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  implicit final class BigIntOps(self: BigInt) {
+    def ===(other: BigInt): Boolean = self == other
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  implicit final class BigDecimalOps(self: BigDecimal) {
+    def ===(other: BigDecimal): Boolean = self == other
+  }
   // scalastyle:on method.name
 
   @tailrec

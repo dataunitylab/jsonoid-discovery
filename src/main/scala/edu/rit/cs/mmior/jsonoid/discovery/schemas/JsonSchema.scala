@@ -172,14 +172,6 @@ object JsonSchema {
   private def fromJsonInteger(int: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[BigInt]
 
-    if (int.values.contains("exclusiveMinimum")) {
-      throw new UnsupportedOperationException("exclusiveMinimum not supported")
-    }
-
-    if (int.values.contains("exclusiveMaximum")) {
-      throw new UnsupportedOperationException("exclusiveMaximum not supported")
-    }
-
     if (int.values.contains("multipleOf")) {
       props.add(MultipleOfProperty(Some((int \ "multipleOf").extract[BigInt])))
     }
@@ -188,8 +180,26 @@ object JsonSchema {
       props.add(MinIntValueProperty(Some((int \ "minimum").extract[BigInt])))
     }
 
+    if (int.values.contains("exclusiveMinimum")) {
+      props.add(
+        MinIntValueProperty(
+          Some((int \ "exclusiveMinimum").extract[BigInt]),
+          true
+        )
+      )
+    }
+
     if (int.values.contains("maximum")) {
       props.add(MaxIntValueProperty(Some((int \ "maximum").extract[BigInt])))
+    }
+
+    if (int.values.contains("exclusiveMaximum")) {
+      props.add(
+        MaxIntValueProperty(
+          Some((int \ "exclusiveMaximum").extract[BigInt]),
+          true
+        )
+      )
     }
 
     IntegerSchema(props)
@@ -198,14 +208,6 @@ object JsonSchema {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def fromJsonNumber(num: JObject): JsonSchema[_] = {
     val props = SchemaProperties.empty[BigDecimal]
-
-    if ((num \ "exclusiveMinimum") != JNothing) {
-      throw new UnsupportedOperationException("exclusiveMinimum not supported")
-    }
-
-    if ((num \ "exclusiveMaximum") != JNothing) {
-      throw new UnsupportedOperationException("exclusiveMaximum not supported")
-    }
 
     if ((num \ "multipleOf") != JNothing) {
       throw new UnsupportedOperationException("multipleOf not supported")
@@ -217,9 +219,27 @@ object JsonSchema {
       )
     }
 
+    if ((num \ "exclusiveMinimum") != JNothing) {
+      props.add(
+        MinNumValueProperty(
+          Some((num \ "exclusiveMinimum").extract[BigDecimal]),
+          true
+        )
+      )
+    }
+
     if ((num \ "maximum") != JNothing) {
       props.add(
         MaxNumValueProperty(Some((num \ "maximum").extract[BigDecimal]))
+      )
+    }
+
+    if ((num \ "exclusiveMaximum") != JNothing) {
+      props.add(
+        MaxNumValueProperty(
+          Some((num \ "exclusiveMaximum").extract[BigDecimal]),
+          true
+        )
       )
     }
 

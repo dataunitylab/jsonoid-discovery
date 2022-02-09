@@ -39,6 +39,20 @@ class JsonSchemaSpec extends UnitSpec {
     convertedSchema.properties should contain(MaxIntValueProperty(Some(10)))
   }
 
+  it should "convert an integer schema with exclusive max/min" in {
+    val intSchema: JObject = ("type" -> "integer") ~
+      ("exclusiveMinimum" -> 0) ~
+      ("exclusiveMaximum" -> 10)
+
+    val convertedSchema = JsonSchema.fromJson(intSchema)
+    convertedSchema.properties should contain(
+      MinIntValueProperty(Some(0), true)
+    )
+    convertedSchema.properties should contain(
+      MaxIntValueProperty(Some(10), true)
+    )
+  }
+
   it should "convert a number schema" in {
     val intSchema: JObject = ("type" -> "number") ~
       ("minimum" -> 0.5) ~
@@ -47,6 +61,20 @@ class JsonSchemaSpec extends UnitSpec {
     val convertedSchema = JsonSchema.fromJson(intSchema)
     convertedSchema.properties should contain(MinNumValueProperty(Some(0.5)))
     convertedSchema.properties should contain(MaxNumValueProperty(Some(10.3)))
+  }
+
+  it should "convert a number schema with exclusive max/min" in {
+    val intSchema: JObject = ("type" -> "number") ~
+      ("exclusiveMinimum" -> 0.5) ~
+      ("exclusiveMaximum" -> 10.3)
+
+    val convertedSchema = JsonSchema.fromJson(intSchema)
+    convertedSchema.properties should contain(
+      MinNumValueProperty(Some(0.5), true)
+    )
+    convertedSchema.properties should contain(
+      MaxNumValueProperty(Some(10.3), true)
+    )
   }
 
   it should "convert a string schema" in {

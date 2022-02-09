@@ -67,10 +67,10 @@ final case class NumberSchema(
       val props = SchemaProperties.empty[BigDecimal]
       otherProperties.foreach { prop =>
         prop match {
-          case MinIntValueProperty(minValue) =>
-            props.add(MinNumValueProperty(minValue.map(_.toDouble)))
-          case MaxIntValueProperty(maxValue) =>
-            props.add(MaxNumValueProperty(maxValue.map(_.toDouble)))
+          case MinIntValueProperty(minValue, exclusive) =>
+            props.add(MinNumValueProperty(minValue.map(_.toDouble), exclusive))
+          case MaxIntValueProperty(maxValue, exclusive) =>
+            props.add(MaxNumValueProperty(maxValue.map(_.toDouble), exclusive))
           case IntHyperLogLogProperty(hll) =>
             // XXX This can give some false positives due to how
             //     decimal values are tracked, but should not be
@@ -110,19 +110,36 @@ final case class NumberSchema(
     NumberSchema(properties)
 }
 
-final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal, MinNumValueProperty] {
-  override def toJson: JObject = ("minimum" -> minNumValue)
+final case class MinNumValueProperty(
+    minNumValue: Option[BigDecimal] = None,
+    exclusive: Boolean = false
+) extends SchemaProperty[BigDecimal, MinNumValueProperty] {
+  override def toJson: JObject = ((if (exclusive) { "exclusiveMinimum" }
+                                   else { "minimum" }) -> minNumValue)
 
   override def merge(
       otherProp: MinNumValueProperty
   )(implicit er: EquivalenceRelation): MinNumValueProperty = {
-    MinNumValueProperty(minOrNone(minNumValue, otherProp.minNumValue))
+    val exclusive = (minNumValue, otherProp.minNumValue) match {
+      case (None, _)                   => this.exclusive
+      case (_, None)                   => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (Some(x), Some(y)) if x === y =>
+        this.exclusive && otherProp.exclusive
+      case _ => otherProp.exclusive
+    }
+    MinNumValueProperty(
+      minOrNone(minNumValue, otherProp.minNumValue),
+      exclusive
+    )
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): MinNumValueProperty = {
+    val exclusive =
+      this.exclusive && (minNumValue.isEmpty || value < minNumValue.get)
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
 
@@ -130,14 +147,19 @@ final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
     minNumValue match {
       case Some(min) =>
         val exceedsMin = value match {
-          case JDouble(num)  => Some(num < min)
-          case JDecimal(num) => Some(num < min)
-          case JInt(num)     => Some(BigDecimal(num) < min)
-          case _             => None
+          case JDouble(num) if exclusive   => Some(num <= min)
+          case JDouble(num) if !exclusive  => Some(num < min)
+          case JDecimal(num) if exclusive  => Some(num <= min)
+          case JDecimal(num) if !exclusive => Some(num < min)
+          case JInt(num) if exclusive      => Some(BigDecimal(num) <= min)
+          case JInt(num) if !exclusive     => Some(BigDecimal(num) < min)
+          case _                           => None
         }
 
         exceedsMin match {
-          case Some(true) =>
+          case Some(true) if exclusive =>
+            Seq(Anomaly(path, "value is equal or below minimum", Warning))
+          case Some(true) if !exclusive =>
             Seq(Anomaly(path, "value is below minimum", Warning))
           case _ => Seq.empty
         }
@@ -146,34 +168,53 @@ final case class MinNumValueProperty(minNumValue: Option[BigDecimal] = None)
   }
 }
 
-final case class MaxNumValueProperty(maxNumValue: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal, MaxNumValueProperty] {
-  override def toJson: JObject = ("maximum" -> maxNumValue)
+final case class MaxNumValueProperty(
+    maxNumValue: Option[BigDecimal] = None,
+    exclusive: Boolean = false
+) extends SchemaProperty[BigDecimal, MaxNumValueProperty] {
+  override def toJson: JObject = ((if (exclusive) { "exclusiveMaximum" }
+                                   else { "maximum" }) -> maxNumValue)
 
   override def merge(
       otherProp: MaxNumValueProperty
   )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
+    val exclusive = (maxNumValue, otherProp.maxNumValue) match {
+      case (None, _)                   => this.exclusive
+      case (_, None)                   => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (Some(x), Some(y)) if x === y =>
+        this.exclusive && otherProp.exclusive
+      case _ => otherProp.exclusive
+    }
     MaxNumValueProperty(maxOrNone(maxNumValue, otherProp.maxNumValue))
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
-    MaxNumValueProperty(maxOrNone(Some(value), maxNumValue))
+    val exclusive =
+      this.exclusive && (maxNumValue.isEmpty || value < maxNumValue.get)
+    MaxNumValueProperty(maxOrNone(Some(value), maxNumValue), exclusive)
   }
 
   override def collectAnomalies(value: JValue, path: String) = {
     maxNumValue match {
       case Some(max) =>
         val exceedsMax = value match {
-          case JDouble(num)  => Some(num > max)
-          case JDecimal(num) => Some(num > max)
-          case JInt(num)     => Some(BigDecimal(num) > max)
-          case _             => None
+          case JDouble(num) if exclusive   => Some(num >= max)
+          case JDouble(num) if !exclusive  => Some(num > max)
+          case JDecimal(num) if exclusive  => Some(num >= max)
+          case JDecimal(num) if !exclusive => Some(num > max)
+          case JInt(num) if exclusive      => Some(BigDecimal(num) >= max)
+          case JInt(num) if !exclusive     => Some(BigDecimal(num) > max)
+          case _                           => None
         }
 
         exceedsMax match {
-          case Some(true) =>
+          case Some(true) if exclusive =>
+            Seq(Anomaly(path, "value is equal or above maximum", Warning))
+          case Some(true) if !exclusive =>
             Seq(Anomaly(path, "value is above maximum", Warning))
           case _ => Seq.empty
         }
