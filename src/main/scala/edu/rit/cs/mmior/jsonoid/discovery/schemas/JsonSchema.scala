@@ -254,9 +254,19 @@ object JsonSchema {
     )
   )
   private def fromJsonObject(obj: JObject): JsonSchema[_] = {
+    if ((obj \ "not") != JNothing) {
+      throw new UnsupportedOperationException("not isn't supported")
+    }
+
     // TODO Add support for dependencies
     if ((obj \ "dependencies") != JNothing) {
       throw new UnsupportedOperationException("dependencies not supported")
+    }
+    if ((obj \ "dependentRequired") != JNothing) {
+      throw new UnsupportedOperationException("dependentRequired not supported")
+    }
+    if ((obj \ "dependentSchemas") != JNothing) {
+      throw new UnsupportedOperationException("dependentSchemas not supported")
     }
 
     val objProps = if ((obj \ "properties") != JNothing) {

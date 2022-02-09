@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support exclusive min/max during conversion
 
+### Changed
+- Add more explicit object conversion errors
+
 ## [0.6.3]
 ### Added
 - Perform heuristic type detection during object conversion
