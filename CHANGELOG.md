@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.7.0]
 ### Added
 - Support exclusive min/max during conversion
 - Support `allOf` during object conversion
@@ -13,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Add more explicit object conversion errors
+- `MultipleOfProperty` renamed to `IntMultipleOfProperty`
 
 ## [0.6.3]
 ### Added
@@ -186,7 +189,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-05-31
 - Initial release
 
-[Unreleased]: https://github.com/michaelmior/jsonoid-discovery/compare/v0.6.3...HEAD
+[Unreleased]: https://github.com/michaelmior/jsonoid-discovery/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/michaelmior/jsonoid-discovery/compare/v0.6.3...v0.7.0
 [0.6.3]: https://github.com/michaelmior/jsonoid-discovery/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/michaelmior/jsonoid-discovery/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/michaelmior/jsonoid-discovery/compare/v0.6.0...v0.6.1
