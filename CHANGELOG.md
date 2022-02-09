@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Support exclusive min/max during conversion
+- Support `allOf` during object conversion
 
 ### Changed
 - Add more explicit object conversion errors

@@ -42,7 +42,34 @@ final case class ProductSchema(
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ProductSchema(otherProperties) =>
-      ProductSchema(properties.merge(otherProperties))
+      val allThis = this.properties.get[ProductSchemaTypesProperty].all
+      val allOther = other.properties.get[ProductSchemaTypesProperty].all
+      (allThis, allOther) match {
+        case (true, true) =>
+          ProductSchema(
+            properties.merge(otherProperties)(
+              EquivalenceRelations.NonEquivalenceRelation
+            )
+          )(er)
+        case (true, false) =>
+          val newProps = SchemaProperties.empty[JsonSchema[_]]
+          newProps.add(ProductSchemaTypesProperty(List(other), List(1), false))
+          ProductSchema(
+            properties.merge(newProps)(
+              EquivalenceRelations.NonEquivalenceRelation
+            )
+          )(er)
+        case (false, true) =>
+          val newProps = SchemaProperties.empty[JsonSchema[_]]
+          newProps.add(ProductSchemaTypesProperty(List(this), List(1), false))
+          ProductSchema(
+            properties.merge(newProps)(
+              EquivalenceRelations.NonEquivalenceRelation
+            )
+          )(er)
+        case (false, false) =>
+          ProductSchema(properties.merge(otherProperties)(er))(er)
+      }
   }
 
   override def merge(
@@ -51,7 +78,7 @@ final case class ProductSchema(
     other match {
       case prod: ProductSchema => this.mergeSameType()(er)(prod)
       case zero: ZeroSchema    => this
-      case _                   => ProductSchema(this.properties.mergeValue(other))
+      case _                   => ProductSchema(this.properties.mergeValue(other))(er)
     }
   }
 
@@ -113,11 +140,13 @@ final case class ProductSchema(
 
 final case class ProductSchemaTypesProperty(
     val schemaTypes: List[JsonSchema[_]] = List.empty[JsonSchema[_]],
-    val schemaCounts: List[BigInt] = List.empty[BigInt]
+    val schemaCounts: List[BigInt] = List.empty[BigInt],
+    val all: Boolean = false
 )(implicit er: EquivalenceRelation)
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject =
-    ("oneOf" -> schemaTypes.map(_.toJson))
+    ((if (all) { "allOf" }
+      else { "oneOf" }) -> schemaTypes.map(_.toJson))
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
@@ -126,7 +155,8 @@ final case class ProductSchemaTypesProperty(
       schemaTypes.map { s =>
         transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
       },
-      schemaCounts
+      schemaCounts,
+      all
     )
   }
 
@@ -134,7 +164,7 @@ final case class ProductSchemaTypesProperty(
       otherProp: ProductSchemaTypesProperty
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>
-      p.mergeWithCount(otherProp.schemaCounts(i), s)
+      p.mergeWithCount(otherProp.schemaCounts(i), s)(er)
     }
   }
 
@@ -147,10 +177,11 @@ final case class ProductSchemaTypesProperty(
     } match {
       case Some((s, i)) if er.fuse(s, schema) =>
         (
-          schemaTypes.updated(i, s.merge(schema)),
-          schemaCounts.updated(i, count + schemaCounts(i))
+          schemaTypes.updated(i, s.merge(schema)(er)),
+          schemaCounts.updated(i, count + schemaCounts(i)),
+          all
         )
-      case _ => (schemaTypes :+ schema, schemaCounts :+ count)
+      case _ => (schemaTypes :+ schema, schemaCounts :+ count, all)
     }
     (ProductSchemaTypesProperty.apply _).tupled(newTypes)
   }

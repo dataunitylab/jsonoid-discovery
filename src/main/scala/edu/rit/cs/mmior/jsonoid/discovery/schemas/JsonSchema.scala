@@ -37,8 +37,7 @@ object JsonSchema {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
         case 1 => fromJson(schemas(0))
-        case _ =>
-          throw new UnsupportedOperationException("allOf not supported")
+        case _ => buildProductSchema(schemas.map(fromJson(_)), true)
       }
     } else if ((schema \ "oneOf") != JNothing) {
       productFromJsons((schema \ "oneOf").extract[List[JObject]])
@@ -77,7 +76,7 @@ object JsonSchema {
       schemas.length match {
         case 0 => AnySchema()
         case 1 => schemas(0)
-        case _ => buildProductSchema(schemas)
+        case _ => buildProductSchema(schemas, false)
       }
     }
 
@@ -100,13 +99,15 @@ object JsonSchema {
   }
 
   private def buildProductSchema(
-      schemas: List[JsonSchema[_]]
+      schemas: List[JsonSchema[_]],
+      all: Boolean = false
   ): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
     val typesProp = ProductSchemaTypesProperty(
       schemas,
-      List.fill(schemas.length)(1)
+      List.fill(schemas.length)(1),
+      all
     )(er)
     val properties =
       SchemaProperties.empty[JsonSchema[_]].replaceProperty(typesProp)

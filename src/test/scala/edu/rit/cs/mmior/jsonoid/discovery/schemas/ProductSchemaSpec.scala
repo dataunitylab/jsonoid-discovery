@@ -19,6 +19,13 @@ class ProductSchemaSpec extends UnitSpec {
     ProductSchema(schema1).merge(schema2).asInstanceOf[ProductSchema]
   private val productSchema2 = ProductSchema(schema3)
 
+  private val allProps = SchemaProperties
+    .empty[JsonSchema[_]]
+    .replaceProperty(
+      ProductSchemaTypesProperty(List(StringSchema()), List(1), true)
+    )
+  private val allProductSchema = ProductSchema(allProps)
+
   it should "track required properties" in {
     val typesProp = productSchema1
       .merge(schema2)
@@ -41,6 +48,36 @@ class ProductSchemaSpec extends UnitSpec {
       (schema2, 1),
       (schema3, 1)
     )
+  }
+
+  it should "not merge all types in multiple ProductSchemas with all" in {
+    val mergedSchemaProps =
+      allProductSchema
+        .merge(allProductSchema)
+        .asInstanceOf[ProductSchema]
+        .properties
+        .get[ProductSchemaTypesProperty]
+
+    mergedSchemaProps.schemaTypes should contain theSameElementsAs List(
+      StringSchema(),
+      StringSchema()
+    )
+    mergedSchemaProps.all shouldBe true
+  }
+
+  it should "not created nested ProductSchemas with mixed all values" in {
+    val mergedSchemaProps =
+      allProductSchema
+        .merge(productSchema1)
+        .asInstanceOf[ProductSchema]
+        .properties
+        .get[ProductSchemaTypesProperty]
+
+    mergedSchemaProps.schemaTypes should contain theSameElementsAs List(
+      StringSchema(),
+      productSchema1
+    )
+    mergedSchemaProps.all shouldBe true
   }
 
   it should "convert to JSON using oneOf" in {
