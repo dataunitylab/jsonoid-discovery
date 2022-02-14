@@ -59,11 +59,11 @@ final case class NumberSchema(
     Set(classTag[JInt], classTag[JDouble], classTag[JDecimal])
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>
-      NumberSchema(properties.merge(otherProperties))
+      NumberSchema(properties.merge(otherProperties, mergeType))
 
     case other @ IntegerSchema(otherProperties) => {
       val props = SchemaProperties.empty[BigDecimal]
@@ -105,7 +105,7 @@ final case class NumberSchema(
         }
       }
 
-      NumberSchema(properties.merge(props))
+      NumberSchema(properties.merge(props, mergeType))
     }
   }
 
@@ -120,7 +120,24 @@ final case class MinNumValueProperty(
   override def toJson: JObject = ((if (exclusive) { "exclusiveMinimum" }
                                    else { "minimum" }) -> minNumValue)
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: MinNumValueProperty
+  )(implicit er: EquivalenceRelation): MinNumValueProperty = {
+    val exclusive = (minNumValue, otherProp.minNumValue) match {
+      case (None, _)                   => this.exclusive
+      case (_, None)                   => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (Some(x), Some(y)) if x === y =>
+        this.exclusive || otherProp.exclusive
+      case _ => otherProp.exclusive
+    }
+    MinNumValueProperty(
+      maxOrNone(minNumValue, otherProp.minNumValue),
+      exclusive
+    )
+  }
+
+  override def unionMerge(
       otherProp: MinNumValueProperty
   )(implicit er: EquivalenceRelation): MinNumValueProperty = {
     val exclusive = (minNumValue, otherProp.minNumValue) match {
@@ -178,7 +195,24 @@ final case class MaxNumValueProperty(
   override def toJson: JObject = ((if (exclusive) { "exclusiveMaximum" }
                                    else { "maximum" }) -> maxNumValue)
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: MaxNumValueProperty
+  )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
+    val exclusive = (maxNumValue, otherProp.maxNumValue) match {
+      case (None, _)                   => this.exclusive
+      case (_, None)                   => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (Some(x), Some(y)) if x === y =>
+        this.exclusive || otherProp.exclusive
+      case _ => otherProp.exclusive
+    }
+    MaxNumValueProperty(
+      minOrNone(maxNumValue, otherProp.maxNumValue),
+      exclusive
+    )
+  }
+
+  override def unionMerge(
       otherProp: MaxNumValueProperty
   )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
     val exclusive = (maxNumValue, otherProp.maxNumValue) match {
@@ -231,7 +265,7 @@ final case class NumHyperLogLogProperty(
 ) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
   override def toJson: JObject = ("distinctValues" -> hll.count())
 
-  override def merge(
+  override def unionMerge(
       otherProp: NumHyperLogLogProperty
   )(implicit er: EquivalenceRelation): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
@@ -273,7 +307,7 @@ final case class NumBloomFilterProperty(
 ) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
   override def toJson: JObject = JObject(Nil)
 
-  override def merge(
+  override def unionMerge(
       otherProp: NumBloomFilterProperty
   )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
@@ -324,7 +358,7 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigDecimal, NumStatsProperty] {
   override def toJson: JObject = ("statistics" -> stats.toJson)
 
-  override def merge(
+  override def unionMerge(
       otherProp: NumStatsProperty
   )(implicit er: EquivalenceRelation): NumStatsProperty = {
     NumStatsProperty(stats.merge(otherProp.stats))
@@ -343,7 +377,7 @@ final case class NumExamplesProperty(
   override def toJson: JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
-  override def merge(
+  override def unionMerge(
       otherProp: NumExamplesProperty
   )(implicit er: EquivalenceRelation): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(otherProp.examples))
@@ -364,7 +398,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
     case _                          => Nil
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: NumMultipleOfProperty
   )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
@@ -379,7 +413,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
   override def mergeValue(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
-    merge(NumMultipleOfProperty(Some(value)))
+    unionMerge(NumMultipleOfProperty(Some(value)))
   }
 }
 
@@ -392,7 +426,7 @@ final case class NumHistogramProperty(
     })
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: NumHistogramProperty
   )(implicit er: EquivalenceRelation): NumHistogramProperty = {
     NumHistogramProperty(histogram.merge(otherProp.histogram))

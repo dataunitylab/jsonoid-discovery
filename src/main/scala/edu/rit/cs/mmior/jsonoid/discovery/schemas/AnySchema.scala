@@ -20,7 +20,7 @@ final case class AnySchema(
       tag: ClassTag[S]
   ): Boolean = true
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
     this

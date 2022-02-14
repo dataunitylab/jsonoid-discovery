@@ -64,11 +64,11 @@ final case class StringSchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JString])
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ StringSchema(otherProperties) =>
-      StringSchema(properties.merge(otherProperties))
+      StringSchema(properties.merge(otherProperties, mergeType))
   }
 
   override def copy(properties: SchemaProperties[String]): StringSchema =
@@ -79,7 +79,13 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String, MinLengthProperty] {
   override def toJson: JObject = ("minLength" -> minLength)
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: MinLengthProperty
+  )(implicit er: EquivalenceRelation): MinLengthProperty = {
+    MinLengthProperty(maxOrNone(minLength, otherProp.minLength))
+  }
+
+  override def unionMerge(
       otherProp: MinLengthProperty
   )(implicit er: EquivalenceRelation): MinLengthProperty = {
     MinLengthProperty(minOrNone(minLength, otherProp.minLength))
@@ -114,7 +120,13 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String, MaxLengthProperty] {
   override def toJson: JObject = ("maxLength" -> maxLength)
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: MaxLengthProperty
+  )(implicit er: EquivalenceRelation): MaxLengthProperty = {
+    MaxLengthProperty(minOrNone(maxLength, otherProp.maxLength))
+  }
+
+  override def unionMerge(
       otherProp: MaxLengthProperty
   )(implicit er: EquivalenceRelation): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(maxLength, otherProp.maxLength))
@@ -150,7 +162,7 @@ final case class StringHyperLogLogProperty(
 ) extends SchemaProperty[String, StringHyperLogLogProperty] {
   override def toJson: JObject = ("distinctValues" -> hll.count())
 
-  override def merge(
+  override def unionMerge(
       otherProp: StringHyperLogLogProperty
   )(implicit er: EquivalenceRelation): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
@@ -184,7 +196,7 @@ final case class StringBloomFilterProperty(
 ) extends SchemaProperty[String, StringBloomFilterProperty] {
   override def toJson: JObject = JObject(Nil)
 
-  override def merge(
+  override def unionMerge(
       otherProp: StringBloomFilterProperty
   )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
@@ -225,7 +237,7 @@ final case class StringExamplesProperty(
   override def toJson: JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
-  override def merge(
+  override def unionMerge(
       otherProp: StringExamplesProperty
   )(implicit er: EquivalenceRelation): StringExamplesProperty = {
     StringExamplesProperty(examples.merge(otherProp.examples))
@@ -275,7 +287,18 @@ final case class FormatProperty(
     ("format" -> formats.maxBy(_._2)._1)
   }
 
-  override def merge(
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  override def intersectMerge(
+      otherProp: FormatProperty
+  )(implicit er: EquivalenceRelation): FormatProperty = {
+    val merged = formats.toSeq ++ otherProp.formats.toSeq
+    val grouped = merged.groupBy(_._1)
+    FormatProperty(
+      grouped.mapValues(_.map(_._2).min).filter(_._2 > 0).map(identity).toMap
+    )
+  }
+
+  override def unionMerge(
       otherProp: FormatProperty
   )(implicit er: EquivalenceRelation): FormatProperty = {
     val merged = formats.toSeq ++ otherProp.formats.toSeq
@@ -289,7 +312,7 @@ final case class FormatProperty(
     FormatProperty.FormatCheckers.toSeq.find { case (format, fn) =>
       fn(value)
     } match {
-      case Some(format) => merge(FormatProperty(Map((format._1, 1))))
+      case Some(format) => unionMerge(FormatProperty(Map((format._1, 1))))
       case None         => this
     }
   }
@@ -333,7 +356,7 @@ final case class PatternProperty(
     Nil
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: PatternProperty
   )(implicit er: EquivalenceRelation): PatternProperty = {
     val newPrefix = findCommonPrefix(prefix, otherProp.prefix)
@@ -353,7 +376,7 @@ final case class PatternProperty(
   override def mergeValue(
       value: String
   )(implicit er: EquivalenceRelation): PatternProperty = {
-    merge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
+    unionMerge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
 
   override def collectAnomalies(value: JValue, path: String) = {
@@ -394,7 +417,7 @@ final case class StaticPatternProperty(regex: Regex)
 
   override def toJson: JObject = ("pattern" -> regex.toString)
 
-  override def merge(
+  override def unionMerge(
       otherProp: StaticPatternProperty
   )(implicit er: EquivalenceRelation): StaticPatternProperty = {
     throw new UnsupportedOperationException(
@@ -432,7 +455,7 @@ final case class StringLengthHistogramProperty(
     })
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: StringLengthHistogramProperty
   )(implicit er: EquivalenceRelation): StringLengthHistogramProperty = {
     StringLengthHistogramProperty(histogram.merge(otherProp.histogram))

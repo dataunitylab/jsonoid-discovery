@@ -29,11 +29,11 @@ final case class BooleanSchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JBool])
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ BooleanSchema(otherProperties) =>
-      BooleanSchema(properties.merge(otherProperties))
+      BooleanSchema(properties.merge(otherProperties, mergeType))
   }
 
   override def copy(properties: SchemaProperties[Boolean]): BooleanSchema =

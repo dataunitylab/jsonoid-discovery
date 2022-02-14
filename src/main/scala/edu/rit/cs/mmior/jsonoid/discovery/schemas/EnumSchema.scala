@@ -48,11 +48,11 @@ final case class EnumSchema(
     true
   }
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ EnumSchema(otherProperties) =>
-      EnumSchema(properties.merge(otherProperties))
+      EnumSchema(properties.merge(otherProperties, mergeType))
   }
 
   override def copy(properties: SchemaProperties[Set[JValue]]): EnumSchema =
@@ -78,7 +78,7 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     ("enum" -> sortedValues)
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: EnumValuesProperty
   )(implicit er: EquivalenceRelation): EnumValuesProperty = {
     EnumValuesProperty(values ++ otherProp.values)

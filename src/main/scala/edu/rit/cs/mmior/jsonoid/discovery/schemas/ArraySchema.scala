@@ -59,11 +59,11 @@ final case class ArraySchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JArray])
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ArraySchema(otherProperties) =>
-      ArraySchema(properties.merge(otherProperties))
+      ArraySchema(properties.merge(otherProperties, mergeType))
   }
 
   override def copy(
@@ -167,7 +167,7 @@ final case class ItemTypeProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def merge(
+  override def unionMerge(
       otherProp: ItemTypeProperty
   )(implicit er: EquivalenceRelation): ItemTypeProperty = {
     val newType = (itemType, otherProp.itemType) match {
@@ -199,7 +199,7 @@ final case class ItemTypeProperty(
   override def mergeValue(
       value: List[JsonSchema[_]]
   )(implicit er: EquivalenceRelation): ItemTypeProperty = {
-    merge(ItemTypeProperty(Right(value)))
+    unionMerge(ItemTypeProperty(Right(value)))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -237,7 +237,18 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]], MinItemsProperty] {
   override def toJson: JObject = ("minItems" -> minItems)
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: MinItemsProperty
+  )(implicit er: EquivalenceRelation): MinItemsProperty = {
+    MinItemsProperty(
+      maxOrNone(
+        minItems,
+        otherProp.minItems
+      )
+    )
+  }
+
+  override def unionMerge(
       otherProp: MinItemsProperty
   )(implicit er: EquivalenceRelation): MinItemsProperty = {
     MinItemsProperty(
@@ -277,7 +288,18 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]], MaxItemsProperty] {
   override def toJson: JObject = ("maxItems" -> maxItems)
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: MaxItemsProperty
+  )(implicit er: EquivalenceRelation): MaxItemsProperty = {
+    MaxItemsProperty(
+      minOrNone(
+        maxItems,
+        otherProp.maxItems
+      )
+    )
+  }
+
+  override def unionMerge(
       otherProp: MaxItemsProperty
   )(implicit er: EquivalenceRelation): MaxItemsProperty = {
     MaxItemsProperty(
@@ -323,7 +345,19 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     Nil
   }
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: UniqueProperty
+  )(implicit er: EquivalenceRelation): UniqueProperty = {
+    val unique = this.unique || otherProp.unique
+    UniqueProperty(
+      unique,
+      (this.unique && this.unary) ||
+        (otherProp.unique && otherProp.unary) ||
+        (!unique && (this.unary || otherProp.unary))
+    )
+  }
+
+  override def unionMerge(
       otherProp: UniqueProperty
   )(implicit er: EquivalenceRelation): UniqueProperty = {
     UniqueProperty(unique && otherProp.unique, unary && otherProp.unary)
@@ -344,7 +378,9 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
       case _ => List()
     }
 
-    merge(UniqueProperty(examples.length == value.length, value.length <= 1))
+    unionMerge(
+      UniqueProperty(examples.length == value.length, value.length <= 1)
+    )
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -373,7 +409,7 @@ final case class ArrayLengthHistogramProperty(
     })
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: ArrayLengthHistogramProperty
   )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
     ArrayLengthHistogramProperty(histogram.merge(otherProp.histogram))

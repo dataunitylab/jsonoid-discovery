@@ -65,7 +65,8 @@ final case class SchemaProperties[T](
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def merge(
-      other: SchemaProperties[T]
+      other: SchemaProperties[T],
+      mergeType: MergeType = Union
   )(implicit er: EquivalenceRelation): SchemaProperties[T] = {
     var mergedProperties = properties.transform { case (key, prop) =>
       if (!prop.mergeable) {
@@ -73,7 +74,7 @@ final case class SchemaProperties[T](
       }
 
       other.properties.get(key) match {
-        case Some(otherProp) => prop.mergeOnlySameType(otherProp)
+        case Some(otherProp) => prop.mergeOnlySameType(otherProp, mergeType)
         case None            => prop
       }
     }

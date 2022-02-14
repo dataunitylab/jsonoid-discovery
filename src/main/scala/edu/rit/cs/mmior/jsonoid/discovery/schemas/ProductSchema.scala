@@ -38,7 +38,7 @@ final case class ProductSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ProductSchema(otherProperties) =>
@@ -47,7 +47,7 @@ final case class ProductSchema(
       (allThis, allOther) match {
         case (true, true) =>
           ProductSchema(
-            properties.merge(otherProperties)(
+            properties.merge(otherProperties, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
             )
           )(er)
@@ -55,7 +55,7 @@ final case class ProductSchema(
           val newProps = SchemaProperties.empty[JsonSchema[_]]
           newProps.add(ProductSchemaTypesProperty(List(other), List(1), false))
           ProductSchema(
-            properties.merge(newProps)(
+            properties.merge(newProps, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
             )
           )(er)
@@ -63,22 +63,24 @@ final case class ProductSchema(
           val newProps = SchemaProperties.empty[JsonSchema[_]]
           newProps.add(ProductSchemaTypesProperty(List(this), List(1), false))
           ProductSchema(
-            properties.merge(newProps)(
+            properties.merge(newProps, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
             )
           )(er)
         case (false, false) =>
-          ProductSchema(properties.merge(otherProperties)(er))(er)
+          ProductSchema(properties.merge(otherProperties, mergeType)(er))(er)
       }
   }
 
   override def merge(
-      other: JsonSchema[_]
+      other: JsonSchema[_],
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     other match {
-      case prod: ProductSchema => this.mergeSameType()(er)(prod)
+      case prod: ProductSchema => this.mergeSameType(mergeType)(er)(prod)
       case zero: ZeroSchema    => this
-      case _                   => ProductSchema(this.properties.mergeValue(other))(er)
+      case _ if mergeType === Union =>
+        ProductSchema(this.properties.mergeValue(other))(er)
     }
   }
 
@@ -160,7 +162,7 @@ final case class ProductSchemaTypesProperty(
     )
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: ProductSchemaTypesProperty
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>

@@ -387,7 +387,7 @@ trait JsonSchema[T] {
     validTypes.contains(tag)
   }
 
-  def mergeSameType()(implicit
+  def mergeSameType(mergeType: MergeType = Union)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]]
 
@@ -399,7 +399,8 @@ trait JsonSchema[T] {
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def merge(
-      other: JsonSchema[_]
+      other: JsonSchema[_],
+      mergeType: MergeType = Union
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
     val sameType = mergeSameType()(er)
     val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
