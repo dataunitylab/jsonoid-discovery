@@ -48,7 +48,7 @@ final case class EnumSchema(
     true
   }
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ EnumSchema(otherProperties) =>

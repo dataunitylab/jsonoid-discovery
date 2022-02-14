@@ -13,7 +13,7 @@ final case class NullSchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NullSchema(otherProperties) =>

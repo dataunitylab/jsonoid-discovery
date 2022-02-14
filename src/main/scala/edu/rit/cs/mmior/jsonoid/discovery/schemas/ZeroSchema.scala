@@ -15,7 +15,7 @@ final case class ZeroSchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
     other

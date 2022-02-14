@@ -40,7 +40,7 @@ final case class ReferenceSchema(
     throw new UnsupportedOperationException("$ref cannot be type checked")
   }
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
 

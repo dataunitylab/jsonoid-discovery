@@ -63,7 +63,7 @@ final case class ObjectSchema(
 
   override val staticProperties: JObject = ("additionalProperties" -> false)
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ObjectSchema(otherProperties) =>

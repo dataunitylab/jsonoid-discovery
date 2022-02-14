@@ -64,7 +64,7 @@ final case class StringSchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JString])
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ StringSchema(otherProperties) =>

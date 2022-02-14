@@ -59,7 +59,7 @@ final case class NumberSchema(
     Set(classTag[JInt], classTag[JDouble], classTag[JDecimal])
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>

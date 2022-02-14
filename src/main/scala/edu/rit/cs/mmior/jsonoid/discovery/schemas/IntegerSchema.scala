@@ -57,7 +57,7 @@ final case class IntegerSchema(
 
   override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JInt])
 
-  def mergeSameType()(implicit
+  override def mergeSameType()(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ IntegerSchema(otherProperties) =>
