@@ -30,7 +30,7 @@ object JsonSchema {
       "org.wartremover.warts.Recursion"
     )
   )
-  def fromJson(schema: JObject): JsonSchema[_] = {
+  def fromJson(schema: JObject, mergeAllOf: Boolean = false): JsonSchema[_] = {
     val convertedSchema = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") != JNothing) {
@@ -39,6 +39,15 @@ object JsonSchema {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
         case 1 => fromJson(schemas(0))
+        // Use intersect merge to combine to a single schema
+        case _ if mergeAllOf =>
+          schemas
+            .map(fromJson(_))
+            .fold(ZeroSchema())(
+              _.merge(_, Intersect)(
+                EquivalenceRelations.KindEquivalenceRelation
+              )
+            )
         case _ => buildProductSchema(schemas.map(fromJson(_)), true)
       }
     } else if ((schema \ "oneOf") != JNothing) {
@@ -402,7 +411,7 @@ trait JsonSchema[T] {
       other: JsonSchema[_],
       mergeType: MergeType = Union
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
-    val sameType = mergeSameType()(er)
+    val sameType = mergeSameType(mergeType)(er)
     val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
       sameType(other)
     } else {
