@@ -23,6 +23,7 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   // This must be implemented for any property which contains schema objects
   // Currently this is only three properties:
   // * ObjectTypesProperty in ObjectSchema
+  // * PatternTypesProperty in ObjectSchema
   // * ItemTypeProperty in ArraySchema
   // * ProductSchemaTypesProperty in ProductSchema
   def transform(transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]): S =

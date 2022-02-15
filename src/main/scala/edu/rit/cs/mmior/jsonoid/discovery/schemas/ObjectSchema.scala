@@ -2,6 +2,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import scala.reflect._
+import scala.util.matching.Regex
 
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -187,6 +188,61 @@ final case class ObjectTypesProperty(
         }
       case _ => Seq.empty
     }
+  }
+}
+
+final case class PatternTypesProperty(
+    patternTypes: Map[Regex, JsonSchema[_]] = Map.empty[Regex, JsonSchema[_]]
+) extends SchemaProperty[Map[String, JsonSchema[_]], PatternTypesProperty] {
+  override def toJson: JObject = ("patternProperties" -> patternTypes.map {
+    case (pattern, schema) => (pattern.toString -> schema.toJson)
+  })
+
+  override def transform(
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+  ): PatternTypesProperty = {
+    PatternTypesProperty(
+      patternTypes.mapValues(transformer(_)).map(identity).toMap
+    )
+  }
+
+  override def merge(
+      otherProp: PatternTypesProperty
+  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+    val other = otherProp.patternTypes
+    this.mergeValueRegex(other)
+  }
+
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+    val regexMap: Map[Regex, JsonSchema[_]] = value.map { case (k, v) =>
+      (k.r, v)
+    }.toMap
+    mergeValueRegex(regexMap)
+  }
+
+  def mergeValueRegex(
+      value: Map[Regex, JsonSchema[_]]
+  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+    val merged = patternTypes.toSeq ++ value.toSeq
+    val grouped = merged.groupBy(_._1)
+    PatternTypesProperty(
+      // .map(identity) below is necessary to
+      // produce a map which is serializable
+      grouped
+        .mapValues(
+          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b))
+        )
+        .map(identity)
+        .toMap
+    )
+  }
+
+  override def collectAnomalies(value: JValue, path: String) = {
+    throw new UnsupportedOperationException(
+      "anomaly collection not supported for patternProperties"
+    )
   }
 }
 

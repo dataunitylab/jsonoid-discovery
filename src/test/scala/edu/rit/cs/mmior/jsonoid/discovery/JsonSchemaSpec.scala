@@ -94,13 +94,23 @@ class JsonSchemaSpec extends UnitSpec {
   it should "convert an object schema" in {
     val objSchema: JObject = ("type" -> "object") ~
       ("properties" -> ("foo" -> ("type" -> "boolean"))) ~
+      ("patternProperties" -> ("^abc" -> ("type" -> "boolean"))) ~
       ("required" -> List("foo"))
 
-    val convertedSchema = JsonSchema.fromJson(objSchema)
+    val convertedSchema =
+      JsonSchema.fromJson(objSchema).asInstanceOf[ObjectSchema]
 
     convertedSchema.properties should contain(
       ObjectTypesProperty(Map("foo" -> BooleanSchema()))
     )
+
+    val regexMap: Map[String, JsonSchema[_]] = convertedSchema.properties
+      .get[PatternTypesProperty]
+      .patternTypes
+      .map { case (k, v) => (k.toString, v) }
+      .toMap
+    regexMap shouldBe Map("^abc" -> BooleanSchema())
+
     convertedSchema.properties should contain(
       RequiredProperty(Some(Set("foo")))
     )

@@ -4,6 +4,7 @@ package schemas
 import scala.collection.mutable
 import scala.reflect._
 import scala.reflect.ClassTag
+import scala.util.matching.Regex
 
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -11,6 +12,7 @@ import org.json4s._
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def fromJson(schema: JValue): JsonSchema[_] = {
     schema match {
       case JBool(true)  => AnySchema()
@@ -284,11 +286,22 @@ object JsonSchema {
         (prop -> fromJson(value))
     }.toMap
 
+    val patternProps = if ((obj \ "patternProperties") != JNothing) {
+      (obj \ "patternProperties").extract[Map[String, JObject]]
+    } else {
+      Map.empty
+    }
+    val patternTypes: Map[Regex, JsonSchema[_]] = patternProps.map {
+      case (pattern, value) =>
+        (pattern.r -> fromJson(value))
+    }.toMap
+
     val required = (obj \ "required").extract[Set[String]]
     val reqProp = RequiredProperty(Some(required))
 
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(ObjectTypesProperty(objTypes))
+    props.add(PatternTypesProperty(patternTypes))
     props.add(RequiredProperty(Some(required)))
 
     ObjectSchema(props)
