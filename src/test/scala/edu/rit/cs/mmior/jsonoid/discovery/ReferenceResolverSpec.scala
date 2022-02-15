@@ -21,6 +21,11 @@ class ReferenceResolverSpec extends UnitSpec {
       "quux": {
         "$ref": "#/foo"
       }
+    },
+    "patternProperties": {
+      "^abc": {
+        "$ref": "#/foo"
+      }
     }
   }""")
 
@@ -30,6 +35,12 @@ class ReferenceResolverSpec extends UnitSpec {
     val quux =
       transformedSchema.findByPointer("/quux").get.asInstanceOf[ReferenceSchema]
     quux.properties
+      .get[ReferenceObjectProperty]
+      .schema shouldBe a[BooleanSchema]
+
+    val patternTypes = schema.properties.get[PatternTypesProperty].patternTypes
+    val abc = patternTypes.toSeq(0)._2.asInstanceOf[ReferenceSchema]
+    abc.properties
       .get[ReferenceObjectProperty]
       .schema shouldBe a[BooleanSchema]
   }

@@ -24,9 +24,27 @@ trait SchemaWalker[T] {
     schema match {
       case o: ObjectSchema =>
         val props = o.properties.get[ObjectTypesProperty].objectTypes
-        extractSingle(o, extractor, prefix) ++ props.keySet.toSeq.flatMap(key =>
-          extractValues(props(key), extractor, prefix + "." + key)
-        )
+        val extractedProps =
+          extractSingle(o, extractor, prefix) ++ props.keySet.toSeq.flatMap(
+            key => extractValues(props(key), extractor, prefix + "." + key)
+          )
+
+        // XXX patternProperties are represented using the regex string
+        val patternProps = o.properties
+          .getOrNone[PatternTypesProperty]
+          .map(_.patternTypes)
+          .getOrElse(Map.empty)
+        val extractedPatternProps =
+          extractSingle(o, extractor, prefix) ++ patternProps.keySet.toSeq
+            .flatMap(key =>
+              extractValues(
+                patternProps(key),
+                extractor,
+                prefix + "." + key.toString
+              )
+            )
+
+        extractedProps.toSeq ++ extractedPatternProps.toSeq
       case a: ArraySchema =>
         extractSingle(a, extractor, prefix) ++ (a.properties
           .get[ItemTypeProperty]
