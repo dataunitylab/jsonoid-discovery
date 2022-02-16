@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Don't show reference in `ReferenceObjectProperty#toString` to fix circular references
+- Support circular references during reference resolution
 
 ## [0.7.2]
 ### Fixed

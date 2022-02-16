@@ -1,14 +1,12 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
 import java.io.File
-import java.io.FileOutputStream
 import scala.io.Source
 
 import scopt.OptionParser
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
-import Helpers._
 import schemas._
 
 final case class Config(
@@ -140,31 +138,16 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        val schema =
-          discover(jsons, config.propertySet)(config.equivalenceRelation)
-
-        var transformedSchema: JsonSchema[_] = schema
-        if (config.addDefinitions) {
-          if (config.propertySet =/= PropertySets.AllProperties) {
-            throw new IllegalArgumentException(
-              "All properties required to compute definitions"
-            )
-          }
-
-          transformedSchema = DefinitionTransformer
-            .transformSchema(transformedSchema)(
-              config.equivalenceRelation
-            )
-        }
-        transformedSchema = EnumTransformer
-          .transformSchema(transformedSchema)(config.equivalenceRelation)
-
-        if (!config.writeValues.isEmpty) {
-          val outputStream = new FileOutputStream(config.writeValues.get)
-          ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
-        }
-
-        println(compact(render(transformedSchema.toJsonSchema)))
+        val schema = JsonSchema.fromJson(jsons.next.asInstanceOf[JObject])
+        // schema.definitions.values.foreach { d =>
+        //   ReferenceResolver.transformSchema(d)(
+        //     EquivalenceRelations.NonEquivalenceRelation
+        //   )
+        // }
+        ReferenceResolver.transformSchema(schema)(
+          EquivalenceRelations.NonEquivalenceRelation
+        )
+        println(schema)
       case None =>
     }
   }

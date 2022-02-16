@@ -3,11 +3,30 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import schemas._
 
 object ReferenceResolver extends SchemaWalker[Unit] {
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  @SuppressWarnings(
+    Array("org.wartremover.warts.While", "org.wartremover.warts.Var")
+  )
   def transformSchema(
       schema: JsonSchema[_]
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
-    walk(schema, resolveReferences(schema))
+    var refs = Map.empty[String, Unit]
+    var visited: Set[JsonSchema[_]] = Set.empty
+    do {
+      refs = walk(
+        schema,
+        resolveReferences(schema),
+        (s) => {
+          if (s.isInstanceOf[ReferenceSchema]) {
+            val found = visited.contains(s)
+            visited += s
+
+            !found
+          } else {
+            true
+          }
+        }
+      )
+    } while (!refs.isEmpty)
     schema
   }
 

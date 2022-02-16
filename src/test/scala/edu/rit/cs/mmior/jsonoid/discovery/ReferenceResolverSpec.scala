@@ -20,6 +20,12 @@ class ReferenceResolverSpec extends UnitSpec {
       },
       "quux": {
         "$ref": "#/foo"
+      },
+      "bar": {
+        "type": "object",
+        "properties": {
+          "baz": {"$ref": "#/bar"}
+        }
       }
     },
     "patternProperties": {
@@ -43,5 +49,13 @@ class ReferenceResolverSpec extends UnitSpec {
     abc.properties
       .get[ReferenceObjectProperty]
       .schema shouldBe a[BooleanSchema]
+
+    // Validate that the circular reference was identified
+    val bar = transformedSchema.findByPointer("/bar").get
+    val baz = transformedSchema
+      .findByPointer("/bar/baz")
+      .get
+      .asInstanceOf[ReferenceSchema]
+    baz.properties.get[ReferenceObjectProperty].schema shouldEqual bar
   }
 }
