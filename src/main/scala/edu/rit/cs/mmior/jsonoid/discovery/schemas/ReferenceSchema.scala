@@ -78,6 +78,8 @@ final case class ReferenceObjectProperty(schema: JsonSchema[_])
     extends SchemaProperty[String, ReferenceObjectProperty] {
   override def toJson: JObject = Nil
 
+  override def toString: String = "ReferenceObjectProperty(…)"
+
   override def merge(
       otherProp: ReferenceObjectProperty
   )(implicit er: EquivalenceRelation): ReferenceObjectProperty = {
