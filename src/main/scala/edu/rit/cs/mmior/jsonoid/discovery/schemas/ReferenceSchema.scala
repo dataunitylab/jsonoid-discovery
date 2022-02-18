@@ -40,7 +40,7 @@ final case class ReferenceSchema(
     throw new UnsupportedOperationException("$ref cannot be type checked")
   }
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
 
@@ -61,7 +61,7 @@ final case class ReferencePathProperty(path: String)
     extends SchemaProperty[String, ReferencePathProperty] {
   override def toJson: JObject = ("$ref" -> path)
 
-  override def merge(
+  override def unionMerge(
       otherProp: ReferencePathProperty
   )(implicit er: EquivalenceRelation): ReferencePathProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
@@ -80,7 +80,7 @@ final case class ReferenceObjectProperty(schema: JsonSchema[_])
 
   override def toString: String = "ReferenceObjectProperty(…)"
 
-  override def merge(
+  override def unionMerge(
       otherProp: ReferenceObjectProperty
   )(implicit er: EquivalenceRelation): ReferenceObjectProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")

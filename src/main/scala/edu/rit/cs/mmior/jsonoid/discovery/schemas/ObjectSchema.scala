@@ -64,11 +64,11 @@ final case class ObjectSchema(
 
   override val staticProperties: JObject = ("additionalProperties" -> false)
 
-  override def mergeSameType()(implicit
+  override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ObjectSchema(otherProperties) =>
-      ObjectSchema(properties.merge(otherProperties))
+      ObjectSchema(properties.merge(otherProperties, mergeType))
   }
 
   override def copy(
@@ -148,23 +148,42 @@ final case class ObjectTypesProperty(
     )
   }
 
-  override def merge(
+  override def intersectMerge(
+      otherProp: ObjectTypesProperty
+  )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
+    val other = otherProp.objectTypes
+    this.mergeValue(other, Intersect)
+  }
+
+  override def unionMerge(
       otherProp: ObjectTypesProperty
   )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
     val other = otherProp.objectTypes
     this.mergeValue(other)
   }
 
-  override def mergeValue(
-      value: Map[String, JsonSchema[_]]
+  override def mergeValue(value: Map[String, JsonSchema[_]])(implicit
+      er: EquivalenceRelation
+  ) = mergeValue(value, Union)
+
+  def mergeValue(
+      value: Map[String, JsonSchema[_]],
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
-    val merged = objectTypes.toSeq ++ value.toSeq
+    val mergedTypes = mergeType match {
+      case Union     => objectTypes.keySet ++ value.keySet
+      case Intersect => objectTypes.keySet & value.keySet
+    }
+    val merged =
+      (objectTypes.toSeq ++ value.toSeq).filter(t => mergedTypes.contains(t._1))
     val grouped = merged.groupBy(_._1)
     ObjectTypesProperty(
       // .map(identity) below is necessary to
       // produce a map which is serializable
       grouped
-        .mapValues(_.map(_._2).fold(ZeroSchema())(_.merge(_)))
+        .mapValues(
+          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b, mergeType))
+        )
         .map(identity)
         .toMap
     )
@@ -206,11 +225,18 @@ final case class PatternTypesProperty(
     )
   }
 
-  override def merge(
+  override def intersectMerge(
       otherProp: PatternTypesProperty
   )(implicit er: EquivalenceRelation): PatternTypesProperty = {
     val other = otherProp.patternTypes
-    this.mergeValueRegex(other)
+    this.mergeValueRegex(other, Intersect)
+  }
+
+  override def unionMerge(
+      otherProp: PatternTypesProperty
+  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+    val other = otherProp.patternTypes
+    this.mergeValueRegex(other, Union)
   }
 
   override def mergeValue(
@@ -219,20 +245,27 @@ final case class PatternTypesProperty(
     val regexMap: Map[Regex, JsonSchema[_]] = value.map { case (k, v) =>
       (k.r, v)
     }.toMap
-    mergeValueRegex(regexMap)
+    mergeValueRegex(regexMap, Union)
   }
 
   def mergeValueRegex(
-      value: Map[Regex, JsonSchema[_]]
+      value: Map[Regex, JsonSchema[_]],
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): PatternTypesProperty = {
-    val merged = patternTypes.toSeq ++ value.toSeq
+    val mergedTypes = mergeType match {
+      case Union     => patternTypes.keySet ++ value.keySet
+      case Intersect => patternTypes.keySet & value.keySet
+    }
+    val merged = (patternTypes.toSeq ++ value.toSeq).filter(t =>
+      mergedTypes.contains(t._1)
+    )
     val grouped = merged.groupBy(_._1)
     PatternTypesProperty(
       // .map(identity) below is necessary to
       // produce a map which is serializable
       grouped
         .mapValues(
-          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b))
+          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b, mergeType))
         )
         .map(identity)
         .toMap
@@ -254,7 +287,7 @@ final case class FieldPresenceProperty(
     case (key, count) => (key -> BigDecimal(count) / BigDecimal(totalCount))
   })
 
-  override def merge(
+  override def unionMerge(
       otherProp: FieldPresenceProperty
   )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
     val merged = fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq
@@ -268,7 +301,7 @@ final case class FieldPresenceProperty(
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
   )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
-    merge(FieldPresenceProperty(value.mapValues(s => 1), 1))
+    unionMerge(FieldPresenceProperty(value.mapValues(s => 1), 1))
   }
 }
 
@@ -277,7 +310,7 @@ final case class RequiredProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]], RequiredProperty] {
   override def toJson: JObject = ("required" -> required)
 
-  override def merge(
+  override def unionMerge(
       otherProp: RequiredProperty
   )(implicit er: EquivalenceRelation): RequiredProperty = {
     val other = otherProp.required
@@ -356,7 +389,7 @@ final case class DependenciesProperty(
     }
   }
 
-  override def merge(
+  override def unionMerge(
       otherProp: DependenciesProperty
   )(implicit er: EquivalenceRelation): DependenciesProperty = {
     if (overloaded || otherProp.overloaded) {
@@ -395,7 +428,7 @@ final case class DependenciesProperty(
           case Seq(a, b) => (a, b) -> BigInt(1)
         })
         .toMap
-      merge(DependenciesProperty(1, counts, cooccurrence))
+      unionMerge(DependenciesProperty(1, counts, cooccurrence))
     }
   }
 

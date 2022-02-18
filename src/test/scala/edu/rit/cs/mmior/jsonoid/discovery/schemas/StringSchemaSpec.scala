@@ -99,7 +99,7 @@ class StringSchemaSpec extends UnitSpec {
   it should "should not allow merging regex properties" in {
     val regexProp = StaticPatternProperty("foo.*".r)
     an[UnsupportedOperationException] should be thrownBy
-      regexProp.merge(regexProp)
+      regexProp.unionMerge(regexProp)
   }
 
   it should "should find common prefixes" in {

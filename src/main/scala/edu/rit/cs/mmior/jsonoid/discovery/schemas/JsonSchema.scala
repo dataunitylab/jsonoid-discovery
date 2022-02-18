@@ -17,7 +17,7 @@ object JsonSchema {
     schema match {
       case JBool(true)  => AnySchema()
       case JBool(false) => ZeroSchema()
-      case o: JObject   => fromJson(o)
+      case o: JObject   => fromJson(o, false)
       case _ =>
         throw new UnsupportedOperationException("invalid schema element")
     }
@@ -30,7 +30,7 @@ object JsonSchema {
       "org.wartremover.warts.Recursion"
     )
   )
-  def fromJson(schema: JObject): JsonSchema[_] = {
+  def fromJson(schema: JObject, mergeAllOf: Boolean = false): JsonSchema[_] = {
     val convertedSchema = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") != JNothing) {
@@ -39,6 +39,15 @@ object JsonSchema {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
         case 1 => fromJson(schemas(0))
+        // Use intersect merge to combine to a single schema
+        case _ if mergeAllOf =>
+          schemas
+            .map(fromJson(_))
+            .fold(ZeroSchema())(
+              _.merge(_, Intersect)(
+                EquivalenceRelations.KindEquivalenceRelation
+              )
+            )
         case _ => buildProductSchema(schemas.map(fromJson(_)), true)
       }
     } else if ((schema \ "oneOf") != JNothing) {
@@ -387,7 +396,7 @@ trait JsonSchema[T] {
     validTypes.contains(tag)
   }
 
-  def mergeSameType()(implicit
+  def mergeSameType(mergeType: MergeType = Union)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]]
 
@@ -399,9 +408,10 @@ trait JsonSchema[T] {
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def merge(
-      other: JsonSchema[_]
+      other: JsonSchema[_],
+      mergeType: MergeType = Union
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
-    val sameType = mergeSameType()(er)
+    val sameType = mergeSameType(mergeType)(er)
     val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
       sameType(other)
     } else {

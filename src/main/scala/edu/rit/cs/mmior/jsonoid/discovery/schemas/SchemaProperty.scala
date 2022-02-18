@@ -6,16 +6,23 @@ import org.json4s._
 trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def mergeable: Boolean = true
 
+  def intersectMerge(prop: S)(implicit er: EquivalenceRelation): S =
+    unionMerge(prop)(er)
+
   // XXX: This should really take and return the same
   //      concrete type, but it does not currently
-  def merge(prop: S)(implicit er: EquivalenceRelation): S
+  def unionMerge(prop: S)(implicit er: EquivalenceRelation): S
 
   def mergeOnlySameType(
-      prop: SchemaProperty[T, _]
+      prop: SchemaProperty[T, _],
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): S = {
     // XXX This only works if the S is the same as the wildcard type
     //     but this is needed since we can't cast to an unknown type
-    merge(prop.asInstanceOf[S])
+    mergeType match {
+      case Union     => unionMerge(prop.asInstanceOf[S])
+      case Intersect => intersectMerge(prop.asInstanceOf[S])
+    }
   }
 
   def mergeValue(value: T)(implicit er: EquivalenceRelation): S
