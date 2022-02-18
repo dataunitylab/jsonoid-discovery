@@ -220,11 +220,18 @@ final case class PatternTypesProperty(
     )
   }
 
-  override def merge(
+  override def intersectMerge(
       otherProp: PatternTypesProperty
   )(implicit er: EquivalenceRelation): PatternTypesProperty = {
     val other = otherProp.patternTypes
-    this.mergeValueRegex(other)
+    this.mergeValueRegex(other, Intersect)
+  }
+
+  override def unionMerge(
+      otherProp: PatternTypesProperty
+  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+    val other = otherProp.patternTypes
+    this.mergeValueRegex(other, Union)
   }
 
   override def mergeValue(
@@ -233,11 +240,12 @@ final case class PatternTypesProperty(
     val regexMap: Map[Regex, JsonSchema[_]] = value.map { case (k, v) =>
       (k.r, v)
     }.toMap
-    mergeValueRegex(regexMap)
+    mergeValueRegex(regexMap, Union)
   }
 
   def mergeValueRegex(
-      value: Map[Regex, JsonSchema[_]]
+      value: Map[Regex, JsonSchema[_]],
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): PatternTypesProperty = {
     val merged = patternTypes.toSeq ++ value.toSeq
     val grouped = merged.groupBy(_._1)
@@ -246,7 +254,7 @@ final case class PatternTypesProperty(
       // produce a map which is serializable
       grouped
         .mapValues(
-          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b))
+          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b, mergeType))
         )
         .map(identity)
         .toMap
