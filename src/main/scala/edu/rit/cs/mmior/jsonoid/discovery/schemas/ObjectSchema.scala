@@ -170,7 +170,12 @@ final case class ObjectTypesProperty(
       value: Map[String, JsonSchema[_]],
       mergeType: MergeType
   )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
-    val merged = objectTypes.toSeq ++ value.toSeq
+    val mergedTypes = mergeType match {
+      case Union     => objectTypes.keySet ++ value.keySet
+      case Intersect => objectTypes.keySet & value.keySet
+    }
+    val merged =
+      (objectTypes.toSeq ++ value.toSeq).filter(t => mergedTypes.contains(t._1))
     val grouped = merged.groupBy(_._1)
     ObjectTypesProperty(
       // .map(identity) below is necessary to
@@ -247,7 +252,13 @@ final case class PatternTypesProperty(
       value: Map[Regex, JsonSchema[_]],
       mergeType: MergeType
   )(implicit er: EquivalenceRelation): PatternTypesProperty = {
-    val merged = patternTypes.toSeq ++ value.toSeq
+    val mergedTypes = mergeType match {
+      case Union     => patternTypes.keySet ++ value.keySet
+      case Intersect => patternTypes.keySet & value.keySet
+    }
+    val merged = (patternTypes.toSeq ++ value.toSeq).filter(t =>
+      mergedTypes.contains(t._1)
+    )
     val grouped = merged.groupBy(_._1)
     PatternTypesProperty(
       // .map(identity) below is necessary to

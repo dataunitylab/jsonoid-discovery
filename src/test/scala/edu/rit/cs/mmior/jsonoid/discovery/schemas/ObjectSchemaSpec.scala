@@ -15,10 +15,17 @@ class ObjectSchemaSpec extends UnitSpec {
 
   private val objectTypes =
     Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
-  private val schemaProperties = ObjectSchema(
-    Map("foo" -> BooleanSchema())
-  ).properties.mergeValue(objectTypes)
+  private val singleType = Map("foo" -> BooleanSchema())
+  private val schemaProperties =
+    ObjectSchema(singleType).properties.mergeValue(objectTypes)
   private val objectSchema = ObjectSchema(schemaProperties)
+
+  it should "calculate the intersection of properties" in {
+    val intersectProps = ObjectTypesProperty(singleType).intersectMerge(
+      ObjectTypesProperty(objectTypes)
+    )
+    intersectProps.objectTypes shouldEqual Map("foo" -> BooleanSchema())
+  }
 
   it should "track required properties" in {
     schemaProperties should contain(RequiredProperty(Some(Set("foo"))))
