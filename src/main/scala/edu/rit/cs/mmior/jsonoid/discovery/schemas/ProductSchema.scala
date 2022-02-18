@@ -189,16 +189,20 @@ final case class ProductSchemaTypesProperty(
       case Some((s, i)) if er.fuse(s, schema) =>
         (
           schemaTypes.updated(i, s.merge(schema, mergeType)(er)),
-          schemaCounts.updated(i, (mergeType match {
-            case Union =>     count + schemaCounts(i)
-            case Intersect => count.min(schemaCounts(i))
-          })),
+          schemaCounts.updated(
+            i,
+            (mergeType match {
+              case Union     => count + schemaCounts(i)
+              case Intersect => count.min(schemaCounts(i))
+            })
+          ),
           all
         )
-      case _ => mergeType match {
-        case Union     => (schemaTypes :+ schema, schemaCounts :+ count, all)
-        case Intersect => (schemaTypes, schemaCounts, all)
-      }
+      case _ =>
+        mergeType match {
+          case Union     => (schemaTypes :+ schema, schemaCounts :+ count, all)
+          case Intersect => (schemaTypes, schemaCounts, all)
+        }
     }
     (ProductSchemaTypesProperty.apply _).tupled(newTypes)
   }
