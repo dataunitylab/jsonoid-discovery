@@ -78,6 +78,12 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     ("enum" -> sortedValues)
   }
 
+  override def intersectMerge(
+      otherProp: EnumValuesProperty
+  )(implicit er: EquivalenceRelation): EnumValuesProperty = {
+    EnumValuesProperty(values & otherProp.values)
+  }
+
   override def unionMerge(
       otherProp: EnumValuesProperty
   )(implicit er: EquivalenceRelation): EnumValuesProperty = {

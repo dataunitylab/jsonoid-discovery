@@ -17,7 +17,7 @@ object JsonSchema {
     schema match {
       case JBool(true)  => AnySchema()
       case JBool(false) => ZeroSchema()
-      case o: JObject   => fromJson(o)
+      case o: JObject   => fromJson(o, false)
       case _ =>
         throw new UnsupportedOperationException("invalid schema element")
     }

@@ -166,22 +166,34 @@ final case class ItemTypeProperty(
     })
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def intersectMerge(
+      otherProp: ItemTypeProperty
+  )(implicit er: EquivalenceRelation): ItemTypeProperty =
+    merge(otherProp, Intersect)(er)
+
   override def unionMerge(
       otherProp: ItemTypeProperty
+  )(implicit er: EquivalenceRelation): ItemTypeProperty =
+    merge(otherProp, Union)(er)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def merge(
+      otherProp: ItemTypeProperty,
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): ItemTypeProperty = {
     val newType = (itemType, otherProp.itemType) match {
       case (Right(schema1), Right(schema2)) =>
         if (schema1.length == schema2.length) {
           // Merge tuple schemas that are the same length
-          Right((schema1 zip schema2).map(_.fold(_.merge(_))))
+          Right((schema1 zip schema2).map(_.fold(_.merge(_, mergeType))))
         } else {
           // Tuple schemas are different length, so convert to list
-          Left((schema1 ++ schema2).fold(ZeroSchema())(_.merge(_)))
+          Left((schema1 ++ schema2).fold(ZeroSchema())(_.merge(_, mergeType)))
         }
 
       // Merge two list schemas
-      case (Left(schema1), Left(schema2)) => Left(schema1.merge(schema2))
+      case (Left(schema1), Left(schema2)) =>
+        Left(schema1.merge(schema2, mergeType))
 
       // When merging with ZeroSchema, stay as a tuple
       case (Left(_: ZeroSchema), Right(schema2)) => Right(schema2)
@@ -189,9 +201,9 @@ final case class ItemTypeProperty(
 
       // Otherwise, when merging a list and tuple schema, convert to list
       case (Left(schema1), Right(schema2)) =>
-        Left((schema1 :: schema2).fold(ZeroSchema())(_.merge(_)))
+        Left((schema1 :: schema2).fold(ZeroSchema())(_.merge(_, mergeType)))
       case (Right(schema1), Left(schema2)) =>
-        Left((schema2 :: schema1).fold(ZeroSchema())(_.merge(_)))
+        Left((schema2 :: schema1).fold(ZeroSchema())(_.merge(_, mergeType)))
     }
     ItemTypeProperty(newType)
   }

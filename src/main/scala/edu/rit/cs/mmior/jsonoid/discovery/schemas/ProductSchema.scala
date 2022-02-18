@@ -162,28 +162,43 @@ final case class ProductSchemaTypesProperty(
     )
   }
 
+  override def intersectMerge(
+      otherProp: ProductSchemaTypesProperty
+  )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
+    otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>
+      p.mergeWithCount(otherProp.schemaCounts(i), s, Intersect)(er)
+    }
+  }
+
   override def unionMerge(
       otherProp: ProductSchemaTypesProperty
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>
-      p.mergeWithCount(otherProp.schemaCounts(i), s)(er)
+      p.mergeWithCount(otherProp.schemaCounts(i), s, Union)(er)
     }
   }
 
   def mergeWithCount(
       count: BigInt,
-      schema: JsonSchema[_]
+      schema: JsonSchema[_],
+      mergeType: MergeType
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     val newTypes = schemaTypes.zipWithIndex.find { case (s, i) =>
       s.schemaType === schema.schemaType
     } match {
       case Some((s, i)) if er.fuse(s, schema) =>
         (
-          schemaTypes.updated(i, s.merge(schema)(er)),
-          schemaCounts.updated(i, count + schemaCounts(i)),
+          schemaTypes.updated(i, s.merge(schema, mergeType)(er)),
+          schemaCounts.updated(i, (mergeType match {
+            case Union =>     count + schemaCounts(i)
+            case Intersect => count.min(schemaCounts(i))
+          })),
           all
         )
-      case _ => (schemaTypes :+ schema, schemaCounts :+ count, all)
+      case _ => mergeType match {
+        case Union     => (schemaTypes :+ schema, schemaCounts :+ count, all)
+        case Intersect => (schemaTypes, schemaCounts, all)
+      }
     }
     (ProductSchemaTypesProperty.apply _).tupled(newTypes)
   }
@@ -191,7 +206,7 @@ final case class ProductSchemaTypesProperty(
   override def mergeValue(
       value: JsonSchema[_]
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
-    mergeWithCount(1, value)
+    mergeWithCount(1, value, Union)
   }
 
   override def collectAnomalies(value: JValue, path: String) = {

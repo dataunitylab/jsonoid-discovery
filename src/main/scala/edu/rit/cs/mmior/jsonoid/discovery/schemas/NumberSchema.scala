@@ -398,6 +398,18 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
     case _                          => Nil
   }
 
+  override def intersectMerge(
+      otherProp: NumMultipleOfProperty
+  )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
+    val newMultiple = (multiple, otherProp.multiple) match {
+      case (Some(m), None)    => Some(m)
+      case (None, Some(n))    => Some(n)
+      case (Some(m), Some(n)) => Some(lcm(m, n))
+      case (None, None)       => None
+    }
+    NumMultipleOfProperty(newMultiple)
+  }
+
   override def unionMerge(
       otherProp: NumMultipleOfProperty
   )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
