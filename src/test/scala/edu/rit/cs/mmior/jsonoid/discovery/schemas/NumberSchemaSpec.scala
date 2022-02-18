@@ -12,6 +12,10 @@ class NumberSchemaSpec extends UnitSpec {
 
   private val numberSchema =
     NumberSchema(3.14).merge(NumberSchema(4.28)).asInstanceOf[NumberSchema]
+  private val numberSchemaIntersect =
+    NumberSchema(3.5)
+      .merge(NumberSchema(7.0), Intersect)
+      .asInstanceOf[NumberSchema]
   private val integerSchema = IntegerSchema(5)
   private val mixedSchema =
     numberSchema.merge(integerSchema).asInstanceOf[NumberSchema]
@@ -20,8 +24,20 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchema.properties should contain(MaxNumValueProperty(Some(4.28)))
   }
 
+  it should "track the maximum value on intersection" in {
+    numberSchemaIntersect.properties should contain(
+      MaxNumValueProperty(Some(3.5))
+    )
+  }
+
   it should "track the minimum value" in {
     numberSchema.properties should contain(MinNumValueProperty(Some(3.14)))
+  }
+
+  it should "track the minimum value on intersection" in {
+    numberSchemaIntersect.properties should contain(
+      MinNumValueProperty(Some(7.0))
+    )
   }
 
   it should "track the distinct elements" in {
@@ -56,6 +72,12 @@ class NumberSchemaSpec extends UnitSpec {
   it should "track a common multiple" in {
     val multipleProp = numberSchema.properties.get[NumMultipleOfProperty]
     multipleProp.multiple.value shouldBe (0.02)
+  }
+
+  it should "track a common multiple on intersection" in {
+    val multipleProp =
+      numberSchemaIntersect.properties.get[NumMultipleOfProperty]
+    multipleProp.multiple.value shouldBe (7.0)
   }
 
   it should "not track multiples of zero" in {

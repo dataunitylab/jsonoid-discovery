@@ -12,13 +12,29 @@ class IntegerSchemaSpec extends UnitSpec {
 
   private val integerSchema =
     IntegerSchema(8).merge(IntegerSchema(4)).asInstanceOf[IntegerSchema]
+  private val integerSchemaIntersect =
+    IntegerSchema(8)
+      .merge(IntegerSchema(4), Intersect)
+      .asInstanceOf[IntegerSchema]
 
-  it should "track the maximum length" in {
+  it should "track the maximum value" in {
     integerSchema.properties should contain(MaxIntValueProperty(Some(8)))
   }
 
-  it should "track the minimum length" in {
+  it should "track the maximum value on intersection" in {
+    integerSchemaIntersect.properties should contain(
+      MaxIntValueProperty(Some(4))
+    )
+  }
+
+  it should "track the minimum value" in {
     integerSchema.properties should contain(MinIntValueProperty(Some(4)))
+  }
+
+  it should "track the minimum value on intersection" in {
+    integerSchemaIntersect.properties should contain(
+      MinIntValueProperty(Some(8))
+    )
   }
 
   it should "track the distinct elements" in {
@@ -44,6 +60,12 @@ class IntegerSchemaSpec extends UnitSpec {
   it should "track a common multiple" in {
     val multipleProp = integerSchema.properties.get[IntMultipleOfProperty]
     multipleProp.multiple.value shouldBe (4)
+  }
+
+  it should "track a common multiple on intersect" in {
+    val multipleProp =
+      integerSchemaIntersect.properties.get[IntMultipleOfProperty]
+    multipleProp.multiple.value shouldBe (8)
   }
 
   it should "not track multiples of zero" in {
