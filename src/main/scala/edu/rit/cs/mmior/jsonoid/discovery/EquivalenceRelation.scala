@@ -26,6 +26,11 @@ object EquivalenceRelations {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  implicit object AlwaysEquivalenceRelation extends EquivalenceRelation {
+    def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = true
+  }
+
   implicit object NonEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = false
   }

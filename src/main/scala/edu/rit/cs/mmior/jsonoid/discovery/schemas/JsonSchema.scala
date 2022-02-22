@@ -31,30 +31,10 @@ object JsonSchema {
     )
   )
   def fromJson(schema: JObject, mergeAllOf: Boolean = false): JsonSchema[_] = {
-    val convertedSchema = if (schema.obj.isEmpty) {
+    val baseSchema = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") != JNothing) {
       ReferenceSchema((schema \ "$ref").extract[String])
-    } else if ((schema \ "allOf") != JNothing) {
-      val schemas = (schema \ "allOf").extract[List[JObject]]
-      schemas.length match {
-        case 1 => fromJson(schemas(0))
-        // Use intersect merge to combine to a single schema
-        case _ if mergeAllOf =>
-          schemas
-            .map(fromJson(_))
-            .fold(ZeroSchema())(
-              _.merge(_, Intersect)(
-                EquivalenceRelations.KindEquivalenceRelation
-              )
-            )
-        case _ => buildProductSchema(schemas.map(fromJson(_)), true)
-      }
-    } else if ((schema \ "oneOf") != JNothing) {
-      productFromJsons((schema \ "oneOf").extract[List[JObject]])
-    } else if ((schema \ "anyOf") != JNothing) {
-      // XXX This technically isn't correct since we change anyOf to oneOf
-      productFromJsons((schema \ "anyOf").extract[List[JObject]])
     } else if ((schema \ "enum") != JNothing) {
       val values = (schema \ "enum").extract[Set[JValue]]
       EnumSchema(values)
@@ -87,8 +67,35 @@ object JsonSchema {
       schemas.length match {
         case 0 => AnySchema()
         case 1 => schemas(0)
-        case _ => buildProductSchema(schemas, false)
+        case _ => buildProductSchema(AnySchema(), schemas, false)
       }
+    }
+
+    val convertedSchema = if ((schema \ "allOf") != JNothing) {
+      val schemas = (schema \ "allOf").extract[List[JObject]]
+      schemas.length match {
+        case 1 =>
+          fromJson(schemas(0)).merge(baseSchema)(
+            EquivalenceRelations.AlwaysEquivalenceRelation
+          )
+        // Use intersect merge to combine to a single schema
+        case _ if mergeAllOf =>
+          schemas
+            .map(fromJson(_))
+            .fold(baseSchema)(
+              _.merge(_, Intersect)(
+                EquivalenceRelations.KindEquivalenceRelation
+              )
+            )
+        case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), true)
+      }
+    } else if ((schema \ "oneOf") != JNothing) {
+      productFromJsons(baseSchema, (schema \ "oneOf").extract[List[JObject]])
+    } else if ((schema \ "anyOf") != JNothing) {
+      // XXX This technically isn't correct since we change anyOf to oneOf
+      productFromJsons(baseSchema, (schema \ "anyOf").extract[List[JObject]])
+    } else {
+      baseSchema
     }
 
     val definitionsKey = if ((schema \ "definitions") != JNothing) {
@@ -110,12 +117,14 @@ object JsonSchema {
   }
 
   private def buildProductSchema(
+      baseSchema: JsonSchema[_],
       schemas: List[JsonSchema[_]],
       all: Boolean = false
   ): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
     val typesProp = ProductSchemaTypesProperty(
+      baseSchema,
       schemas,
       List.fill(schemas.length)(1),
       all
@@ -125,10 +134,17 @@ object JsonSchema {
     ProductSchema(properties)(er)
   }
 
-  private def productFromJsons(schemas: List[JObject]): JsonSchema[_] = {
+  private def productFromJsons(
+      baseSchema: JsonSchema[_],
+      schemas: List[JObject]
+  ): JsonSchema[_] = {
     schemas.length match {
-      case 1 => fromJson(schemas(0))
-      case _ => buildProductSchema(schemas.map(fromJson(_)))
+      case 1 =>
+        val schema = baseSchema.merge(fromJson(schemas(0)))(
+          EquivalenceRelations.AlwaysEquivalenceRelation
+        )
+        schema
+      case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)))
     }
   }
 

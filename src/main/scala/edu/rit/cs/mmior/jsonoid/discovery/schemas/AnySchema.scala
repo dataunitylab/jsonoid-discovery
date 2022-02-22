@@ -23,7 +23,10 @@ final case class AnySchema(
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
-    this
+    mergeType match {
+      case Intersect => other
+      case Union => this
+    }
   }
 
   override def copy(properties: SchemaProperties[Nothing]): AnySchema =

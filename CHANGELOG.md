@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Allow merging schemas by intersection instead of union
+- Use a base schema in `ProductSchema`
 
 ## [0.7.3]
 ### Fixed

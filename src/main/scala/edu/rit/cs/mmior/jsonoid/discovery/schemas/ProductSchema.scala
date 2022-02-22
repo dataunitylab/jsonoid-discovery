@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.language.existentials
 import scala.reflect.ClassTag
 
 import org.json4s.JsonDSL._
@@ -15,7 +16,9 @@ object ProductSchema {
     ProductSchema(
       SchemaProperties
         .empty[JsonSchema[_]]
-        .replaceProperty(ProductSchemaTypesProperty(List(value), List(1)))
+        .replaceProperty(
+          ProductSchemaTypesProperty(AnySchema(), List(value), List(1))
+        )
     )(er)
   }
 }
@@ -42,8 +45,13 @@ final case class ProductSchema(
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ProductSchema(otherProperties) =>
-      val allThis = this.properties.get[ProductSchemaTypesProperty].all
-      val allOther = other.properties.get[ProductSchemaTypesProperty].all
+      val thisTypes = this.properties.get[ProductSchemaTypesProperty]
+      val otherTypes = other.properties.get[ProductSchemaTypesProperty]
+      val newBase = thisTypes.baseSchema.merge(otherTypes.baseSchema)(
+        EquivalenceRelations.KindEquivalenceRelation
+      )
+      val allThis = thisTypes.all
+      val allOther = otherTypes.all
       (allThis, allOther) match {
         case (true, true) =>
           ProductSchema(
@@ -53,7 +61,9 @@ final case class ProductSchema(
           )(er)
         case (true, false) =>
           val newProps = SchemaProperties.empty[JsonSchema[_]]
-          newProps.add(ProductSchemaTypesProperty(List(other), List(1), false))
+          newProps.add(
+            ProductSchemaTypesProperty(newBase, List(other), List(1), false)
+          )
           ProductSchema(
             properties.merge(newProps, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
@@ -61,7 +71,9 @@ final case class ProductSchema(
           )(er)
         case (false, true) =>
           val newProps = SchemaProperties.empty[JsonSchema[_]]
-          newProps.add(ProductSchemaTypesProperty(List(this), List(1), false))
+          newProps.add(
+            ProductSchemaTypesProperty(newBase, List(this), List(1), false)
+          )
           ProductSchema(
             properties.merge(newProps, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
@@ -133,7 +145,11 @@ final case class ProductSchema(
     }
 
     val typeProp =
-      ProductSchemaTypesProperty(newSchemas, typesProp.schemaCounts)
+      ProductSchemaTypesProperty(
+        typesProp.baseSchema,
+        newSchemas,
+        typesProp.schemaCounts
+      )
     val newSchema = ProductSchema(this.properties.replaceProperty(typeProp))
     newSchema.definitions ++= this.definitions
     newSchema
@@ -141,6 +157,7 @@ final case class ProductSchema(
 }
 
 final case class ProductSchemaTypesProperty(
+    val baseSchema: JsonSchema[_] = AnySchema(),
     val schemaTypes: List[JsonSchema[_]] = List.empty[JsonSchema[_]],
     val schemaCounts: List[BigInt] = List.empty[BigInt],
     val all: Boolean = false
@@ -148,12 +165,15 @@ final case class ProductSchemaTypesProperty(
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject =
     ((if (all) { "allOf" }
-      else { "oneOf" }) -> schemaTypes.map(_.toJson))
+      else { "oneOf" }) -> schemaTypes.map(
+      baseSchema.merge(_, Intersect)(EquivalenceRelations.KindEquivalenceRelation).toJson
+    ))
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(
+      transformer.applyOrElse(baseSchema, (x: JsonSchema[_]) => x),
       schemaTypes.map { s =>
         transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
       },
@@ -174,20 +194,24 @@ final case class ProductSchemaTypesProperty(
       otherProp: ProductSchemaTypesProperty
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>
-      p.mergeWithCount(otherProp.schemaCounts(i), s, Union)(er)
+      p.mergeWithCount(otherProp.schemaCounts(i), s, Union, otherProp.baseSchema)(er)
     }
   }
 
   def mergeWithCount(
       count: BigInt,
       schema: JsonSchema[_],
-      mergeType: MergeType
+      mergeType: MergeType,
+      otherBase: JsonSchema[_] = AnySchema()
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
+    val newBase =
+      baseSchema.merge(otherBase)(EquivalenceRelations.KindEquivalenceRelation)
     val newTypes = schemaTypes.zipWithIndex.find { case (s, i) =>
       s.schemaType === schema.schemaType
     } match {
       case Some((s, i)) if er.fuse(s, schema) =>
         (
+          newBase,
           schemaTypes.updated(i, s.merge(schema, mergeType)(er)),
           schemaCounts.updated(
             i,
@@ -200,8 +224,8 @@ final case class ProductSchemaTypesProperty(
         )
       case _ =>
         mergeType match {
-          case Union     => (schemaTypes :+ schema, schemaCounts :+ count, all)
-          case Intersect => (schemaTypes, schemaCounts, all)
+          case Union     => (newBase, schemaTypes :+ schema, schemaCounts :+ count, all)
+          case Intersect => (newBase, schemaTypes, schemaCounts, all)
         }
     }
     (ProductSchemaTypesProperty.apply _).tupled(newTypes)
@@ -212,6 +236,9 @@ final case class ProductSchemaTypesProperty(
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     mergeWithCount(1, value, Union)
   }
+
+  def schemas: Seq[JsonSchema[_]] =
+    schemaTypes.map(baseSchema.merge(_)(EquivalenceRelations.KindEquivalenceRelation)).toSeq
 
   override def collectAnomalies(value: JValue, path: String) = {
     // Check that there is some type that matches this value
