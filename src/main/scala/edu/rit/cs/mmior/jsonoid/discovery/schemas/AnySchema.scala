@@ -25,7 +25,7 @@ final case class AnySchema(
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
     mergeType match {
       case Intersect => other
-      case Union => this
+      case Union     => this
     }
   }
 

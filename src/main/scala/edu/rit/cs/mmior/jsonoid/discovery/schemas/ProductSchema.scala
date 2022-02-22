@@ -166,7 +166,9 @@ final case class ProductSchemaTypesProperty(
   override def toJson: JObject =
     ((if (all) { "allOf" }
       else { "oneOf" }) -> schemaTypes.map(
-      baseSchema.merge(_, Intersect)(EquivalenceRelations.KindEquivalenceRelation).toJson
+      baseSchema
+        .merge(_, Intersect)(EquivalenceRelations.KindEquivalenceRelation)
+        .toJson
     ))
 
   override def transform(
@@ -194,7 +196,12 @@ final case class ProductSchemaTypesProperty(
       otherProp: ProductSchemaTypesProperty
   )(implicit er: EquivalenceRelation): ProductSchemaTypesProperty = {
     otherProp.schemaTypes.zipWithIndex.foldLeft(this) { case (p, (s, i)) =>
-      p.mergeWithCount(otherProp.schemaCounts(i), s, Union, otherProp.baseSchema)(er)
+      p.mergeWithCount(
+        otherProp.schemaCounts(i),
+        s,
+        Union,
+        otherProp.baseSchema
+      )(er)
     }
   }
 
@@ -224,7 +231,8 @@ final case class ProductSchemaTypesProperty(
         )
       case _ =>
         mergeType match {
-          case Union     => (newBase, schemaTypes :+ schema, schemaCounts :+ count, all)
+          case Union =>
+            (newBase, schemaTypes :+ schema, schemaCounts :+ count, all)
           case Intersect => (newBase, schemaTypes, schemaCounts, all)
         }
     }
@@ -238,7 +246,9 @@ final case class ProductSchemaTypesProperty(
   }
 
   def schemas: Seq[JsonSchema[_]] =
-    schemaTypes.map(baseSchema.merge(_)(EquivalenceRelations.KindEquivalenceRelation)).toSeq
+    schemaTypes
+      .map(baseSchema.merge(_)(EquivalenceRelations.KindEquivalenceRelation))
+      .toSeq
 
   override def collectAnomalies(value: JValue, path: String) = {
     // Check that there is some type that matches this value

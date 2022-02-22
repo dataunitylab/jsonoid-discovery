@@ -22,7 +22,12 @@ class ProductSchemaSpec extends UnitSpec {
   private val allProps = SchemaProperties
     .empty[JsonSchema[_]]
     .replaceProperty(
-      ProductSchemaTypesProperty(AnySchema(), List(StringSchema()), List(1), true)
+      ProductSchemaTypesProperty(
+        AnySchema(),
+        List(StringSchema()),
+        List(1),
+        true
+      )
     )
   private val allProductSchema = ProductSchema(allProps)
 
