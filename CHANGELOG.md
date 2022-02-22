@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow merging schemas by intersection instead of union
 - Use a base schema in `ProductSchema`
 
+### Fixed
+- Restore CLI functionality
+
 ## [0.7.3]
 ### Fixed
 - Don't show reference in `ReferenceObjectProperty#toString` to fix circular references
