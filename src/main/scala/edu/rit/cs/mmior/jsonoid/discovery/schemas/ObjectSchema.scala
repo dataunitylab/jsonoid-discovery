@@ -177,12 +177,16 @@ final case class ObjectTypesProperty(
     val merged =
       (objectTypes.toSeq ++ value.toSeq).filter(t => mergedTypes.contains(t._1))
     val grouped = merged.groupBy(_._1)
+    val baseSchema = mergeType match {
+      case Intersect => AnySchema()
+      case Union     => ZeroSchema()
+    }
     ObjectTypesProperty(
       // .map(identity) below is necessary to
       // produce a map which is serializable
       grouped
         .mapValues(
-          _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b, mergeType))
+          _.map(_._2).fold(baseSchema)((a, b) => a.merge(b, mergeType))
         )
         .map(identity)
         .toMap

@@ -18,7 +18,10 @@ final case class ZeroSchema(
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
-    other
+    mergeType match {
+      case Intersect => this
+      case Union     => other
+    }
   }
 
   override def copy(properties: SchemaProperties[Nothing]): ZeroSchema =

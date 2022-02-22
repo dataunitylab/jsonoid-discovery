@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Restore CLI functionality
+- Ensure special schemas are merged correctly
 
 ## [0.7.3]
 ### Fixed

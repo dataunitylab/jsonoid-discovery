@@ -75,7 +75,7 @@ object JsonSchema {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
         case 1 =>
-          fromJson(schemas(0)).merge(baseSchema)(
+          fromJson(schemas(0)).merge(baseSchema, Intersect)(
             EquivalenceRelations.AlwaysEquivalenceRelation
           )
         // Use intersect merge to combine to a single schema
@@ -140,7 +140,7 @@ object JsonSchema {
   ): JsonSchema[_] = {
     schemas.length match {
       case 1 =>
-        val schema = baseSchema.merge(fromJson(schemas(0)))(
+        val schema = baseSchema.merge(fromJson(schemas(0)), Intersect)(
           EquivalenceRelations.AlwaysEquivalenceRelation
         )
         schema
@@ -422,22 +422,37 @@ trait JsonSchema[T] {
     ProductSchema(this)(er).merge(other)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  def isMaxMin: Boolean = {
+    this.isInstanceOf[AnySchema] || this.isInstanceOf[ZeroSchema]
+  }
+
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.Recursion"
+    )
+  )
   def merge(
       other: JsonSchema[_],
       mergeType: MergeType = Union
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
-    val sameType = mergeSameType(mergeType)(er)
-    val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
-      sameType(other)
+    val otherIsProduct =
+      other.isInstanceOf[ProductSchema] && !this.isInstanceOf[ProductSchema]
+    if ((other.isMaxMin && !this.isMaxMin) || otherIsProduct) {
+      other.merge(this, mergeType)
     } else {
-      createProduct()(er)(other)
+      val sameType = mergeSameType(mergeType)(er)
+      val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
+        sameType(other)
+      } else {
+        createProduct()(er)(other)
+      }
+
+      newSchema.definitions ++= this.definitions
+      newSchema.definitions ++= other.definitions
+
+      newSchema
     }
-
-    newSchema.definitions ++= this.definitions
-    newSchema.definitions ++= other.definitions
-
-    newSchema
   }
 
   def copy(properties: SchemaProperties[T]): JsonSchema[_]
