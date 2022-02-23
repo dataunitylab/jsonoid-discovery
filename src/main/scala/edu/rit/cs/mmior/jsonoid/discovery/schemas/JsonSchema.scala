@@ -67,7 +67,7 @@ object JsonSchema {
       schemas.length match {
         case 0 => AnySchema()
         case 1 => schemas(0)
-        case _ => buildProductSchema(AnySchema(), schemas, false)
+        case _ => buildProductSchema(AnySchema(), schemas, AnyOf)
       }
     }
 
@@ -78,13 +78,13 @@ object JsonSchema {
           fromJson(schemas(0)).merge(baseSchema, Intersect)(
             EquivalenceRelations.AlwaysEquivalenceRelation
           )
-        case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), true)
+        case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
       }
     } else if ((schema \ "oneOf") != JNothing) {
-      productFromJsons(baseSchema, (schema \ "oneOf").extract[List[JObject]])
+      productFromJsons(baseSchema, (schema \ "oneOf").extract[List[JObject]], OneOf)
     } else if ((schema \ "anyOf") != JNothing) {
       // XXX This technically isn't correct since we change anyOf to oneOf
-      productFromJsons(baseSchema, (schema \ "anyOf").extract[List[JObject]])
+      productFromJsons(baseSchema, (schema \ "anyOf").extract[List[JObject]], AnyOf)
     } else {
       baseSchema
     }
@@ -110,7 +110,7 @@ object JsonSchema {
   private def buildProductSchema(
       baseSchema: JsonSchema[_],
       schemas: List[JsonSchema[_]],
-      all: Boolean = false
+      productType: ProductType
   ): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
@@ -118,7 +118,7 @@ object JsonSchema {
       baseSchema,
       schemas,
       List.fill(schemas.length)(1),
-      all
+      productType
     )(er)
     val properties =
       SchemaProperties.empty[JsonSchema[_]].replaceProperty(typesProp)
@@ -127,7 +127,8 @@ object JsonSchema {
 
   private def productFromJsons(
       baseSchema: JsonSchema[_],
-      schemas: List[JObject]
+      schemas: List[JObject],
+      productType: ProductType
   ): JsonSchema[_] = {
     schemas.length match {
       case 1 =>
@@ -135,7 +136,7 @@ object JsonSchema {
           EquivalenceRelations.AlwaysEquivalenceRelation
         )
         schema
-      case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)))
+      case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), productType)
     }
   }
 

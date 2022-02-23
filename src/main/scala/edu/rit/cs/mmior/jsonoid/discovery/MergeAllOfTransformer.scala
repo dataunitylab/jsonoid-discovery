@@ -10,14 +10,14 @@ object MergeAllOfTransformer {
     schema.transformProperties(
       { case p @ ProductSchema(properties) =>
         val schemaTypesProp = p.properties.get[ProductSchemaTypesProperty]
-        if (schemaTypesProp.all) {
-          var schema = schemaTypesProp.baseSchema
-          schemaTypesProp.schemaTypes.foreach { s =>
-            schema = schema.merge(s, Intersect)
-          }
-          schema
-        } else {
-          p
+        schemaTypesProp.productType match {
+          case AllOf =>
+            var schema = schemaTypesProp.baseSchema
+            schemaTypesProp.schemaTypes.foreach { s =>
+              schema = schema.merge(s, Intersect)
+            }
+            schema
+          case _ => p
         }
       },
       true

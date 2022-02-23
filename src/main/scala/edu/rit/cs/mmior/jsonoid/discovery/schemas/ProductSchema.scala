@@ -50,36 +50,37 @@ final case class ProductSchema(
       val newBase = thisTypes.baseSchema.merge(otherTypes.baseSchema)(
         EquivalenceRelations.KindEquivalenceRelation
       )
-      val allThis = thisTypes.all
-      val allOther = otherTypes.all
-      (allThis, allOther) match {
-        case (true, true) =>
+      val thisType = thisTypes.productType
+      val otherType = otherTypes.productType
+      // TODO: Reconcile productType with mergeType
+      (thisType, otherType) match {
+        case (AllOf, AllOf) =>
           ProductSchema(
             properties.merge(otherProperties, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
             )
           )(er)
-        case (true, false) =>
+        case (AllOf, t) =>
           val newProps = SchemaProperties.empty[JsonSchema[_]]
           newProps.add(
-            ProductSchemaTypesProperty(newBase, List(other), List(1), false)
+            ProductSchemaTypesProperty(newBase, List(other), List(1), t)
           )
           ProductSchema(
             properties.merge(newProps, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
             )
           )(er)
-        case (false, true) =>
+        case (t, AllOf) =>
           val newProps = SchemaProperties.empty[JsonSchema[_]]
           newProps.add(
-            ProductSchemaTypesProperty(newBase, List(this), List(1), false)
+            ProductSchemaTypesProperty(newBase, List(this), List(1), t)
           )
           ProductSchema(
             properties.merge(newProps, mergeType)(
               EquivalenceRelations.NonEquivalenceRelation
             )
           )(er)
-        case (false, false) =>
+        case (_, _) =>
           ProductSchema(properties.merge(otherProperties, mergeType)(er))(er)
       }
   }
@@ -156,16 +157,28 @@ final case class ProductSchema(
   }
 }
 
+sealed trait ProductType {
+  def toJson: String
+}
+case object AnyOf extends ProductType {
+  override val toJson = "anyOf"
+}
+case object AllOf extends ProductType {
+  override val toJson = "allOf"
+}
+case object OneOf extends ProductType {
+  override val toJson = "oneOf"
+}
+
 final case class ProductSchemaTypesProperty(
     val baseSchema: JsonSchema[_] = AnySchema(),
     val schemaTypes: List[JsonSchema[_]] = List.empty[JsonSchema[_]],
     val schemaCounts: List[BigInt] = List.empty[BigInt],
-    val all: Boolean = false
+    val productType: ProductType = OneOf
 )(implicit er: EquivalenceRelation)
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
   override def toJson: JObject =
-    ((if (all) { "allOf" }
-      else { "oneOf" }) -> schemaTypes.map(
+    (productType.toJson -> schemaTypes.map(
       baseSchema
         .merge(_, Intersect)(EquivalenceRelations.KindEquivalenceRelation)
         .toJson
@@ -180,7 +193,7 @@ final case class ProductSchemaTypesProperty(
         transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
       },
       schemaCounts,
-      all
+      productType
     )
   }
 
@@ -227,13 +240,13 @@ final case class ProductSchemaTypesProperty(
               case Intersect => count.min(schemaCounts(i))
             })
           ),
-          all
+          productType
         )
       case _ =>
         mergeType match {
           case Union =>
-            (newBase, schemaTypes :+ schema, schemaCounts :+ count, all)
-          case Intersect => (newBase, schemaTypes, schemaCounts, all)
+            (newBase, schemaTypes :+ schema, schemaCounts :+ count, productType)
+          case Intersect => (newBase, schemaTypes, schemaCounts, productType)
         }
     }
     (ProductSchemaTypesProperty.apply _).tupled(newTypes)
@@ -253,6 +266,7 @@ final case class ProductSchemaTypesProperty(
   override def collectAnomalies(value: JValue, path: String) = {
     // Check that there is some type that matches this value
     // TODO: Check frequency for outliers
+    // TODO: Make use of productType and baseSchema during check
     if (schemaTypes.exists(!_.isAnomalous(value, path))) {
       Seq.empty
     } else {

@@ -25,7 +25,7 @@ class MergeAllOfTransformerSpec extends UnitSpec {
               )
             ),
             List(1, 1),
-            true
+            AllOf
           )
         )
     val productSchema = ProductSchema(schemaProps)
@@ -53,7 +53,7 @@ class MergeAllOfTransformerSpec extends UnitSpec {
               StringSchema("baz")
             ),
             List(1, 1),
-            true
+            AllOf
           )
         )
     val productSchema = ProductSchema(schemaProps)

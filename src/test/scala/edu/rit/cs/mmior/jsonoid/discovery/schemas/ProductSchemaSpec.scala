@@ -26,7 +26,7 @@ class ProductSchemaSpec extends UnitSpec {
         AnySchema(),
         List(StringSchema()),
         List(1),
-        true
+        AllOf
       )
     )
   private val allProductSchema = ProductSchema(allProps)
@@ -67,7 +67,7 @@ class ProductSchemaSpec extends UnitSpec {
       StringSchema(),
       StringSchema()
     )
-    mergedSchemaProps.all shouldBe true
+    mergedSchemaProps.productType shouldBe AllOf
   }
 
   it should "not created nested ProductSchemas with mixed all values" in {
@@ -82,7 +82,7 @@ class ProductSchemaSpec extends UnitSpec {
       StringSchema(),
       productSchema1
     )
-    mergedSchemaProps.all shouldBe true
+    mergedSchemaProps.productType shouldBe AllOf
   }
 
   it should "convert to JSON using oneOf" in {
