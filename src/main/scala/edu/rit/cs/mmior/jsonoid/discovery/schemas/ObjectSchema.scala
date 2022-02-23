@@ -291,6 +291,22 @@ final case class FieldPresenceProperty(
     case (key, count) => (key -> BigDecimal(count) / BigDecimal(totalCount))
   })
 
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  override def intersectMerge(
+      otherProp: FieldPresenceProperty
+  )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
+    val mergedTypes = fieldPresence.keySet & otherProp.fieldPresence.keySet
+    val merged =
+      (fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq).filter(t =>
+        mergedTypes.contains(t._1)
+      )
+    val grouped = merged.groupBy(_._1)
+    FieldPresenceProperty(
+      grouped.mapValues(_.map(_._2).min).map(identity).toMap,
+      totalCount.min(otherProp.totalCount)
+    )
+  }
+
   override def unionMerge(
       otherProp: FieldPresenceProperty
   )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
