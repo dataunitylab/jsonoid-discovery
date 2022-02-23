@@ -17,7 +17,7 @@ object JsonSchema {
     schema match {
       case JBool(true)  => AnySchema()
       case JBool(false) => ZeroSchema()
-      case o: JObject   => fromJson(o, false)
+      case o: JObject   => fromJsonObjectValue(o)
       case _ =>
         throw new UnsupportedOperationException("invalid schema element")
     }
@@ -30,7 +30,7 @@ object JsonSchema {
       "org.wartremover.warts.Recursion"
     )
   )
-  def fromJson(schema: JObject, mergeAllOf: Boolean = false): JsonSchema[_] = {
+  def fromJsonObjectValue(schema: JObject): JsonSchema[_] = {
     val baseSchema = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") != JNothing) {
@@ -78,15 +78,6 @@ object JsonSchema {
           fromJson(schemas(0)).merge(baseSchema, Intersect)(
             EquivalenceRelations.AlwaysEquivalenceRelation
           )
-        // Use intersect merge to combine to a single schema
-        case _ if mergeAllOf =>
-          schemas
-            .map(fromJson(_))
-            .fold(baseSchema)(
-              _.merge(_, Intersect)(
-                EquivalenceRelations.KindEquivalenceRelation
-              )
-            )
         case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), true)
       }
     } else if ((schema \ "oneOf") != JNothing) {

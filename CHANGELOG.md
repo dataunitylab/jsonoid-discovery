@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Allow transformers to work on top-level objects
+- Separate transformer to merge schemas containing `allOf`
 
 ## [0.8.0]
 ### Added

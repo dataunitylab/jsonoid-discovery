@@ -214,18 +214,8 @@ class JsonSchemaSpec extends UnitSpec {
   it should "strip allOf with a single element" in {
     val allOfSchema: JObject = ("allOf" -> List(("type" -> "boolean")))
 
-    val convertedSchema = JsonSchema.fromJson(allOfSchema, true)
+    val convertedSchema = JsonSchema.fromJson(allOfSchema)
     convertedSchema shouldBe a[BooleanSchema]
-  }
-
-  it should "combine properties for allOf with multiple subschemas" in {
-    val allOfSchema: JObject = ("allOf" -> JArray(
-      List(("type" -> "string") ~ ("maxLength" -> 3), ("maxLength" -> 5))
-    ))
-
-    val convertedSchema =
-      JsonSchema.fromJson(allOfSchema, true).asInstanceOf[StringSchema]
-    convertedSchema.properties.get[MaxLengthProperty].maxLength shouldBe Some(3)
   }
 
   it should "strip anyOf with a single element" in {
