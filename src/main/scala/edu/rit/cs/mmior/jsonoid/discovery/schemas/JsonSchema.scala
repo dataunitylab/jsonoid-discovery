@@ -457,10 +457,16 @@ trait JsonSchema[T] {
 
   def copy(properties: SchemaProperties[T]): JsonSchema[_]
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def transformProperties(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
+      transformBase: Boolean = false
   ): JsonSchema[_] = {
-    copy(properties.transform(transformer))
+    if (transformer.isDefinedAt(this) && transformBase) {
+      transformer(this).transformProperties(transformer, false)
+    } else {
+      copy(properties.transform(transformer))
+    }
   }
 
   def findByPointer(pointer: String): Option[JsonSchema[_]] = None

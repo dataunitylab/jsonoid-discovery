@@ -34,11 +34,9 @@ class EnumTransformerSpec extends UnitSpec {
       var valueSchema: JsonSchema[_] = schema
       for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
 
-      val transformedSchema =
-        EnumTransformer.transformSchema(ObjectSchema(Map(("foo", valueSchema))))
+      val transformedSchema = EnumTransformer.transformSchema(valueSchema)
 
-      (transformedSchema.toJson \ "properties" \ "foo")
-        .extract[Map[String, Set[String]]] shouldBe Map(
+      transformedSchema.toJson.extract[Map[String, Set[String]]] shouldBe Map(
         ("enum", values.map(_.toString))
       )
     }

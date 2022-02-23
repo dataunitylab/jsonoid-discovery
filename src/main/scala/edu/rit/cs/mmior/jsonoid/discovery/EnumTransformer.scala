@@ -11,20 +11,24 @@ object EnumTransformer {
   def transformSchema(
       schema: JsonSchema[_]
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
-    schema.transformProperties {
-      case i @ IntegerSchema(properties)
-          if properties.has[IntExamplesProperty] =>
-        val examples = properties.get[IntExamplesProperty].examples
-        maybeEnum(examples, { case v: BigInt => JInt(v) }).getOrElse(i)
-      case n @ NumberSchema(properties)
-          if properties.has[NumExamplesProperty] =>
-        val examples = properties.get[NumExamplesProperty].examples
-        maybeEnum(examples, { case v: BigDecimal => JDecimal(v) }).getOrElse(n)
-      case s @ StringSchema(properties)
-          if properties.has[StringExamplesProperty] =>
-        val examples = properties.get[StringExamplesProperty].examples
-        maybeEnum(examples, { case v: String => JString(v) }).getOrElse(s)
-    }
+    schema.transformProperties(
+      {
+        case i @ IntegerSchema(properties)
+            if properties.has[IntExamplesProperty] =>
+          val examples = properties.get[IntExamplesProperty].examples
+          maybeEnum(examples, { case v: BigInt => JInt(v) }).getOrElse(i)
+        case n @ NumberSchema(properties)
+            if properties.has[NumExamplesProperty] =>
+          val examples = properties.get[NumExamplesProperty].examples
+          maybeEnum(examples, { case v: BigDecimal => JDecimal(v) })
+            .getOrElse(n)
+        case s @ StringSchema(properties)
+            if properties.has[StringExamplesProperty] =>
+          val examples = properties.get[StringExamplesProperty].examples
+          maybeEnum(examples, { case v: String => JString(v) }).getOrElse(s)
+      },
+      true
+    )
   }
 
   private def maybeEnum(
