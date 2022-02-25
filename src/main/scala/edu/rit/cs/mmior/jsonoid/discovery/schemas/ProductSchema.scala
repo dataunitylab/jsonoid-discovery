@@ -61,9 +61,13 @@ final case class ProductSchema(
             )
           )(er)
         case (AllOf, t) =>
+          val newType = mergeType match {
+            case Union     => t
+            case Intersect => AllOf
+          }
           val newProps = SchemaProperties.empty[JsonSchema[_]]
           newProps.add(
-            ProductSchemaTypesProperty(newBase, List(other), List(1), t)
+            ProductSchemaTypesProperty(newBase, List(other), List(1), newType)
           )
           ProductSchema(
             properties.merge(newProps, mergeType)(
@@ -71,9 +75,13 @@ final case class ProductSchema(
             )
           )(er)
         case (t, AllOf) =>
+          val newType = mergeType match {
+            case Union     => t
+            case Intersect => AllOf
+          }
           val newProps = SchemaProperties.empty[JsonSchema[_]]
           newProps.add(
-            ProductSchemaTypesProperty(newBase, List(this), List(1), t)
+            ProductSchemaTypesProperty(newBase, List(this), List(1), newType)
           )
           ProductSchema(
             properties.merge(newProps, mergeType)(
@@ -177,12 +185,7 @@ final case class ProductSchemaTypesProperty(
     val productType: ProductType = OneOf
 )(implicit er: EquivalenceRelation)
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
-  override def toJson: JObject =
-    (productType.toJson -> schemaTypes.map(
-      baseSchema
-        .merge(_, Intersect)(EquivalenceRelations.KindEquivalenceRelation)
-        .toJson
-    ))
+  override def toJson: JObject = (productType.toJson -> schemas.map(_.toJson))
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
@@ -260,7 +263,11 @@ final case class ProductSchemaTypesProperty(
 
   def schemas: Seq[JsonSchema[_]] =
     schemaTypes
-      .map(baseSchema.merge(_)(EquivalenceRelations.KindEquivalenceRelation))
+      .map(
+        baseSchema.merge(_, Intersect)(
+          EquivalenceRelations.KindEquivalenceRelation
+        )
+      )
       .toSeq
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
@@ -268,8 +275,13 @@ final case class ProductSchemaTypesProperty(
   ) = {
     // Check that there is some type that matches this value
     // TODO: Check frequency for outliers
-    // TODO: Make use of productType and baseSchema during check
-    if (schemaTypes.exists(!_.isAnomalous(value, path)(tag))) {
+    val notAnomalous = schemas.map(!_.isAnomalous(value, path)(tag))
+    val isValid = productType match {
+      case AllOf => notAnomalous.forall(identity)
+      case AnyOf => notAnomalous.exists(identity)
+      case OneOf => notAnomalous.count(identity) === 1
+    }
+    if (isValid) {
       Seq.empty
     } else {
       Seq(Anomaly(path, f"no alternative found for ${value}", Fatal))

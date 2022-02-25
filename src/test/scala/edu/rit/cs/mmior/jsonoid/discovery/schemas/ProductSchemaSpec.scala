@@ -113,6 +113,49 @@ class ProductSchemaSpec extends UnitSpec {
       .shouldEqual(List(NullSchema(), NullSchema()))
   }
 
+  it should "detect anomalies of incorrect type with oneOf" in {
+    productSchema1.isAnomalous(JString("foo")).shouldBe(true)
+  }
+
+  def stringSchemaWithMinLength(minLength: Int): StringSchema = {
+    val props = SchemaProperties.empty[String]
+    props.add(MinLengthProperty(Some(minLength)))
+
+    StringSchema(props)
+  }
+
+  def anomalyDetection(
+      productType: ProductType,
+      matchCount: Int,
+      anomalous: Boolean
+  ) {
+    it should s"${if (anomalous) ""
+    else "not "}find anomalies for a ProductSchema using ${productType} and ${matchCount} ${if (matchCount == 1)
+      "match"
+    else "matches"}" in {
+      val schemas =
+        List(stringSchemaWithMinLength(1), stringSchemaWithMinLength(2))
+      val typesProp =
+        ProductSchemaTypesProperty(AnySchema(), schemas, List(1), productType)
+      val schema = ProductSchema(
+        SchemaProperties
+          .empty[JsonSchema[_]]
+          .replaceProperty(typesProp)
+      )
+      val value: JString = JString("a" * matchCount)
+      schema.isAnomalous(value) shouldBe anomalous
+    }
+  }
+
+  anomalyDetection(OneOf, 0, true)
+  anomalyDetection(OneOf, 1, false)
+  anomalyDetection(OneOf, 2, true)
+  anomalyDetection(AllOf, 1, true)
+  anomalyDetection(AllOf, 2, false)
+  anomalyDetection(AnyOf, 0, true)
+  anomalyDetection(AnyOf, 1, false)
+  anomalyDetection(AnyOf, 2, false)
+
   it should "detect anomalies of incorrect type" in {
     productSchema1.isAnomalous(JString("foo")).shouldBe(true)
   }

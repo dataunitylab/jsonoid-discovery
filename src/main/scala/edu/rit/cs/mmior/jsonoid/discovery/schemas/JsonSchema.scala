@@ -3,7 +3,6 @@ package schemas
 
 import scala.collection.mutable
 import scala.reflect._
-import scala.reflect.ClassTag
 import scala.util.matching.Regex
 
 import org.json4s.JsonDSL._
