@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add separate types for `ProductSchema`
 
+### Fixed
+- Properly detect type anomalies with nested schemas
+
 ## [0.8.0]
 ### Added
 - Allow merging schemas by intersection instead of union

@@ -96,7 +96,9 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     EnumValuesProperty(value ++ values)
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     if (values.contains(value)) {
       Seq.empty
     } else {

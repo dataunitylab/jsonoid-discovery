@@ -215,7 +215,9 @@ final case class ItemTypeProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JArray(arr) =>
         itemType match {
@@ -277,7 +279,9 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
     MinItemsProperty(minOrNone(Some(value.length), minItems))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JArray(arr) =>
         minItems match {
@@ -328,7 +332,9 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
     MaxItemsProperty(maxOrNone(Some(value.length), maxItems))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JArray(arr) =>
         maxItems match {
@@ -396,7 +402,9 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JArray(arr) =>
         if (
@@ -435,7 +443,9 @@ final case class ArrayLengthHistogramProperty(
     )
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JArray(arr) =>
         if (histogram.isAnomalous(arr.length)) {

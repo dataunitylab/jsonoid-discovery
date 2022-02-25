@@ -97,7 +97,9 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
     MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JString(str) =>
         minLength match {
@@ -138,7 +140,9 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JString(str) =>
         maxLength match {
@@ -217,7 +221,9 @@ final case class StringBloomFilterProperty(
     prop
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     val inFilter = value match {
       case JString(str) => Some(bloomFilter.contains(str))
       case _            => None
@@ -379,7 +385,9 @@ final case class PatternProperty(
     unionMerge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JString(str) =>
         val prefixMatch = str.startsWith(prefix.getOrElse(""))
@@ -433,7 +441,9 @@ final case class StaticPatternProperty(regex: Regex)
     )
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JString(str) =>
         if (regex.anchored.findFirstIn(str.trim).isEmpty) {
@@ -469,7 +479,9 @@ final case class StringLengthHistogramProperty(
     )
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JString(str) =>
         if (histogram.isAnomalous(str.length)) {

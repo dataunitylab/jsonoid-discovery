@@ -119,7 +119,9 @@ final case class MinIntValueProperty(
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JInt(num) =>
         minIntValue match {
@@ -188,7 +190,9 @@ final case class MaxIntValueProperty(
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue), exclusive)
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JInt(num) =>
         maxIntValue match {
@@ -267,7 +271,9 @@ final case class IntBloomFilterProperty(
     prop
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     val inFilter = value match {
       case JInt(num) => Some(bloomFilter.contains(num.toByteArray))
       case _         => None
@@ -379,7 +385,9 @@ final case class IntHistogramProperty(
     )
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JInt(num) =>
         if (histogram.isAnomalous(BigDecimal(num))) {

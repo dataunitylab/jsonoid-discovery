@@ -163,7 +163,9 @@ final case class MinNumValueProperty(
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     minNumValue match {
       case Some(min) =>
         val exceedsMin = value match {
@@ -235,7 +237,9 @@ final case class MaxNumValueProperty(
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue), exclusive)
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     maxNumValue match {
       case Some(max) =>
         val exceedsMax = value match {
@@ -337,7 +341,9 @@ final case class NumBloomFilterProperty(
     prop
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     val inFilter = value match {
       case JDouble(num) =>
         Some(bloomFilter.contains(scaleValue(BigDecimal(num))))
@@ -450,7 +456,9 @@ final case class NumHistogramProperty(
     NumHistogramProperty(histogram.merge(Histogram(List((value, 1)))))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     val histAnomaly = value match {
       case JDouble(num)  => histogram.isAnomalous(num)
       case JDecimal(num) => histogram.isAnomalous(num)

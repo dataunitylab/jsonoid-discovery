@@ -1,6 +1,8 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.reflect.ClassTag
+
 import org.json4s._
 
 trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
@@ -38,9 +40,14 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
 
   def toJson: JObject
 
-  def isAnomalous(value: JValue, path: String = "$"): Boolean =
-    !collectAnomalies(value, path).isEmpty
+  def isAnomalous[S <: JValue](value: S, path: String = "$")(implicit
+      tag: ClassTag[S]
+  ): Boolean = {
+    !collectAnomalies(value, path)(tag).isEmpty
+  }
 
-  def collectAnomalies(value: JValue, path: String = "$"): Seq[Anomaly] =
+  def collectAnomalies[S <: JValue](value: S, path: String = "$")(implicit
+      tag: ClassTag[S]
+  ): Seq[Anomaly] =
     Seq.empty
 }

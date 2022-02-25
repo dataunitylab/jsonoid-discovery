@@ -263,11 +263,13 @@ final case class ProductSchemaTypesProperty(
       .map(baseSchema.merge(_)(EquivalenceRelations.KindEquivalenceRelation))
       .toSeq
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     // Check that there is some type that matches this value
     // TODO: Check frequency for outliers
     // TODO: Make use of productType and baseSchema during check
-    if (schemaTypes.exists(!_.isAnomalous(value, path))) {
+    if (schemaTypes.exists(!_.isAnomalous(value, path)(tag))) {
       Seq.empty
     } else {
       Seq(Anomaly(path, f"no alternative found for ${value}", Fatal))

@@ -193,7 +193,9 @@ final case class ObjectTypesProperty(
     )
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JObject(fields) =>
         val fieldMap = fields.toMap
@@ -276,7 +278,9 @@ final case class PatternTypesProperty(
     )
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     throw new UnsupportedOperationException(
       "anomaly collection not supported for patternProperties"
     )
@@ -343,7 +347,9 @@ final case class RequiredProperty(
     RequiredProperty(intersectOrNone(Some(value.keySet), required))
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JObject(fields) =>
         required match {
@@ -452,7 +458,9 @@ final case class DependenciesProperty(
     }
   }
 
-  override def collectAnomalies(value: JValue, path: String) = {
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
     value match {
       case JObject(fields) =>
         // TODO: Check dependencies are satisfied

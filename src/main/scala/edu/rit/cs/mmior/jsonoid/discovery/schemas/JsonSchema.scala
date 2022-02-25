@@ -78,13 +78,22 @@ object JsonSchema {
           fromJson(schemas(0)).merge(baseSchema, Intersect)(
             EquivalenceRelations.AlwaysEquivalenceRelation
           )
-        case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
+        case _ =>
+          buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
       }
     } else if ((schema \ "oneOf") != JNothing) {
-      productFromJsons(baseSchema, (schema \ "oneOf").extract[List[JObject]], OneOf)
+      productFromJsons(
+        baseSchema,
+        (schema \ "oneOf").extract[List[JObject]],
+        OneOf
+      )
     } else if ((schema \ "anyOf") != JNothing) {
       // XXX This technically isn't correct since we change anyOf to oneOf
-      productFromJsons(baseSchema, (schema \ "anyOf").extract[List[JObject]], AnyOf)
+      productFromJsons(
+        baseSchema,
+        (schema \ "anyOf").extract[List[JObject]],
+        AnyOf
+      )
     } else {
       baseSchema
     }
@@ -136,7 +145,8 @@ object JsonSchema {
           EquivalenceRelations.AlwaysEquivalenceRelation
         )
         schema
-      case _ => buildProductSchema(baseSchema, schemas.map(fromJson(_)), productType)
+      case _ =>
+        buildProductSchema(baseSchema, schemas.map(fromJson(_)), productType)
     }
   }
 
@@ -470,15 +480,18 @@ trait JsonSchema[T] {
   ): JsonSchema[_] =
     this
 
-  def isAnomalous(value: JValue, path: String = "$"): Boolean =
-    !collectAnomalies(value, path).isEmpty
+  def isAnomalous[S <: JValue](value: S, path: String = "$")(implicit
+      tag: ClassTag[S]
+  ): Boolean = {
+    !collectAnomalies(value, path)(tag).isEmpty
+  }
 
   def collectAnomalies[S <: JValue](
       value: S,
       path: String = "$"
   )(implicit tag: ClassTag[S]): Seq[Anomaly] = {
     if (isValidType(value)(tag)) {
-      properties.flatMap(_.collectAnomalies(value, path)).toSeq
+      properties.flatMap(_.collectAnomalies(value, path)(tag)).toSeq
     } else {
       Seq(Anomaly(path, f"${value} has wrong type", Fatal))
     }
