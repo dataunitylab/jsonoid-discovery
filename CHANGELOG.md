@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Serialize/deserialize Bloom filters
+- Support `const` when converting schemas
 
 ## [0.8.1]
 ### Added

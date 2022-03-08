@@ -255,6 +255,17 @@ class JsonSchemaSpec extends UnitSpec {
     values shouldBe Set(JInt(3), JString("foo"))
   }
 
+  it should "convert a const" in {
+    val enumSchema: JObject = ("const" -> "foo")
+
+    val convertedSchema =
+      JsonSchema.fromJson(enumSchema).asInstanceOf[EnumSchema]
+    val values =
+      convertedSchema.properties.get[EnumValuesProperty].values
+
+    values shouldBe Set(JString("foo"))
+  }
+
   it should "convert definitions" in {
     val defnSchema: JObject =
       ("type" -> "object") ~ ("definitions" -> ("foo" -> ("type" -> "boolean")))

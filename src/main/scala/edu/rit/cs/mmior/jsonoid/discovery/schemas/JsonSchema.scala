@@ -41,6 +41,9 @@ object JsonSchema {
     } else if ((schema \ "enum") != JNothing) {
       val values = (schema \ "enum").extract[Set[JValue]]
       EnumSchema(values)
+    } else if ((schema \ "const") != JNothing) {
+      val value = (schema \ "const").extract[JValue]
+      EnumSchema(Set(value))
     } else {
       val schemaTypes = if ((schema \ "type") != JNothing) {
         (schema \ "type") match {
