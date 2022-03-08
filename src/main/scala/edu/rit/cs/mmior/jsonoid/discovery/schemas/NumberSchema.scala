@@ -1,6 +1,9 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import java.io.{ByteArrayOutputStream, ObjectOutputStream}
+import java.util.Base64
+
 import scala.reflect._
 
 import com.sangupta.bloomfilter.impl.RoaringBloomFilter
@@ -309,7 +312,15 @@ final case class NumBloomFilterProperty(
       NumBloomFilterProperty.FalsePositive
     )
 ) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
-  override def toJson: JObject = JObject(Nil)
+  override def toJson: JObject = {
+    val baos = new ByteArrayOutputStream()
+    val oos = new ObjectOutputStream(baos)
+    oos.writeObject(bloomFilter)
+    oos.close()
+
+    val bloomStr = Base64.getEncoder().encodeToString(baos.toByteArray())
+    ("bloomFilter" -> bloomStr)
+  }
 
   override def unionMerge(
       otherProp: NumBloomFilterProperty

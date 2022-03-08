@@ -1,10 +1,14 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import java.io.{ByteArrayInputStream, ObjectInputStream}
+import java.util.Base64
+
 import scala.collection.mutable
 import scala.reflect._
 import scala.util.matching.Regex
 
+import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -240,6 +244,16 @@ object JsonSchema {
       )
     }
 
+    if (int.values.contains("bloomFilter")) {
+      val bloomStr = (int \ "bloomFilter").extract[String]
+      val bloomFilter = deserializeBloomFilter(bloomStr)
+      props.add(
+        IntBloomFilterProperty(
+          bloomFilter.asInstanceOf[RoaringBloomFilter[Integer]]
+        )
+      )
+    }
+
     IntegerSchema(props)
   }
 
@@ -287,6 +301,16 @@ object JsonSchema {
       val examples = (num \ "examples").extract[List[BigDecimal]]
       props.add(
         NumExamplesProperty(ExamplesProperty(examples, examples.length))
+      )
+    }
+
+    if (num.values.contains("bloomFilter")) {
+      val bloomStr = (num \ "bloomFilter").extract[String]
+      val bloomFilter = deserializeBloomFilter(bloomStr)
+      props.add(
+        NumBloomFilterProperty(
+          bloomFilter.asInstanceOf[RoaringBloomFilter[Double]]
+        )
       )
     }
 
@@ -375,7 +399,26 @@ object JsonSchema {
       )
     }
 
+    if (str.values.contains("bloomFilter")) {
+      val bloomStr = (str \ "bloomFilter").extract[String]
+      val bloomFilter = deserializeBloomFilter(bloomStr)
+      props.add(
+        StringBloomFilterProperty(
+          bloomFilter.asInstanceOf[RoaringBloomFilter[String]]
+        )
+      )
+    }
+
     StringSchema(props)
+  }
+
+  private def deserializeBloomFilter(bloomStr: String): Object = {
+    val data = Base64.getDecoder().decode(bloomStr)
+    val ois = new ObjectInputStream(new ByteArrayInputStream(data))
+    val bloomFilter = ois.readObject()
+    ois.close()
+
+    bloomFilter
   }
 }
 

@@ -52,11 +52,6 @@ class NumberSchemaSpec extends UnitSpec {
     ) shouldBe true
   }
 
-  it should "not encode the Bloom filter in the generated json" in {
-    val bloomJson = numberSchema.properties.get[NumBloomFilterProperty].toJson
-    bloomJson shouldBe JObject(Nil)
-  }
-
   it should "keep statistics" in {
     val statsProp = numberSchema.properties.get[NumStatsProperty]
     statsProp.stats.mean shouldBe (BigDecimal(3.71))
