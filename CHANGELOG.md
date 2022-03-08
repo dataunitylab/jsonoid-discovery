@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow transformers to work on top-level objects
 - Separate transformer to merge schemas containing `allOf`
 - Anomaly detection for different `ProductSchema` types
+- Parse examples when converting schemas
 
 ### Changed
 - Add separate types for `ProductSchema`

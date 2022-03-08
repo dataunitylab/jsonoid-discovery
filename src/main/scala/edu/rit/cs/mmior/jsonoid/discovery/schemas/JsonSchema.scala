@@ -233,6 +233,13 @@ object JsonSchema {
       )
     }
 
+    if (int.values.contains("examples")) {
+      val examples = (int \ "examples").extract[List[BigInt]]
+      props.add(
+        IntExamplesProperty(ExamplesProperty(examples, examples.length))
+      )
+    }
+
     IntegerSchema(props)
   }
 
@@ -273,6 +280,13 @@ object JsonSchema {
           Some((num \ "exclusiveMaximum").extract[BigDecimal]),
           true
         )
+      )
+    }
+
+    if (num.values.contains("examples")) {
+      val examples = (num \ "examples").extract[List[BigDecimal]]
+      props.add(
+        NumExamplesProperty(ExamplesProperty(examples, examples.length))
       )
     }
 
@@ -352,6 +366,13 @@ object JsonSchema {
 
     if ((str \ "maxLength") != JNothing) {
       props.add(MaxLengthProperty(Some((str \ "maxLength").extract[Int])))
+    }
+
+    if (str.values.contains("examples")) {
+      val examples = (str \ "examples").extract[List[String]]
+      props.add(
+        StringExamplesProperty(ExamplesProperty(examples, examples.length))
+      )
     }
 
     StringSchema(props)
