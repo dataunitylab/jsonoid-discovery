@@ -368,7 +368,9 @@ object JsonSchema {
 
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(ObjectTypesProperty(objTypes))
-    props.add(PatternTypesProperty(patternTypes))
+    if (!patternTypes.isEmpty) {
+      props.add(PatternTypesProperty(patternTypes))
+    }
     props.add(RequiredProperty(Some(required)))
 
     ObjectSchema(props)

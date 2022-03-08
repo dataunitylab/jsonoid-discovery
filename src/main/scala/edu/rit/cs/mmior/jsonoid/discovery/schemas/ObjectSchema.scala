@@ -281,9 +281,13 @@ final case class PatternTypesProperty(
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
       tag: ClassTag[S]
   ) = {
-    throw new UnsupportedOperationException(
-      "anomaly collection not supported for patternProperties"
-    )
+    if (patternTypes.isEmpty) {
+      throw new UnsupportedOperationException(
+        "anomaly collection not supported for patternProperties"
+      )
+    } else {
+      Seq.empty
+    }
   }
 }
 
