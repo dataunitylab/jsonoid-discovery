@@ -2,6 +2,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
 import java.io.{ByteArrayInputStream, ObjectInputStream}
+import java.nio.charset.Charset
 import java.util.Base64
 
 import scala.collection.mutable
@@ -422,9 +423,10 @@ object JsonSchema {
   private def deserializeBloomFilter(bloomStr: String): Object = {
     val data = Base64.getDecoder().decode(bloomStr)
     val ois = new ObjectInputStream(new ByteArrayInputStream(data))
-    val bloomFilter = ois.readObject()
+    val bloomFilter = ois.readObject().asInstanceOf[RoaringBloomFilter[_]]
     ois.close()
 
+    bloomFilter.setCharset(Charset.defaultCharset)
     bloomFilter
   }
 }
