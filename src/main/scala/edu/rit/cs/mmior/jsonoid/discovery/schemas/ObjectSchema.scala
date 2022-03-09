@@ -468,7 +468,7 @@ final case class DependenciesProperty(
 }
 
 final case class StaticDependenciesProperty(
-    dependencies: Map[String, String] = Map.empty
+    dependencies: Map[String, List[String]] = Map.empty
 ) extends SchemaProperty[
       Map[String, JsonSchema[_]],
       StaticDependenciesProperty
