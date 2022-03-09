@@ -466,3 +466,40 @@ final case class DependenciesProperty(
     }
   }
 }
+
+final case class StaticDependenciesProperty(
+    dependencies: Map[String, String] = Map.empty
+) extends SchemaProperty[
+      Map[String, JsonSchema[_]],
+      StaticDependenciesProperty
+    ] {
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def toJson: JObject = ("dependentRequired" -> dependencies)
+
+  override def unionMerge(
+      otherProp: StaticDependenciesProperty
+  )(implicit er: EquivalenceRelation): StaticDependenciesProperty = {
+    throw new UnsupportedOperationException(
+      "StaticDependenciesProperty cannot be merged"
+    )
+  }
+
+  override def mergeValue(
+      value: Map[String, JsonSchema[_]]
+  )(implicit er: EquivalenceRelation): StaticDependenciesProperty = {
+    throw new UnsupportedOperationException(
+      "StaticDependenciesProperty cannot be merged"
+    )
+  }
+
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      tag: ClassTag[S]
+  ) = {
+    value match {
+      case JObject(fields) =>
+        // TODO: Check dependencies are satisfied
+        Seq.empty
+      case _ => Seq.empty
+    }
+  }
+}

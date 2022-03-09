@@ -328,6 +328,8 @@ object JsonSchema {
     )
   )
   private def fromJsonObject(obj: JObject): JsonSchema[_] = {
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+
     if ((obj \ "not") != JNothing) {
       throw new UnsupportedOperationException("not isn't supported")
     }
@@ -337,7 +339,8 @@ object JsonSchema {
       throw new UnsupportedOperationException("dependencies not supported")
     }
     if ((obj \ "dependentRequired") != JNothing) {
-      throw new UnsupportedOperationException("dependentRequired not supported")
+      val deps = (obj \ "dependentRequired").extract[Map[String, String]]
+      props.add(StaticDependenciesProperty(deps))
     }
     if ((obj \ "dependentSchemas") != JNothing) {
       throw new UnsupportedOperationException("dependentSchemas not supported")
@@ -366,7 +369,6 @@ object JsonSchema {
     val required = (obj \ "required").extract[Set[String]]
     val reqProp = RequiredProperty(Some(required))
 
-    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(ObjectTypesProperty(objTypes))
     if (!patternTypes.isEmpty) {
       props.add(PatternTypesProperty(patternTypes))

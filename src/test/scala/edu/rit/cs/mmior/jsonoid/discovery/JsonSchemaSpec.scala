@@ -116,6 +116,18 @@ class JsonSchemaSpec extends UnitSpec {
     )
   }
 
+  it should "convert an object schema with dependencies" in {
+    val objSchema: JObject = ("type" -> "object") ~
+      ("dependentRequired" -> ("foo" -> "bar"))
+
+    val convertedSchema =
+      JsonSchema.fromJson(objSchema).asInstanceOf[ObjectSchema]
+
+    convertedSchema.properties should contain(
+      StaticDependenciesProperty(Map("foo" -> "bar"))
+    )
+  }
+
   it should "convert an object schema without properties" in {
     val objSchema: JObject = ("type" -> "object")
 
