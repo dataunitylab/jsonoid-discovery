@@ -133,7 +133,8 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "show strings as a valid type" in {
-    stringSchema.isValidType(JString("foo")).shouldBe(true)
+    val str: JValue = JString("foo")
+    stringSchema.isValidType(str).shouldBe(true)
   }
 
   it should "show numbers as an invalid type" in {

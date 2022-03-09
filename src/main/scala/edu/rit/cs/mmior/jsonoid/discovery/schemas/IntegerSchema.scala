@@ -58,7 +58,7 @@ final case class IntegerSchema(
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JInt])
+  override val validTypes: Set[Class[_]] = Set(classOf[JInt])
 
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation

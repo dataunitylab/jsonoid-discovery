@@ -29,11 +29,11 @@ final case class ProductSchema(
     extends JsonSchema[JsonSchema[_]] {
   override def hasType: Boolean = false
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+  override val validTypes: Set[Class[_]] = Set.empty
 
   override def isValidType[S <: JValue](
       value: S
-  )(implicit tag: ClassTag[S]): Boolean = {
+  ): Boolean = {
     // Any type is potentially valid
     true
   }

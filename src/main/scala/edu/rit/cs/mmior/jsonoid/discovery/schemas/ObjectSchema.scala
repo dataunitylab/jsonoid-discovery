@@ -53,14 +53,7 @@ final case class ObjectSchema(
 ) extends JsonSchema[Map[String, JsonSchema[_]]] {
   override val schemaType = "object"
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JObject])
-
-  override def isValidType[S <: JValue](
-      value: S
-  )(implicit tag: ClassTag[S]): Boolean = {
-    // We can't check the ClassTag here
-    value.isInstanceOf[JObject]
-  }
+  override val validTypes: Set[Class[_]] = Set(classOf[JObject])
 
   override val staticProperties: JObject = ("additionalProperties" -> false)
 

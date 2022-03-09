@@ -475,11 +475,11 @@ trait JsonSchema[T] {
 
   def hasType: Boolean = true
 
-  def validTypes: Set[ClassTag[_ <: JValue]]
+  def validTypes: Set[Class[_]]
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def isValidType[S <: JValue](value: S)(implicit tag: ClassTag[S]): Boolean = {
-    validTypes.contains(tag)
+  def isValidType[S <: JValue](value: S): Boolean = {
+    validTypes.contains(value.getClass)
   }
 
   def mergeSameType(mergeType: MergeType = Union)(implicit
@@ -548,18 +548,19 @@ trait JsonSchema[T] {
   ): JsonSchema[_] =
     this
 
-  def isAnomalous[S <: JValue](value: S, path: String = "$")(implicit
-      tag: ClassTag[S]
-  ): Boolean = {
-    !collectAnomalies(value, path)(tag).isEmpty
-  }
-
-  def collectAnomalies[S <: JValue](
+  def isAnomalous[S <: JValue: ClassTag](
       value: S,
       path: String = "$"
-  )(implicit tag: ClassTag[S]): Seq[Anomaly] = {
-    if (isValidType(value)(tag)) {
-      properties.flatMap(_.collectAnomalies(value, path)(tag)).toSeq
+  ): Boolean = {
+    !collectAnomalies(value, path).isEmpty
+  }
+
+  def collectAnomalies[S <: JValue: ClassTag](
+      value: S,
+      path: String = "$"
+  ): Seq[Anomaly] = {
+    if (isValidType(value)) {
+      properties.flatMap(_.collectAnomalies(value, path)).toSeq
     } else {
       Seq(Anomaly(path, f"${value} has wrong type", Fatal))
     }

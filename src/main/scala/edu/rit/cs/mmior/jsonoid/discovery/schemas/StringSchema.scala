@@ -65,7 +65,7 @@ final case class StringSchema(
 ) extends JsonSchema[String] {
   override val schemaType = "string"
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JString])
+  override val validTypes: Set[Class[_]] = Set(classOf[JString])
 
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation

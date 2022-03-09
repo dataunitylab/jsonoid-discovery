@@ -9,7 +9,8 @@ class BooleanSchemaSpec extends UnitSpec {
   val booleanSchema: BooleanSchema = BooleanSchema()
 
   it should "show booleans as a valid type" in {
-    booleanSchema.isValidType(JBool(true)) shouldBe (true)
+    val bool: JValue = JBool(true)
+    booleanSchema.isValidType(bool) shouldBe (true)
   }
 
   it should "show non-booleans as an invalid type" in {

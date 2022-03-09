@@ -27,7 +27,7 @@ final case class BooleanSchema(
 ) extends JsonSchema[Boolean] {
   override val schemaType = "boolean"
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JBool])
+  override val validTypes: Set[Class[_]] = Set(classOf[JBool])
 
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation

@@ -1,8 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import scala.reflect._
-
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -14,11 +12,9 @@ final case class AnySchema(
   override def toJson: JObject = Nil
 
   // XXX Actually all types are valid, but we still have to specify this set
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+  override val validTypes: Set[Class[_]] = Set.empty
 
-  override def isValidType[S <: JValue](value: S)(implicit
-      tag: ClassTag[S]
-  ): Boolean = true
+  override def isValidType[S <: JValue](value: S): Boolean = true
 
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation

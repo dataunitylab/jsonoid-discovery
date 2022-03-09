@@ -58,8 +58,8 @@ final case class NumberSchema(
 ) extends JsonSchema[BigDecimal] {
   override val schemaType = "number"
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] =
-    Set(classTag[JInt], classTag[JDouble], classTag[JDecimal])
+  override val validTypes: Set[Class[_]] =
+    Set(classOf[JInt], classOf[JDouble], classOf[JDecimal])
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   override def mergeSameType(mergeType: MergeType)(implicit

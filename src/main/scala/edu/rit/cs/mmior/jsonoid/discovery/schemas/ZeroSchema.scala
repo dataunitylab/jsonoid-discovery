@@ -1,8 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import scala.reflect._
-
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -13,7 +11,7 @@ final case class ZeroSchema(
 
   override def toJson: JObject = ("not" -> Nil)
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+  override val validTypes: Set[Class[_]] = Set.empty
 
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation

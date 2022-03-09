@@ -39,11 +39,11 @@ final case class EnumSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+  override val validTypes: Set[Class[_]] = Set.empty
 
   override def isValidType[S <: JValue](
       value: S
-  )(implicit tag: ClassTag[S]): Boolean = {
+  ): Boolean = {
     // Any type is potentially valid
     true
   }

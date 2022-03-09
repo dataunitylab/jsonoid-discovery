@@ -57,7 +57,7 @@ final case class ArraySchema(
 ) extends JsonSchema[List[JsonSchema[_]]] {
   override val schemaType = "array"
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set(classTag[JArray])
+  override val validTypes: Set[Class[_]] = Set(classOf[JArray])
 
   override def mergeSameType(mergeType: MergeType)(implicit
       er: EquivalenceRelation

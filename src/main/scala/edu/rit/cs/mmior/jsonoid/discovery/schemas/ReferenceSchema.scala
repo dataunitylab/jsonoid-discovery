@@ -32,11 +32,9 @@ final case class ReferenceSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   override val schemaType: String = null
 
-  override val validTypes: Set[ClassTag[_ <: JValue]] = Set.empty
+  override val validTypes: Set[Class[_]] = Set.empty
 
-  override def isValidType[S <: JValue](value: S)(implicit
-      tag: ClassTag[S]
-  ): Boolean = {
+  override def isValidType[S <: JValue](value: S): Boolean = {
     throw new UnsupportedOperationException("$ref cannot be type checked")
   }
 

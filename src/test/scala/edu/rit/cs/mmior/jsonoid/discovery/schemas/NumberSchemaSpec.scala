@@ -127,11 +127,18 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "show integers as a valid type" in {
-    numberSchema.isValidType(JInt(3)) shouldBe (true)
+    val int: JValue = JInt(3)
+    numberSchema.isValidType(int) shouldBe (true)
   }
 
   it should "show numbers as a valid type" in {
-    numberSchema.isValidType(JDouble(3.4)) shouldBe (true)
+    val dbl: JValue = JDouble(3.4)
+    numberSchema.isValidType(dbl) shouldBe (true)
+  }
+
+  it should "show decimals a valid type" in {
+    val dec: JValue = JDecimal(3.4)
+    numberSchema.isValidType(dec) shouldBe (true)
   }
 
   it should "show strings as an invalid type" in {
