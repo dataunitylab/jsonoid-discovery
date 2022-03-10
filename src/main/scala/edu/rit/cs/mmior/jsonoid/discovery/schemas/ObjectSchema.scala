@@ -473,6 +473,8 @@ final case class StaticDependenciesProperty(
       Map[String, JsonSchema[_]],
       StaticDependenciesProperty
     ] {
+  override def mergeable: Boolean = false
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson: JObject = ("dependentRequired" -> dependencies)
 
