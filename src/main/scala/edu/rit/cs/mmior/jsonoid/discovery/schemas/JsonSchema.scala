@@ -529,7 +529,7 @@ trait JsonSchema[T] {
     }
   }
 
-  def copy(properties: SchemaProperties[T]): JsonSchema[_]
+  def copy(properties: SchemaProperties[T]): JsonSchema[T]
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def transformProperties(
@@ -568,5 +568,24 @@ trait JsonSchema[T] {
     } else {
       Seq(Anomaly(path, f"${value} has wrong type", Fatal))
     }
+  }
+
+  def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
+    transformProperties(
+      s =>
+        s match {
+          case _ =>
+            copy(s.properties.only(props).asInstanceOf[SchemaProperties[T]])
+        },
+      true
+    ).asInstanceOf[JsonSchema[T]]
+  }
+
+  def onlyPropertiesNamed(props: Seq[String]): JsonSchema[T] = {
+    onlyProperties(
+      props.map(c =>
+        Class.forName("edu.rit.cs.mmior.jsonoid.discovery.schemas." + c)
+      )
+    )
   }
 }

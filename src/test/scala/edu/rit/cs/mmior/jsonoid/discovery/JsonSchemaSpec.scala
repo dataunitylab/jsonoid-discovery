@@ -4,6 +4,7 @@ package schemas
 import org.json4s.JsonDSL._
 import org.json4s._
 
+import PropertySets._
 import UnitSpec._
 
 class JsonSchemaSpec extends UnitSpec {
@@ -311,5 +312,13 @@ class JsonSchemaSpec extends UnitSpec {
       .schemaTypes
       .map(_.schemaType)
     schemaTypes should contain theSameElementsAs List("string", "number")
+  }
+
+  it should "be able to limit available properties" in {
+    val schema = IntegerSchema(5).onlyPropertiesNamed(
+      List("MinIntValueProperty", "MinLengthProperty")
+    )
+    schema.properties.properties should have size 1
+    schema.properties.has[MinIntValueProperty] shouldBe true
   }
 }

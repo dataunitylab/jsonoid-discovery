@@ -104,4 +104,9 @@ final case class SchemaProperties[T](
         .asInstanceOf[PropertyMap[T]]
     )
   }
+
+  def only(props: Seq[Class[_]]): SchemaProperties[T] = {
+    val tags = props.map(ClassTag(_))
+    SchemaProperties(properties.filterKeys(tags.toSet))
+  }
 }
