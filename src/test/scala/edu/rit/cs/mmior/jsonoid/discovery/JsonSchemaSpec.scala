@@ -321,4 +321,14 @@ class JsonSchemaSpec extends UnitSpec {
     schema.properties.properties should have size 1
     schema.properties.has[MinIntValueProperty] shouldBe true
   }
+
+  it should "not change schema type when limiting properties" in {
+    val schema = ObjectSchema(Map("foo" -> BooleanSchema()))
+      .onlyPropertiesNamed(List("ObjectTypesProperty"))
+    schema.properties.properties should have size 1
+    schema.properties.has[ObjectTypesProperty] shouldBe true
+    schema.properties
+      .get[ObjectTypesProperty]
+      .objectTypes("foo") shouldBe a[BooleanSchema]
+  }
 }

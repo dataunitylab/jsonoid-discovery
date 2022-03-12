@@ -571,14 +571,16 @@ trait JsonSchema[T] {
   }
 
   def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
-    transformProperties(
-      s =>
-        s match {
-          case _ =>
-            copy(s.properties.only(props).asInstanceOf[SchemaProperties[T]])
-        },
-      true
-    ).asInstanceOf[JsonSchema[T]]
+    val copyProps = new PartialFunction[JsonSchema[_], JsonSchema[_]] {
+      def apply(s: JsonSchema[_]) = typedApply(s)
+      def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
+        val newProps =
+          s.properties.only(props).asInstanceOf[SchemaProperties[S]]
+        s.copy(newProps)
+      }
+      def isDefinedAt(s: JsonSchema[_]) = true
+    }
+    transformProperties(copyProps, true).asInstanceOf[JsonSchema[T]]
   }
 
   def onlyPropertiesNamed(props: Seq[String]): JsonSchema[T] = {
