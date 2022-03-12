@@ -191,10 +191,8 @@ final case class ProductSchemaTypesProperty(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(
-      transformer.applyOrElse(baseSchema, (x: JsonSchema[_]) => x),
-      schemaTypes.map { s =>
-        transformer.applyOrElse(s, (x: JsonSchema[_]) => x)
-      },
+      baseSchema.transformProperties(transformer, true),
+      schemaTypes.map(_.transformProperties(transformer, true)),
       schemaCounts,
       productType
     )

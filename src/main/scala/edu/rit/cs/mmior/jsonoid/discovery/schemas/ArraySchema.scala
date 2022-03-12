@@ -161,8 +161,10 @@ final case class ItemTypeProperty(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): ItemTypeProperty = {
     ItemTypeProperty(itemType match {
-      case Left(singleType) => Left(transformer(singleType))
-      case Right(typeList)  => Right(typeList.map(transformer(_)))
+      case Left(singleType) =>
+        Left(singleType.transformProperties(transformer, true))
+      case Right(typeList) =>
+        Right(typeList.map(_.transformProperties(transformer, true)))
     })
   }
 

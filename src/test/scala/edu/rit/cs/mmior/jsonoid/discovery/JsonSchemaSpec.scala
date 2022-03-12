@@ -331,4 +331,33 @@ class JsonSchemaSpec extends UnitSpec {
       .get[ObjectTypesProperty]
       .objectTypes("foo") shouldBe a[BooleanSchema]
   }
+
+  it should "should limit properties inside ProductSchemas" in {
+    val schema = ProductSchema(StringSchema("foo"))
+      .onlyPropertiesNamed(List("ProductSchemaTypesProperty"))
+
+    val stringSchema =
+      schema.properties.get[ProductSchemaTypesProperty].schemaTypes(0)
+    stringSchema.properties.properties shouldBe empty
+  }
+
+  it should "limit properties in objects" in {
+    val schema = ObjectSchema(Map("foo" -> StringSchema("foo")))
+      .onlyPropertiesNamed(List("ObjectTypesProperty"))
+    val fooType = schema.properties.get[ObjectTypesProperty].objectTypes("foo")
+    fooType.properties.properties shouldBe empty
+  }
+
+  it should "limit properties in nested objects" in {
+    val schema = ObjectSchema(
+      Map("foo" -> ObjectSchema(Map("bar" -> StringSchema("foo"))))
+    )
+      .onlyPropertiesNamed(List("ObjectTypesProperty"))
+    val fooType = schema.properties
+      .get[ObjectTypesProperty]
+      .objectTypes("foo")
+      .asInstanceOf[ObjectSchema]
+    val barType = fooType.properties.get[ObjectTypesProperty].objectTypes("bar")
+    barType.properties.properties shouldBe empty
+  }
 }

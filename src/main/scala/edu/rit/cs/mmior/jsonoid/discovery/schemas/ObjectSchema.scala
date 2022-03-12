@@ -137,7 +137,10 @@ final case class ObjectTypesProperty(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): ObjectTypesProperty = {
     ObjectTypesProperty(
-      objectTypes.mapValues(transformer(_)).map(identity).toMap
+      objectTypes
+        .mapValues(_.transformProperties(transformer, true))
+        .map(identity)
+        .toMap
     )
   }
 
@@ -220,7 +223,10 @@ final case class PatternTypesProperty(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
   ): PatternTypesProperty = {
     PatternTypesProperty(
-      patternTypes.mapValues(transformer(_)).map(identity).toMap
+      patternTypes
+        .mapValues(_.transformProperties(transformer, true))
+        .map(identity)
+        .toMap
     )
   }
 
