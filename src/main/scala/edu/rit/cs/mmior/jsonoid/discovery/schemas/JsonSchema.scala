@@ -112,7 +112,7 @@ object JsonSchema {
     } else {
       None
     }
-    if (!definitionsKey.isEmpty) {
+    if (definitionsKey.isDefined) {
       val defs = (schema \ definitionsKey.get)
         .extract[Map[String, JObject]]
         .foreach { case (key, value) =>

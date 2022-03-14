@@ -14,7 +14,12 @@ class ObjectSchemaSpec extends UnitSpec {
   implicit val formats: Formats = DefaultFormats
 
   private val objectTypes =
-    Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
+    Map(
+      "foo" -> BooleanSchema(),
+      "bar" -> BooleanSchema(),
+      "baz" ->
+        BooleanSchema()
+    )
   private val singleType = Map("foo" -> BooleanSchema())
   private val schemaProperties =
     ObjectSchema(singleType).properties.mergeValue(objectTypes)
@@ -38,7 +43,8 @@ class ObjectSchemaSpec extends UnitSpec {
   it should "track the percentage of objects with each field" in {
     val fieldPresenceProp = schemaProperties.get[FieldPresenceProperty]
     val expectedJson: JObject =
-      ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5))))
+      ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5)) ~
+        ("baz" -> JDouble(0.5))))
     fieldPresenceProp.toJson shouldEqual expectedJson
   }
 
@@ -124,6 +130,14 @@ class ObjectSchemaSpec extends UnitSpec {
       .get[RequiredProperty]
       .collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(
       Anomaly("$.foo", "missing required field", Fatal)
+    )
+  }
+
+  it should "detect anomalies of missing required dependencies" in {
+    schemaProperties
+      .get[DependenciesProperty]
+      .collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(
+      Anomaly("$", "dependency $.baz not found for $.bar", Fatal)
     )
   }
 }

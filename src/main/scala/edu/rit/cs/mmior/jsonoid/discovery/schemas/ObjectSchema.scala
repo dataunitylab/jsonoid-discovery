@@ -383,11 +383,20 @@ final case class DependenciesProperty(
     cooccurrence: Map[(String, String), BigInt] = Map.empty,
     overloaded: Boolean = false
 ) extends SchemaProperty[Map[String, JsonSchema[_]], DependenciesProperty] {
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson: JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
-    val dependencies = cooccurrence.toSeq
+    val dependencies = dependencyMap
+    if (dependencies.isEmpty) {
+      Nil
+    } else {
+      ("dependentRequired" -> dependencies)
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def dependencyMap(): Map[String, Seq[String]] = {
+    cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
         (if (
            counts(key1) == count && count != totalCount && counts(
@@ -410,12 +419,6 @@ final case class DependenciesProperty(
       .groupBy(_._1)
       .mapValues(_.map(_._2))
       .map(identity)
-
-    if (dependencies.isEmpty) {
-      Nil
-    } else {
-      ("dependentRequired" -> dependencies)
-    }
   }
 
   override def unionMerge(
@@ -466,8 +469,19 @@ final case class DependenciesProperty(
   ) = {
     value match {
       case JObject(fields) =>
-        // TODO: Check dependencies are satisfied
-        Seq.empty
+        val fieldMap = fields.toMap
+        fieldMap.keySet.toSeq.flatMap(f =>
+          dependencyMap
+            .getOrElse(f, List())
+            .filter(!fieldMap.contains(_))
+            .map(d =>
+              Anomaly(
+                path,
+                f"dependency $path.$d not found for $path.$f",
+                Fatal
+              )
+            )
+        )
       case _ => Seq.empty
     }
   }
@@ -505,8 +519,19 @@ final case class StaticDependenciesProperty(
   ) = {
     value match {
       case JObject(fields) =>
-        // TODO: Check dependencies are satisfied
-        Seq.empty
+        val fieldMap = fields.toMap
+        fieldMap.keySet.toSeq.flatMap(f =>
+          dependencies
+            .getOrElse(f, List())
+            .filter(!fieldMap.contains(_))
+            .map(d =>
+              Anomaly(
+                path,
+                f"dependency $path.$d not found for $path.$f",
+                Fatal
+              )
+            )
+        )
       case _ => Seq.empty
     }
   }
