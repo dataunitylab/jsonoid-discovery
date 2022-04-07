@@ -9,6 +9,9 @@ class EquivalenceRelationSpec extends UnitSpec {
 
   val objSchema1: ObjectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))
   val objSchema2: ObjectSchema = ObjectSchema(Map("bar" -> BooleanSchema()))
+  val objSchema3: ObjectSchema = ObjectSchema(
+    Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
+  )
 
   it should "keep schemas separate when merging by label" in {
     val merged = objSchema1.merge(objSchema2)(
@@ -18,16 +21,37 @@ class EquivalenceRelationSpec extends UnitSpec {
   }
 
   it should "merge object schemas by kind" in {
-    val merged =
-      objSchema1.merge(objSchema2)(EquivalenceRelations.KindEquivalenceRelation)
-    merged shouldEqual (ObjectSchema(
-      Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema())
-    ))
+    val merged = objSchema1
+      .merge(objSchema2)(EquivalenceRelations.KindEquivalenceRelation)
+      .asInstanceOf[ObjectSchema]
+    merged.properties.get[ObjectTypesProperty].objectTypes shouldBe Map(
+      "foo" -> BooleanSchema(),
+      "bar" -> BooleanSchema()
+    )
   }
 
   it should "not merge when using non-equivalence" in {
     val merged =
       objSchema1.merge(objSchema1)(EquivalenceRelations.NonEquivalenceRelation)
     merged shouldBe a[ProductSchema]
+  }
+
+  it should "separate schemas which have no common labels" in {
+    val merged = objSchema1.merge(objSchema2)(
+      EquivalenceRelations.IntersectingLabelEquivalenceRelation
+    )
+    merged shouldBe a[ProductSchema]
+  }
+
+  it should "keep schemas together which have common labels" in {
+    val merged = objSchema1
+      .merge(objSchema3)(
+        EquivalenceRelations.IntersectingLabelEquivalenceRelation
+      )
+      .asInstanceOf[ObjectSchema]
+    merged.properties.get[ObjectTypesProperty].objectTypes shouldBe Map(
+      "foo" -> BooleanSchema(),
+      "bar" -> BooleanSchema()
+    )
   }
 }
