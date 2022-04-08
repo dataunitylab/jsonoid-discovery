@@ -270,7 +270,8 @@ final case class MaxNumValueProperty(
 final case class NumHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
-  override def toJson: JObject = ("distinctValues" -> hll.count())
+  override def toJson: JObject = ("distinctValues" -> hll.count()) ~ ("hll" ->
+    hll.toBase64)
 
   override def unionMerge(
       otherProp: NumHyperLogLogProperty

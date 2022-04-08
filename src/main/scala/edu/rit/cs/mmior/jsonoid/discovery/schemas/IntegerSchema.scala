@@ -217,7 +217,8 @@ final case class MaxIntValueProperty(
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigInt, IntHyperLogLogProperty] {
-  override def toJson: JObject = ("distinctValues" -> hll.count())
+  override def toJson: JObject =
+    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
 
   override def unionMerge(
       otherProp: IntHyperLogLogProperty

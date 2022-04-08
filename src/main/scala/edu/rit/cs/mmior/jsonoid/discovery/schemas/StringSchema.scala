@@ -167,7 +167,8 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 final case class StringHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[String, StringHyperLogLogProperty] {
-  override def toJson: JObject = ("distinctValues" -> hll.count())
+  override def toJson: JObject = ("distinctValues" -> hll.count()) ~ ("hll" ->
+    hll.toBase64)
 
   override def unionMerge(
       otherProp: StringHyperLogLogProperty

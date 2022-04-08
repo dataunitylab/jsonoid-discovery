@@ -1,7 +1,13 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package utils
 
-import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
+import java.io.{
+  ByteArrayOutputStream,
+  IOException,
+  ObjectInputStream,
+  ObjectOutputStream
+}
+import java.util.Base64
 import scala.language.implicitConversions
 
 import com.github.prasanthj.hll.{HyperLogLog => HLL, HyperLogLogUtils}
@@ -20,6 +26,15 @@ class HyperLogLog extends Serializable {
     .build()
 
   override def toString(): String = hll.toString()
+
+  def toBase64(): String = {
+    val baos = new ByteArrayOutputStream()
+    val oos = new ObjectOutputStream(baos)
+    oos.writeObject(this)
+    oos.close()
+
+    Base64.getEncoder().encodeToString(baos.toByteArray())
+  }
 
   @throws(classOf[IOException])
   private def writeObject(out: ObjectOutputStream): Unit = {
