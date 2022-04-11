@@ -269,6 +269,10 @@ final case class StringExamplesProperty(
 }
 
 object FormatProperty {
+  val MinExamples: Int = 10;
+
+  val MinFraction: Double = 0.9;
+
   def regex(expr: Regex): Function1[String, Boolean] = { str =>
     !expr.anchored.findFirstIn(str.trim).isEmpty
   }
@@ -299,10 +303,22 @@ final case class FormatProperty(
     formats: Map[String, BigInt] = Map.empty[String, BigInt]
 ) extends SchemaProperty[String, FormatProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  override def toJson: JObject = if (formats.isEmpty) {
-    Nil
-  } else {
-    ("format" -> formats.maxBy(_._2)._1)
+  override def toJson: JObject = {
+    val total = formats.values.sum
+    if (total >= FormatProperty.MinExamples) {
+      val maxFormat = formats.maxBy(_._2)
+      if (
+        BigDecimal(maxFormat._2.toDouble) / BigDecimal(
+          total
+        ) >= FormatProperty.MinFraction
+      ) {
+        ("format" -> maxFormat._1)
+      } else {
+        Nil
+      }
+    } else {
+      Nil
+    }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))

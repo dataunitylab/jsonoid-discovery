@@ -43,53 +43,23 @@ class StringSchemaSpec extends UnitSpec {
     )
   }
 
-  it should "detect the IPv4 format" in {
-    val ipSchema = StringSchema("127.0.0.1")
-    val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "ipv4"
+  def schemaWithFormat(value: String, format: String) {
+    it should s"detect the ${format} format" in {
+      var props = StringSchema().properties
+      for (_ <- 1 to 10) { props = props.mergeValue(value) }
+      val formatProp = props.get[FormatProperty]
+      (formatProp.toJson \ "format").extract[String] shouldBe format
+    }
   }
 
-  it should "detect the IPv6 format" in {
-    val ipSchema = StringSchema("::1")
-    val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "ipv6"
-  }
-
-  it should "detect the email format" in {
-    val ipSchema = StringSchema("foo@bar.com")
-    val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "email"
-  }
-
-  it should "detect the uri format" in {
-    val ipSchema = StringSchema("http://example.com")
-    val formatProp = ipSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "uri"
-  }
-
-  it should "detect the date format" in {
-    val dateSchema = StringSchema("2008-11-13")
-    val formatProp = dateSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "date"
-  }
-
-  it should "detect the date-time format" in {
-    val dateTimeSchema = StringSchema("2018-11-13T20:20:39+00:00")
-    val formatProp = dateTimeSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "date-time"
-  }
-
-  it should "detect the time format" in {
-    val timeSchema = StringSchema("20:20:39+00:00")
-    val formatProp = timeSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "time"
-  }
-
-  it should "detect the uuid format" in {
-    val timeSchema = StringSchema("01020304-0506-0708-090a-0b0c0d0e0f10")
-    val formatProp = timeSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format").extract[String] shouldBe "uuid"
-  }
+  schemaWithFormat("127.0.0.1", "ipv4")
+  schemaWithFormat("::1", "ipv6")
+  schemaWithFormat("foo@bar.com", "email")
+  schemaWithFormat("http://example.com", "uri")
+  schemaWithFormat("2008-11-13", "date")
+  schemaWithFormat("2018-11-13T20:20:39+00:00", "date-time")
+  schemaWithFormat("20:20:39+00:00", "time")
+  schemaWithFormat("01020304-0506-0708-090a-0b0c0d0e0f10", "uuid")
 
   it should "not assign a format to normal text" in {
     val formatProp = stringSchema.properties.get[FormatProperty]
