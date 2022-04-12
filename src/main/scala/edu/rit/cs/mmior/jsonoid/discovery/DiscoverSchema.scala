@@ -15,6 +15,7 @@ final case class Config(
     input: Option[File] = None,
     writeValues: Option[File] = None,
     propertySet: PropertySet = PropertySets.AllProperties,
+    onlyProperties: Option[Seq[String]] = None,
     equivalenceRelation: EquivalenceRelation =
       EquivalenceRelations.KindEquivalenceRelation,
     addDefinitions: Boolean = false
@@ -123,6 +124,11 @@ object DiscoverSchema {
         .action((x, c) => c.copy(propertySet = x))
         .text("the set of properties to calculate [All, Min, Simple]")
 
+      opt[Seq[String]]('o', "only-properties")
+        .optional()
+        .action((x, c) => c.copy(onlyProperties = Some(x)))
+        .text("limit discovered properties")
+
       opt[EquivalenceRelation]('e', "equivalence-relation")
         .action((x, c) => c.copy(equivalenceRelation = x))
         .text("the equivalence relation to use when merging [Kind, Label]")
@@ -162,6 +168,11 @@ object DiscoverSchema {
         if (!config.writeValues.isEmpty) {
           val outputStream = new FileOutputStream(config.writeValues.get)
           ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
+        }
+
+        transformedSchema = config.onlyProperties match {
+          case Some(props) => transformedSchema.onlyPropertiesNamed(props)
+          case None        => transformedSchema
         }
 
         println(compact(render(transformedSchema.toJsonSchema)))

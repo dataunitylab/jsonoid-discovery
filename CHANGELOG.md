@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add intersecting label equivalence relation
 - Include serialized HLL in generated schema
+- Allow limiting discovered properties from CLI
 
 ### Changed
 - Require minimum examples for format property
