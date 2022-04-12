@@ -79,6 +79,13 @@ class StringSchemaSpec extends UnitSpec {
     (prefixProp.toJson \ "pattern").extract[String] shouldBe "^fooba"
   }
 
+  it should "should find common prefixes with a newline" in {
+    var prefixSchema = StringSchema("foo\r\nbar").properties
+    for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("foo\r\nbaz") }
+    val prefixProp = prefixSchema.get[PatternProperty]
+    (prefixProp.toJson \ "pattern").extract[String] shouldBe "^foo\r\nba"
+  }
+
   it should "should not generate a pattern with no prefixes" in {
     var randomSchema = StringSchema().properties
     for (c <- 'a' to 'z') { randomSchema = randomSchema.mergeValue(c.toString) }
