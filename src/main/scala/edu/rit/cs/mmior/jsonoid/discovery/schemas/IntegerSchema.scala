@@ -47,6 +47,7 @@ object IntegerSchema {
     props.add(MinIntValueProperty())
     props.add(MaxIntValueProperty())
     props.add(IntMultipleOfProperty())
+    props.add(IntExamplesProperty())
 
     props
   }

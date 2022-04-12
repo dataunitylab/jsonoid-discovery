@@ -47,6 +47,7 @@ object NumberSchema {
     props.add(MinNumValueProperty())
     props.add(MaxNumValueProperty())
     props.add(NumMultipleOfProperty())
+    props.add(NumExamplesProperty())
 
     props
   }

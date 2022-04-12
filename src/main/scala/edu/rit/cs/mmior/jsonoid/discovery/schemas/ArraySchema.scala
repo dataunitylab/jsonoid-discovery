@@ -46,6 +46,7 @@ object ArraySchema {
     props.add(ItemTypeProperty())
     props.add(MinItemsProperty())
     props.add(MaxItemsProperty())
+    props.add(UniqueProperty())
 
     props
   }

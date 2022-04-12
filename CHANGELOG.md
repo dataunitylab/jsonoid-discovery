@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Require minimum examples for format property
+- Include array item uniqueness and examples in simple property set
 
 ## [0.9.7]
 ### Added

@@ -54,6 +54,7 @@ object StringSchema {
     props.add(MaxLengthProperty())
     props.add(FormatProperty())
     props.add(PatternProperty())
+    props.add(StringExamplesProperty())
 
     props
   }
