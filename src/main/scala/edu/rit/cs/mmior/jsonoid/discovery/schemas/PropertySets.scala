@@ -7,7 +7,20 @@ final case class PropertySet(
     val numberProperties: SchemaProperties[BigDecimal],
     val objectProperties: SchemaProperties[Map[String, JsonSchema[_]]],
     val stringProperties: SchemaProperties[String]
-) {}
+) {
+  def onlyNamed(propNames: Seq[String]): PropertySet = {
+    val props = propNames.map(c =>
+      Class.forName("edu.rit.cs.mmior.jsonoid.discovery.schemas." + c)
+    )
+    PropertySet(
+      arrayProperties.only(props),
+      integerProperties.only(props),
+      numberProperties.only(props),
+      objectProperties.only(props),
+      stringProperties.only(props)
+    )
+  }
+}
 
 object PropertySets {
   implicit val AllProperties: PropertySet = PropertySet(

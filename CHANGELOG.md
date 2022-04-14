@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Require minimum examples for format property
 - Include array item uniqueness and examples in simple property set
 
+### Fixed
+- Avoid discovering properties not required in CLI
+
 ## [0.9.7]
 ### Added
 - Detect anomalies resulting from dependency violations

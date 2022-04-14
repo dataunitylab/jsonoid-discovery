@@ -145,9 +145,14 @@ object DiscoverSchema {
           case None       => Source.stdin
         }
 
+        val propSet = config.onlyProperties match {
+          case Some(propNames) => config.propertySet.onlyNamed(propNames)
+          case None            => config.propertySet
+        }
+
         val jsons = jsonFromSource(source)
         val schema =
-          discover(jsons, config.propertySet)(config.equivalenceRelation)
+          discover(jsons, propSet)(config.equivalenceRelation)
 
         var transformedSchema: JsonSchema[_] = schema
         if (config.addDefinitions) {
@@ -168,11 +173,6 @@ object DiscoverSchema {
         if (!config.writeValues.isEmpty) {
           val outputStream = new FileOutputStream(config.writeValues.get)
           ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
-        }
-
-        transformedSchema = config.onlyProperties match {
-          case Some(props) => transformedSchema.onlyPropertiesNamed(props)
-          case None        => transformedSchema
         }
 
         println(compact(render(transformedSchema.toJsonSchema)))
