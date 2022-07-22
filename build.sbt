@@ -18,7 +18,7 @@ val nonConsoleCompilerOptions = Seq(
   "-deprecation"
 )
 
-lazy val root = (project in file("."))
+lazy val core = (project in file("core"))
   .settings(
     name := "JSONoid Discovery",
     resolvers += Resolver.githubPackages("michaelmior"),
@@ -44,8 +44,19 @@ lazy val root = (project in file("."))
     ),
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "edu.rit.cs.mmior.jsonoid.discovery"
+    buildInfoPackage := "edu.rit.cs.mmior.jsonoid.discovery",
+
+    gitHubPagesOrgName := "michaelmior",
+    gitHubPagesRepoName := "jsonoid-discovery",
+    gitHubPagesSiteDir := baseDirectory.value / "core/target/site",
+
+    git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git",
+    git.useGitDescribe := true
   )
+  .enablePlugins(BuildInfoPlugin)
+  .enablePlugins(GitHubPagesPlugin)
+  .enablePlugins(GitVersioning)
+  .enablePlugins(SiteScaladocPlugin)
 
 Compile / compile / wartremoverErrors ++= Seq(
   Wart.ArrayEquals,
@@ -73,18 +84,6 @@ Compile / console / scalacOptions := (console / scalacOptions)
   .value.filterNot(opt =>
     nonConsoleCompilerOptions.contains(opt)
 )
-
-enablePlugins(BuildInfoPlugin)
-enablePlugins(GitHubPagesPlugin)
-enablePlugins(GitVersioning)
-enablePlugins(SiteScaladocPlugin)
-
-gitHubPagesOrgName := "michaelmior"
-gitHubPagesRepoName := "jsonoid-discovery"
-gitHubPagesSiteDir := baseDirectory.value / "target/site"
-
-git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
-git.useGitDescribe := true
 
 Test / fork := true
 
