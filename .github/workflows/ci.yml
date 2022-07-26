@@ -42,11 +42,8 @@ jobs:
         find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
         find $HOME/.sbt                              -name "*.lock"               -delete || true
-    - uses: actions-rs/clippy-check@v1
+    - run: cargo clippy --all-features
       working-directory: native/src/native
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        args: --all-features
     - uses: actions/setup-node@v2
       with:
         node-version: '14'
