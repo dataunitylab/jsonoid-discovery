@@ -6,8 +6,8 @@ import utils.HyperLogLog
 final case class PrimaryKey(path: String)
 
 object PrimaryKeyFinder extends SchemaWalker[HyperLogLog[_]] {
-  private val getHLL: PartialFunction[(String, JsonSchema[_]), HyperLogLog[_]]
-= {
+  private val getHLL
+      : PartialFunction[(String, JsonSchema[_]), HyperLogLog[_]] = {
     // Get the HyperLogLog object for the specific type
     case (_, i: IntegerSchema) if i.properties.has[IntHyperLogLogProperty] =>
       i.properties.get[IntHyperLogLogProperty].hll
