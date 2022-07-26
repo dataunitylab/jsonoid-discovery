@@ -1,0 +1,12 @@
+[package]
+name = "native"
+version = "0.1.0"
+authors = ["Michael Mior <mmior@mail.rit.edu>"]
+edition = "2018"
+
+[dependencies]
+hyperloglogplus = { version = "*", features = ["const-loop"] }
+jni = "0.19"
+
+[lib]
+crate_type = ["cdylib"]

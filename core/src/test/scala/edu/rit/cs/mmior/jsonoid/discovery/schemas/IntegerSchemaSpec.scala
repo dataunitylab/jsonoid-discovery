@@ -6,6 +6,7 @@ import org.json4s._
 
 import PropertySets._
 import UnitSpec._
+import utils.IntHyperLogLog
 
 class IntegerSchemaSpec extends UnitSpec {
   behavior of "IntegerSchema"
@@ -40,6 +41,14 @@ class IntegerSchemaSpec extends UnitSpec {
   it should "track the distinct elements" in {
     val hyperLogLogProp = integerSchema.properties.get[IntHyperLogLogProperty]
     hyperLogLogProp.hll.count() should be(2)
+  }
+
+  it should "HLL" in {
+    val hll = new IntHyperLogLog()
+    hll.add(3)
+    hll.add(3)
+    // hll.count() should be(1)
+    // hll.count() should be(1)
   }
 
   it should "keep a Bloom filter of observed elements" in {

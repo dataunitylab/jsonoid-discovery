@@ -57,6 +57,10 @@ lazy val core = (project in file("core"))
   .enablePlugins(GitHubPagesPlugin)
   .enablePlugins(GitVersioning)
   .enablePlugins(SiteScaladocPlugin)
+  .dependsOn(native % Runtime)
+
+lazy val native = (project in file("native"))
+  .enablePlugins(JniNative)
 
 Compile / compile / wartremoverErrors ++= Seq(
   Wart.ArrayEquals,

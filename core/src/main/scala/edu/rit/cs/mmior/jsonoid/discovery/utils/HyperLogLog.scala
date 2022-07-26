@@ -11,10 +11,24 @@ import java.util.Base64
 import scala.language.implicitConversions
 
 import com.github.prasanthj.hll.{HyperLogLog => HLL, HyperLogLogUtils}
+import com.github.sbt.jni.syntax.NativeLoader
 
 object HyperLogLog {
   implicit def unwrapHLL(hll: HyperLogLog): HLL = hll.hll
   val DefaultRegisterIndexBits: Int = 10
+}
+
+class IntHyperLogLog extends NativeLoader("native") with Serializable {
+  private val nativeHLL = init()
+
+  @native def init(): Long
+  @native def free(): Unit
+
+  @native def add(value: Int): Unit
+
+  @native def count(): Long
+
+  override def finalize(): Unit = free()
 }
 
 class HyperLogLog extends Serializable {
