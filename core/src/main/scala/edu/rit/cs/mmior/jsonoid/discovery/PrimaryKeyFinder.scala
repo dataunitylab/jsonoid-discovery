@@ -30,7 +30,7 @@ object PrimaryKeyFinder extends SchemaWalker[HyperLogLog[_]] {
         // bounds that make the field a possible primary key
         val primaryKeys = fieldHLLs.flatMap { case (path, hll) =>
           val count = hll.count()
-          val margin = count * hll.getStandardError()
+          val margin = count * 0.05
           if ((count + margin) >= totalCount.toLong) {
             List(PrimaryKey(path))
           } else {
