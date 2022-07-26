@@ -59,7 +59,7 @@ jobs:
           done
 
   publish:
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: test
     runs-on: ubuntu-latest
     steps:
