@@ -48,7 +48,7 @@ pub extern "system" fn Java_edu_rit_cs_mmior_jsonoid_discovery_utils_IntHyperLog
     env: JNIEnv,
     object: JObject,
     other: JObject,
-) -> () {
+) {
     let hllp_ref = get_hllp_ref::<i64>(env, object);
     let hllp_ref2 = get_hllp_ref::<i64>(env, other);
     hllp_ref.merge(hllp_ref2).ok();
@@ -105,7 +105,7 @@ pub extern "system" fn Java_edu_rit_cs_mmior_jsonoid_discovery_utils_StringHyper
     env: JNIEnv,
     object: JObject,
     other: JObject,
-) -> () {
+) {
     let hllp_ref = get_hllp_ref::<String>(env, object);
     let hllp_ref2 = get_hllp_ref::<String>(env, other);
     hllp_ref.merge(hllp_ref2).ok();
