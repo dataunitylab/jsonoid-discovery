@@ -5,18 +5,17 @@ import utils.HyperLogLog
 
 final case class PrimaryKey(path: String)
 
-object PrimaryKeyFinder extends SchemaWalker[HyperLogLog] {
-  private val getHLL: PartialFunction[(String, JsonSchema[_]), HyperLogLog] =
-    Map.empty
-  // = {
+object PrimaryKeyFinder extends SchemaWalker[HyperLogLog[_]] {
+  private val getHLL: PartialFunction[(String, JsonSchema[_]), HyperLogLog[_]]
+= {
     // Get the HyperLogLog object for the specific type
-    // case (_, i: IntegerSchema) if i.properties.has[IntHyperLogLogProperty] =>
-    //   i.properties.get[IntHyperLogLogProperty].hll
-    // case (_, n: NumberSchema) if n.properties.has[NumHyperLogLogProperty] =>
-    //   n.properties.get[NumHyperLogLogProperty].hll
-    // case (_, s: StringSchema) if s.properties.has[StringHyperLogLogProperty] =>
-    //   s.properties.get[StringHyperLogLogProperty].hll
-  // }
+    case (_, i: IntegerSchema) if i.properties.has[IntHyperLogLogProperty] =>
+      i.properties.get[IntHyperLogLogProperty].hll
+    case (_, n: NumberSchema) if n.properties.has[NumHyperLogLogProperty] =>
+      n.properties.get[NumHyperLogLogProperty].hll
+    case (_, s: StringSchema) if s.properties.has[StringHyperLogLogProperty] =>
+      s.properties.get[StringHyperLogLogProperty].hll
+  }
 
   def findPrimaryKeys(schema: JsonSchema[_]): List[PrimaryKey] = {
     schema match {
