@@ -19,7 +19,7 @@ import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.{Histogram, HyperLogLog}
+import utils.{Histogram, StringHyperLogLog}
 
 object StringSchema {
   def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
@@ -166,7 +166,7 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 }
 
 final case class StringHyperLogLogProperty(
-    hll: HyperLogLog = new HyperLogLog()
+    hll: StringHyperLogLog = new StringHyperLogLog()
 ) extends SchemaProperty[String, StringHyperLogLogProperty] {
   override def toJson: JObject = ("distinctValues" -> hll.count()) ~ ("hll" ->
     hll.toBase64)
@@ -186,7 +186,7 @@ final case class StringHyperLogLogProperty(
   )(implicit er: EquivalenceRelation): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
-    prop.hll.addString(value)
+    prop.hll.add(value)
 
     prop
   }

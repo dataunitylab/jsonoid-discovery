@@ -24,9 +24,30 @@ class IntHyperLogLog extends NativeLoader("native") with Serializable {
   @native def init(): Long
   @native def free(): Unit
 
-  @native def add(value: Int): Unit
+  @native def add(value: Long): Unit
 
   @native def count(): Long
+
+  @native def merge(other: IntHyperLogLog): Unit
+
+  def toBase64(): String = ""
+
+  override def finalize(): Unit = free()
+}
+
+class StringHyperLogLog extends NativeLoader("native") with Serializable {
+  private val nativeHLL = init()
+
+  @native def init(): Long
+  @native def free(): Unit
+
+  @native def add(value: String): Unit
+
+  @native def count(): Long
+
+  @native def merge(other: StringHyperLogLog): Unit
+
+  def toBase64(): String = ""
 
   override def finalize(): Unit = free()
 }

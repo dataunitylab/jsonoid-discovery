@@ -13,7 +13,7 @@ import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.{Histogram, HyperLogLog}
+import utils.{Histogram, IntHyperLogLog}
 
 object IntegerSchema {
   def apply(value: BigInt)(implicit propSet: PropertySet): IntegerSchema = {
@@ -216,7 +216,7 @@ final case class MaxIntValueProperty(
 }
 
 final case class IntHyperLogLogProperty(
-    hll: HyperLogLog = new HyperLogLog()
+    hll: IntHyperLogLog = new IntHyperLogLog()
 ) extends SchemaProperty[BigInt, IntHyperLogLogProperty] {
   override def toJson: JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
