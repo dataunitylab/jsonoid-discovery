@@ -12,7 +12,7 @@ pub extern "system" fn Java_edu_rit_cs_mmior_jsonoid_discovery_utils_IntHyperLog
   _object: JObject
 ) -> jlong {
   let hllp: HyperLogLogPlus<i32, _> = HyperLogLogPlus::new(16, RandomState::new()).unwrap();
-  return Box::into_raw(Box::new(hllp)) as i64;
+  Box::into_raw(Box::new(hllp)) as i64
 }
 
 #[no_mangle]
@@ -33,7 +33,7 @@ pub extern "system" fn Java_edu_rit_cs_mmior_jsonoid_discovery_utils_IntHyperLog
 ) -> jlong {
   let hllp_ptr =  env.get_field(object, "nativeHLL", "J").unwrap().j().unwrap() as *mut HyperLogLogPlus<i32, RandomState>;
   let hllp_ref = unsafe { &mut *hllp_ptr };
-  return hllp_ref.count() as i64;
+  hllp_ref.count() as i64
 }
 
 #[no_mangle]
