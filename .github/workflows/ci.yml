@@ -43,6 +43,7 @@ jobs:
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
         find $HOME/.sbt                              -name "*.lock"               -delete || true
     - uses: actions-rs/clippy-check@v1
+      working-directory: native/src/native
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         args: --all-features
