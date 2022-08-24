@@ -154,8 +154,13 @@ final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
 ) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
   override def toJson: JObject = itemType match {
-    case Left(schema)   => ("items" -> schema.toJson)
-    case Right(schemas) => ("items" -> JArray(schemas.map(_.toJson)))
+    case Left(schema) => ("items" -> schema.toJson)
+    case Right(schemas) =>
+      if (schemas.size > 0) {
+        ("items" -> JArray(schemas.map(_.toJson)))
+      } else {
+        Nil
+      }
   }
 
   override def transform(
