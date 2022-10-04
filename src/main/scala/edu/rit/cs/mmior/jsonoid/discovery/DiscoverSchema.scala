@@ -69,14 +69,20 @@ object DiscoverSchema {
     source.getLines().map(parse(_))
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def transformSchema(
-      schema: JsonSchema[_]
+      schema: JsonSchema[_],
+      addDefinitions: Boolean = false
   )(implicit er: EquivalenceRelation): JsonSchema[_] = {
-    EnumTransformer.transformSchema(
-      DefinitionTransformer
-        .transformSchema(schema.asInstanceOf[ObjectSchema])(er)
-        .asInstanceOf[ObjectSchema]
-    )(er)
+    var transformedSchema = schema
+    if (addDefinitions) {
+      transformedSchema = DefinitionTransformer
+        .transformSchema(transformedSchema)(er)
+    }
+    transformedSchema = EnumTransformer
+      .transformSchema(transformedSchema)(er)
+
+    transformedSchema
   }
 
   // $COVERAGE-OFF$ No automated testing of CLI
@@ -154,21 +160,19 @@ object DiscoverSchema {
         val schema =
           discover(jsons, propSet)(config.equivalenceRelation)
 
-        var transformedSchema: JsonSchema[_] = schema
-        if (config.addDefinitions) {
-          if (config.propertySet =/= PropertySets.AllProperties) {
-            throw new IllegalArgumentException(
-              "All properties required to compute definitions"
-            )
-          }
-
-          transformedSchema = DefinitionTransformer
-            .transformSchema(transformedSchema)(
-              config.equivalenceRelation
-            )
+        // Check if transformations are valid
+        if (
+          config.addDefinitions && config.propertySet =/= PropertySets.AllProperties
+        ) {
+          throw new IllegalArgumentException(
+            "All properties required to compute definitions"
+          )
         }
-        transformedSchema = EnumTransformer
-          .transformSchema(transformedSchema)(config.equivalenceRelation)
+
+        var transformedSchema: JsonSchema[_] =
+          transformSchema(schema, config.addDefinitions)(
+            config.equivalenceRelation
+          )
 
         if (!config.writeValues.isEmpty) {
           val outputStream = new FileOutputStream(config.writeValues.get)

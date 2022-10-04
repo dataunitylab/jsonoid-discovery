@@ -11,7 +11,8 @@ import org.json4s.jackson.JsonMethods._
 
 final case class Config(
     input: String = "",
-    propertySet: PropertySet = PropertySets.AllProperties
+    propertySet: PropertySet = PropertySets.AllProperties,
+    addDefinitions: Boolean = false
 )
 
 object JsonoidSpark {
@@ -44,6 +45,10 @@ object JsonoidSpark {
       opt[PropertySet]('p', "prop")
         .action((x, c) => c.copy(propertySet = x))
         .text("the set of properties to calculate [All, Min, Simple]")
+
+      opt[Unit]('d', "add-definitions")
+        .action((x, c) => c.copy(addDefinitions = true))
+        .text("extract similar objects to create definitions")
     }
 
     parser.parse(args, Config()) match {
@@ -61,7 +66,7 @@ object JsonoidSpark {
         // Skip transformation if we know the required properties don't exist
         if (!(config.propertySet === PropertySets.MinProperties)) {
           schema = DiscoverSchema
-            .transformSchema(schema)(er)
+            .transformSchema(schema, config.addDefinitions)(er)
             .asInstanceOf[ObjectSchema]
         }
 
