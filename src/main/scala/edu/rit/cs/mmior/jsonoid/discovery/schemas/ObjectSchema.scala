@@ -64,10 +64,15 @@ final case class ObjectSchema(
       ObjectSchema(properties.merge(otherProperties, mergeType))
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def copy(
       properties: SchemaProperties[Map[String, JsonSchema[_]]]
-  ): ObjectSchema =
-    ObjectSchema(properties)
+  ): ObjectSchema = {
+    val newSchema = ObjectSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   override def findByPointer(pointer: String): Option[JsonSchema[_]] = {

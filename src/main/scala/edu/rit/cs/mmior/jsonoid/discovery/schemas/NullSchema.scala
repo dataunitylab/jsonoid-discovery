@@ -18,8 +18,13 @@ final case class NullSchema(
       NullSchema(properties.merge(otherProperties, mergeType))
   }
 
-  override def copy(properties: SchemaProperties[Nothing]): NullSchema =
-    NullSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[Nothing]): NullSchema = {
+    val newSchema = NullSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isValidType[S <: JValue](value: S): Boolean = value == JNull

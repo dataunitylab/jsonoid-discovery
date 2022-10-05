@@ -75,8 +75,13 @@ final case class StringSchema(
       StringSchema(properties.merge(otherProperties, mergeType))
   }
 
-  override def copy(properties: SchemaProperties[String]): StringSchema =
-    StringSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[String]): StringSchema = {
+    val newSchema = StringSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 }
 
 final case class MinLengthProperty(minLength: Option[Int] = None)

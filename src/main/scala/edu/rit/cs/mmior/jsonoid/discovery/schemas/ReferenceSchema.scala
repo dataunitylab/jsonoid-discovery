@@ -42,8 +42,13 @@ final case class ReferenceSchema(
       er: EquivalenceRelation
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
 
-  override def copy(properties: SchemaProperties[String]): ReferenceSchema =
-    ReferenceSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[String]): ReferenceSchema = {
+    val newSchema = ReferenceSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 
   override def collectAnomalies[S <: JValue](
       value: S,

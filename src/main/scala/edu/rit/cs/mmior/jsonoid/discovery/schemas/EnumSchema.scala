@@ -55,8 +55,13 @@ final case class EnumSchema(
       EnumSchema(properties.merge(otherProperties, mergeType))
   }
 
-  override def copy(properties: SchemaProperties[Set[JValue]]): EnumSchema =
-    EnumSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[Set[JValue]]): EnumSchema = {
+    val newSchema = EnumSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 }
 
 final case class EnumValuesProperty(values: Set[JValue] = Set.empty)

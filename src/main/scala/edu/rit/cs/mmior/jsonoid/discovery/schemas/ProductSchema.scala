@@ -105,10 +105,15 @@ final case class ProductSchema(
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def copy(
       properties: SchemaProperties[JsonSchema[_]]
-  ): ProductSchema =
-    ProductSchema(properties)
+  ): ProductSchema = {
+    val newSchema = ProductSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   override def findByPointer(pointer: String): Option[JsonSchema[_]] = {

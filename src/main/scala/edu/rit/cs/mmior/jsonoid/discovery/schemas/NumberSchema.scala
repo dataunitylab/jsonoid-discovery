@@ -113,8 +113,13 @@ final case class NumberSchema(
     }
   }
 
-  override def copy(properties: SchemaProperties[BigDecimal]): NumberSchema =
-    NumberSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[BigDecimal]): NumberSchema = {
+    val newSchema = NumberSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 }
 
 final case class MinNumValueProperty(

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 - Don't output items in `ArraySchema` if empty
+- Keep definitions on schema copy
 
 ## [0.10.0]
 ### Added

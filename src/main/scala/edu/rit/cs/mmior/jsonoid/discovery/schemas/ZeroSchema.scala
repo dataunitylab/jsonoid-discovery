@@ -22,6 +22,11 @@ final case class ZeroSchema(
     }
   }
 
-  override def copy(properties: SchemaProperties[Nothing]): ZeroSchema =
-    ZeroSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[Nothing]): ZeroSchema = {
+    val newSchema = ZeroSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 }

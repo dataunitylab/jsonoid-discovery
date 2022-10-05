@@ -69,8 +69,13 @@ final case class IntegerSchema(
     case other: NumberSchema => other.mergeSameType(mergeType)(er)(this)
   }
 
-  override def copy(properties: SchemaProperties[BigInt]): IntegerSchema =
-    IntegerSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[BigInt]): IntegerSchema = {
+    val newSchema = IntegerSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 }
 
 final case class MinIntValueProperty(

@@ -25,6 +25,11 @@ final case class AnySchema(
     }
   }
 
-  override def copy(properties: SchemaProperties[Nothing]): AnySchema =
-    AnySchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[Nothing]): AnySchema = {
+    val newSchema = AnySchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 }

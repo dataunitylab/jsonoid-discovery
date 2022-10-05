@@ -36,8 +36,13 @@ final case class BooleanSchema(
       BooleanSchema(properties.merge(otherProperties, mergeType))
   }
 
-  override def copy(properties: SchemaProperties[Boolean]): BooleanSchema =
-    BooleanSchema(properties)
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  override def copy(properties: SchemaProperties[Boolean]): BooleanSchema = {
+    val newSchema = BooleanSchema(properties)
+    newSchema.definitions ++= this.definitions
+
+    newSchema
+  }
 
   override def collectAnomalies[S <: JValue](
       value: S,
