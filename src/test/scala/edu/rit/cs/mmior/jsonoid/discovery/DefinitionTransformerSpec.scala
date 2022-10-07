@@ -12,18 +12,18 @@ class DefinitionTransformerSpec extends UnitSpec {
   implicit val er: EquivalenceRelation =
     EquivalenceRelations.KindEquivalenceRelation
 
-  val json: JValue = parse("""{
-    "foo": {
-      "bar": 1,
-      "baz": 2
-    },
-    "quux": {
-      "bar": 3,
-      "baz": 4
-    }
-  }""")
-
   it should "replace a common schema with a definition" in {
+    val json: JValue = parse("""{
+      "foo": {
+        "bar": 1,
+        "baz": 2
+      },
+      "quux": {
+        "bar": 3,
+        "baz": 4
+      }
+    }""")
+
     val schema =
       DiscoverSchema.discoverFromValue(json).asInstanceOf[ObjectSchema]
     val transformedSchema = DefinitionTransformer.transformSchema(schema)
@@ -53,5 +53,17 @@ class DefinitionTransformerSpec extends UnitSpec {
       .get[ObjectTypesProperty]
       .objectTypes
       .keys should contain theSameElementsAs Set("bar", "baz")
+  }
+
+  it should "not fail on objects with single keys" in {
+    val json: JValue = parse("""{
+      "corge": 1
+    }""")
+
+    val schema =
+      DiscoverSchema.discoverFromValue(json).asInstanceOf[ObjectSchema]
+    val transformedSchema = DefinitionTransformer.transformSchema(schema)
+
+    schema.shouldEqual(transformedSchema)
   }
 }
