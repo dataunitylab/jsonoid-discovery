@@ -3,7 +3,7 @@
 [![CI](https://github.com/michaelmior/jsonoid-discovery/actions/workflows/ci.yml/badge.svg)](https://github.com/michaelmior/jsonoid-discovery/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/michaelmior/jsonoid-discovery/branch/main/graph/badge.svg?token=VhcWABnQhU)](https://codecov.io/gh/michaelmior/jsonoid-discovery)
 
-Schema discovery for JSON using monoids.
+Schema discovery for JSON Schema draft 2019-09 using monoids.
 
 Currently this package uses unreleased code via GitHub Packages.
 Although all the code is public, you must [create a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).
