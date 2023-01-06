@@ -13,6 +13,8 @@ import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import org.json4s.JsonDSL._
 import org.json4s._
 
+import utils.BloomFilter
+
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 
@@ -250,12 +252,8 @@ object JsonSchema {
 
     if (int.values.contains("bloomFilter")) {
       val bloomStr = (int \ "bloomFilter").extract[String]
-      val bloomFilter = deserializeBloomFilter(bloomStr)
-      props.add(
-        IntBloomFilterProperty(
-          bloomFilter.asInstanceOf[RoaringBloomFilter[Integer]]
-        )
-      )
+      val bloomFilter = BloomFilter.deserialize[Integer](bloomStr)
+      props.add(IntBloomFilterProperty(bloomFilter))
     }
 
     IntegerSchema(props)
@@ -310,12 +308,8 @@ object JsonSchema {
 
     if (num.values.contains("bloomFilter")) {
       val bloomStr = (num \ "bloomFilter").extract[String]
-      val bloomFilter = deserializeBloomFilter(bloomStr)
-      props.add(
-        NumBloomFilterProperty(
-          bloomFilter.asInstanceOf[RoaringBloomFilter[Double]]
-        )
-      )
+      val bloomFilter = BloomFilter.deserialize[Double](bloomStr)
+      props.add(NumBloomFilterProperty(bloomFilter))
     }
 
     NumberSchema(props)
@@ -409,12 +403,8 @@ object JsonSchema {
 
     if (str.values.contains("bloomFilter")) {
       val bloomStr = (str \ "bloomFilter").extract[String]
-      val bloomFilter = deserializeBloomFilter(bloomStr)
-      props.add(
-        StringBloomFilterProperty(
-          bloomFilter.asInstanceOf[RoaringBloomFilter[String]]
-        )
-      )
+      val bloomFilter = BloomFilter.deserialize[String](bloomStr)
+      props.add(StringBloomFilterProperty(bloomFilter))
     }
 
     StringSchema(props)

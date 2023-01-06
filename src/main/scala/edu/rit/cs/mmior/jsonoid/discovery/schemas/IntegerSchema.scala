@@ -1,19 +1,15 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
-import java.util.Base64
-
 import scala.reflect._
 
-import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.{Histogram, HyperLogLog}
+import utils.{BloomFilter, Histogram, HyperLogLog}
 
 object IntegerSchema {
   def apply(value: BigInt)(implicit propSet: PropertySet): IntegerSchema = {
@@ -247,33 +243,19 @@ final case class IntHyperLogLogProperty(
   }
 }
 
-object IntBloomFilterProperty {
-  val ExpectedElements: Int = 100000
-  val FalsePositive: Double = 0.01
-}
-
 final case class IntBloomFilterProperty(
-    bloomFilter: RoaringBloomFilter[Integer] = new RoaringBloomFilter[Integer](
-      IntBloomFilterProperty.ExpectedElements,
-      IntBloomFilterProperty.FalsePositive
-    )
+    bloomFilter: BloomFilter[Integer] = BloomFilter[Integer]()
 ) extends SchemaProperty[BigInt, IntBloomFilterProperty] {
   override def toJson: JObject = {
-    val baos = new ByteArrayOutputStream()
-    val oos = new ObjectOutputStream(baos)
-    oos.writeObject(bloomFilter)
-    oos.close()
-
-    val bloomStr = Base64.getEncoder().encodeToString(baos.toByteArray())
-    ("bloomFilter" -> bloomStr)
+    ("bloomFilter" -> bloomFilter.toBase64)
   }
 
   override def unionMerge(
       otherProp: IntBloomFilterProperty
   )(implicit er: EquivalenceRelation): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
-    prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.merge(otherProp.bloomFilter)
+    prop.bloomFilter.filter.merge(this.bloomFilter.filter)
+    prop.bloomFilter.filter.merge(otherProp.bloomFilter.filter)
 
     prop
   }
@@ -283,8 +265,8 @@ final case class IntBloomFilterProperty(
       value: BigInt
   )(implicit er: EquivalenceRelation): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
-    prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.add(value.toByteArray)
+    prop.bloomFilter.filter.merge(this.bloomFilter.filter)
+    prop.bloomFilter.filter.add(value.toByteArray)
 
     prop
   }

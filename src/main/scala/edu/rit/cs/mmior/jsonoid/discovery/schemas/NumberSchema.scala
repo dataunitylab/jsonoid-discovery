@@ -6,14 +6,13 @@ import java.util.Base64
 
 import scala.reflect._
 
-import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.{Histogram, HyperLogLog}
+import utils.{BloomFilter, Histogram, HyperLogLog}
 
 object NumberSchema {
   def apply(value: BigDecimal)(implicit propSet: PropertySet): NumberSchema = {
@@ -83,10 +82,10 @@ final case class NumberSchema(
             //     a problem unless integer values are several
             //     orders of magnitude larger
             props.add(NumHyperLogLogProperty(hll))
-          case IntBloomFilterProperty(bloomfilter) =>
+          case IntBloomFilterProperty(bloomFilter) =>
             props.add(
               NumBloomFilterProperty(
-                bloomfilter.asInstanceOf[RoaringBloomFilter[Double]]
+                bloomFilter.asInstanceOf[BloomFilter[Double]]
               )
             )
           case IntStatsProperty(stats) =>
@@ -308,16 +307,8 @@ final case class NumHyperLogLogProperty(
   }
 }
 
-object NumBloomFilterProperty {
-  val ExpectedElements: Int = 100000
-  val FalsePositive: Double = 0.01
-}
-
 final case class NumBloomFilterProperty(
-    bloomFilter: RoaringBloomFilter[Double] = new RoaringBloomFilter[Double](
-      NumBloomFilterProperty.ExpectedElements,
-      NumBloomFilterProperty.FalsePositive
-    )
+    bloomFilter: BloomFilter[Double] = BloomFilter[Double]()
 ) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
   override def toJson: JObject = {
     val baos = new ByteArrayOutputStream()
@@ -333,8 +324,8 @@ final case class NumBloomFilterProperty(
       otherProp: NumBloomFilterProperty
   )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
-    prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.merge(otherProp.bloomFilter)
+    prop.bloomFilter.filter.merge(this.bloomFilter.filter)
+    prop.bloomFilter.filter.merge(otherProp.bloomFilter.filter)
 
     prop
   }
@@ -351,10 +342,10 @@ final case class NumBloomFilterProperty(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
-    prop.bloomFilter.merge(this.bloomFilter)
+    prop.bloomFilter.filter.merge(this.bloomFilter.filter)
 
     val scaled = scaleValue(value)
-    prop.bloomFilter.add(scaled)
+    prop.bloomFilter.filter.add(scaled)
 
     prop
   }

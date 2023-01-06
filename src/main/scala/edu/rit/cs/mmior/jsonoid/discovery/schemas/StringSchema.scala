@@ -1,9 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import java.io.{ByteArrayOutputStream, ObjectOutputStream}
-import java.util.Base64
-
 import scala.reflect._
 
 import java.net.URI
@@ -12,14 +9,13 @@ import java.util.UUID
 import scala.util.matching.Regex
 import scala.util.Try
 
-import com.sangupta.bloomfilter.impl.RoaringBloomFilter
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.{Histogram, HyperLogLog}
+import utils.{BloomFilter, Histogram, HyperLogLog}
 
 object StringSchema {
   def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
@@ -203,27 +199,18 @@ object StringBloomFilterProperty {
 }
 
 final case class StringBloomFilterProperty(
-    bloomFilter: RoaringBloomFilter[String] = new RoaringBloomFilter[String](
-      StringBloomFilterProperty.ExpectedElements,
-      StringBloomFilterProperty.FalsePositive
-    )
+    bloomFilter: BloomFilter[String] = BloomFilter[String]()
 ) extends SchemaProperty[String, StringBloomFilterProperty] {
   override def toJson: JObject = {
-    val baos = new ByteArrayOutputStream()
-    val oos = new ObjectOutputStream(baos)
-    oos.writeObject(bloomFilter)
-    oos.close()
-
-    val bloomStr = Base64.getEncoder().encodeToString(baos.toByteArray())
-    ("bloomFilter" -> bloomStr)
+    ("bloomFilter" -> bloomFilter.toBase64)
   }
 
   override def unionMerge(
       otherProp: StringBloomFilterProperty
   )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
-    prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.merge(otherProp.bloomFilter)
+    prop.bloomFilter.filter.merge(this.bloomFilter.filter)
+    prop.bloomFilter.filter.merge(otherProp.bloomFilter.filter)
 
     prop
   }
@@ -233,8 +220,8 @@ final case class StringBloomFilterProperty(
       value: String
   )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
-    prop.bloomFilter.merge(this.bloomFilter)
-    prop.bloomFilter.add(value)
+    prop.bloomFilter.filter.merge(this.bloomFilter.filter)
+    prop.bloomFilter.filter.add(value)
 
     prop
   }

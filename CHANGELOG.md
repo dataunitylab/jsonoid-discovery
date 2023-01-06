@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep definitions on schema copy
 - Don't fail in `DefinitionTransfer` on single keys
 
+### Changed
+- Refactor Bloom filters to reduce code duplication
+
 ## [0.10.0]
 ### Added
 - Add intersecting label equivalence relation

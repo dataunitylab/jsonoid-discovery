@@ -1,17 +1,15 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
-import com.sangupta.bloomfilter.impl.RoaringBloomFilter
-
 import schemas._
+import utils.BloomFilter
 
 final case class ForeignKey(localPath: String, foreignPath: String)
 
-object ForeignKeyFinder extends SchemaWalker[RoaringBloomFilter[_]] {
+object ForeignKeyFinder extends SchemaWalker[BloomFilter[_]] {
   def collectFiltersByPath(
       schema: JsonSchema[_]
-  ): Map[String, RoaringBloomFilter[_]] = {
-    val extractor
-        : PartialFunction[(String, JsonSchema[_]), RoaringBloomFilter[_]] = {
+  ): Map[String, BloomFilter[_]] = {
+    val extractor: PartialFunction[(String, JsonSchema[_]), BloomFilter[_]] = {
       case (_, i: IntegerSchema) if i.properties.has[IntBloomFilterProperty] =>
         i.properties.get[IntBloomFilterProperty].bloomFilter
       case (_, n: NumberSchema) if n.properties.has[NumBloomFilterProperty] =>
