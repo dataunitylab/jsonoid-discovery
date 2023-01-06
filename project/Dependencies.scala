@@ -8,6 +8,7 @@ object Dependencies {
 
   lazy val bloomFilter         = "com.sangupta"               % "bloomfilter"             % "0.9.1-SNAPSHOT"
   lazy val dbscan              = "com.github.chrfrantz"       % "DBSCAN"                  % "1de90e7"
+  lazy val ddSketch            = "com.datadoghq"              % "sketches-java"           % "0.8.2"
   lazy val fuzzySets           = "com.github.dataunitylab"    % "fuzzy-sets"              % "v0.2.0"
   lazy val hyperLogLog         = "com.github.prasanthj"       %  "hyperloglog"            % "1.1"
   lazy val jsonSchemaValidator = "com.networknt"              %  "json-schema-validator"  % "1.0.49"
@@ -17,6 +18,7 @@ object Dependencies {
   lazy val sparkSql            = "org.apache.spark"           %% "spark-sql"              % "2.4.8"
 
   // Test
+  lazy val scalactic           = "org.scalactic"              %% "scalactic"              % "3.2.14"
   lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.10"
 
   // Overrides

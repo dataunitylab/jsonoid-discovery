@@ -15,7 +15,8 @@ val nonConsoleCompilerOptions = Seq(
   "-feature",
   "-Xfatal-warnings",
   "-Ywarn-unused-import",
-  "-deprecation"
+  "-deprecation",
+  "-target:jvm-1.8"
 )
 
 lazy val root = (project in file("."))
@@ -25,6 +26,7 @@ lazy val root = (project in file("."))
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
         bloomFilter,
+        ddSketch,
         json4s,
         json4sScalaz,
         dbscan,
@@ -37,11 +39,13 @@ lazy val root = (project in file("."))
         spark % "provided",
         sparkSql % "provided",
 
+        scalactic % Test,
         scalaTest % Test,
     ),
     dependencyOverrides ++= Seq(
       jacksonDatabind,
     ),
+    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
     buildInfoPackage := "edu.rit.cs.mmior.jsonoid.discovery"

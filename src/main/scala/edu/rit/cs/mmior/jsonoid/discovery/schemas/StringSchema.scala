@@ -509,7 +509,7 @@ final case class StringLengthHistogramProperty(
       value: String
   )(implicit er: EquivalenceRelation): StringLengthHistogramProperty = {
     StringLengthHistogramProperty(
-      histogram.merge(Histogram(List((value.length, 1))))
+      histogram.merge(value.length)
     )
   }
 

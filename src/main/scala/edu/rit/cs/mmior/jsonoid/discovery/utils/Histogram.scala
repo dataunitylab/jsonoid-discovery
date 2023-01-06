@@ -1,65 +1,91 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package utils
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
+
+import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
+import com.datadoghq.sketch.ddsketch.store.Bin;
+
 object Histogram {
-  val MaxBins: Int = 100
+  val Tolerance: Double = 0.01
 }
 
-final case class Histogram(bins: List[(BigDecimal, BigInt)] = List.empty) {
+final case class Histogram(
+    sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance)
+) {
+
   @SuppressWarnings(
-    Array("org.wartremover.warts.Var", "org.wartremover.warts.While")
+    Array(
+      "org.wartremover.warts.MutableDataStructures",
+      "org.wartremover.warts.NonUnitStatements"
+    )
   )
-  def mergeBins(
-      otherBins: List[(BigDecimal, BigInt)]
-  ): List[(BigDecimal, BigInt)] = {
-    var newBins = otherBins
+  def bins(): List[(Double, Int)] = {
+    val indexMapping = sketch.getIndexMapping
+    val bins = ListBuffer.empty[(Double, Int)]
 
-    while (newBins.size > Histogram.MaxBins) {
-      // Find the pair of bins with the smallest difference
-      var minDiff = BigDecimal.valueOf(Double.MaxValue)
-      var minIdx = 0
-
-      newBins.zipWithIndex.sliding(2).foreach {
-        case Seq(((q1, _), i), ((q2, _), _)) =>
-          val diff = q2 - q1
-          if (diff < minDiff) {
-            minDiff = diff
-            minIdx = i
-          }
-      }
-
-      val newCount = newBins(minIdx)._2 + newBins(minIdx + 1)._2
-      val newBin = (
-        (newBins(minIdx)._1 * BigDecimal(newBins(minIdx)._2) + newBins(
-          minIdx + 1
-        )._1 * BigDecimal(newBins(minIdx + 1)._2)) / BigDecimal(newCount),
-        newCount
-      )
-      newBins =
-        newBins.slice(0, minIdx) ++ List(newBin) ++ newBins.drop(minIdx + 2)
+    // Negative bins must have their values
+    // inverted and we go in descending order
+    sketch.getNegativeValueStore.getDescendingIterator.asScala.foreach {
+      bin: Bin =>
+        bins += ((-indexMapping.value(bin.getIndex), bin.getCount.toInt))
     }
 
-    newBins
+    // Add any zero values
+    val zeroCount =
+      sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
+        sketch.getPositiveValueStore.getTotalCount)
+    if (zeroCount > 0) {
+      bins += ((0.0, zeroCount.toInt))
+    }
+
+    // Add positive values
+    sketch.getPositiveValueStore.getAscendingIterator.asScala.foreach {
+      bin: Bin =>
+        bins += ((indexMapping.value(bin.getIndex), bin.getCount.toInt))
+    }
+
+    bins.toList
   }
 
   def merge(other: Histogram): Histogram = {
-    Histogram(mergeBins((bins ++ other.bins).sorted))
+    val newHistogram = Histogram()
+    newHistogram.sketch.mergeWith(sketch)
+    newHistogram.sketch.mergeWith(other.sketch)
+
+    newHistogram
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-  def isAnomalous(value: BigDecimal): Boolean = {
-    if (bins.length > 0) {
-      // Find the maximum observed window between bins
-      val window: BigDecimal = if (bins.length >= 2) {
-        bins.zip(bins.drop(1)).map(t => t._2._1 - t._1._1).max
-      } else {
-        0
-      }
+  def merge(value: Double): Histogram = {
+    val newHistogram = Histogram()
+    newHistogram.sketch.mergeWith(sketch)
+    newHistogram.sketch.accept(value)
 
-      // Check if this value is more than the window size outside the bin range
-      ((value + window) < bins.head._1) || ((value - window) > bins.last._1)
+    newHistogram
+  }
+
+  def isAnomalous(value: Double): Boolean = {
+    val mapping = sketch.getIndexMapping
+    val maxValue = if (sketch.getPositiveValueStore.isEmpty) {
+      -mapping.lowerBound(
+        sketch.getNegativeValueStore.getAscendingIterator.asScala.next.getIndex
+      )
     } else {
-      false
+      mapping.lowerBound(
+        sketch.getPositiveValueStore.getDescendingIterator.asScala.next.getIndex
+      )
     }
+    val minValue = if (sketch.getNegativeValueStore.isEmpty) {
+      mapping.lowerBound(
+        sketch.getPositiveValueStore.getAscendingIterator.asScala.next.getIndex
+      )
+    } else {
+      -mapping.lowerBound(
+        sketch.getNegativeValueStore.getDescendingIterator.asScala.next.getIndex
+      )
+    }
+
+    value * (1 + Histogram.Tolerance) < minValue || value * (1 - Histogram.Tolerance) > maxValue;
   }
 }

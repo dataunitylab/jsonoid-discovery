@@ -102,8 +102,8 @@ final case class NumberSchema(
                 )
               )
             )
-          case IntHistogramProperty(hist) =>
-            props.add(NumHistogramProperty(hist))
+          case IntHistogramProperty(histogram) =>
+            props.add(NumHistogramProperty(histogram))
           case IntMultipleOfProperty(multiple) =>
             NumMultipleOfProperty(multiple.map(_.toDouble))
         }
@@ -458,7 +458,7 @@ final case class NumHistogramProperty(
 ) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
   override def toJson: JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
-      List(value.doubleValue, count.longValue)
+      List(value, count)
     })
   }
 
@@ -471,7 +471,7 @@ final case class NumHistogramProperty(
   override def mergeValue(
       value: BigDecimal
   )(implicit er: EquivalenceRelation): NumHistogramProperty = {
-    NumHistogramProperty(histogram.merge(Histogram(List((value, 1)))))
+    NumHistogramProperty(histogram.merge(value.doubleValue))
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
@@ -479,8 +479,8 @@ final case class NumHistogramProperty(
   ) = {
     val histAnomaly = value match {
       case JDouble(num)  => histogram.isAnomalous(num)
-      case JDecimal(num) => histogram.isAnomalous(num)
-      case JInt(num)     => histogram.isAnomalous(BigDecimal(num))
+      case JDecimal(num) => histogram.isAnomalous(num.doubleValue)
+      case JInt(num)     => histogram.isAnomalous(num.toDouble)
       case _             => false
     }
 

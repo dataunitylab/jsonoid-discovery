@@ -385,7 +385,7 @@ final case class IntHistogramProperty(
 ) extends SchemaProperty[BigInt, IntHistogramProperty] {
   override def toJson: JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
-      List(value.doubleValue, count.longValue)
+      List(value, count)
     })
   }
 
@@ -398,9 +398,7 @@ final case class IntHistogramProperty(
   override def mergeValue(
       value: BigInt
   )(implicit er: EquivalenceRelation): IntHistogramProperty = {
-    IntHistogramProperty(
-      histogram.merge(Histogram(List((BigDecimal(value), 1))))
-    )
+    IntHistogramProperty(histogram.merge(value.doubleValue))
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
@@ -408,7 +406,7 @@ final case class IntHistogramProperty(
   ) = {
     value match {
       case JInt(num) =>
-        if (histogram.isAnomalous(BigDecimal(num))) {
+        if (histogram.isAnomalous(num.doubleValue)) {
           Seq(Anomaly(path, "value outside histogram bounds", Warning))
         } else {
           Seq.empty

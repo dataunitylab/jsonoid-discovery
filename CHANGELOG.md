@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Make definition transformation optional when running via Spark
+- Use [DDSketch](https://github.com/DataDog/sketches-java/) for histograms
 
 ## Fixed
 - Don't output items in `ArraySchema` if empty

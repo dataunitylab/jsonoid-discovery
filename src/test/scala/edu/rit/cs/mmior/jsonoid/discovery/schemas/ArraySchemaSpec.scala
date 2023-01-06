@@ -6,6 +6,7 @@ import UnitSpec._
 
 import org.json4s._
 import org.json4s.{DefaultFormats, Formats}
+import org.scalactic.TolerantNumerics
 
 class ArraySchemaSpec extends UnitSpec {
   behavior of "ArraySchema"
@@ -143,8 +144,14 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "keep a running histogram of array lengths" in {
+    implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
+
     val histProp = arraySchema.properties.get[ArrayLengthHistogramProperty]
-    histProp.histogram.bins shouldBe List((1, 1), (2, 1))
+    val bins = (histProp.toJson \ "lengthHistogram").extract[List[List[Double]]]
+    bins(0)(0) should ===(1.0)
+    bins(0)(1) should ===(1.0)
+    bins(1)(0) should ===(2.0)
+    bins(1)(1) should ===(1.0)
   }
 
   it should "find nothing in an array schema with an empty pointer" in {

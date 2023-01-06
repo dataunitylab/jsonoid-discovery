@@ -1,16 +1,19 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ListBuffer
 import scala.language.existentials
 import scala.reflect._
 
+import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
+import com.datadoghq.sketch.ddsketch.store.Bin;
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
 import Scalaz._
 
 import Helpers._
-import utils.Histogram
 
 object ArraySchema {
   def apply(
@@ -434,25 +437,46 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 }
 
 final case class ArrayLengthHistogramProperty(
-    histogram: Histogram = Histogram()
+    histogram: DDSketch = DDSketches.unboundedDense(0.01)
 ) extends SchemaProperty[List[JsonSchema[_]], ArrayLengthHistogramProperty] {
+  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   override def toJson: JObject = {
-    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
-      List(value.doubleValue, count.longValue)
+    val indexMapping = histogram.getIndexMapping
+    val bins = ListBuffer.empty[(Double, Int)]
+
+    // Negative bins must have their values
+    // inverted and we go in descending order
+    histogram.getNegativeValueStore.getDescendingIterator.asScala.foreach {
+      bin: Bin =>
+        bins += ((-indexMapping.value(bin.getIndex), bin.getCount.toInt))
+    }
+    histogram.getPositiveValueStore.getAscendingIterator.asScala.foreach {
+      bin: Bin =>
+        bins += ((indexMapping.value(bin.getIndex), bin.getCount.toInt))
+    }
+
+    ("lengthHistogram" -> bins.map { case (value, count) =>
+      List(value, count)
     })
   }
 
   override def unionMerge(
       otherProp: ArrayLengthHistogramProperty
   )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
-    ArrayLengthHistogramProperty(histogram.merge(otherProp.histogram))
+    val newHistogram = DDSketches.unboundedDense(0.01)
+    newHistogram.mergeWith(histogram)
+    newHistogram.mergeWith(otherProp.histogram)
+    ArrayLengthHistogramProperty(newHistogram)
   }
 
   override def mergeValue(
       value: List[JsonSchema[_]]
   )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
+    val newHistogram = DDSketches.unboundedDense(0.01)
+    newHistogram.mergeWith(histogram)
+    newHistogram.accept(value.length)
     ArrayLengthHistogramProperty(
-      histogram.merge(Histogram(List((value.length, 1))))
+      newHistogram
     )
   }
 
@@ -461,7 +485,10 @@ final case class ArrayLengthHistogramProperty(
   ) = {
     value match {
       case JArray(arr) =>
-        if (histogram.isAnomalous(arr.length)) {
+        if (
+          arr.length > (histogram.getMaxValue() * 1.01) || arr.length <
+            (histogram.getMinValue() * 0.99)
+        ) {
           Seq(
             Anomaly(path, "array length outside histogram bounds", Warning)
           )

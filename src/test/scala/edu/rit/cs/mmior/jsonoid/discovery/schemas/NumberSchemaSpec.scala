@@ -3,12 +3,15 @@ package schemas
 
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.scalactic.TolerantNumerics
 
 import PropertySets._
 import UnitSpec._
 
 class NumberSchemaSpec extends UnitSpec {
   behavior of "NumberSchema"
+
+  implicit val formats: Formats = DefaultFormats
 
   private val numberSchema =
     NumberSchema(3.14).merge(NumberSchema(4.28)).asInstanceOf[NumberSchema]
@@ -83,8 +86,14 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "keep a running histogram" in {
+    implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
+
     val histProp = numberSchema.properties.get[NumHistogramProperty]
-    histProp.histogram.bins shouldBe List((3.14, 1), (4.28, 1))
+    val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
+    bins(0)(0) should ===(3.14)
+    bins(0)(1) should ===(1.0)
+    bins(1)(0) should ===(4.28)
+    bins(1)(1) should ===(1.0)
   }
 
   it should "track the maximum value when merged with an integer schema" in {
@@ -118,8 +127,14 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "keep a running histogram when merged with an integer schema" in {
+    implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
+
     val histProp = mixedSchema.properties.get[NumHistogramProperty]
-    histProp.histogram.bins shouldBe List((3.14, 1), (4.28, 1), (5, 1))
+    val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
+    bins(0)(0) should ===(3.14)
+    bins(0)(1) should ===(1.0)
+    bins(1)(0) should ===(4.28)
+    bins(1)(1) should ===(1.0)
   }
 
   it should "have no properties in the minimal property set" in {

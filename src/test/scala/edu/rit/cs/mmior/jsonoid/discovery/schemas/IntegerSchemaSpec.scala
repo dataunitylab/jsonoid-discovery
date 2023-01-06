@@ -10,6 +10,8 @@ import UnitSpec._
 class IntegerSchemaSpec extends UnitSpec {
   behavior of "IntegerSchema"
 
+  implicit val formats: Formats = DefaultFormats
+
   private val integerSchema =
     IntegerSchema(8).merge(IntegerSchema(4)).asInstanceOf[IntegerSchema]
   private val integerSchemaIntersect =
@@ -77,7 +79,11 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "keep a running histogram" in {
     val histProp = integerSchema.properties.get[IntHistogramProperty]
-    histProp.histogram.bins shouldBe List((4, 1), (8, 1))
+    val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
+    bins(0)(0) should equal(4.0 +- 0.1)
+    bins(0)(1) should ===(1.0)
+    bins(1)(0) should ===(8.0 +- 0.1)
+    bins(1)(1) should ===(1.0)
   }
 
   it should "have no properties in the minimal property set" in {

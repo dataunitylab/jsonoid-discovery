@@ -106,7 +106,11 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "keep a running histogram of lengths" in {
     val histProp = stringSchema.properties.get[StringLengthHistogramProperty]
-    histProp.histogram.bins shouldBe List((4, 1), (6, 1))
+    val bins = (histProp.toJson \ "lengthHistogram").extract[List[List[Double]]]
+    bins(0)(0) should equal(4.0 +- 0.1)
+    bins(0)(1) should ===(1.0)
+    bins(1)(0) should ===(6.0 +- 0.1)
+    bins(1)(1) should ===(1.0)
   }
 
   it should "show strings as a valid type" in {
