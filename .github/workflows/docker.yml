@@ -1,0 +1,35 @@
+name: Docker
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: olafurpg/setup-scala@v11
+    - name: Coursier cache
+      uses: coursier/cache-action@v6
+    - name: Compile and prepare Docker configuration
+      run: sbt Docker/stage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_TOKEN }}
+    - name: Log in to the GitHub Container registry
+      uses: docker/login-action@v2.1.0
+      with:
+        registry: ghcr.io
+        username: michaelmior
+        password: ${{ secrets.GH_PERSONAL_TOKEN }}
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4.1.1
+      with:
+        images: ghcr.io/michaelmior/jsonoid-discovery
+    - name: Build and push image
+      uses: docker/build-push-action@v3.2.0
+      with:
+        context: ./target/docker/stage
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

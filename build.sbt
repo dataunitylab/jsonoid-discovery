@@ -79,9 +79,13 @@ Compile / console / scalacOptions := (console / scalacOptions)
 )
 
 enablePlugins(BuildInfoPlugin)
+enablePlugins(DockerPlugin)
 enablePlugins(GitHubPagesPlugin)
 enablePlugins(GitVersioning)
+enablePlugins(JavaAppPackaging)
 enablePlugins(SiteScaladocPlugin)
+
+dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
 
 gitHubPagesOrgName := "michaelmior"
 gitHubPagesRepoName := "jsonoid-discovery"
