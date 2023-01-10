@@ -29,6 +29,44 @@ val nonConsoleCompilerOptions = Seq(
   "-target:jvm-1.8"
 )
 
+val generateSchemas = taskKey[Unit]("Generate example schemas")
+
+generateSchemas := {
+  import sbt.Attributed.data
+
+  import java.nio.file.{FileSystems, Files}
+
+  val r = (Compile / runner).value
+  val cp = (Compile / fullClasspath).value
+
+  // Generate the output directory to store generated schemas
+  val schemaPath = FileSystems.getDefault().getPath("target", "jsonoid-schemas")
+  Files.createDirectories(schemaPath)
+
+  val inputs = List(
+    "earthquakes.json",
+    "gdp.json",
+    "mr-robot.json",
+    "nobel.json",
+    "rickandmorty.json",
+    "test.json",
+    "jsonlines-example.json"
+  )
+
+  for (input <- inputs) {
+    r.run("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema",
+    data(cp),
+    Seq(
+      "src/test/resources/" + input,
+      "-p",
+      "Simple",
+      "-w",
+      schemaPath.resolve(input).toString
+    ),
+    (streams.value: @sbtUnchecked).log)
+  }
+}
+
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",

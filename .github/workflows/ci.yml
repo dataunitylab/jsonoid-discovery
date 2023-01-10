@@ -39,6 +39,10 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: '14'
+    - name: Generate example schemas
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt generateSchemas
     - name: Install ajv
       run: |
         yarn global add ajv-cli ajv-formats

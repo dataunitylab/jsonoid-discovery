@@ -1,8 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
-import java.io.PrintWriter
-import java.nio.file.{FileSystems, Files}
 import scala.io.Source
 
 import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
@@ -88,22 +86,11 @@ class DiscoverSchemaSpec extends UnitSpec {
       "jsonlines-example.json"
     )
 
-    // Generate the output directory to store generated schemas
-    val schemaPath =
-      FileSystems.getDefault().getPath("target", "jsonoid-schemas")
-    Files.createDirectories(schemaPath)
-
     forAll(files) { filename: String =>
       val url = getClass.getResource("/" + filename)
       val input = DiscoverSchema.jsonFromSource(Source.fromURL(url)).buffered
       val firstDoc = input.head
       val schema = DiscoverSchema.discover(input, PropertySets.SimpleProperties)
-
-      // Save a copy of the generated schema
-      new PrintWriter(schemaPath.resolve(filename).toFile) {
-        write(compact(render(schema.toJson)))
-        close
-      }
 
       // XXX This validation is not perfect, but we'll check later with AJV
       //     Specifically, version 2020-12 of the spec is not yet supported
