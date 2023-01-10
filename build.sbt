@@ -7,6 +7,16 @@ ThisBuild / organizationName  := "Rochester Institute of Technology"
 ThisBuild / githubOwner       := "michaelmior"
 ThisBuild / githubRepository  := "jsonoid-discovery"
 
+inThisBuild(
+  List(
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
+
+scalafixOnCompile := true
+ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "3.0.0"
+
 mainClass := Some("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges

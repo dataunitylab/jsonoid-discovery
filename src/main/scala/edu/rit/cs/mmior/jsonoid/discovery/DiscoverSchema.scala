@@ -174,7 +174,7 @@ object DiscoverSchema {
             config.equivalenceRelation
           )
 
-        if (!config.writeValues.isEmpty) {
+        if (config.writeValues.isDefined) {
           val outputStream = new FileOutputStream(config.writeValues.get)
           ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
         }

@@ -5,7 +5,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
-import com.datadoghq.sketch.ddsketch.store.Bin;
+import com.datadoghq.sketch.ddsketch.store.Bin
 
 object Histogram {
   val Tolerance: Double = 0.01
@@ -86,6 +86,6 @@ final case class Histogram(
       )
     }
 
-    value * (1 + Histogram.Tolerance) < minValue || value * (1 - Histogram.Tolerance) > maxValue;
+    value * (1 + Histogram.Tolerance) < minValue || value * (1 - Histogram.Tolerance) > maxValue
   }
 }

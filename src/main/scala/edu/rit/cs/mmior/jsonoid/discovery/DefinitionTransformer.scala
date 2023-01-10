@@ -62,7 +62,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           var definition = if (lastParts.size > 1) {
             val afterUnderscore = lastParts.map(_.split("_").last)
             if (
-              afterUnderscore.size === 1 && afterUnderscore.headOption.get.length > 0
+              afterUnderscore.size === 1 && afterUnderscore.headOption.get.nonEmpty
             ) {
               afterUnderscore.headOption.get
             } else {

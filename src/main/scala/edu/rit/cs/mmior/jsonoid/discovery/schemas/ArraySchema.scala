@@ -7,7 +7,7 @@ import scala.language.existentials
 import scala.reflect._
 
 import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
-import com.datadoghq.sketch.ddsketch.store.Bin;
+import com.datadoghq.sketch.ddsketch.store.Bin
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -164,7 +164,7 @@ final case class ItemTypeProperty(
   override def toJson: JObject = itemType match {
     case Left(schema) => ("items" -> schema.toJson)
     case Right(schemas) =>
-      if (schemas.size > 0) {
+      if (schemas.nonEmpty) {
         ("items" -> JArray(schemas.map(_.toJson)))
       } else {
         Nil

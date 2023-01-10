@@ -128,7 +128,7 @@ class ProductSchemaSpec extends UnitSpec {
       productType: ProductType,
       matchCount: Int,
       anomalous: Boolean
-  ) {
+  ): Unit = {
     it should s"${if (anomalous) ""
     else "not "}find anomalies for a ProductSchema using ${productType} and ${matchCount} ${if (matchCount == 1)
       "match"

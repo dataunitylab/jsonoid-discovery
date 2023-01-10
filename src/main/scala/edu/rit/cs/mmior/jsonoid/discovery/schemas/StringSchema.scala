@@ -262,12 +262,12 @@ final case class StringExamplesProperty(
 }
 
 object FormatProperty {
-  val MinExamples: Int = 10;
+  val MinExamples: Int = 10
 
-  val MinFraction: Double = 0.9;
+  val MinFraction: Double = 0.9
 
   def regex(expr: Regex): Function1[String, Boolean] = { str =>
-    !expr.anchored.findFirstIn(str.trim).isEmpty
+    expr.anchored.findFirstIn(str.trim).isDefined
   }
 
   val FormatCheckers: Map[String, Function1[String, Boolean]] = Map(

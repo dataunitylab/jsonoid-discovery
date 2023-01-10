@@ -43,7 +43,7 @@ class StringSchemaSpec extends UnitSpec {
     )
   }
 
-  def schemaWithFormat(value: String, format: String) {
+  def schemaWithFormat(value: String, format: String): Unit = {
     it should s"detect the ${format} format" in {
       var props = StringSchema().properties
       for (_ <- 1 to 10) { props = props.mergeValue(value) }

@@ -84,10 +84,10 @@ final case class ExamplesProperty[T](
 
     // Randomly sample elements proportional to their original frequency
     while (
-      newExamples.length < ExamplesProperty.MaxExamples && (aIndexes.length > 0 || bIndexes.length > 0)
+      newExamples.length < ExamplesProperty.MaxExamples && (aIndexes.nonEmpty || bIndexes.nonEmpty)
     ) {
       if (
-        aIndexes.length > 0 && (bIndexes.length === 0 || random <= sampleRatio)
+        aIndexes.nonEmpty && (bIndexes.length === 0 || random <= sampleRatio)
       ) {
         newExamples.append(examples(aIndexes.remove(0) - 1))
       } else {

@@ -545,7 +545,7 @@ trait JsonSchema[T] {
       value: S,
       path: String = "$"
   ): Boolean = {
-    !collectAnomalies(value, path).isEmpty
+    collectAnomalies(value, path).nonEmpty
   }
 
   def collectAnomalies[S <: JValue: ClassTag](

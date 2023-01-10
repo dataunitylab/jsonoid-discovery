@@ -12,7 +12,7 @@ class EnumTransformerSpec extends UnitSpec {
     EquivalenceRelations.KindEquivalenceRelation
   implicit val formats: Formats = DefaultFormats
 
-  def schemaWithOneValue[T](schema: JsonSchema[T], value: T) {
+  def schemaWithOneValue[T](schema: JsonSchema[T], value: T): Unit = {
     it should s"convert single examples to constants for ${schema.getClass.getSimpleName}" in {
       var valueSchema: JsonSchema[_] = schema
       for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
@@ -29,7 +29,10 @@ class EnumTransformerSpec extends UnitSpec {
   schemaWithOneValue(NumberSchema(3.14), BigDecimal(3.14))
   schemaWithOneValue(StringSchema("foo"), "foo")
 
-  def schemaWithMultipleValues[T](schema: JsonSchema[T], values: Set[T]) {
+  def schemaWithMultipleValues[T](
+      schema: JsonSchema[T],
+      values: Set[T]
+  ): Unit = {
     it should s"convert multiple examples to enums for ${schema.getClass.getSimpleName}" in {
       var valueSchema: JsonSchema[_] = schema
       for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
