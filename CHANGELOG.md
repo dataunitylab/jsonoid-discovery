@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use [DDSketch](https://github.com/DataDog/sketches-java/) for histograms
 - Build a Docker image on each push
 - Include sbt wrapper script
+- Add option to write schema directly to file
 
 ## Fixed
 - Don't output items in `ArraySchema` if empty

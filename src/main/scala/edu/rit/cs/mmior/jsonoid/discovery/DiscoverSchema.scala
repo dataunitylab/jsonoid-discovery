@@ -2,6 +2,8 @@ package edu.rit.cs.mmior.jsonoid.discovery
 
 import java.io.File
 import java.io.FileOutputStream
+import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 import scala.io.Source
 
 import scopt.OptionParser
@@ -13,6 +15,7 @@ import schemas._
 
 final case class Config(
     input: Option[File] = None,
+    writeOutput: Option[File] = None,
     writeValues: Option[File] = None,
     propertySet: PropertySet = PropertySets.AllProperties,
     onlyProperties: Option[Seq[String]] = None,
@@ -121,6 +124,11 @@ object DiscoverSchema {
         .action((x, c) => c.copy(input = Some(x)))
         .text("a JSON file to perform discovery on, one object per line")
 
+      opt[File]('w', "write-output")
+        .action((x, c) => c.copy(writeOutput = Some(x)))
+        .valueName("<file>")
+        .text("file to write the generated schema to, defaults to stdout")
+
       opt[File]('v', "values")
         .action((x, c) => c.copy(writeValues = Some(x)))
         .valueName("<file>")
@@ -179,7 +187,15 @@ object DiscoverSchema {
           ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
         }
 
-        println(compact(render(transformedSchema.toJsonSchema)))
+        val schemaStr = compact(render(transformedSchema.toJsonSchema))
+        config.writeOutput match {
+          case Some(file) =>
+            Files.write(
+              file.toPath(),
+              schemaStr.getBytes(StandardCharsets.UTF_8)
+            )
+          case None => println(schemaStr)
+        }
       case None =>
     }
   }
