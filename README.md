@@ -18,6 +18,11 @@ Add the `--help` option to see possible configuration options.
 
     docker run -i --rm ghcr.io/michaelmior/jsonoid-discovery:latest
 
+To simplify, you may wish to add a shell alias so `jsonoid` can be run directly as a command.
+
+    alias jsonoid='docker run -i --rm ghcr.io/michaelmior/jsonoid-discovery:latest'
+    jsonoid --help
+
 ## Compiling
 
 To produce a JAR file which is suitable for running either locally or via Spark, run `sbt assembly`.
