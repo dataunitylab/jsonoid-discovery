@@ -19,11 +19,11 @@ object BloomFilter {
   def deserialize[T](bloomStr: String): BloomFilter[T] = {
     val data = Base64.getDecoder().decode(bloomStr)
     val ois = new ObjectInputStream(new ByteArrayInputStream(data))
-    val filter = ois.readObject().asInstanceOf[RoaringBloomFilter[T]]
+    val filter = ois.readObject().asInstanceOf[BloomFilter[T]]
     ois.close()
 
-    filter.setCharset(Charset.defaultCharset)
-    BloomFilter(filter)
+    filter.filter.setCharset(Charset.defaultCharset)
+    filter
   }
 }
 
