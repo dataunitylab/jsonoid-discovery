@@ -67,23 +67,29 @@ final case class Histogram(
 
   def isAnomalous(value: Double): Boolean = {
     val mapping = sketch.getIndexMapping
-    val maxValue = if (sketch.getPositiveValueStore.isEmpty) {
+
+    val maxValue = if (!sketch.getPositiveValueStore.isEmpty) {
+      mapping.lowerBound(
+        sketch.getPositiveValueStore.getDescendingIterator.asScala.next.getIndex
+      )
+    } else if (!sketch.getNegativeValueStore.isEmpty) {
       -mapping.lowerBound(
         sketch.getNegativeValueStore.getAscendingIterator.asScala.next.getIndex
       )
     } else {
-      mapping.lowerBound(
-        sketch.getPositiveValueStore.getDescendingIterator.asScala.next.getIndex
-      )
+      0
     }
-    val minValue = if (sketch.getNegativeValueStore.isEmpty) {
+
+    val minValue = if (!sketch.getNegativeValueStore.isEmpty) {
+      -mapping.lowerBound(
+        sketch.getNegativeValueStore.getDescendingIterator.asScala.next.getIndex
+      )
+    } else if (!sketch.getPositiveValueStore.isEmpty) {
       mapping.lowerBound(
         sketch.getPositiveValueStore.getAscendingIterator.asScala.next.getIndex
       )
     } else {
-      -mapping.lowerBound(
-        sketch.getNegativeValueStore.getDescendingIterator.asScala.next.getIndex
-      )
+      0
     }
 
     value * (1 + Histogram.Tolerance) < minValue || value * (1 - Histogram.Tolerance) > maxValue
