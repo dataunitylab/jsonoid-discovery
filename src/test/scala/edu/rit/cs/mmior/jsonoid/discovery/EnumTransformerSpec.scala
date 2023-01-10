@@ -57,4 +57,13 @@ class EnumTransformerSpec extends UnitSpec {
     StringSchema("foo").merge(StringSchema("bar")).asInstanceOf[StringSchema],
     Set("foo", "bar")
   )
+
+  it should "not convert to enum with insufficient evidence" in {
+    val schema =
+      IntegerSchema(1).merge(IntegerSchema(2)).asInstanceOf[IntegerSchema]
+
+    val transformedSchema = EnumTransformer.transformSchema(schema)
+
+    transformedSchema shouldBe a[IntegerSchema]
+  }
 }

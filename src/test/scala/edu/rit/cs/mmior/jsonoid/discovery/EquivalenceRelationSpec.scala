@@ -30,6 +30,12 @@ class EquivalenceRelationSpec extends UnitSpec {
     )
   }
 
+  it should "create ProductSchemas when merging non-objects" in {
+    val merged = objSchema1
+      .merge(IntegerSchema(0))(EquivalenceRelations.LabelEquivalenceRelation)
+    merged shouldBe a[ProductSchema]
+  }
+
   it should "not merge when using non-equivalence" in {
     val merged =
       objSchema1.merge(objSchema1)(EquivalenceRelations.NonEquivalenceRelation)

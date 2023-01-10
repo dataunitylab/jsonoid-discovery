@@ -12,7 +12,9 @@ class ValueTableGeneratorSpec extends UnitSpec {
     val objectSchema = ObjectSchema(
       Map(
         "foo" -> StringSchema("bar"),
-        "baz" -> ArraySchema(List(StringSchema("quux"), StringSchema("corge")))
+        "baz" -> ArraySchema(List(StringSchema("quux"), StringSchema("corge"))),
+        "grault" -> IntegerSchema(1),
+        "foobar" -> NumberSchema(3.14)
       )
     )
 
@@ -20,7 +22,7 @@ class ValueTableGeneratorSpec extends UnitSpec {
     ValueTableGenerator.writeValueTable(objectSchema, output)
 
     output.toString("UTF-8") should equal(
-      "$.baz[0],$.baz[1],$.foo\r\nquux,corge,bar\r\n"
+      "$.baz[0],$.baz[1],$.foo,$.foobar,$.grault\r\nquux,corge,bar,3.14,1\r\n"
     )
   }
 }

@@ -35,4 +35,22 @@ class HelpersSpec extends UnitSpec {
   it should "give None with the min of two None values" in {
     minOrNone(none, none) should be(None)
   }
+
+  behavior of "intersectOrNone"
+
+  it should "give None with the intersection of two None values" in {
+    intersectOrNone(None, None) should be(None)
+  }
+
+  it should "give one set with the intersection with None" in {
+    intersectOrNone(Some(Set(1)), None) should be(Some(Set(1)))
+  }
+
+  it should "give the second set if intersected with None" in {
+    intersectOrNone(None, Some(Set(1))) should be(Some(Set(1)))
+  }
+
+  it should "give the intersection if both sets are not None" in {
+    intersectOrNone(Some(Set(1, 2)), Some(Set(0, 1))) should be(Some(Set(1)))
+  }
 }
