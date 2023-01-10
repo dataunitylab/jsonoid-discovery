@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make definition transformation optional when running via Spark
 - Use [DDSketch](https://github.com/DataDog/sketches-java/) for histograms
 - Build a Docker image on each push
+- Include sbt wrapper script
 
 ## Fixed
 - Don't output items in `ArraySchema` if empty

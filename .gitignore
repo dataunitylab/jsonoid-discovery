@@ -1,4 +1,6 @@
 .bsp/
 .metals/
+dumps/
 target/
+bowtie-report.html
 .env
