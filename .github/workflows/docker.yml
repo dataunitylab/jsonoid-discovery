@@ -8,9 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: olafurpg/setup-scala@v11
     - name: Coursier cache
       uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
     - name: Compile and prepare Docker configuration
       run: sbt Docker/stage
       env:

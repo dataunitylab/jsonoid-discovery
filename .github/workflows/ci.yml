@@ -13,9 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: olafurpg/setup-scala@v13
     - name: Coursier cache
       uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
     - name: Scalafmt
       run: sbt scalafmtCheck test:scalafmtCheck
     - name: Scalastyle
@@ -58,8 +61,13 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - uses: olafurpg/setup-scala@v10
+    - uses: actions/checkout@v3
+    - name: Coursier cache
+      uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
     - name: Publish package
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
