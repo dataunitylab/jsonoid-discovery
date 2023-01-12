@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.development.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.development.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/babel-standalone@6/babel.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/react-json-view@1.21.3/dist/main.js"></script>
+
+        <style>
+        body {
+          margin: 0;
+          padding: 0;
+        }
+
+        .container {
+          max-width: 100%;
+          margin: 0 auto;
+          padding: 0 2em;
+        }
+
+        header {
+          background: black;
+          color: white;
+          padding: 15px 0;
+        }
+        </style>
+        <title>JSONoid Schema Viewer</title>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="text/babel">
+          const ReactJson = reactJsonView.default;
+          const useEffect = React.useEffect;
+          const useState = React.useState;
+
+          function Header() {
+            return (
+              <header>
+                <div className="container">
+                  JSONoid Schema Viewer
+                </div>
+              </header>
+            );
+          }
+
+          function Body() {
+            const [schema, setSchema] = useState('')
+            const [json, setJson] = useState(undefined);
+            useEffect(() => {
+              if (schema) {
+                const response = fetch(schema)
+                  .then(x => x.json())
+                  .then(setJson);
+              }
+            }, [schema]);
+
+            let jsonView = <React.Fragment/>;
+            if (schema) {
+              jsonView = <div>Loading…</div>;
+            }
+            if (json !== undefined) {
+              jsonView = <ReactJson src={json} />;
+            }
+
+            return (
+              <main>
+                <div className="container">
+                  <div style={{paddingTop: '1em'}}>
+                    <span>Select a schema:</span>
+                    <select name="schema" id="schema" value={schema} onChange={(e) => setSchema(e.target.value)}>
+                      <option value=""></option>
+                      <option value="earthquakes.json">earthquakes.json</option>
+                      <option value="gdp.json">gdp.json</option>
+                      <option value="mr-robot.json">mr-robot.json</option>
+                      <option value="nobel.json">nobel.json</option>
+                      <option value="rickandmorty.json">rickandmorty.json</option>
+                    </select>
+                  </div>
+                  <h1>{schema}</h1>
+                  {jsonView}
+                </div>
+              </main>
+            );
+          }
+
+          function App() {
+            return (
+              <div>
+                <Header />
+                <Body />
+              </div>
+            );
+          }
+          ReactDOM.render(<App />, document.getElementById('root'));
+        </script>
+    </body>
+</html>

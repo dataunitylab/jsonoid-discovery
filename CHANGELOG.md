@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Build a Docker image on each push
 - Include sbt wrapper script
 - Add option to write schema directly to file
+- Generate website with schema previews each push
 
 ## Fixed
 - Don't output items in `ArraySchema` if empty

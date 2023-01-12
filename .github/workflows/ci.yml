@@ -66,4 +66,6 @@ jobs:
       run: |
           sbt publish
           sbt makeSite
+          sbt generateSchemas
+          cp target/jsonoid-schemas/*.json target/site/schemas
           sbt publishToGitHubPages
