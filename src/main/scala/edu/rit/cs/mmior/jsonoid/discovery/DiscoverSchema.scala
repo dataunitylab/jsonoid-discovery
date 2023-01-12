@@ -187,7 +187,7 @@ object DiscoverSchema {
           ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
         }
 
-        val schemaStr = compact(render(transformedSchema.toJsonSchema))
+        val schemaStr = pretty(render(transformedSchema.toJsonSchema))
         config.writeOutput match {
           case Some(file) =>
             Files.write(

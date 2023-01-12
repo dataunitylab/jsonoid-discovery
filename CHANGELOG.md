@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Refactor Bloom filters to reduce code duplication
 - Added Scalafix along with some minor rewrites
+- Pretty print final JSON schema
 
 ## [0.10.0]
 ### Added
