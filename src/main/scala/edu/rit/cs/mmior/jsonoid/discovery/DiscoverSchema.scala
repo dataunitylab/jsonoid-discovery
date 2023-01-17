@@ -103,6 +103,10 @@ object DiscoverSchema {
       erName match {
         case "Kind"  => EquivalenceRelations.KindEquivalenceRelation
         case "Label" => EquivalenceRelations.LabelEquivalenceRelation
+        case "IntersectingLabel" =>
+          EquivalenceRelations.IntersectingLabelEquivalenceRelation
+        case "TypeMatch" =>
+          EquivalenceRelations.TypeMatchEquivalenceRelation
       }
     )
 
@@ -145,7 +149,10 @@ object DiscoverSchema {
 
       opt[EquivalenceRelation]('e', "equivalence-relation")
         .action((x, c) => c.copy(equivalenceRelation = x))
-        .text("the equivalence relation to use when merging [Kind, Label]")
+        .text(
+          "the equivalence relation to use when merging" +
+            " [Kind, Label, IntersectingLabel, TypeMatch]"
+        )
 
       opt[Unit]('d', "add-definitions")
         .action((x, c) => c.copy(addDefinitions = true))
