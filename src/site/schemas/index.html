@@ -61,6 +61,11 @@
               jsonView = <ReactJson src={json} />;
             }
 
+            let datasetLink = <React.Fragment/>;
+            if (json !== undefined) {
+              datasetLink = <p><a href={'https://github.com/michaelmior/jsonoid-discovery/tree/main/src/test/resources/' + schema} target='_blank'>View dataset</a></p>;
+            }
+
             return (
               <main>
                 <div className="container">
@@ -76,6 +81,7 @@
                     </select>
                   </div>
                   <h1>{schema}</h1>
+                  {datasetLink}
                   {jsonView}
                 </div>
               </main>
