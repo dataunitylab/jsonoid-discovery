@@ -32,6 +32,46 @@ This requires an installation of [sbt](https://www.scala-sbt.org/).
 Alternatively, you can use `./sbtx assembly` to attempt to automatically download install the appropriate sbt and Scala versions using [sbt-extras](https://github.com/dwijnand/sbt-extras).
 This will produce a JAR file under `target/scala-2.11/` which can either be run directly or passed to `spark-submit` to run via Spark.
 
+## Schema monoids
+
+In JSONoid, the primary way information is collected from a schema is using [monoids](https://en.wikipedia.org/wiki/Monoid).
+A monoid simply stores a piece of information extracted from a JSON document along with information on how to combine together information from all documents in a collection in a scalable way.
+
+The set of monoids (also referred as properties) used for discovery can be controlled using the `--prop` command line option.
+The `Min` set of monoids will produce only simple type information and nothing more.
+`Simple` extends this set of monoids to cover a large set of keywords supported by JSON Schema.
+Finally, `All` monoids can be enabled to discover the maximum amount of information possible.
+Note that for large collections of documents, there may be a performance penalty for using all possible monoids in the discovery process.
+
+For each primitive type, the following monoids are defined.
+
+- `BloomFilter` - A [Bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) allows for approximate membership testing. The Bloom filters generated are a Base64 encoded serialized [library object](https://github.com/michaelmior/bloomfilter/).
+- `Examples` - Corresponding to the `examples` JSON Schema keyword, a number of example values will be randomly sampled from the observed documents.
+- `HyperLogLog` - [HyperLogLog](https://en.wikipedia.org/wiki/HyperLogLog) allows estimates of the number of unique values of a particular key. As with Bloom filters, the generated value is a Base64 encoded [library object](https://github.com/prasanthj/hyperloglog).
+
+### Arrays
+
+- `Histogram`, `MaxItems`, `MinItems` - Produces a histogram of array size and the maximum and minimum number of elements.
+- `Unique` - Detects whether elements of an array are unique corresponding to the [`uniqueItems`](https://json-schema.org/understanding-json-schema/reference/array.html#uniqueness) JSON Schema keyword.
+
+### Numbers (integer and decimal)
+
+- `Histogram`, `MaxValue`, `MinValue` - A histogram of all values and the maximum and minimum values.
+- `MultipleOf` - If all numerical values are a multiple of a particular constant, this will be detected using Euclid's GCD algorithm. The corresponds to the JSON Schema [`multipleOf`](https://json-schema.org/understanding-json-schema/reference/numeric.html#multiples) keyword.
+- `Stats` - Several statistical properties including mean, standard deviation, skewness, and kurtosis are calculated.
+
+### Objects
+
+- `Dependencies` - In some schemas, a key must exist an object if some other key exists, as in the JSON Schema [`dependentRequired`](https://json-schema.org/understanding-json-schema/reference/conditionals.html?highlight=depend#dependentrequired) keyword. For example, if a `city` is provided, it may also be necessary to provide a `state`.
+- `FieldPresence` - For keys which are not required, this tracks the percentage of objects which contain this property.
+- `Required` - This tracks which keys are always present in a schema, suggesting that they are required.
+
+### Strings
+
+- `Format` - This attempts to infer a value for the [`format`](https://json-schema.org/understanding-json-schema/reference/string.html#built-in-formats) keyword. Formats are semantic types of strings such as URLs or email addresses. A string will be labelled with the most common format detected.
+- `LengthHistogram`, `MaxLength`, `MinLength` - Both the minimum and maximum length of strings as well as a histogram of all string lengths will be included.
+- `Format` - This attempts to infer a value for the [`pattern`](https://json-schema.org/understanding-json-schema/reference/string.html#regular-expressions) keyword. A pattern is a regular expression which all string values must match. Currently this property simply finds common prefixes and suffixes of strings in the schema.
+
 ## Equivalence relations
 
 The concept of equivalence relations was first introduced by Baazizi et al. in [Parametric schema inference for massive JSON datasets](https://link.springer.com/article/10.1007/s00778-018-0532-7.)
