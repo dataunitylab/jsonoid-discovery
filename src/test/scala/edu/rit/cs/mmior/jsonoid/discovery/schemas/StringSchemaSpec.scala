@@ -101,7 +101,10 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "have no properties in the minimal property set" in {
-    StringSchema("foo")(PropertySets.MinProperties).properties shouldBe empty
+    StringSchema("foo")(
+      PropertySets.MinProperties,
+      JsonoidParams.defaultJsonoidParams
+    ).properties shouldBe empty
   }
 
   it should "keep a running histogram of lengths" in {

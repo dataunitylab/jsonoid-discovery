@@ -6,11 +6,9 @@ import scala.reflect._
 import org.json4s._
 
 object BooleanSchema {
-  def apply(value: Boolean): BooleanSchema = {
+  def apply(value: Boolean)(implicit p: JsonoidParams): BooleanSchema = {
     BooleanSchema(
-      BooleanSchema.AllProperties.mergeValue(value)(
-        JsonoidParams.defaultJsonoidParams
-      )
+      BooleanSchema.AllProperties.mergeValue(value)(p)
     )
   }
 

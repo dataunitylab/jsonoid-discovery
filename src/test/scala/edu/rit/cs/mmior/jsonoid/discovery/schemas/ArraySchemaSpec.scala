@@ -108,7 +108,10 @@ class ArraySchemaSpec extends UnitSpec {
     val cp = new Checkpoint()
 
     val arrayProperties =
-      ArraySchema(List(BooleanSchema()))(PropertySets.MinProperties).properties
+      ArraySchema(List(BooleanSchema()))(
+        PropertySets.MinProperties,
+        JsonoidParams.defaultJsonoidParams
+      ).properties
 
     cp { arrayProperties should have size 1 }
     cp { arrayProperties.get[ItemTypeProperty] }

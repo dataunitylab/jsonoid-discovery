@@ -21,7 +21,8 @@ final case class Config(
     onlyProperties: Option[Seq[String]] = None,
     equivalenceRelation: EquivalenceRelation =
       EquivalenceRelations.KindEquivalenceRelation,
-    addDefinitions: Boolean = false
+    addDefinitions: Boolean = false,
+    maxExamples: Option[Int] = None
 )
 
 object DiscoverSchema {
@@ -39,18 +40,21 @@ object DiscoverSchema {
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     value match {
       case JArray(items) =>
-        ArraySchema(items.map(discoverFromValue(_, propSet)))(propSet)
-      case JBool(bool)     => BooleanSchema(bool)
-      case JDecimal(dec)   => NumberSchema(dec)(propSet)
-      case JDouble(dbl)    => NumberSchema(dbl)(propSet)
-      case JInt(int)       => IntegerSchema(int)(propSet)
-      case JLong(long)     => IntegerSchema(long)(propSet)
+        ArraySchema(items.map(discoverFromValue(_, propSet)(p)))(propSet, p)
+      case JBool(bool)     => BooleanSchema(bool)(p)
+      case JDecimal(dec)   => NumberSchema(dec)(propSet, p)
+      case JDouble(dbl)    => NumberSchema(dbl)(propSet, p)
+      case JInt(int)       => IntegerSchema(int)(propSet, p)
+      case JLong(long)     => IntegerSchema(long)(propSet, p)
       case JNothing        => NullSchema()
       case JNull           => NullSchema()
-      case JObject(fields) => discoverObjectFields(fields, propSet)
+      case JObject(fields) => discoverObjectFields(fields, propSet)(p)
       case JSet(items) =>
-        ArraySchema(items.map(discoverFromValue(_, propSet)).toList)(propSet)
-      case JString(str) => StringSchema(str)(propSet)
+        ArraySchema(items.map(discoverFromValue(_, propSet)(p)).toList)(
+          propSet,
+          p
+        )
+      case JString(str) => StringSchema(str)(propSet, p)
     }
   }
 
@@ -65,7 +69,7 @@ object DiscoverSchema {
         }
         .asInstanceOf[Seq[(String, JsonSchema[_])]]
         .toMap
-    )(propSet)
+    )(propSet, p)
   }
 
   def jsonFromSource(source: Source): Iterator[JValue] = {
@@ -157,6 +161,10 @@ object DiscoverSchema {
       opt[Unit]('d', "add-definitions")
         .action((x, c) => c.copy(addDefinitions = true))
         .text("extract similar objects to create definitions")
+
+      opt[Int]("max-examples")
+        .action((x, c) => c.copy(maxExamples = Some(x)))
+        .text("maximum number of examples to extract")
     }
 
     parser.parse(args, Config()) match {
@@ -172,7 +180,12 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        val p = JsonoidParams(config.equivalenceRelation)
+        var p = JsonoidParams.defaultJsonoidParams
+          .withER(config.equivalenceRelation)
+        if (config.maxExamples.isDefined) {
+          p = p.withMaxExamples(config.maxExamples.get)
+        }
+
         val schema =
           discover(jsons, propSet)(p)
 

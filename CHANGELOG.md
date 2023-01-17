@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add equivalence relation which checks types
 - Allow additional ER choices in CLI
+- Allow the maximum number of examples to be configured
 
 ## [0.11.0]
 ### Added

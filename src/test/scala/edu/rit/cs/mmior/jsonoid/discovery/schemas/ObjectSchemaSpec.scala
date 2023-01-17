@@ -81,7 +81,8 @@ class ObjectSchemaSpec extends UnitSpec {
     val cp = new Checkpoint()
 
     val objectProperties = ObjectSchema(Map("foo" -> BooleanSchema()))(
-      PropertySets.MinProperties
+      PropertySets.MinProperties,
+      JsonoidParams.defaultJsonoidParams
     ).properties
 
     cp { objectProperties should have size 1 }

@@ -87,7 +87,10 @@ class IntegerSchemaSpec extends UnitSpec {
   }
 
   it should "have no properties in the minimal property set" in {
-    IntegerSchema(0)(PropertySets.MinProperties).properties shouldBe empty
+    IntegerSchema(0)(
+      PropertySets.MinProperties,
+      JsonoidParams.defaultJsonoidParams
+    ).properties shouldBe empty
   }
 
   it should "show integers as a valid type" in {

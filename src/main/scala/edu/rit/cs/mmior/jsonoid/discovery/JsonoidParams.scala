@@ -1,15 +1,21 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
 final case class JsonoidParams(
-    val er: EquivalenceRelation
+    val er: EquivalenceRelation,
+    val maxExamples: Int
 ) {
-  def withER(er: EquivalenceRelation): JsonoidParams = {
-    JsonoidParams(er)
+  def withER(newER: EquivalenceRelation): JsonoidParams = {
+    JsonoidParams(newER, maxExamples)
+  }
+
+  def withMaxExamples(newMaxExamples: Int): JsonoidParams = {
+    JsonoidParams(er, newMaxExamples)
   }
 }
 
 object JsonoidParams {
   implicit val defaultJsonoidParams: JsonoidParams = JsonoidParams(
-    EquivalenceRelations.KindEquivalenceRelation
+    EquivalenceRelations.KindEquivalenceRelation,
+    100
   )
 }

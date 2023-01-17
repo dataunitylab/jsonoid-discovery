@@ -7,11 +7,9 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 object EnumSchema {
-  def apply(value: Set[JValue]): EnumSchema = {
+  def apply(value: Set[JValue])(implicit p: JsonoidParams): EnumSchema = {
     EnumSchema(
-      EnumSchema.AllProperties.mergeValue(value)(
-        JsonoidParams.defaultJsonoidParams
-      )
+      EnumSchema.AllProperties.mergeValue(value)(p)
     )
   }
 

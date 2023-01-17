@@ -8,8 +8,6 @@ import scala.util.Random
 import Helpers._
 
 object ExamplesProperty {
-  val MaxExamples: Int = 100
-
   val MaxStringLength: Int = 100
 
   def apply[T](value: T): ExamplesProperty[T] = {
@@ -34,7 +32,7 @@ final case class ExamplesProperty[T](
     val sampleW: Double = 0
 ) {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
-  def mergeValue(value: T): ExamplesProperty[T] = {
+  def mergeValue(value: T)(implicit p: JsonoidParams): ExamplesProperty[T] = {
     // Only keep the first ExamplesProperty.MaxStringLength characters of strings
     val sampleValue = ExamplesProperty.sampleValue(value)
 
@@ -43,14 +41,14 @@ final case class ExamplesProperty[T](
     var newNextSample = nextSample
     val newExamples = if (examples.contains(sampleValue)) {
       examples
-    } else if (examples.length < ExamplesProperty.MaxExamples) {
+    } else if (examples.length < p.maxExamples) {
       sampleValue :: examples
     } else if ((totalExamples + 1) <= nextSample) {
       // Use Algorithm L to determine the next sample to take
       newNextSample += floor(log(random) / log(1 - sampleW)).toInt + 1
-      newSampleW = exp(log(random) / ExamplesProperty.MaxExamples)
+      newSampleW = exp(log(random) / p.maxExamples)
 
-      val replaceIndex = floor(random * ExamplesProperty.MaxExamples).toInt
+      val replaceIndex = floor(random * p.maxExamples).toInt
       examples.slice(0, replaceIndex) ++ List(sampleValue) ++ examples.drop(
         replaceIndex + 1
       )
@@ -73,7 +71,9 @@ final case class ExamplesProperty[T](
       "org.wartremover.warts.While"
     )
   )
-  def merge(other: ExamplesProperty[T]): ExamplesProperty[T] = {
+  def merge(
+      other: ExamplesProperty[T]
+  )(implicit p: JsonoidParams): ExamplesProperty[T] = {
     // Track already examples values from each set
     val aIndexes = ListBuffer(Random.shuffle(1 to examples.length): _*)
     val bIndexes = ListBuffer(Random.shuffle(1 to other.examples.length): _*)
@@ -84,7 +84,7 @@ final case class ExamplesProperty[T](
 
     // Randomly sample elements proportional to their original frequency
     while (
-      newExamples.length < ExamplesProperty.MaxExamples && (aIndexes.nonEmpty || bIndexes.nonEmpty)
+      newExamples.length < p.maxExamples && (aIndexes.nonEmpty || bIndexes.nonEmpty)
     ) {
       if (
         aIndexes.nonEmpty && (bIndexes.length === 0 || random <= sampleRatio)

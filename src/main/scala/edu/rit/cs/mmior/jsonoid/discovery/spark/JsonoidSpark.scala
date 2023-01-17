@@ -56,7 +56,7 @@ object JsonoidSpark {
         val conf = new SparkConf().setAppName("JSONoid")
         val sc = new SparkContext(conf)
         val er = EquivalenceRelations.KindEquivalenceRelation
-        val p = JsonoidParams(er)
+        val p = JsonoidParams.defaultJsonoidParams.withER(er)
         val jsonRdd = JsonoidRDD.fromStringRDD(
           sc.textFile(config.input),
           config.propertySet

@@ -18,11 +18,11 @@ import Helpers._
 import utils.{BloomFilter, Histogram, HyperLogLog}
 
 object StringSchema {
-  def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
+  def apply(
+      value: String
+  )(implicit propSet: PropertySet, p: JsonoidParams): StringSchema = {
     StringSchema(
-      propSet.stringProperties.mergeValue(value)(
-        JsonoidParams.defaultJsonoidParams
-      )
+      propSet.stringProperties.mergeValue(value)(p)
     )
   }
 

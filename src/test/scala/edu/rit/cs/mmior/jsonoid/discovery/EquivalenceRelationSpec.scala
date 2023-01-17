@@ -19,7 +19,9 @@ class EquivalenceRelationSpec extends UnitSpec {
 
   it should "keep schemas separate when merging by label" in {
     val merged = objSchema1.merge(objSchema2)(
-      JsonoidParams(EquivalenceRelations.LabelEquivalenceRelation)
+      JsonoidParams.defaultJsonoidParams.withER(
+        EquivalenceRelations.LabelEquivalenceRelation
+      )
     )
     merged shouldBe a[ProductSchema]
   }
@@ -27,7 +29,8 @@ class EquivalenceRelationSpec extends UnitSpec {
   it should "merge object schemas by kind" in {
     val merged = objSchema1
       .merge(objSchema2)(
-        JsonoidParams(EquivalenceRelations.KindEquivalenceRelation)
+        JsonoidParams.defaultJsonoidParams
+          .withER(EquivalenceRelations.KindEquivalenceRelation)
       )
       .asInstanceOf[ObjectSchema]
     merged.properties.get[ObjectTypesProperty].objectTypes shouldBe Map(
@@ -41,7 +44,9 @@ class EquivalenceRelationSpec extends UnitSpec {
   it should "create ProductSchemas when merging non-objects" in {
     val merged = objSchema1
       .merge(IntegerSchema(0))(
-        JsonoidParams(EquivalenceRelations.LabelEquivalenceRelation)
+        JsonoidParams.defaultJsonoidParams.withER(
+          EquivalenceRelations.LabelEquivalenceRelation
+        )
       )
     merged shouldBe a[ProductSchema]
   }
@@ -51,7 +56,9 @@ class EquivalenceRelationSpec extends UnitSpec {
   it should "not merge when using non-equivalence" in {
     val merged =
       objSchema1.merge(objSchema1)(
-        JsonoidParams(EquivalenceRelations.NonEquivalenceRelation)
+        JsonoidParams.defaultJsonoidParams.withER(
+          EquivalenceRelations.NonEquivalenceRelation
+        )
       )
     merged shouldBe a[ProductSchema]
   }
@@ -60,7 +67,9 @@ class EquivalenceRelationSpec extends UnitSpec {
 
   it should "separate schemas which have no common labels" in {
     val merged = objSchema1.merge(objSchema2)(
-      JsonoidParams(EquivalenceRelations.IntersectingLabelEquivalenceRelation)
+      JsonoidParams.defaultJsonoidParams.withER(
+        EquivalenceRelations.IntersectingLabelEquivalenceRelation
+      )
     )
     merged shouldBe a[ProductSchema]
   }
@@ -68,7 +77,8 @@ class EquivalenceRelationSpec extends UnitSpec {
   it should "keep schemas together which have common labels" in {
     val merged = objSchema1
       .merge(objSchema3)(
-        JsonoidParams(EquivalenceRelations.IntersectingLabelEquivalenceRelation)
+        JsonoidParams.defaultJsonoidParams
+          .withER(EquivalenceRelations.IntersectingLabelEquivalenceRelation)
       )
       .asInstanceOf[ObjectSchema]
     merged.properties.get[ObjectTypesProperty].objectTypes shouldBe Map(
@@ -82,7 +92,8 @@ class EquivalenceRelationSpec extends UnitSpec {
   it should "combine schemas with the same type" in {
     val merged = objSchema1
       .merge(objSchema3)(
-        JsonoidParams(EquivalenceRelations.TypeMatchEquivalenceRelation)
+        JsonoidParams.defaultJsonoidParams
+          .withER(EquivalenceRelations.TypeMatchEquivalenceRelation)
       )
       .asInstanceOf[ObjectSchema]
     merged.properties.get[ObjectTypesProperty].objectTypes shouldBe Map(
@@ -93,7 +104,9 @@ class EquivalenceRelationSpec extends UnitSpec {
 
   it should "separate schemas which different types" in {
     val merged = objSchema1.merge(objSchema4)(
-      JsonoidParams(EquivalenceRelations.TypeMatchEquivalenceRelation)
+      JsonoidParams.defaultJsonoidParams.withER(
+        EquivalenceRelations.TypeMatchEquivalenceRelation
+      )
     )
     merged shouldBe a[ProductSchema]
   }

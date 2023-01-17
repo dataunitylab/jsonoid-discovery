@@ -85,7 +85,8 @@ object JsonSchema {
       schemas.length match {
         case 1 =>
           fromJson(schemas(0)).merge(baseSchema, Intersect)(
-            JsonoidParams(EquivalenceRelations.AlwaysEquivalenceRelation)
+            JsonoidParams.defaultJsonoidParams
+              .withER(EquivalenceRelations.AlwaysEquivalenceRelation)
           )
         case _ =>
           buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
@@ -132,7 +133,7 @@ object JsonSchema {
   ): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
-    val p = JsonoidParams(er)
+    val p = JsonoidParams.defaultJsonoidParams.withER(er)
     val typesProp = ProductSchemaTypesProperty(
       baseSchema,
       schemas,
@@ -152,7 +153,8 @@ object JsonSchema {
     schemas.length match {
       case 1 =>
         val schema = baseSchema.merge(fromJson(schemas(0)), Intersect)(
-          JsonoidParams(EquivalenceRelations.AlwaysEquivalenceRelation)
+          JsonoidParams.defaultJsonoidParams
+            .withER(EquivalenceRelations.AlwaysEquivalenceRelation)
         )
         schema
       case _ =>

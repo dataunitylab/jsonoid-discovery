@@ -12,11 +12,9 @@ import Helpers._
 object ObjectSchema {
   def apply(
       value: Map[String, JsonSchema[_]]
-  )(implicit propSet: PropertySet): ObjectSchema = {
+  )(implicit propSet: PropertySet, p: JsonoidParams): ObjectSchema = {
     ObjectSchema(
-      propSet.objectProperties.mergeValue(value)(
-        JsonoidParams.defaultJsonoidParams
-      )
+      propSet.objectProperties.mergeValue(value)(p)
     )
   }
 

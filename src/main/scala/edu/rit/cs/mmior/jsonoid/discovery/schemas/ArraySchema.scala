@@ -18,11 +18,9 @@ import Helpers._
 object ArraySchema {
   def apply(
       value: List[JsonSchema[_]]
-  )(implicit propSet: PropertySet): ArraySchema = {
+  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
     ArraySchema(
-      propSet.arrayProperties.mergeValue(value)(
-        JsonoidParams.defaultJsonoidParams
-      )
+      propSet.arrayProperties.mergeValue(value)(p)
     )
   }
 
