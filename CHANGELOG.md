@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [Unreleased]
+## [0.11.0]
 ### Added
 - Make definition transformation optional when running via Spark
 - Use [DDSketch](https://github.com/DataDog/sketches-java/) for histograms
