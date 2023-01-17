@@ -13,10 +13,10 @@ object JsonoidRDD {
   def fromStringRDD(
       rdd: RDD[String],
       propSet: PropertySet = PropertySets.AllProperties
-  )(implicit er: EquivalenceRelation): JsonoidRDD = {
+  )(implicit p: JsonoidParams): JsonoidRDD = {
     val discoverFromString = (jsonString: String) =>
       DiscoverSchema.discoverFromValue(parse(jsonString), propSet)
-    new JsonoidRDD(rdd.map(discoverFromString))(er)
+    new JsonoidRDD(rdd.map(discoverFromString))(p)
   }
 
   implicit def unwrapJsonoidRdd(jsonoidRdd: JsonoidRDD): RDD[JsonSchema[_]] =
@@ -24,9 +24,9 @@ object JsonoidRDD {
 }
 
 class JsonoidRDD(val rdd: RDD[JsonSchema[_]])(implicit
-    er: EquivalenceRelation
+    p: JsonoidParams
 ) extends Serializable {
   def reduceSchemas(): JsonSchema[_] = {
-    rdd.fold(ZeroSchema())(_.merge(_)(er))
+    rdd.fold(ZeroSchema())(_.merge(_)(p))
   }
 }

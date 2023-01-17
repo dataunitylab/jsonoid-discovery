@@ -8,17 +8,17 @@ import org.json4s._
 trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def mergeable: Boolean = true
 
-  def intersectMerge(prop: S)(implicit er: EquivalenceRelation): S =
-    unionMerge(prop)(er)
+  def intersectMerge(prop: S)(implicit p: JsonoidParams): S =
+    unionMerge(prop)(p)
 
   // XXX: This should really take and return the same
   //      concrete type, but it does not currently
-  def unionMerge(prop: S)(implicit er: EquivalenceRelation): S
+  def unionMerge(prop: S)(implicit p: JsonoidParams): S
 
   def mergeOnlySameType(
       prop: SchemaProperty[T, _],
       mergeType: MergeType
-  )(implicit er: EquivalenceRelation): S = {
+  )(implicit p: JsonoidParams): S = {
     // XXX This only works if the S is the same as the wildcard type
     //     but this is needed since we can't cast to an unknown type
     mergeType match {
@@ -27,7 +27,7 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
     }
   }
 
-  def mergeValue(value: T)(implicit er: EquivalenceRelation): S
+  def mergeValue(value: T)(implicit p: JsonoidParams): S
 
   // This must be implemented for any property which contains schema objects
   // Currently this is only three properties:

@@ -5,12 +5,12 @@ import org.json4s.jackson.JsonMethods._
 
 import schemas._
 
+import UnitSpec._
+
 class ReferenceResolverSpec extends UnitSpec {
   behavior of "ReferenceResolver"
 
   implicit val formats: Formats = DefaultFormats
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
 
   val json: JValue = parse("""{
     "type": "object",

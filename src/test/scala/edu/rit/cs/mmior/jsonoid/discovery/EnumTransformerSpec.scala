@@ -5,11 +5,11 @@ import org.json4s.{DefaultFormats, Formats}
 import schemas._
 import PropertySets._
 
+import UnitSpec._
+
 class EnumTransformerSpec extends UnitSpec {
   behavior of "EnumTransformer"
 
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
   implicit val formats: Formats = DefaultFormats
 
   def schemaWithOneValue[T](schema: JsonSchema[T], value: T): Unit = {

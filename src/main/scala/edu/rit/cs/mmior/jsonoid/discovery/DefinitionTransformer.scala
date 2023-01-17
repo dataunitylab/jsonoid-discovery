@@ -31,7 +31,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
   def transformSchema(
       schema: JsonSchema[_],
       addObject: Boolean = true
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Discover clusters within the schema
     val clusters = findClusters(schema).map(_.map(pathToPointer _))
 

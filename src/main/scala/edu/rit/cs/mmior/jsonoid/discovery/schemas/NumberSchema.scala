@@ -18,7 +18,7 @@ object NumberSchema {
   def apply(value: BigDecimal)(implicit propSet: PropertySet): NumberSchema = {
     NumberSchema(
       propSet.numberProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -63,7 +63,7 @@ final case class NumberSchema(
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NumberSchema(otherProperties) =>
       NumberSchema(properties.merge(otherProperties, mergeType))
@@ -130,7 +130,7 @@ final case class MinNumValueProperty(
 
   override def intersectMerge(
       otherProp: MinNumValueProperty
-  )(implicit er: EquivalenceRelation): MinNumValueProperty = {
+  )(implicit p: JsonoidParams): MinNumValueProperty = {
     val exclusive = (minNumValue, otherProp.minNumValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -147,7 +147,7 @@ final case class MinNumValueProperty(
 
   override def unionMerge(
       otherProp: MinNumValueProperty
-  )(implicit er: EquivalenceRelation): MinNumValueProperty = {
+  )(implicit p: JsonoidParams): MinNumValueProperty = {
     val exclusive = (minNumValue, otherProp.minNumValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -165,7 +165,7 @@ final case class MinNumValueProperty(
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): MinNumValueProperty = {
+  )(implicit p: JsonoidParams): MinNumValueProperty = {
     val exclusive =
       this.exclusive && (minNumValue.isEmpty || value < minNumValue.get)
     MinNumValueProperty(minOrNone(Some(value), minNumValue))
@@ -207,7 +207,7 @@ final case class MaxNumValueProperty(
 
   override def intersectMerge(
       otherProp: MaxNumValueProperty
-  )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
+  )(implicit p: JsonoidParams): MaxNumValueProperty = {
     val exclusive = (maxNumValue, otherProp.maxNumValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -224,7 +224,7 @@ final case class MaxNumValueProperty(
 
   override def unionMerge(
       otherProp: MaxNumValueProperty
-  )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
+  )(implicit p: JsonoidParams): MaxNumValueProperty = {
     val exclusive = (maxNumValue, otherProp.maxNumValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -239,7 +239,7 @@ final case class MaxNumValueProperty(
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): MaxNumValueProperty = {
+  )(implicit p: JsonoidParams): MaxNumValueProperty = {
     val exclusive =
       this.exclusive && (maxNumValue.isEmpty || value < maxNumValue.get)
     MaxNumValueProperty(maxOrNone(Some(value), maxNumValue), exclusive)
@@ -280,7 +280,7 @@ final case class NumHyperLogLogProperty(
 
   override def unionMerge(
       otherProp: NumHyperLogLogProperty
-  )(implicit er: EquivalenceRelation): NumHyperLogLogProperty = {
+  )(implicit p: JsonoidParams): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.hll)
@@ -290,7 +290,7 @@ final case class NumHyperLogLogProperty(
 
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): NumHyperLogLogProperty = {
+  )(implicit p: JsonoidParams): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
     val longVal = if (value.isValidLong) {
@@ -322,7 +322,7 @@ final case class NumBloomFilterProperty(
 
   override def unionMerge(
       otherProp: NumBloomFilterProperty
-  )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
+  )(implicit p: JsonoidParams): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.filter.merge(this.bloomFilter.filter)
     prop.bloomFilter.filter.merge(otherProp.bloomFilter.filter)
@@ -340,7 +340,7 @@ final case class NumBloomFilterProperty(
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): NumBloomFilterProperty = {
+  )(implicit p: JsonoidParams): NumBloomFilterProperty = {
     val prop = NumBloomFilterProperty()
     prop.bloomFilter.filter.merge(this.bloomFilter.filter)
 
@@ -375,13 +375,13 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 
   override def unionMerge(
       otherProp: NumStatsProperty
-  )(implicit er: EquivalenceRelation): NumStatsProperty = {
+  )(implicit p: JsonoidParams): NumStatsProperty = {
     NumStatsProperty(stats.merge(otherProp.stats))
   }
 
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): NumStatsProperty = {
+  )(implicit p: JsonoidParams): NumStatsProperty = {
     NumStatsProperty(stats.merge(StatsProperty(value)))
   }
 }
@@ -394,13 +394,13 @@ final case class NumExamplesProperty(
 
   override def unionMerge(
       otherProp: NumExamplesProperty
-  )(implicit er: EquivalenceRelation): NumExamplesProperty = {
+  )(implicit p: JsonoidParams): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(otherProp.examples))
   }
 
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): NumExamplesProperty = {
+  )(implicit p: JsonoidParams): NumExamplesProperty = {
     NumExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }
@@ -415,7 +415,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
 
   override def intersectMerge(
       otherProp: NumMultipleOfProperty
-  )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
+  )(implicit p: JsonoidParams): NumMultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
@@ -427,7 +427,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
 
   override def unionMerge(
       otherProp: NumMultipleOfProperty
-  )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
+  )(implicit p: JsonoidParams): NumMultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
@@ -439,7 +439,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
 
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): NumMultipleOfProperty = {
+  )(implicit p: JsonoidParams): NumMultipleOfProperty = {
     unionMerge(NumMultipleOfProperty(Some(value)))
   }
 }
@@ -455,13 +455,13 @@ final case class NumHistogramProperty(
 
   override def unionMerge(
       otherProp: NumHistogramProperty
-  )(implicit er: EquivalenceRelation): NumHistogramProperty = {
+  )(implicit p: JsonoidParams): NumHistogramProperty = {
     NumHistogramProperty(histogram.merge(otherProp.histogram))
   }
 
   override def mergeValue(
       value: BigDecimal
-  )(implicit er: EquivalenceRelation): NumHistogramProperty = {
+  )(implicit p: JsonoidParams): NumHistogramProperty = {
     NumHistogramProperty(histogram.merge(value.doubleValue))
   }
 

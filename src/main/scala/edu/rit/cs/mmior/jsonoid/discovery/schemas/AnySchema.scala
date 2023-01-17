@@ -17,7 +17,7 @@ final case class AnySchema(
   override def isValidType[S <: JValue](value: S): Boolean = true
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
     mergeType match {
       case Intersect => other

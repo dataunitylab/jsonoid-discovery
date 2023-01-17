@@ -14,7 +14,7 @@ final case class ZeroSchema(
   override val validTypes: Set[Class[_]] = Set.empty
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case _ @other =>
     mergeType match {
       case Intersect => this

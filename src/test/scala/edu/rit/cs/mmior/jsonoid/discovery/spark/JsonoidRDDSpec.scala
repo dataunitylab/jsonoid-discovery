@@ -5,11 +5,10 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 import schemas.{ObjectSchema, PropertySets}
 
+import UnitSpec._
+
 class JsonoidRDDSpec extends UnitSpec {
   behavior of "JsonoidRDD"
-
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
 
   it should "produce a schema with Spark" in {
     val jsons = Seq(

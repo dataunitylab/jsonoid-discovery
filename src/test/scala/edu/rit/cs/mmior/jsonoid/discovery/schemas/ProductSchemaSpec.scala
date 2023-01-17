@@ -4,12 +4,12 @@ package schemas
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s._
 
+import UnitSpec._
+
 class ProductSchemaSpec extends UnitSpec {
   behavior of "ProductSchema"
 
   implicit val formats: Formats = DefaultFormats
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
   implicit val propSet: PropertySet = PropertySets.MinProperties
 
   private val schema1 = BooleanSchema()

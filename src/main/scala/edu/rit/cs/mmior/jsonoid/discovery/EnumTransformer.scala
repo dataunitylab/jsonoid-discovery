@@ -10,7 +10,7 @@ object EnumTransformer {
 
   def transformSchema(
       schema: JsonSchema[_]
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     schema.transformProperties(
       {
         case i @ IntegerSchema(properties)

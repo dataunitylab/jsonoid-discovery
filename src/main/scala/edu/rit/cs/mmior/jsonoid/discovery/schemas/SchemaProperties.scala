@@ -57,7 +57,7 @@ final case class SchemaProperties[T](
 
   def mergeValue(
       value: T
-  )(implicit er: EquivalenceRelation): SchemaProperties[T] = {
+  )(implicit p: JsonoidParams): SchemaProperties[T] = {
     val mergedProperties =
       properties.mapValues(_.mergeValue(value)).map(identity(_))
     SchemaProperties(mergedProperties.asInstanceOf[PropertyMap[T]])
@@ -67,7 +67,7 @@ final case class SchemaProperties[T](
   def merge(
       other: SchemaProperties[T],
       mergeType: MergeType = Union
-  )(implicit er: EquivalenceRelation): SchemaProperties[T] = {
+  )(implicit p: JsonoidParams): SchemaProperties[T] = {
     var mergedProperties = properties.transform { case (key, prop) =>
       if (!prop.mergeable) {
         throw new UnsupportedOperationException("unmergeable property found")

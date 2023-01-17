@@ -6,10 +6,10 @@ object MergeAllOfTransformer {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def transformSchema(
       schema: JsonSchema[_]
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     schema.transformProperties(
-      { case p @ ProductSchema(properties) =>
-        val schemaTypesProp = p.properties.get[ProductSchemaTypesProperty]
+      { case ps @ ProductSchema(properties) =>
+        val schemaTypesProp = ps.properties.get[ProductSchemaTypesProperty]
         schemaTypesProp.productType match {
           case AllOf =>
             var schema = schemaTypesProp.baseSchema
@@ -17,7 +17,7 @@ object MergeAllOfTransformer {
               schema = schema.merge(s, Intersect)
             }
             schema
-          case _ => p
+          case _ => ps
         }
       },
       true

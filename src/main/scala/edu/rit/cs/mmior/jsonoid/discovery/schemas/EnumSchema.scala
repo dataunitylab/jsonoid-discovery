@@ -10,7 +10,7 @@ object EnumSchema {
   def apply(value: Set[JValue]): EnumSchema = {
     EnumSchema(
       EnumSchema.AllProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -49,7 +49,7 @@ final case class EnumSchema(
   }
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ EnumSchema(otherProperties) =>
       EnumSchema(properties.merge(otherProperties, mergeType))
@@ -85,19 +85,19 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
 
   override def intersectMerge(
       otherProp: EnumValuesProperty
-  )(implicit er: EquivalenceRelation): EnumValuesProperty = {
+  )(implicit p: JsonoidParams): EnumValuesProperty = {
     EnumValuesProperty(values & otherProp.values)
   }
 
   override def unionMerge(
       otherProp: EnumValuesProperty
-  )(implicit er: EquivalenceRelation): EnumValuesProperty = {
+  )(implicit p: JsonoidParams): EnumValuesProperty = {
     EnumValuesProperty(values ++ otherProp.values)
   }
 
   override def mergeValue(
       value: Set[JValue]
-  )(implicit er: EquivalenceRelation): EnumValuesProperty = {
+  )(implicit p: JsonoidParams): EnumValuesProperty = {
     EnumValuesProperty(value ++ values)
   }
 

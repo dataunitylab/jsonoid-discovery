@@ -15,7 +15,7 @@ object IntegerSchema {
   def apply(value: BigInt)(implicit propSet: PropertySet): IntegerSchema = {
     IntegerSchema(
       propSet.integerProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -58,11 +58,11 @@ final case class IntegerSchema(
   override val validTypes: Set[Class[_]] = Set(classOf[JInt])
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ IntegerSchema(otherProperties) =>
       IntegerSchema(properties.merge(otherProperties, mergeType))
-    case other: NumberSchema => other.mergeSameType(mergeType)(er)(this)
+    case other: NumberSchema => other.mergeSameType(mergeType)(p)(this)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
@@ -83,7 +83,7 @@ final case class MinIntValueProperty(
 
   override def intersectMerge(
       otherProp: MinIntValueProperty
-  )(implicit er: EquivalenceRelation): MinIntValueProperty = {
+  )(implicit p: JsonoidParams): MinIntValueProperty = {
     val exclusive = (minIntValue, otherProp.minIntValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -100,7 +100,7 @@ final case class MinIntValueProperty(
 
   override def unionMerge(
       otherProp: MinIntValueProperty
-  )(implicit er: EquivalenceRelation): MinIntValueProperty = {
+  )(implicit p: JsonoidParams): MinIntValueProperty = {
     val exclusive = (minIntValue, otherProp.minIntValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -118,7 +118,7 @@ final case class MinIntValueProperty(
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): MinIntValueProperty = {
+  )(implicit p: JsonoidParams): MinIntValueProperty = {
     val exclusive =
       this.exclusive && (minIntValue.isEmpty || value < minIntValue.get)
     MinIntValueProperty(minOrNone(Some(value), minIntValue))
@@ -154,7 +154,7 @@ final case class MaxIntValueProperty(
 
   override def intersectMerge(
       otherProp: MaxIntValueProperty
-  )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
+  )(implicit p: JsonoidParams): MaxIntValueProperty = {
     val exclusive = (maxIntValue, otherProp.maxIntValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -171,7 +171,7 @@ final case class MaxIntValueProperty(
 
   override def unionMerge(
       otherProp: MaxIntValueProperty
-  )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
+  )(implicit p: JsonoidParams): MaxIntValueProperty = {
     val exclusive = (maxIntValue, otherProp.maxIntValue) match {
       case (None, _)                   => this.exclusive
       case (_, None)                   => otherProp.exclusive
@@ -189,7 +189,7 @@ final case class MaxIntValueProperty(
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): MaxIntValueProperty = {
+  )(implicit p: JsonoidParams): MaxIntValueProperty = {
     val exclusive =
       this.exclusive && (maxIntValue.isEmpty || value < maxIntValue.get)
     MaxIntValueProperty(maxOrNone(Some(value), maxIntValue), exclusive)
@@ -224,7 +224,7 @@ final case class IntHyperLogLogProperty(
 
   override def unionMerge(
       otherProp: IntHyperLogLogProperty
-  )(implicit er: EquivalenceRelation): IntHyperLogLogProperty = {
+  )(implicit p: JsonoidParams): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.hll)
@@ -234,7 +234,7 @@ final case class IntHyperLogLogProperty(
 
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): IntHyperLogLogProperty = {
+  )(implicit p: JsonoidParams): IntHyperLogLogProperty = {
     val prop = IntHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.add(value.toLong)
@@ -252,7 +252,7 @@ final case class IntBloomFilterProperty(
 
   override def unionMerge(
       otherProp: IntBloomFilterProperty
-  )(implicit er: EquivalenceRelation): IntBloomFilterProperty = {
+  )(implicit p: JsonoidParams): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
     prop.bloomFilter.filter.merge(this.bloomFilter.filter)
     prop.bloomFilter.filter.merge(otherProp.bloomFilter.filter)
@@ -263,7 +263,7 @@ final case class IntBloomFilterProperty(
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): IntBloomFilterProperty = {
+  )(implicit p: JsonoidParams): IntBloomFilterProperty = {
     val prop = IntBloomFilterProperty()
     prop.bloomFilter.filter.merge(this.bloomFilter.filter)
     prop.bloomFilter.filter.add(value.toByteArray)
@@ -293,13 +293,13 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
 
   override def unionMerge(
       otherProp: IntStatsProperty
-  )(implicit er: EquivalenceRelation): IntStatsProperty = {
+  )(implicit p: JsonoidParams): IntStatsProperty = {
     IntStatsProperty(stats.merge(otherProp.stats))
   }
 
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): IntStatsProperty = {
+  )(implicit p: JsonoidParams): IntStatsProperty = {
     IntStatsProperty(stats.merge(StatsProperty(BigDecimal(value))))
   }
 }
@@ -312,13 +312,13 @@ final case class IntExamplesProperty(
 
   override def unionMerge(
       otherProp: IntExamplesProperty
-  )(implicit er: EquivalenceRelation): IntExamplesProperty = {
+  )(implicit p: JsonoidParams): IntExamplesProperty = {
     IntExamplesProperty(examples.merge(otherProp.examples))
   }
 
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): IntExamplesProperty = {
+  )(implicit p: JsonoidParams): IntExamplesProperty = {
     IntExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }
@@ -333,7 +333,7 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
 
   override def intersectMerge(
       otherProp: IntMultipleOfProperty
-  )(implicit er: EquivalenceRelation): IntMultipleOfProperty = {
+  )(implicit p: JsonoidParams): IntMultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
@@ -345,7 +345,7 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
 
   override def unionMerge(
       otherProp: IntMultipleOfProperty
-  )(implicit er: EquivalenceRelation): IntMultipleOfProperty = {
+  )(implicit p: JsonoidParams): IntMultipleOfProperty = {
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
@@ -357,7 +357,7 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
 
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): IntMultipleOfProperty = {
+  )(implicit p: JsonoidParams): IntMultipleOfProperty = {
     unionMerge(IntMultipleOfProperty(Some(value)))
   }
 }
@@ -373,13 +373,13 @@ final case class IntHistogramProperty(
 
   override def unionMerge(
       otherProp: IntHistogramProperty
-  )(implicit er: EquivalenceRelation): IntHistogramProperty = {
+  )(implicit p: JsonoidParams): IntHistogramProperty = {
     IntHistogramProperty(histogram.merge(otherProp.histogram))
   }
 
   override def mergeValue(
       value: BigInt
-  )(implicit er: EquivalenceRelation): IntHistogramProperty = {
+  )(implicit p: JsonoidParams): IntHistogramProperty = {
     IntHistogramProperty(histogram.merge(value.doubleValue))
   }
 

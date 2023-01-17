@@ -9,7 +9,7 @@ object BooleanSchema {
   def apply(value: Boolean): BooleanSchema = {
     BooleanSchema(
       BooleanSchema.AllProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -30,7 +30,7 @@ final case class BooleanSchema(
   override val validTypes: Set[Class[_]] = Set(classOf[JBool])
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ BooleanSchema(otherProperties) =>
       BooleanSchema(properties.merge(otherProperties, mergeType))

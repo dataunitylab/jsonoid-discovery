@@ -39,7 +39,7 @@ final case class ReferenceSchema(
   }
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = Map.empty
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
@@ -66,13 +66,13 @@ final case class ReferencePathProperty(path: String)
 
   override def unionMerge(
       otherProp: ReferencePathProperty
-  )(implicit er: EquivalenceRelation): ReferencePathProperty = {
+  )(implicit p: JsonoidParams): ReferencePathProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 
   override def mergeValue(
       otherPath: String
-  )(implicit er: EquivalenceRelation): ReferencePathProperty = {
+  )(implicit p: JsonoidParams): ReferencePathProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 }
@@ -85,13 +85,13 @@ final case class ReferenceObjectProperty(schema: JsonSchema[_])
 
   override def unionMerge(
       otherProp: ReferenceObjectProperty
-  )(implicit er: EquivalenceRelation): ReferenceObjectProperty = {
+  )(implicit p: JsonoidParams): ReferenceObjectProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 
   override def mergeValue(
       otherObject: String
-  )(implicit er: EquivalenceRelation): ReferenceObjectProperty = {
+  )(implicit p: JsonoidParams): ReferenceObjectProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 }

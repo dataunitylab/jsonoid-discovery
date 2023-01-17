@@ -85,7 +85,7 @@ object JsonSchema {
       schemas.length match {
         case 1 =>
           fromJson(schemas(0)).merge(baseSchema, Intersect)(
-            EquivalenceRelations.AlwaysEquivalenceRelation
+            JsonoidParams(EquivalenceRelations.AlwaysEquivalenceRelation)
           )
         case _ =>
           buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
@@ -132,15 +132,16 @@ object JsonSchema {
   ): ProductSchema = {
     val er: EquivalenceRelation =
       EquivalenceRelations.NonEquivalenceRelation
+    val p = JsonoidParams(er)
     val typesProp = ProductSchemaTypesProperty(
       baseSchema,
       schemas,
       List.fill(schemas.length)(1),
       productType
-    )(er)
+    )(p)
     val properties =
       SchemaProperties.empty[JsonSchema[_]].replaceProperty(typesProp)
-    ProductSchema(properties)(er)
+    ProductSchema(properties)(p)
   }
 
   private def productFromJsons(
@@ -151,7 +152,7 @@ object JsonSchema {
     schemas.length match {
       case 1 =>
         val schema = baseSchema.merge(fromJson(schemas(0)), Intersect)(
-          EquivalenceRelations.AlwaysEquivalenceRelation
+          JsonoidParams(EquivalenceRelations.AlwaysEquivalenceRelation)
         )
         schema
       case _ =>
@@ -476,13 +477,13 @@ trait JsonSchema[T] {
   }
 
   def mergeSameType(mergeType: MergeType = Union)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]]
 
   def createProduct()(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = { case other =>
-    ProductSchema(this)(er).merge(other)
+    ProductSchema(this)(p).merge(other)
   }
 
   def isMaxMin: Boolean = {
@@ -498,18 +499,19 @@ trait JsonSchema[T] {
   def merge(
       other: JsonSchema[_],
       mergeType: MergeType = Union
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     val otherIsProduct =
       other.isInstanceOf[ProductSchema] && !this.isInstanceOf[ProductSchema]
     if ((other.isMaxMin && !this.isMaxMin) || otherIsProduct) {
       other.merge(this, mergeType)
     } else {
-      val sameType = mergeSameType(mergeType)(er)
-      val newSchema = if (sameType.isDefinedAt(other) && er.fuse(this, other)) {
-        sameType(other)
-      } else {
-        createProduct()(er)(other)
-      }
+      val sameType = mergeSameType(mergeType)(p)
+      val newSchema =
+        if (sameType.isDefinedAt(other) && p.er.fuse(this, other)) {
+          sameType(other)
+        } else {
+          createProduct()(p)(other)
+        }
 
       newSchema.definitions ++= this.definitions
       newSchema.definitions ++= other.definitions

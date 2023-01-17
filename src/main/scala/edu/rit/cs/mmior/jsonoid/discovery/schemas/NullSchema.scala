@@ -12,7 +12,7 @@ final case class NullSchema(
   override val validTypes: Set[Class[_]] = Set.empty
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ NullSchema(otherProperties) =>
       NullSchema(properties.merge(otherProperties, mergeType))

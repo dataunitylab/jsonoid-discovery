@@ -8,7 +8,7 @@ object ReferenceResolver extends SchemaWalker[Unit] {
   )
   def transformSchema(
       schema: JsonSchema[_]
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     var refs = Map.empty[String, Unit]
     var visited: Set[JsonSchema[_]] = Set.empty
     do {

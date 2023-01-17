@@ -21,7 +21,7 @@ object ArraySchema {
   )(implicit propSet: PropertySet): ArraySchema = {
     ArraySchema(
       propSet.arrayProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -64,7 +64,7 @@ final case class ArraySchema(
   override val validTypes: Set[Class[_]] = Set(classOf[JArray])
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ArraySchema(otherProperties) =>
       ArraySchema(properties.merge(otherProperties, mergeType))
@@ -184,19 +184,19 @@ final case class ItemTypeProperty(
 
   override def intersectMerge(
       otherProp: ItemTypeProperty
-  )(implicit er: EquivalenceRelation): ItemTypeProperty =
-    merge(otherProp, Intersect)(er)
+  )(implicit p: JsonoidParams): ItemTypeProperty =
+    merge(otherProp, Intersect)(p)
 
   override def unionMerge(
       otherProp: ItemTypeProperty
-  )(implicit er: EquivalenceRelation): ItemTypeProperty =
-    merge(otherProp, Union)(er)
+  )(implicit p: JsonoidParams): ItemTypeProperty =
+    merge(otherProp, Union)(p)
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def merge(
       otherProp: ItemTypeProperty,
       mergeType: MergeType
-  )(implicit er: EquivalenceRelation): ItemTypeProperty = {
+  )(implicit p: JsonoidParams): ItemTypeProperty = {
     val newType = (itemType, otherProp.itemType) match {
       case (Right(schema1), Right(schema2)) =>
         if (schema1.length == schema2.length) {
@@ -226,7 +226,7 @@ final case class ItemTypeProperty(
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): ItemTypeProperty = {
+  )(implicit p: JsonoidParams): ItemTypeProperty = {
     unionMerge(ItemTypeProperty(Right(value)))
   }
 
@@ -269,7 +269,7 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 
   override def intersectMerge(
       otherProp: MinItemsProperty
-  )(implicit er: EquivalenceRelation): MinItemsProperty = {
+  )(implicit p: JsonoidParams): MinItemsProperty = {
     MinItemsProperty(
       maxOrNone(
         minItems,
@@ -280,7 +280,7 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 
   override def unionMerge(
       otherProp: MinItemsProperty
-  )(implicit er: EquivalenceRelation): MinItemsProperty = {
+  )(implicit p: JsonoidParams): MinItemsProperty = {
     MinItemsProperty(
       minOrNone(
         minItems,
@@ -291,7 +291,7 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): MinItemsProperty = {
+  )(implicit p: JsonoidParams): MinItemsProperty = {
     MinItemsProperty(minOrNone(Some(value.length), minItems))
   }
 
@@ -322,7 +322,7 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
   override def intersectMerge(
       otherProp: MaxItemsProperty
-  )(implicit er: EquivalenceRelation): MaxItemsProperty = {
+  )(implicit p: JsonoidParams): MaxItemsProperty = {
     MaxItemsProperty(
       minOrNone(
         maxItems,
@@ -333,7 +333,7 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
   override def unionMerge(
       otherProp: MaxItemsProperty
-  )(implicit er: EquivalenceRelation): MaxItemsProperty = {
+  )(implicit p: JsonoidParams): MaxItemsProperty = {
     MaxItemsProperty(
       maxOrNone(
         maxItems,
@@ -344,7 +344,7 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): MaxItemsProperty = {
+  )(implicit p: JsonoidParams): MaxItemsProperty = {
     MaxItemsProperty(maxOrNone(Some(value.length), maxItems))
   }
 
@@ -381,7 +381,7 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 
   override def intersectMerge(
       otherProp: UniqueProperty
-  )(implicit er: EquivalenceRelation): UniqueProperty = {
+  )(implicit p: JsonoidParams): UniqueProperty = {
     val unique = this.unique || otherProp.unique
     UniqueProperty(
       unique,
@@ -393,14 +393,14 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 
   override def unionMerge(
       otherProp: UniqueProperty
-  )(implicit er: EquivalenceRelation): UniqueProperty = {
+  )(implicit p: JsonoidParams): UniqueProperty = {
     UniqueProperty(unique && otherProp.unique, unary && otherProp.unary)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def mergeValue(
       value: List[JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): UniqueProperty = {
+  )(implicit p: JsonoidParams): UniqueProperty = {
     // Use the examples property to check uniqueness
     val examples = value.fold(ZeroSchema())(_.merge(_)) match {
       case IntegerSchema(props) =>
@@ -462,7 +462,7 @@ final case class ArrayLengthHistogramProperty(
 
   override def unionMerge(
       otherProp: ArrayLengthHistogramProperty
-  )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
+  )(implicit p: JsonoidParams): ArrayLengthHistogramProperty = {
     val newHistogram = DDSketches.unboundedDense(0.01)
     newHistogram.mergeWith(histogram)
     newHistogram.mergeWith(otherProp.histogram)
@@ -471,7 +471,7 @@ final case class ArrayLengthHistogramProperty(
 
   override def mergeValue(
       value: List[JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): ArrayLengthHistogramProperty = {
+  )(implicit p: JsonoidParams): ArrayLengthHistogramProperty = {
     val newHistogram = DDSketches.unboundedDense(0.01)
     newHistogram.mergeWith(histogram)
     newHistogram.accept(value.length)

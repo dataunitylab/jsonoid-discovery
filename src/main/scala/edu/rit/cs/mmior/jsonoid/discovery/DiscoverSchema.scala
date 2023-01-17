@@ -28,7 +28,7 @@ object DiscoverSchema {
   def discover(
       jsons: Iterator[JValue],
       propSet: PropertySet = PropertySets.AllProperties
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     jsons.map(discoverFromValue(_, propSet)).fold(ZeroSchema())(_.merge(_))
   }
 
@@ -36,7 +36,7 @@ object DiscoverSchema {
   def discoverFromValue(
       value: JValue,
       propSet: PropertySet = PropertySets.AllProperties
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     value match {
       case JArray(items) =>
         ArraySchema(items.map(discoverFromValue(_, propSet)))(propSet)
@@ -57,7 +57,7 @@ object DiscoverSchema {
   def discoverObjectFields(
       fields: Seq[JField],
       propSet: PropertySet
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     ObjectSchema(
       fields
         .map { case (k, v) =>
@@ -76,14 +76,14 @@ object DiscoverSchema {
   def transformSchema(
       schema: JsonSchema[_],
       addDefinitions: Boolean = false
-  )(implicit er: EquivalenceRelation): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     var transformedSchema = schema
     if (addDefinitions) {
       transformedSchema = DefinitionTransformer
-        .transformSchema(transformedSchema)(er)
+        .transformSchema(transformedSchema)(p)
     }
     transformedSchema = EnumTransformer
-      .transformSchema(transformedSchema)(er)
+      .transformSchema(transformedSchema)(p)
 
     transformedSchema
   }
@@ -172,8 +172,9 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
+        val p = JsonoidParams(config.equivalenceRelation)
         val schema =
-          discover(jsons, propSet)(config.equivalenceRelation)
+          discover(jsons, propSet)(p)
 
         // Check if transformations are valid
         if (
@@ -185,9 +186,7 @@ object DiscoverSchema {
         }
 
         var transformedSchema: JsonSchema[_] =
-          transformSchema(schema, config.addDefinitions)(
-            config.equivalenceRelation
-          )
+          transformSchema(schema, config.addDefinitions)(p)
 
         if (config.writeValues.isDefined) {
           val outputStream = new FileOutputStream(config.writeValues.get)

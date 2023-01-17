@@ -3,11 +3,10 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import org.json4s.JsonDSL._
 import org.json4s._
 
+import UnitSpec._
+
 class ForeignKeyFinderSpec extends UnitSpec {
   behavior of "ForeignKeyFinder"
-
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
 
   it should "find possible foreign keys that are integers" in {
     val jsons: Seq[JValue] =

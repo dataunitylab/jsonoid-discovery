@@ -5,12 +5,12 @@ import org.json4s.jackson.JsonMethods._
 
 import schemas._
 
+import UnitSpec._
+
 class DefinitionTransformerSpec extends UnitSpec {
   behavior of "DefinitionTransformer"
 
   implicit val formats: Formats = DefaultFormats
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
 
   it should "replace a common schema with a definition" in {
     val json: JValue = parse("""{

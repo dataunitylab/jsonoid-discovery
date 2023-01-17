@@ -15,7 +15,7 @@ object ObjectSchema {
   )(implicit propSet: PropertySet): ObjectSchema = {
     ObjectSchema(
       propSet.objectProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -58,7 +58,7 @@ final case class ObjectSchema(
   override val staticProperties: JObject = ("additionalProperties" -> false)
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ObjectSchema(otherProperties) =>
       ObjectSchema(properties.merge(otherProperties, mergeType))
@@ -151,26 +151,26 @@ final case class ObjectTypesProperty(
 
   override def intersectMerge(
       otherProp: ObjectTypesProperty
-  )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
+  )(implicit p: JsonoidParams): ObjectTypesProperty = {
     val other = otherProp.objectTypes
     this.mergeValue(other, Intersect)
   }
 
   override def unionMerge(
       otherProp: ObjectTypesProperty
-  )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
+  )(implicit p: JsonoidParams): ObjectTypesProperty = {
     val other = otherProp.objectTypes
-    this.mergeValue(other)
+    this.mergeValue(other)(p)
   }
 
   override def mergeValue(value: Map[String, JsonSchema[_]])(implicit
-      er: EquivalenceRelation
-  ) = mergeValue(value, Union)
+      p: JsonoidParams
+  ) = mergeValue(value, Union)(p)
 
   def mergeValue(
       value: Map[String, JsonSchema[_]],
       mergeType: MergeType
-  )(implicit er: EquivalenceRelation): ObjectTypesProperty = {
+  )(implicit p: JsonoidParams): ObjectTypesProperty = {
     val mergedTypes = mergeType match {
       case Union     => objectTypes.keySet ++ value.keySet
       case Intersect => objectTypes.keySet & value.keySet
@@ -237,21 +237,21 @@ final case class PatternTypesProperty(
 
   override def intersectMerge(
       otherProp: PatternTypesProperty
-  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+  )(implicit p: JsonoidParams): PatternTypesProperty = {
     val other = otherProp.patternTypes
     this.mergeValueRegex(other, Intersect)
   }
 
   override def unionMerge(
       otherProp: PatternTypesProperty
-  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+  )(implicit p: JsonoidParams): PatternTypesProperty = {
     val other = otherProp.patternTypes
     this.mergeValueRegex(other, Union)
   }
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+  )(implicit p: JsonoidParams): PatternTypesProperty = {
     val regexMap: Map[Regex, JsonSchema[_]] = value.map { case (k, v) =>
       (k.r, v)
     }.toMap
@@ -261,7 +261,7 @@ final case class PatternTypesProperty(
   def mergeValueRegex(
       value: Map[Regex, JsonSchema[_]],
       mergeType: MergeType
-  )(implicit er: EquivalenceRelation): PatternTypesProperty = {
+  )(implicit p: JsonoidParams): PatternTypesProperty = {
     val mergedTypes = mergeType match {
       case Union     => patternTypes.keySet ++ value.keySet
       case Intersect => patternTypes.keySet & value.keySet
@@ -306,7 +306,7 @@ final case class FieldPresenceProperty(
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   override def intersectMerge(
       otherProp: FieldPresenceProperty
-  )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
+  )(implicit p: JsonoidParams): FieldPresenceProperty = {
     val mergedTypes = fieldPresence.keySet & otherProp.fieldPresence.keySet
     val merged =
       (fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq).filter(t =>
@@ -321,7 +321,7 @@ final case class FieldPresenceProperty(
 
   override def unionMerge(
       otherProp: FieldPresenceProperty
-  )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
+  )(implicit p: JsonoidParams): FieldPresenceProperty = {
     val merged = fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq
     val grouped = merged.groupBy(_._1)
     FieldPresenceProperty(
@@ -332,7 +332,7 @@ final case class FieldPresenceProperty(
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): FieldPresenceProperty = {
+  )(implicit p: JsonoidParams): FieldPresenceProperty = {
     unionMerge(FieldPresenceProperty(value.mapValues(s => 1), 1))
   }
 }
@@ -344,14 +344,14 @@ final case class RequiredProperty(
 
   override def unionMerge(
       otherProp: RequiredProperty
-  )(implicit er: EquivalenceRelation): RequiredProperty = {
+  )(implicit p: JsonoidParams): RequiredProperty = {
     val other = otherProp.required
     RequiredProperty(intersectOrNone(other, required))
   }
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): RequiredProperty = {
+  )(implicit p: JsonoidParams): RequiredProperty = {
     RequiredProperty(intersectOrNone(Some(value.keySet), required))
   }
 
@@ -428,7 +428,7 @@ final case class DependenciesProperty(
 
   override def unionMerge(
       otherProp: DependenciesProperty
-  )(implicit er: EquivalenceRelation): DependenciesProperty = {
+  )(implicit p: JsonoidParams): DependenciesProperty = {
     if (overloaded || otherProp.overloaded) {
       DependenciesProperty(overloaded = true)
     } else {
@@ -453,7 +453,7 @@ final case class DependenciesProperty(
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): DependenciesProperty = {
+  )(implicit p: JsonoidParams): DependenciesProperty = {
     if (overloaded || value.size > DependenciesProperty.MaxProperties) {
       // If we have too many properties on any object, give up
       DependenciesProperty(overloaded = true)
@@ -505,7 +505,7 @@ final case class StaticDependenciesProperty(
 
   override def unionMerge(
       otherProp: StaticDependenciesProperty
-  )(implicit er: EquivalenceRelation): StaticDependenciesProperty = {
+  )(implicit p: JsonoidParams): StaticDependenciesProperty = {
     throw new UnsupportedOperationException(
       "StaticDependenciesProperty cannot be merged"
     )
@@ -513,7 +513,7 @@ final case class StaticDependenciesProperty(
 
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
-  )(implicit er: EquivalenceRelation): StaticDependenciesProperty = {
+  )(implicit p: JsonoidParams): StaticDependenciesProperty = {
     throw new UnsupportedOperationException(
       "StaticDependenciesProperty cannot be merged"
     )

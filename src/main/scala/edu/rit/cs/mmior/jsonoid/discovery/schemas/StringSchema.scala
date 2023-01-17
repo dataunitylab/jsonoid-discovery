@@ -21,7 +21,7 @@ object StringSchema {
   def apply(value: String)(implicit propSet: PropertySet): StringSchema = {
     StringSchema(
       propSet.stringProperties.mergeValue(value)(
-        EquivalenceRelations.KindEquivalenceRelation
+        JsonoidParams.defaultJsonoidParams
       )
     )
   }
@@ -65,7 +65,7 @@ final case class StringSchema(
   override val validTypes: Set[Class[_]] = Set(classOf[JString])
 
   override def mergeSameType(mergeType: MergeType)(implicit
-      er: EquivalenceRelation
+      p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ StringSchema(otherProperties) =>
       StringSchema(properties.merge(otherProperties, mergeType))
@@ -86,19 +86,19 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
 
   override def intersectMerge(
       otherProp: MinLengthProperty
-  )(implicit er: EquivalenceRelation): MinLengthProperty = {
+  )(implicit p: JsonoidParams): MinLengthProperty = {
     MinLengthProperty(maxOrNone(minLength, otherProp.minLength))
   }
 
   override def unionMerge(
       otherProp: MinLengthProperty
-  )(implicit er: EquivalenceRelation): MinLengthProperty = {
+  )(implicit p: JsonoidParams): MinLengthProperty = {
     MinLengthProperty(minOrNone(minLength, otherProp.minLength))
   }
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): MinLengthProperty = {
+  )(implicit p: JsonoidParams): MinLengthProperty = {
     MinLengthProperty(minOrNone(Some(value.length), minLength))
   }
 
@@ -129,19 +129,19 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 
   override def intersectMerge(
       otherProp: MaxLengthProperty
-  )(implicit er: EquivalenceRelation): MaxLengthProperty = {
+  )(implicit p: JsonoidParams): MaxLengthProperty = {
     MaxLengthProperty(minOrNone(maxLength, otherProp.maxLength))
   }
 
   override def unionMerge(
       otherProp: MaxLengthProperty
-  )(implicit er: EquivalenceRelation): MaxLengthProperty = {
+  )(implicit p: JsonoidParams): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(maxLength, otherProp.maxLength))
   }
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): MaxLengthProperty = {
+  )(implicit p: JsonoidParams): MaxLengthProperty = {
     MaxLengthProperty(maxOrNone(Some(value.length), maxLength))
   }
 
@@ -174,7 +174,7 @@ final case class StringHyperLogLogProperty(
 
   override def unionMerge(
       otherProp: StringHyperLogLogProperty
-  )(implicit er: EquivalenceRelation): StringHyperLogLogProperty = {
+  )(implicit p: JsonoidParams): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.merge(otherProp.hll)
@@ -184,7 +184,7 @@ final case class StringHyperLogLogProperty(
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): StringHyperLogLogProperty = {
+  )(implicit p: JsonoidParams): StringHyperLogLogProperty = {
     val prop = StringHyperLogLogProperty()
     prop.hll.merge(this.hll)
     prop.hll.addString(value)
@@ -207,7 +207,7 @@ final case class StringBloomFilterProperty(
 
   override def unionMerge(
       otherProp: StringBloomFilterProperty
-  )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
+  )(implicit p: JsonoidParams): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
     prop.bloomFilter.filter.merge(this.bloomFilter.filter)
     prop.bloomFilter.filter.merge(otherProp.bloomFilter.filter)
@@ -218,7 +218,7 @@ final case class StringBloomFilterProperty(
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): StringBloomFilterProperty = {
+  )(implicit p: JsonoidParams): StringBloomFilterProperty = {
     val prop = StringBloomFilterProperty()
     prop.bloomFilter.filter.merge(this.bloomFilter.filter)
     prop.bloomFilter.filter.add(value)
@@ -250,13 +250,13 @@ final case class StringExamplesProperty(
 
   override def unionMerge(
       otherProp: StringExamplesProperty
-  )(implicit er: EquivalenceRelation): StringExamplesProperty = {
+  )(implicit p: JsonoidParams): StringExamplesProperty = {
     StringExamplesProperty(examples.merge(otherProp.examples))
   }
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): StringExamplesProperty = {
+  )(implicit p: JsonoidParams): StringExamplesProperty = {
     StringExamplesProperty(examples.merge(ExamplesProperty(value)))
   }
 }
@@ -317,7 +317,7 @@ final case class FormatProperty(
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   override def intersectMerge(
       otherProp: FormatProperty
-  )(implicit er: EquivalenceRelation): FormatProperty = {
+  )(implicit p: JsonoidParams): FormatProperty = {
     val merged = formats.toSeq ++ otherProp.formats.toSeq
     val grouped = merged.groupBy(_._1)
     FormatProperty(
@@ -327,7 +327,7 @@ final case class FormatProperty(
 
   override def unionMerge(
       otherProp: FormatProperty
-  )(implicit er: EquivalenceRelation): FormatProperty = {
+  )(implicit p: JsonoidParams): FormatProperty = {
     val merged = formats.toSeq ++ otherProp.formats.toSeq
     val grouped = merged.groupBy(_._1)
     FormatProperty(grouped.mapValues(_.map(_._2).sum).map(identity).toMap)
@@ -335,7 +335,7 @@ final case class FormatProperty(
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): FormatProperty = {
+  )(implicit p: JsonoidParams): FormatProperty = {
     FormatProperty.FormatCheckers.toSeq.find { case (format, fn) =>
       fn(value)
     } match {
@@ -385,7 +385,7 @@ final case class PatternProperty(
 
   override def unionMerge(
       otherProp: PatternProperty
-  )(implicit er: EquivalenceRelation): PatternProperty = {
+  )(implicit p: JsonoidParams): PatternProperty = {
     val newPrefix = findCommonPrefix(prefix, otherProp.prefix)
     val newSuffix =
       findCommonPrefix(
@@ -402,7 +402,7 @@ final case class PatternProperty(
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): PatternProperty = {
+  )(implicit p: JsonoidParams): PatternProperty = {
     unionMerge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
 
@@ -448,7 +448,7 @@ final case class StaticPatternProperty(regex: Regex)
 
   override def unionMerge(
       otherProp: StaticPatternProperty
-  )(implicit er: EquivalenceRelation): StaticPatternProperty = {
+  )(implicit p: JsonoidParams): StaticPatternProperty = {
     throw new UnsupportedOperationException(
       "StaticPatternProperty cannot be merged"
     )
@@ -456,7 +456,7 @@ final case class StaticPatternProperty(regex: Regex)
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): StaticPatternProperty = {
+  )(implicit p: JsonoidParams): StaticPatternProperty = {
     throw new UnsupportedOperationException(
       "StaticPatternProperty cannot be merged"
     )
@@ -488,13 +488,13 @@ final case class StringLengthHistogramProperty(
 
   override def unionMerge(
       otherProp: StringLengthHistogramProperty
-  )(implicit er: EquivalenceRelation): StringLengthHistogramProperty = {
+  )(implicit p: JsonoidParams): StringLengthHistogramProperty = {
     StringLengthHistogramProperty(histogram.merge(otherProp.histogram))
   }
 
   override def mergeValue(
       value: String
-  )(implicit er: EquivalenceRelation): StringLengthHistogramProperty = {
+  )(implicit p: JsonoidParams): StringLengthHistogramProperty = {
     StringLengthHistogramProperty(
       histogram.merge(value.length)
     )

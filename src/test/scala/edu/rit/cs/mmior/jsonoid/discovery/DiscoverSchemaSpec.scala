@@ -8,11 +8,10 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 
+import UnitSpec._
+
 class DiscoverSchemaSpec extends UnitSpec {
   behavior of "DiscoverSchema"
-
-  implicit val er: EquivalenceRelation =
-    EquivalenceRelations.KindEquivalenceRelation
 
   it should "produce a product schema" in {
     val schema =
