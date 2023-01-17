@@ -15,7 +15,7 @@ inThisBuild(
 )
 
 scalafixOnCompile := true
-ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "3.0.0"
+ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "3.0.1"
 
 mainClass := Some("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema")
 
