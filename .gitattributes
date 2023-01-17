@@ -1,1 +1,2 @@
 sbtx linguist-vendored
+src/site/**/*.html linguist-documentation
