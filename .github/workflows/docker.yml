@@ -21,14 +21,13 @@ jobs:
     - name: Log in to the GitHub Container registry
       uses: docker/login-action@v2.1.0
       with:
-        registry: ghcr.io
-        username: michaelmior
-        password: ${{ secrets.GH_PERSONAL_TOKEN }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v4.1.1
       with:
-        images: ghcr.io/michaelmior/jsonoid-discovery
+        images: michaelmior/jsonoid-discovery
     - name: Build and push image
       uses: docker/build-push-action@v3.2.0
       with:

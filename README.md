@@ -17,13 +17,12 @@ Only the `read:packages` permission should be required.
 To quickly run jsonoid, you can use the Docker image which is built from the latest commit on the `main` branch.
 Note that by default, jsonoid accepts [newline-delimited JSON](http://ndjson.org/) on standard input, so it will hang waiting for input.
 Add the `--help` option to see possible configuration options.
-Note that this requires [authenticating with the GitHub Container registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-to-the-container-registry).
 
-    docker run -i --rm ghcr.io/michaelmior/jsonoid-discovery:latest
+    docker run -i --rm michaelmior/jsonoid-discovery
 
 To simplify, you may wish to add a shell alias so `jsonoid` can be run directly as a command.
 
-    alias jsonoid='docker run -i --rm ghcr.io/michaelmior/jsonoid-discovery:latest'
+    alias jsonoid='docker run -i --rm michaelmior/jsonoid-discovery
     jsonoid --help
 
 ## Compiling
