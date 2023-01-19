@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow additional ER choices in CLI
 - Allow the maximum number of examples to be configured
 
+### Changed
+- Use ranking to improve possible primary key suggestions
+
 ## [0.11.0]
 ### Added
 - Make definition transformation optional when running via Spark
