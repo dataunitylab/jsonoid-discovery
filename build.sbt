@@ -134,6 +134,7 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(SiteScaladocPlugin)
 
 dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
+dockerBaseImage := "openjdk:8-alpine"
 
 gitHubPagesOrgName := "michaelmior"
 gitHubPagesRepoName := "jsonoid-discovery"
