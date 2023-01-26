@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Use ranking to improve possible primary key suggestions
 
+## Fixed
+- Don't output a format if most string values have no format
+
 ## [0.11.0]
 ### Added
 - Make definition transformation optional when running via Spark

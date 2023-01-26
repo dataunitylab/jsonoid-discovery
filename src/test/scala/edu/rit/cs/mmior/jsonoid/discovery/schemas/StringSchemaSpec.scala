@@ -61,6 +61,14 @@ class StringSchemaSpec extends UnitSpec {
   schemaWithFormat("20:20:39+00:00", "time")
   schemaWithFormat("01020304-0506-0708-090a-0b0c0d0e0f10", "uuid")
 
+  it should "not detect a format if most values match no format" in {
+    var props = StringSchema().properties
+    for (_ <- 1 to 10) { props = props.mergeValue("::1") }
+    for (_ <- 1 to 500) { props = props.mergeValue("foo") }
+    val formatProp = props.get[FormatProperty]
+    (formatProp.toJson \ "format") shouldBe JNothing
+  }
+
   it should "not assign a format to normal text" in {
     val formatProp = stringSchema.properties.get[FormatProperty]
     (formatProp.toJson \ "format") shouldBe JNothing

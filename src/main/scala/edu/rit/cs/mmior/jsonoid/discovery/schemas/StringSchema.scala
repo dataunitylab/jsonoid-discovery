@@ -295,7 +295,12 @@ object FormatProperty {
 final case class FormatProperty(
     formats: Map[String, BigInt] = Map.empty[String, BigInt]
 ) extends SchemaProperty[String, FormatProperty] {
-  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.Equals",
+      "org.wartremover.warts.TraversableOps"
+    )
+  )
   override def toJson: JObject = {
     val total = formats.values.sum
     if (total >= FormatProperty.MinExamples) {
@@ -303,7 +308,7 @@ final case class FormatProperty(
       if (
         BigDecimal(maxFormat._2.toDouble) / BigDecimal(
           total
-        ) >= FormatProperty.MinFraction
+        ) >= FormatProperty.MinFraction && maxFormat._1 != "none"
       ) {
         ("format" -> maxFormat._1)
       } else {
@@ -340,7 +345,7 @@ final case class FormatProperty(
       fn(value)
     } match {
       case Some(format) => unionMerge(FormatProperty(Map((format._1, 1))))
-      case None         => this
+      case None         => unionMerge(FormatProperty(Map(("none", 1))))
     }
   }
 }
