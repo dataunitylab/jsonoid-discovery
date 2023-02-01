@@ -112,7 +112,7 @@ final case class ArraySchema(
       pointer: String,
       reference: String,
       obj: Option[JsonSchema[_]]
-  ): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     val itemTypes = properties.get[ItemTypeProperty].itemType
     itemTypes match {
       case Left(schema) =>

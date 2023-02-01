@@ -137,7 +137,7 @@ final case class ProductSchema(
       pointer: String,
       reference: String,
       obj: Option[JsonSchema[_]]
-  ): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     val typesProp = properties.get[ProductSchemaTypesProperty]
     // Build a new type list that replaces the required type
     val newSchemas = pointer.split("/", 3) match {

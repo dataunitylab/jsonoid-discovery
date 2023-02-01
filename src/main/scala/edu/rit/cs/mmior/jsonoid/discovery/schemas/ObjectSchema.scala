@@ -15,7 +15,7 @@ object ObjectSchema {
   )(implicit propSet: PropertySet, p: JsonoidParams): ObjectSchema = {
     ObjectSchema(
       propSet.objectProperties.mergeValue(value)(p)
-    )
+    )(p)
   }
 
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
@@ -48,25 +48,27 @@ object ObjectSchema {
 final case class ObjectSchema(
     override val properties: SchemaProperties[Map[String, JsonSchema[_]]] =
       ObjectSchema.AllProperties
-) extends JsonSchema[Map[String, JsonSchema[_]]] {
+)(implicit p: JsonoidParams)
+    extends JsonSchema[Map[String, JsonSchema[_]]] {
   override val schemaType = "object"
 
   override val validTypes: Set[Class[_]] = Set(classOf[JObject])
 
-  override val staticProperties: JObject = ("additionalProperties" -> false)
+  override val staticProperties: JObject = ("additionalProperties" ->
+    p.additionalProperties)
 
   override def mergeSameType(mergeType: MergeType)(implicit
       p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ ObjectSchema(otherProperties) =>
-      ObjectSchema(properties.merge(otherProperties, mergeType))
+      ObjectSchema(properties.merge(otherProperties, mergeType))(p)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   override def copy(
       properties: SchemaProperties[Map[String, JsonSchema[_]]]
   ): ObjectSchema = {
-    val newSchema = ObjectSchema(properties)
+    val newSchema = ObjectSchema(properties)(p)
     newSchema.definitions ++= this.definitions
 
     newSchema
@@ -98,7 +100,7 @@ final case class ObjectSchema(
       pointer: String,
       reference: String,
       obj: Option[JsonSchema[_]]
-  ): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
     val newTypes = pointer.split("/", 3) match {
@@ -123,7 +125,7 @@ final case class ObjectSchema(
     }
 
     val typeProp = ObjectTypesProperty(newTypes)
-    val newSchema = ObjectSchema(this.properties.replaceProperty(typeProp))
+    val newSchema = ObjectSchema(this.properties.replaceProperty(typeProp))(p)
     newSchema.definitions ++= this.definitions
     newSchema
   }
@@ -134,7 +136,7 @@ final case class ObjectTypesProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]], ObjectTypesProperty] {
   override def toJson: JObject = ("properties" -> objectTypes.map {
     case (propType, schema) => (propType -> schema.toJson)
-  }) ~ ("additionalProperties" -> false)
+  })
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]

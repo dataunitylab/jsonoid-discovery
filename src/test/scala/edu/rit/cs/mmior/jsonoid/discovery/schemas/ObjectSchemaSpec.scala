@@ -141,4 +141,20 @@ class ObjectSchemaSpec extends UnitSpec {
       Anomaly("$", "dependency $.baz not found for $.bar", Fatal)
     )
   }
+
+  it should "not allow additional properties by default" in {
+    (objectSchema.toJson \ "additionalProperties")
+      .extract[Boolean] shouldBe false
+  }
+
+  it should "allow additional properties if requested" in {
+    val params =
+      JsonoidParams.defaultJsonoidParams.withAdditionalProperties(true)
+    val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))(
+      PropertySets.MinProperties,
+      params
+    )
+    (objectSchema.toJson \ "additionalProperties")
+      .extract[Boolean] shouldBe true
+  }
 }

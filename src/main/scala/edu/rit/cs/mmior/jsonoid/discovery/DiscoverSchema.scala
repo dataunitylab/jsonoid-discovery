@@ -22,7 +22,8 @@ final case class Config(
     equivalenceRelation: EquivalenceRelation =
       EquivalenceRelations.KindEquivalenceRelation,
     addDefinitions: Boolean = false,
-    maxExamples: Option[Int] = None
+    maxExamples: Option[Int] = None,
+    additionalProperties: Boolean = false
 )
 
 object DiscoverSchema {
@@ -165,6 +166,10 @@ object DiscoverSchema {
       opt[Int]("max-examples")
         .action((x, c) => c.copy(maxExamples = Some(x)))
         .text("maximum number of examples to extract")
+
+      opt[Unit]('a', "additional-properties")
+        .action((x, c) => c.copy(additionalProperties = true))
+        .text("set additionalProperties to true in the generated schema")
     }
 
     parser.parse(args, Config()) match {
@@ -182,6 +187,7 @@ object DiscoverSchema {
         val jsons = jsonFromSource(source)
         var p = JsonoidParams.defaultJsonoidParams
           .withER(config.equivalenceRelation)
+          .withAdditionalProperties(config.additionalProperties)
         if (config.maxExamples.isDefined) {
           p = p.withMaxExamples(config.maxExamples.get)
         }

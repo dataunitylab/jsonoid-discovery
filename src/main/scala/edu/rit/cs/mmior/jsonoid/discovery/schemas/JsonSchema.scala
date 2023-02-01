@@ -325,7 +325,9 @@ object JsonSchema {
       "org.wartremover.warts.Recursion"
     )
   )
-  private def fromJsonObject(obj: JObject): JsonSchema[_] = {
+  private def fromJsonObject(
+      obj: JObject
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
 
     if ((obj \ "not") != JNothing) {
@@ -373,7 +375,7 @@ object JsonSchema {
     }
     props.add(RequiredProperty(Some(required)))
 
-    ObjectSchema(props)
+    ObjectSchema(props)(p)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
@@ -542,7 +544,7 @@ trait JsonSchema[T] {
       pointer: String,
       reference: String,
       obj: Option[JsonSchema[_]] = None
-  ): JsonSchema[_] =
+  )(implicit p: JsonoidParams): JsonSchema[_] =
     this
 
   def isAnomalous[S <: JValue: ClassTag](
