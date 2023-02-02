@@ -6,6 +6,52 @@ import scalaz._
 import Scalaz._
 
 object Helpers {
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  def isMinCompatibleWith[A: Order](
+      value1: Option[A],
+      exclusive1: Boolean,
+      value2: Option[A],
+      exclusive2: Boolean
+  ): Boolean = {
+    if (value1.isEmpty) {
+      // If we have no minimum, then compatible
+      true
+    } else if (value2.isEmpty) {
+      // If we have a minimum and the other schema doesn't, not compatible
+      false
+    } else if (!exclusive2 && exclusive1) {
+      // If we are exclusive and the other schema is not,
+      // then the other minmum value must be greater
+      value2.get > value1.get
+    } else {
+      // Otherwise, minimum value can be greater than or equal
+      value2.get >= value1.get
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  def isMaxCompatibleWith[A: Order](
+      value1: Option[A],
+      exclusive1: Boolean,
+      value2: Option[A],
+      exclusive2: Boolean
+  ): Boolean = {
+    if (value1.isEmpty) {
+      // If we have no maximum, then compatible
+      true
+    } else if (value2.isEmpty) {
+      // If we have a maximum and the other schema doesn't, not compatible
+      false
+    } else if (!exclusive2 && exclusive1) {
+      // If we are exclusive and the other schema is not,
+      // then the other maxmum value must be greater
+      value2.get < value1.get
+    } else {
+      // Otherwise, maximum value can be greater than or equal
+      value2.get <= value1.get
+    }
+  }
+
   def maxOrNone[A: Order](first: Option[A], second: Option[A]): Option[A] =
     (first, second) match {
       case (Some(a), None) => first

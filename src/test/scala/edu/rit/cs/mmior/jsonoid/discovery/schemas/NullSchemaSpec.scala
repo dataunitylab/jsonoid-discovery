@@ -3,6 +3,8 @@ package schemas
 
 import org.json4s._
 
+import PropertySets._
+
 class NullSchemaSpec extends UnitSpec {
   behavior of "NullSchema"
 
@@ -14,5 +16,9 @@ class NullSchemaSpec extends UnitSpec {
 
   it should "show non-nulls as an invalid type" in {
     nullSchema.isValidType(JString("foo")) shouldBe (false)
+  }
+
+  it should "not be compatible with other schemas" in {
+    nullSchema.isCompatibleWith(StringSchema("foo")) shouldBe false
   }
 }

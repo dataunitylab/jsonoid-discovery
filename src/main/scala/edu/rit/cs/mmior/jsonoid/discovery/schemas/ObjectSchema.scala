@@ -216,6 +216,21 @@ final case class ObjectTypesProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: ObjectTypesProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    val overlapCompatible = objectTypes.keySet.forall(key =>
+      other.objectTypes.get(key) match {
+        case Some(schema) => objectTypes(key).isCompatibleWith(schema)
+        case None         => true
+      }
+    )
+    val newPropsCompatible = p.additionalProperties || other.objectTypes.keySet
+      .subsetOf(objectTypes.keySet)
+
+    overlapCompatible && newPropsCompatible
+  }
 }
 
 final case class PatternTypesProperty(
@@ -301,6 +316,8 @@ final case class FieldPresenceProperty(
     fieldPresence: Map[String, BigInt] = Map.empty[String, BigInt],
     totalCount: BigInt = 0
 ) extends SchemaProperty[Map[String, JsonSchema[_]], FieldPresenceProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("fieldPresence" -> fieldPresence.map { case (key, count) =>
       (key -> BigDecimal(count) / BigDecimal(totalCount))
@@ -380,6 +397,13 @@ final case class RequiredProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: RequiredProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    // Compatible if we have the same or fewer required properties
+    other.required.getOrElse(Set()).subsetOf(required.getOrElse(Set()))
+  }
 }
 
 object DependenciesProperty {
@@ -404,7 +428,7 @@ final case class DependenciesProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def dependencyMap(): Map[String, Seq[String]] = {
+  def dependencyMap(): Map[String, Set[String]] = {
     cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
         (if (
@@ -426,7 +450,7 @@ final case class DependenciesProperty(
                 })
       }
       .groupBy(_._1)
-      .mapValues(_.map(_._2))
+      .mapValues(_.map(_._2).toSet)
       .map(identity)
   }
 
@@ -494,6 +518,28 @@ final case class DependenciesProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: DependenciesProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    // We must have a subset of dependencies to be compatible
+    val dependencies = dependencyMap()
+    val otherDependencies = other.dependencyMap()
+    dependencies.keySet.forall { key =>
+      if (other.counts.contains(key)) {
+        // Only consider dependent properties which exist in the other schema
+        val containedDeps = dependencies(key).filter(other.counts.contains(_))
+
+        // If this key does exist in the other schema, make sure
+        // we have at least the same depen
+        containedDeps.subsetOf(otherDependencies.getOrElse(key, Set()))
+      } else {
+        // If this key does not exist in the other schema,
+        // it's okay if we do not have the dependency
+        true
+      }
+    }
+  }
 }
 
 final case class StaticDependenciesProperty(
@@ -544,5 +590,12 @@ final case class StaticDependenciesProperty(
         )
       case _ => Seq.empty
     }
+  }
+
+  def isCompatibleWith(other: DependenciesProperty): Boolean = {
+    // Compatibility checking is possible, but we really
+    // need to compare with DependenciesProperty too
+    // which the current API does not permit
+    false
   }
 }

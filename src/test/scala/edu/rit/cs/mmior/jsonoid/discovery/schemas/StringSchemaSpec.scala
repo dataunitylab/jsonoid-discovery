@@ -230,4 +230,8 @@ class StringSchemaSpec extends UnitSpec {
       Anomaly("$", "value does not match the required regex", Fatal)
     )
   }
+
+  it should "be compatible with a matching schema" in {
+    StringSchema("foo").isCompatibleWith(StringSchema("foo")) shouldBe true
+  }
 }

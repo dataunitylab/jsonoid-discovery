@@ -8,6 +8,66 @@ import Helpers._
 class HelpersSpec extends UnitSpec {
   val none: Option[String] = None
 
+  behavior of "isMinCompatibleWith"
+
+  it should "be compatible for an equal minimum" in {
+    isMinCompatibleWith(Some(3.5), false, Some(3.5), false) shouldBe true
+  }
+
+  it should "not be compatible for an equal minimum if one is exclusive" in {
+    isMinCompatibleWith(Some(3.5), true, Some(3.5), false) shouldBe false
+  }
+
+  it should "be compatible for an equal minimum if both are exclusive" in {
+    isMinCompatibleWith(Some(3.5), true, Some(3.5), true) shouldBe true
+  }
+
+  it should "be compatible for a smaller minimum" in {
+    isMinCompatibleWith(Some(3.0), false, Some(3.5), false) shouldBe true
+  }
+
+  it should "not be compatible for a larger minimum" in {
+    isMinCompatibleWith(Some(4.0), false, Some(3.5), false) shouldBe false
+  }
+
+  it should "not be compatible no other minimum" in {
+    isMinCompatibleWith(Some(3.5), false, None, false) shouldBe false
+  }
+
+  it should "be compatible if no minimum" in {
+    isMinCompatibleWith(None, false, Some(3.5), false) shouldBe true
+  }
+
+  behavior of "isMaxCompatibleWith"
+
+  it should "be compatible for an equal maximum" in {
+    isMaxCompatibleWith(Some(3.5), false, Some(3.5), false) shouldBe true
+  }
+
+  it should "not be compatible for an equal maximum if one is exclusive" in {
+    isMaxCompatibleWith(Some(3.5), true, Some(3.5), false) shouldBe false
+  }
+
+  it should "be compatible for an equal maximum if both are exclusive" in {
+    isMaxCompatibleWith(Some(3.5), true, Some(3.5), true) shouldBe true
+  }
+
+  it should "be compatible for a smaller maximum" in {
+    isMaxCompatibleWith(Some(3.5), false, Some(3.0), false) shouldBe true
+  }
+
+  it should "not be compatible for a larger maximum" in {
+    isMaxCompatibleWith(Some(3.5), false, Some(4.0), false) shouldBe false
+  }
+
+  it should "not be compatible no other maximum" in {
+    isMaxCompatibleWith(Some(3.5), false, None, false) shouldBe false
+  }
+
+  it should "be compatible if no maximum" in {
+    isMaxCompatibleWith(None, false, Some(3.5), false) shouldBe true
+  }
+
   behavior of "maxOrNone"
 
   it should "give the max value of two Some" in {

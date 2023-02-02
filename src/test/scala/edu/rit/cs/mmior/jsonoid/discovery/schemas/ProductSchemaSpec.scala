@@ -159,4 +159,12 @@ class ProductSchemaSpec extends UnitSpec {
   it should "detect anomalies of incorrect type" in {
     productSchema1.isAnomalous(JString("foo")).shouldBe(true)
   }
+
+  it should "be compatible with one of the contained schemas" in {
+    productSchema1.isCompatibleWith(schema1) shouldBe true
+  }
+
+  it should "not be compatible with a schema not contained inside" in {
+    productSchema1.isCompatibleWith(NumberSchema(3.0)) shouldBe false
+  }
 }

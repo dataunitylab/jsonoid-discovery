@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow additional ER choices in CLI
 - Allow the maximum number of examples to be configured
 - Allow configuration of `additionalProperties`
+- Allow checking of schema compatibility
 
 ### Changed
 - Use ranking to improve possible primary key suggestions

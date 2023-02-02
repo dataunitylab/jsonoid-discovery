@@ -123,6 +123,12 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinLengthProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(minLength, false, other.minLength, false)
+  }
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
@@ -167,11 +173,18 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+  override def isCompatibleWith(
+      other: MaxLengthProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(maxLength, false, other.maxLength, false)
+  }
 }
 
 final case class StringHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[String, StringHyperLogLogProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" ->
       hll.toBase64)
@@ -205,6 +218,8 @@ object StringBloomFilterProperty {
 final case class StringBloomFilterProperty(
     bloomFilter: BloomFilter[String] = BloomFilter[String]()
 ) extends SchemaProperty[String, StringBloomFilterProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("bloomFilter" -> bloomFilter.toBase64)
 
@@ -248,6 +263,8 @@ final case class StringBloomFilterProperty(
 final case class StringExamplesProperty(
     examples: ExamplesProperty[String] = ExamplesProperty()
 ) extends SchemaProperty[String, StringExamplesProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
@@ -308,7 +325,7 @@ final case class FormatProperty(
       "org.wartremover.warts.TraversableOps"
     )
   )
-  override def toJson()(implicit p: JsonoidParams): JObject = {
+  private def maxFormat()(implicit p: JsonoidParams) = {
     val total = formats.values.sum
     if (total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)
@@ -317,12 +334,19 @@ final case class FormatProperty(
           total
         ) >= p.formatThreshold && maxFormat._1 != "none"
       ) {
-        ("format" -> maxFormat._1)
+        Some(maxFormat._1)
       } else {
-        Nil
+        None
       }
     } else {
-      Nil
+      None
+    }
+  }
+
+  override def toJson()(implicit p: JsonoidParams): JObject = {
+    maxFormat match {
+      case Some(format) => ("format" -> format)
+      case None         => Nil
     }
   }
 
@@ -354,6 +378,13 @@ final case class FormatProperty(
       case Some(format) => unionMerge(FormatProperty(Map((format._1, 1))))
       case None         => unionMerge(FormatProperty(Map(("none", 1))))
     }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def isCompatibleWith(
+      other: FormatProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    maxFormat.isEmpty || maxFormat == other.maxFormat
   }
 }
 
@@ -452,6 +483,13 @@ final case class PatternProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: PatternProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    prefix.getOrElse("").startsWith(other.prefix.getOrElse("")) &&
+    suffix.getOrElse("").endsWith(other.suffix.getOrElse(""))
+  }
 }
 
 final case class StaticPatternProperty(regex: Regex)
@@ -490,11 +528,21 @@ final case class StaticPatternProperty(regex: Regex)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: StaticPatternProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    // Regexes do not necessarily need to be equal to be
+    // compatible, but this is the best that we attempt to do for now
+    regex === other.regex
+  }
 }
 
 final case class StringLengthHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[String, StringLengthHistogramProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
       List(value.doubleValue, count.longValue)

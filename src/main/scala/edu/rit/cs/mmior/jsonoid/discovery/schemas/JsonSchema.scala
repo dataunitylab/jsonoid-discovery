@@ -585,4 +585,12 @@ trait JsonSchema[T] {
       )
     )
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def isCompatibleWith(
+      other: JsonSchema[_]
+  )(implicit p: JsonoidParams): Boolean = {
+    schemaType == other.schemaType &&
+    properties.isCompatibleWith(other.properties)(p)
+  }
 }

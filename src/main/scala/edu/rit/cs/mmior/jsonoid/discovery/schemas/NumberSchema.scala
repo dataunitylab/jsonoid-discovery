@@ -82,6 +82,19 @@ final case class NumberSchema(
 
     newSchema
   }
+
+  override def isCompatibleWith(
+      other: JsonSchema[_]
+  )(implicit p: JsonoidParams): Boolean = {
+    // Integer schemas may be compatible with number schemas so try conversion
+    if (other.isInstanceOf[IntegerSchema]) {
+      super.isCompatibleWith(other.asInstanceOf[IntegerSchema].asNumberSchema)(
+        p
+      )
+    } else {
+      super.isCompatibleWith(other)(p)
+    }
+  }
 }
 
 final case class MinNumValueProperty(
@@ -160,6 +173,17 @@ final case class MinNumValueProperty(
       case None => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinNumValueProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(
+      minNumValue,
+      exclusive,
+      other.minNumValue,
+      other.exclusive
+    )
+  }
 }
 
 final case class MaxNumValueProperty(
@@ -235,11 +259,24 @@ final case class MaxNumValueProperty(
       case None => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MaxNumValueProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(
+      maxNumValue,
+      exclusive,
+      other.maxNumValue,
+      other.exclusive
+    )
+  }
 }
 
 final case class NumHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" ->
       hll.toBase64)
@@ -276,6 +313,8 @@ final case class NumHyperLogLogProperty(
 final case class NumBloomFilterProperty(
     bloomFilter: BloomFilter[Double] = BloomFilter[Double]()
 ) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)
@@ -337,6 +376,8 @@ final case class NumBloomFilterProperty(
 
 final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigDecimal, NumStatsProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("statistics" -> stats.toJson)
 
@@ -356,6 +397,8 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 final case class NumExamplesProperty(
     examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
 ) extends SchemaProperty[BigDecimal, NumExamplesProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
@@ -409,11 +452,33 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
   )(implicit p: JsonoidParams): NumMultipleOfProperty = {
     unionMerge(NumMultipleOfProperty(Some(value)))
   }
+
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
+  )
+  override def isCompatibleWith(
+      other: NumMultipleOfProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    if (multiple.isEmpty) {
+      // If we have no multiple, then compatible
+      true
+    } else if (other.multiple.isEmpty) {
+      // If we have a multiple and the other schema doesn't, not compatible
+      false
+    } else {
+      // Otherwise, the multiple must be a multiple
+      // of our multiple with the same sign
+      (other.multiple.get / multiple.get).isValidInt &&
+      multiple.get.signum == other.multiple.get.signum
+    }
+  }
 }
 
 final case class NumHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)

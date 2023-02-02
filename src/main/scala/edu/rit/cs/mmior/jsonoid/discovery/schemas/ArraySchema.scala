@@ -259,6 +259,31 @@ final case class ItemTypeProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: ItemTypeProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    (itemType, other.itemType) match {
+      // Single types must match
+      case (Left(schema1), Left(schema2)) => schema1.isCompatibleWith(schema2)
+
+      // Tuple schemas cannot be compatible with item schemas
+      case (Right(_), Left(_)) => false
+
+      case (Left(schema), Right(schemas)) => {
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        schema.isCompatibleWith(oneSchema)
+      }
+
+      // Corresponding types must match
+      case (Right(schemas1), Right(schemas2)) =>
+        schemas1
+          .zip(schemas2)
+          .forall({ case (s1, s2) =>
+            s1.isCompatibleWith(s2)
+          })
+    }
+  }
 }
 
 final case class MinItemsProperty(minItems: Option[Int] = None)
@@ -313,6 +338,12 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinItemsProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(minItems, false, other.minItems, false)
+  }
 }
 
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
@@ -366,6 +397,12 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
         }
       case _ => Seq.empty
     }
+  }
+
+  override def isCompatibleWith(
+      other: MaxItemsProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(maxItems, false, other.maxItems, false)
   }
 }
 
@@ -436,11 +473,19 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: UniqueProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    (unique && !unary) >= (other.unique && !other.unary)
+  }
 }
 
 final case class ArrayLengthHistogramProperty(
     histogram: DDSketch = DDSketches.unboundedDense(0.01)
 ) extends SchemaProperty[List[JsonSchema[_]], ArrayLengthHistogramProperty] {
+  override val isInformational = true
+
   @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   override def toJson()(implicit p: JsonoidParams): JObject = {
     val indexMapping = histogram.getIndexMapping

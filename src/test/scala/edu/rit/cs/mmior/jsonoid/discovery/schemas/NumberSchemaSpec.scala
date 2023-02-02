@@ -97,6 +97,30 @@ class NumberSchemaSpec extends UnitSpec {
     multipleProp.toJson shouldBe JObject()
   }
 
+  it should "be compatible with the same multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(3.0)))
+    ) shouldBe true
+  }
+
+  it should "be compatible with a larger multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(6.0)))
+    ) shouldBe true
+  }
+
+  it should "not be compatible with a smaller multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(4.0))).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(2.0)))
+    ) shouldBe false
+  }
+
+  it should "be compatible if no multiple" in {
+    NumMultipleOfProperty(None).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(2.0)))
+    ) shouldBe true
+  }
+
   behavior of "NumHistogramProperty"
 
   it should "keep a running histogram" in {
@@ -227,5 +251,13 @@ class NumberSchemaSpec extends UnitSpec {
       .collectAnomalies(JInt(30)) shouldBe Seq(
       Anomaly("$", "value outside histogram bounds", Warning)
     )
+  }
+
+  it should "be compatible with a similar integer schema" in {
+    NumberSchema(1.0).isCompatibleWith(IntegerSchema(1)) shouldBe true
+  }
+
+  it should "be compatible with a matching schema" in {
+    NumberSchema(1.0).isCompatibleWith(NumberSchema(1.0)) shouldBe true
   }
 }

@@ -15,7 +15,7 @@ class ArraySchemaSpec extends UnitSpec {
   private val arraySchema = ArraySchema(
     ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
   )
-  private val schemaList = List(NullSchema(), BooleanSchema(true))
+  private val schemaList = List(IntegerSchema(0), BooleanSchema(true))
   private val tupleSchema = ArraySchema(
     ArraySchema(schemaList).properties.mergeValue(schemaList)
   )
@@ -180,7 +180,7 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "find a type in a tuple schema" in {
-    tupleSchema.findByPointer("/0").shouldEqual(Some(NullSchema()))
+    tupleSchema.findByPointer("/1").shouldEqual(Some(BooleanSchema()))
   }
 
   it should "find the tuple schema itself" in {
@@ -210,7 +210,7 @@ class ArraySchemaSpec extends UnitSpec {
   it should "not show anomalies in tuple schemas with the correct type" in {
     tupleSchema.properties
       .get[ItemTypeProperty]
-      .isAnomalous(JArray(List(JNull, JBool(true))))
+      .isAnomalous(JArray(List(JInt(0), JBool(true))))
       .shouldBe(false)
   }
 
@@ -268,5 +268,29 @@ class ArraySchemaSpec extends UnitSpec {
       .collectAnomalies(
         JArray(List(JString("foo"), JString("foo")))
       ) shouldBe Seq(Anomaly("$", "array items are not unique", Fatal))
+  }
+
+  it should "be compatible with a matching schema" in {
+    ArraySchema(List(BooleanSchema()))
+      .isCompatibleWith(ArraySchema(List(BooleanSchema()))) shouldBe true
+  }
+
+  it should "show tuple schemas with matching types as compatible" in {
+    tupleSchema.isCompatibleWith(tupleSchema) shouldBe true
+  }
+
+  it should "show tuple schemas with mismatched types as not compatible with array schemas" in {
+    arraySchema.isCompatibleWith(tupleSchema) shouldBe false
+  }
+
+  it should "show tuple schemas with matching types as compatible with array schemas" in {
+    val productSchema = ProductSchema(IntegerSchema(0))
+      .merge(BooleanSchema())
+      .asInstanceOf[ProductSchema]
+    val arraySchema = ArraySchema(
+      ArraySchema(List(productSchema)).properties
+        .mergeValue(List(productSchema, productSchema))
+    )
+    arraySchema.isCompatibleWith(tupleSchema) shouldBe true
   }
 }

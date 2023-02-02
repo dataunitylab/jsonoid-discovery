@@ -89,6 +89,30 @@ class IntegerSchemaSpec extends UnitSpec {
     multipleProp.toJson shouldBe JObject()
   }
 
+  it should "be compatible with the same multiple" in {
+    IntMultipleOfProperty(Some(3)).isCompatibleWith(
+      IntMultipleOfProperty(Some(3))
+    ) shouldBe true
+  }
+
+  it should "be compatible with a larger multiple" in {
+    IntMultipleOfProperty(Some(3)).isCompatibleWith(
+      IntMultipleOfProperty(Some(6))
+    ) shouldBe true
+  }
+
+  it should "not be compatible with a smaller multiple" in {
+    IntMultipleOfProperty(Some(4)).isCompatibleWith(
+      IntMultipleOfProperty(Some(2))
+    ) shouldBe false
+  }
+
+  it should "be compatible if no multiple" in {
+    IntMultipleOfProperty(None).isCompatibleWith(
+      IntMultipleOfProperty(Some(2))
+    ) shouldBe true
+  }
+
   behavior of "IntHistogramProperty"
 
   it should "keep a running histogram" in {
@@ -157,5 +181,9 @@ class IntegerSchemaSpec extends UnitSpec {
       .collectAnomalies(JInt(30)) shouldBe Seq(
       Anomaly("$", "value outside histogram bounds", Warning)
     )
+  }
+
+  it should "be compatible with a matching schema" in {
+    IntegerSchema(1).isCompatibleWith(IntegerSchema(1)) shouldBe true
   }
 }

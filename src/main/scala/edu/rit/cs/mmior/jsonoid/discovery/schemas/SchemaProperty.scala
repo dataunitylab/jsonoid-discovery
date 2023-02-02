@@ -8,6 +8,8 @@ import org.json4s._
 trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def mergeable: Boolean = true
 
+  def isInformational: Boolean = false
+
   def intersectMerge(prop: S)(implicit p: JsonoidParams): S =
     unionMerge(prop)(p)
 
@@ -50,4 +52,18 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
       tag: ClassTag[S]
   ): Seq[Anomaly] =
     Seq.empty
+
+  def isCompatibleWith(other: S)(implicit p: JsonoidParams): Boolean =
+    isInformational
+
+  def isCompatibleWithUntyped(
+      other: SchemaProperty[_, _],
+      p: JsonoidParams
+  )(implicit tag: ClassTag[S]): Boolean = {
+    if (tag.runtimeClass.isInstance(other)) {
+      isCompatibleWith(other.asInstanceOf[S])(p)
+    } else {
+      false
+    }
+  }
 }

@@ -165,4 +165,24 @@ class ObjectSchemaSpec extends UnitSpec {
     (objectSchema.toJson \ "additionalProperties")
       .extract[Boolean] shouldBe true
   }
+
+  it should "show matching objects as compatible" in {
+    objectSchema.isCompatibleWith(objectSchema) shouldBe true
+  }
+
+  it should "show an object with a subset of optional properties as compatible" in {
+    objectSchema.isCompatibleWith(ObjectSchema(singleType)) shouldBe true
+  }
+
+  it should "show an object with a superset of properties as compatible if additionalProperties is true" in {
+    val p: JsonoidParams =
+      JsonoidParams.defaultJsonoidParams.withAdditionalProperties(true)
+    ObjectSchema(singleType)(PropertySets.AllProperties, p).isCompatibleWith(
+      objectSchema
+    )(p) shouldBe true
+  }
+
+  it should "show an object with a superset of properties as compatible if additionalProperties is false" in {
+    ObjectSchema(singleType).isCompatibleWith(objectSchema) shouldBe false
+  }
 }

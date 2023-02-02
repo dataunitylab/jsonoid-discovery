@@ -109,4 +109,22 @@ final case class SchemaProperties[T](
     val tags = props.map(ClassTag(_))
     SchemaProperties(properties.filterKeys(tags.toSet))
   }
+
+  def without(props: Seq[Class[_]]): SchemaProperties[T] = {
+    val tags: Set[ClassTag[_]] = props.map(ClassTag(_)).toSet
+    SchemaProperties(properties.filterKeys(!tags.contains(_)))
+  }
+
+  def isCompatibleWith[S](
+      other: SchemaProperties[S]
+  )(implicit p: JsonoidParams): Boolean = {
+    properties.forall { case (tag, prop) =>
+      val otherTag = tag.asInstanceOf[PropertyTag[S]]
+      if (other.properties.contains(otherTag)) {
+        prop.isCompatibleWithUntyped(other.properties(otherTag), p)
+      } else {
+        true
+      }
+    }
+  }
 }

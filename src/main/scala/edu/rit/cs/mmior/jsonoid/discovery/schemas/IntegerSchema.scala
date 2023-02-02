@@ -187,6 +187,17 @@ final case class MinIntValueProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinIntValueProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(
+      minIntValue,
+      exclusive,
+      other.minIntValue,
+      other.exclusive
+    )
+  }
 }
 
 final case class MaxIntValueProperty(
@@ -259,11 +270,24 @@ final case class MaxIntValueProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MaxIntValueProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(
+      maxIntValue,
+      exclusive,
+      other.maxIntValue,
+      other.exclusive
+    )
+  }
 }
 
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigInt, IntHyperLogLogProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
 
@@ -291,6 +315,8 @@ final case class IntHyperLogLogProperty(
 final case class IntBloomFilterProperty(
     bloomFilter: BloomFilter[Integer] = BloomFilter[Integer]()
 ) extends SchemaProperty[BigInt, IntBloomFilterProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     ("bloomFilter" -> bloomFilter.toBase64)
   }
@@ -334,6 +360,8 @@ final case class IntBloomFilterProperty(
 
 final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigInt, IntStatsProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("statistics" -> stats.toJson)
 
@@ -353,6 +381,8 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
 final case class IntExamplesProperty(
     examples: ExamplesProperty[BigInt] = ExamplesProperty()
 ) extends SchemaProperty[BigInt, IntExamplesProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
@@ -406,11 +436,34 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
   )(implicit p: JsonoidParams): IntMultipleOfProperty = {
     unionMerge(IntMultipleOfProperty(Some(value)))
   }
+
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
+  )
+  override def isCompatibleWith(
+      other: IntMultipleOfProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    if (multiple.isEmpty) {
+      // If we have no multiple, then compatible
+      true
+    } else if (other.multiple.isEmpty) {
+      // If we have a multiple and the other schema doesn't, not compatible
+      false
+    } else {
+      // Otherwise, the multiple must be a multiple
+      // of our multiple with the same sign
+      (other.multiple.get == 0 && multiple.get == 0) ||
+      (other.multiple.get % multiple.get == 0 &&
+        multiple.get.signum == other.multiple.get.signum)
+    }
+  }
 }
 
 final case class IntHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[BigInt, IntHistogramProperty] {
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)

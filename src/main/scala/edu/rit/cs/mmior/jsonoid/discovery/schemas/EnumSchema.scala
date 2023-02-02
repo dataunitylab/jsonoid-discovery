@@ -110,4 +110,10 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
       Seq(Anomaly(path, "enum value not found", Fatal))
     }
   }
+
+  override def isCompatibleWith(
+      other: EnumValuesProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    other.values.subsetOf(values)
+  }
 }

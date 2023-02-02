@@ -168,6 +168,22 @@ final case class ProductSchema(
     newSchema.definitions ++= this.definitions
     newSchema
   }
+
+  override def isCompatibleWith(
+      other: JsonSchema[_]
+  )(implicit p: JsonoidParams): Boolean = {
+    // Check if this type is compatible with anything in the product schema
+    val types = properties.get[ProductSchemaTypesProperty].schemaTypes
+    other match {
+      // For two product schemas, find any compatible pair
+      case ProductSchema(ps) =>
+        val otherTypes = ps.get[ProductSchemaTypesProperty].schemaTypes
+        otherTypes.forall(s => types.exists(_.isCompatibleWith(s)(p)))
+
+      // Otherwise check if the single type is compatible
+      case _ => types.exists(_.isCompatibleWith(other)(p))
+    }
+  }
 }
 
 sealed trait ProductType {
@@ -292,5 +308,20 @@ final case class ProductSchemaTypesProperty(
     } else {
       Seq(Anomaly(path, f"no alternative found for ${value}", Fatal))
     }
+  }
+
+  override def isCompatibleWith(
+      other: ProductSchemaTypesProperty
+  )(implicit p: JsonoidParams): Boolean = {
+    // The base schema and type of product must match
+    val baseMatches = baseSchema.schemaType === other.baseSchema.schemaType
+    val typeMatches = productType === other.productType
+
+    // And there must be a compatible type for each alternative
+    val allTypesCompatible = other.schemaTypes.forall(schema =>
+      schemaTypes.exists(_.isCompatibleWith(schema))
+    )
+
+    baseMatches && typeMatches && allTypesCompatible
   }
 }
