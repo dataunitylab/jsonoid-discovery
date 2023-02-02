@@ -61,7 +61,9 @@ final case class NumberSchema(
   override val validTypes: Set[Class[_]] =
     Set(classOf[JInt], classOf[JDouble], classOf[JDecimal])
 
-  @SuppressWarnings(Array("org.wartremover.warts.Var"))
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Recursion", "org.wartremover.warts.Var")
+  )
   override def mergeSameType(mergeType: MergeType)(implicit
       p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
@@ -69,46 +71,7 @@ final case class NumberSchema(
       NumberSchema(properties.merge(otherProperties, mergeType))
 
     case other @ IntegerSchema(otherProperties) => {
-      val props = SchemaProperties.empty[BigDecimal]
-      otherProperties.foreach { prop =>
-        prop match {
-          case MinIntValueProperty(minValue, exclusive) =>
-            props.add(MinNumValueProperty(minValue.map(_.toDouble), exclusive))
-          case MaxIntValueProperty(maxValue, exclusive) =>
-            props.add(MaxNumValueProperty(maxValue.map(_.toDouble), exclusive))
-          case IntHyperLogLogProperty(hll) =>
-            // XXX This can give some false positives due to how
-            //     decimal values are tracked, but should not be
-            //     a problem unless integer values are several
-            //     orders of magnitude larger
-            props.add(NumHyperLogLogProperty(hll))
-          case IntBloomFilterProperty(bloomFilter) =>
-            props.add(
-              NumBloomFilterProperty(
-                bloomFilter.asInstanceOf[BloomFilter[Double]]
-              )
-            )
-          case IntStatsProperty(stats) =>
-            props.add(NumStatsProperty(stats))
-          case IntExamplesProperty(examples) =>
-            props.add(
-              NumExamplesProperty(
-                ExamplesProperty[BigDecimal](
-                  examples.examples.map(BigDecimal(_)),
-                  examples.totalExamples,
-                  examples.nextSample,
-                  examples.sampleW
-                )
-              )
-            )
-          case IntHistogramProperty(histogram) =>
-            props.add(NumHistogramProperty(histogram))
-          case IntMultipleOfProperty(multiple) =>
-            NumMultipleOfProperty(multiple.map(_.toDouble))
-        }
-      }
-
-      NumberSchema(properties.merge(props, mergeType))
+      mergeSameType(mergeType)(p)(other.asNumberSchema)
     }
   }
 
