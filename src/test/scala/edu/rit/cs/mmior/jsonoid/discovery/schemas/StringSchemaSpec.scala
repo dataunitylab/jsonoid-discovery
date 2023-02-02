@@ -8,31 +8,39 @@ import PropertySets._
 import UnitSpec._
 
 class StringSchemaSpec extends UnitSpec {
-  behavior of "StringSchema"
-
   implicit val formats: Formats = DefaultFormats
 
   private val stringSchema = StringSchema(
     StringSchema("foor").properties.mergeValue("foobar")
   )
 
+  behavior of "MaxLengthProperty"
+
   it should "track the maximum length" in {
     stringSchema.properties should contain(MaxLengthProperty(Some(6)))
   }
 
+  behavior of "MinLengthProperty"
+
   it should "track the minimum length" in {
     stringSchema.properties should contain(MinLengthProperty(Some(4)))
   }
+
+  behavior of "StringHyperLogLogProperty"
 
   it should "track the distinct elements" in {
     val hyperLogLogProp = stringSchema.properties.get[StringHyperLogLogProperty]
     hyperLogLogProp.hll.count() should be(2)
   }
 
+  behavior of "StringBloomFilterProperty"
+
   it should "keep a Bloom filter of observed elements" in {
     val bloomFilterProp = stringSchema.properties.get[StringBloomFilterProperty]
     bloomFilterProp.bloomFilter.contains("foor") shouldBe true
   }
+
+  behavior of "StringExamplesProperty"
 
   it should "keep examples" in {
     val examplesProp = stringSchema.properties.get[StringExamplesProperty]
@@ -42,6 +50,8 @@ class StringSchemaSpec extends UnitSpec {
       "foobar"
     )
   }
+
+  behavior of "FormatProperty"
 
   def schemaWithFormat(value: String, format: String): Unit = {
     it should s"detect the ${format} format" in {
@@ -74,11 +84,15 @@ class StringSchemaSpec extends UnitSpec {
     (formatProp.toJson \ "format") shouldBe JNothing
   }
 
+  behavior of "StaticPatternProperty"
+
   it should "should not allow merging regex properties" in {
     val regexProp = StaticPatternProperty("foo.*".r)
     an[UnsupportedOperationException] should be thrownBy
       regexProp.unionMerge(regexProp)
   }
+
+  behavior of "PatternProperty"
 
   it should "should find common prefixes" in {
     var prefixSchema = StringSchema("foobar").properties
@@ -108,12 +122,7 @@ class StringSchemaSpec extends UnitSpec {
     (prefixProp.toJson \ "pattern").extract[String] shouldBe "^ba.*foo$"
   }
 
-  it should "have no properties in the minimal property set" in {
-    StringSchema("foo")(
-      PropertySets.MinProperties,
-      JsonoidParams.defaultJsonoidParams
-    ).properties shouldBe empty
-  }
+  behavior of "StringLengthHistogramProperty"
 
   it should "keep a running histogram of lengths" in {
     val histProp = stringSchema.properties.get[StringLengthHistogramProperty]
@@ -122,6 +131,15 @@ class StringSchemaSpec extends UnitSpec {
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(6.0 +- 0.1)
     bins(1)(1) should ===(1.0)
+  }
+
+  behavior of "StringSchema"
+
+  it should "have no properties in the minimal property set" in {
+    StringSchema("foo")(
+      PropertySets.MinProperties,
+      JsonoidParams.defaultJsonoidParams
+    ).properties shouldBe empty
   }
 
   it should "show strings as a valid type" in {

@@ -9,8 +9,6 @@ import PropertySets._
 import UnitSpec._
 
 class ObjectSchemaSpec extends UnitSpec {
-  behavior of "ObjectSchema"
-
   implicit val formats: Formats = DefaultFormats
 
   private val objectTypes =
@@ -25,6 +23,8 @@ class ObjectSchemaSpec extends UnitSpec {
     ObjectSchema(singleType).properties.mergeValue(objectTypes)
   private val objectSchema = ObjectSchema(schemaProperties)
 
+  behavior of "ObjectTypesProperty"
+
   it should "calculate the intersection of properties" in {
     val intersectProps = ObjectTypesProperty(singleType).intersectMerge(
       ObjectTypesProperty(objectTypes)
@@ -32,13 +32,17 @@ class ObjectSchemaSpec extends UnitSpec {
     intersectProps.objectTypes shouldEqual Map("foo" -> BooleanSchema())
   }
 
+  it should "track property schemas" in {
+    schemaProperties should contain(ObjectTypesProperty(objectTypes))
+  }
+
+  behavior of "RequiredProperty"
+
   it should "track required properties" in {
     schemaProperties should contain(RequiredProperty(Some(Set("foo"))))
   }
 
-  it should "track property schemas" in {
-    schemaProperties should contain(ObjectTypesProperty(objectTypes))
-  }
+  behavior of "FieldPresenceProperty"
 
   it should "track the percentage of objects with each field" in {
     val fieldPresenceProp = schemaProperties.get[FieldPresenceProperty]
@@ -47,6 +51,8 @@ class ObjectSchemaSpec extends UnitSpec {
         ("baz" -> JDouble(0.5))))
     fieldPresenceProp.toJson shouldEqual expectedJson
   }
+
+  behavior of "DependenciesProperty"
 
   it should "track dependencies in field occurrence" in {
     val dependentSchema = ObjectSchema(
@@ -67,6 +73,8 @@ class ObjectSchemaSpec extends UnitSpec {
     (dependenciesProp.toJson \ "dependentRequired")
       .extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
+
+  behavior of "ObjectSchema"
 
   it should "be able to find subschemas by pointer" in {
     objectSchema.findByPointer("/foo") shouldBe Some(BooleanSchema())

@@ -9,8 +9,6 @@ import org.json4s.{DefaultFormats, Formats}
 import org.scalactic.TolerantNumerics
 
 class ArraySchemaSpec extends UnitSpec {
-  behavior of "ArraySchema"
-
   implicit val formats: Formats = DefaultFormats
 
   private val itemType = BooleanSchema()
@@ -22,24 +20,19 @@ class ArraySchemaSpec extends UnitSpec {
     ArraySchema(schemaList).properties.mergeValue(schemaList)
   )
 
-  it should "track item schemas" in {
-    arraySchema.properties should contain(ItemTypeProperty(Left(itemType)))
-  }
-
-  it should "track tuple schemas" in {
-    val tupleItemSchemas = List(NullSchema(), BooleanSchema(true))
-    val tupleSchema =
-      ArraySchema(tupleItemSchemas).properties.mergeValue(tupleItemSchemas)
-    tupleSchema should contain(ItemTypeProperty(Right(tupleItemSchemas)))
-  }
+  behavior of "MinItemsProperty"
 
   it should "track minimum array length" in {
     arraySchema.properties should contain(MinItemsProperty(Some(1)))
   }
 
+  behavior of "MaxItemsProperty"
+
   it should "track maximum array length" in {
     arraySchema.properties should contain(MaxItemsProperty(Some(2)))
   }
+
+  behavior of "UniqueProperty"
 
   it should "not consider single element lists unique" in {
     val schemaList: List[JsonSchema[_]] = List(StringSchema("foo"))
@@ -67,6 +60,19 @@ class ArraySchemaSpec extends UnitSpec {
       List(NumberSchema(1.0), NumberSchema(2.0))
     val uniqueArraySchema = ArraySchema(schemaList)
     uniqueArraySchema.properties should contain(UniqueProperty(true, false))
+  }
+
+  behavior of "ArraySchema"
+
+  it should "track item schemas" in {
+    arraySchema.properties should contain(ItemTypeProperty(Left(itemType)))
+  }
+
+  it should "track tuple schemas" in {
+    val tupleItemSchemas = List(NullSchema(), BooleanSchema(true))
+    val tupleSchema =
+      ArraySchema(tupleItemSchemas).properties.mergeValue(tupleItemSchemas)
+    tupleSchema should contain(ItemTypeProperty(Right(tupleItemSchemas)))
   }
 
   it should "be able to find subschemas by pointer" in {

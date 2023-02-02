@@ -9,8 +9,6 @@ import PropertySets._
 import UnitSpec._
 
 class NumberSchemaSpec extends UnitSpec {
-  behavior of "NumberSchema"
-
   implicit val formats: Formats = DefaultFormats
 
   private val numberSchema =
@@ -23,6 +21,8 @@ class NumberSchemaSpec extends UnitSpec {
   private val mixedSchema =
     numberSchema.merge(integerSchema).asInstanceOf[NumberSchema]
 
+  behavior of "MaxNumValueProperty"
+
   it should "track the maximum value" in {
     numberSchema.properties should contain(MaxNumValueProperty(Some(4.28)))
   }
@@ -32,6 +32,8 @@ class NumberSchemaSpec extends UnitSpec {
       MaxNumValueProperty(Some(3.5))
     )
   }
+
+  behavior of "MinNumValueProperty"
 
   it should "track the minimum value" in {
     numberSchema.properties should contain(MinNumValueProperty(Some(3.14)))
@@ -43,10 +45,14 @@ class NumberSchemaSpec extends UnitSpec {
     )
   }
 
+  behavior of "NumHyperLogLogProperty"
+
   it should "track the distinct elements" in {
     val hyperLogLogProp = numberSchema.properties.get[NumHyperLogLogProperty]
     hyperLogLogProp.hll.count() should be(2)
   }
+
+  behavior of "NumBloomFilterProperty"
 
   it should "keep a Bloom filter of observed elements" in {
     val bloomFilterProp = numberSchema.properties.get[NumBloomFilterProperty]
@@ -55,10 +61,14 @@ class NumberSchemaSpec extends UnitSpec {
     ) shouldBe true
   }
 
+  behavior of "NumStatsProperty"
+
   it should "keep statistics" in {
     val statsProp = numberSchema.properties.get[NumStatsProperty]
     statsProp.stats.mean shouldBe (BigDecimal(3.71))
   }
+
+  behavior of "NumExamplesProperty"
 
   it should "keep examples" in {
     val examplesProp = numberSchema.properties.get[NumExamplesProperty]
@@ -66,6 +76,8 @@ class NumberSchemaSpec extends UnitSpec {
       List(BigDecimal(3.14), BigDecimal(4.28))
     )
   }
+
+  behavior of "NumMultipleOfProperty"
 
   it should "track a common multiple" in {
     val multipleProp = numberSchema.properties.get[NumMultipleOfProperty]
@@ -85,6 +97,8 @@ class NumberSchemaSpec extends UnitSpec {
     multipleProp.toJson shouldBe JObject()
   }
 
+  behavior of "NumHistogramProperty"
+
   it should "keep a running histogram" in {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
@@ -95,6 +109,8 @@ class NumberSchemaSpec extends UnitSpec {
     bins(1)(0) should ===(4.28)
     bins(1)(1) should ===(1.0)
   }
+
+  behavior of "NumberSchema"
 
   it should "track the maximum value when merged with an integer schema" in {
     mixedSchema.properties should contain(MaxNumValueProperty(Some(5)))

@@ -8,8 +8,6 @@ import PropertySets._
 import UnitSpec._
 
 class IntegerSchemaSpec extends UnitSpec {
-  behavior of "IntegerSchema"
-
   implicit val formats: Formats = DefaultFormats
 
   private val integerSchema =
@@ -18,6 +16,8 @@ class IntegerSchemaSpec extends UnitSpec {
     IntegerSchema(8)
       .merge(IntegerSchema(4), Intersect)
       .asInstanceOf[IntegerSchema]
+
+  behavior of "MaxIntValueProperty"
 
   it should "track the maximum value" in {
     integerSchema.properties should contain(MaxIntValueProperty(Some(8)))
@@ -29,6 +29,8 @@ class IntegerSchemaSpec extends UnitSpec {
     )
   }
 
+  behavior of "MinIntValueProperty"
+
   it should "track the minimum value" in {
     integerSchema.properties should contain(MinIntValueProperty(Some(4)))
   }
@@ -39,25 +41,35 @@ class IntegerSchemaSpec extends UnitSpec {
     )
   }
 
+  behavior of "IntHyperLogLogProperty"
+
   it should "track the distinct elements" in {
     val hyperLogLogProp = integerSchema.properties.get[IntHyperLogLogProperty]
     hyperLogLogProp.hll.count() should be(2)
   }
+
+  behavior of "IntBloomFilterProperty"
 
   it should "keep a Bloom filter of observed elements" in {
     val bloomFilterProp = integerSchema.properties.get[IntBloomFilterProperty]
     bloomFilterProp.bloomFilter.contains(BigInt(8).toByteArray) shouldBe true
   }
 
+  behavior of "IntStatsProperty"
+
   it should "keep statistics" in {
     val statsProp = integerSchema.properties.get[IntStatsProperty]
     statsProp.stats.mean shouldBe (BigDecimal(6))
   }
 
+  behavior of "IntExamplesProperty"
+
   it should "keep examples" in {
     val examplesProp = integerSchema.properties.get[IntExamplesProperty]
     (examplesProp.toJson \ "examples") shouldEqual JArray(List(4, 8))
   }
+
+  behavior of "IntMultipleOfProperty"
 
   it should "track a common multiple" in {
     val multipleProp = integerSchema.properties.get[IntMultipleOfProperty]
@@ -77,6 +89,8 @@ class IntegerSchemaSpec extends UnitSpec {
     multipleProp.toJson shouldBe JObject()
   }
 
+  behavior of "IntHistogramProperty"
+
   it should "keep a running histogram" in {
     val histProp = integerSchema.properties.get[IntHistogramProperty]
     val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
@@ -85,6 +99,8 @@ class IntegerSchemaSpec extends UnitSpec {
     bins(1)(0) should ===(8.0 +- 0.1)
     bins(1)(1) should ===(1.0)
   }
+
+  behavior of "IntegerSchema"
 
   it should "have no properties in the minimal property set" in {
     IntegerSchema(0)(
