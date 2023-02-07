@@ -189,7 +189,8 @@ final case class MinIntValueProperty(
   }
 
   override def isCompatibleWith(
-      other: MinIntValueProperty
+      other: MinIntValueProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMinCompatibleWith(
       minIntValue,
@@ -272,7 +273,8 @@ final case class MaxIntValueProperty(
   }
 
   override def isCompatibleWith(
-      other: MaxIntValueProperty
+      other: MaxIntValueProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMaxCompatibleWith(
       maxIntValue,
@@ -441,7 +443,8 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
     Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
   )
   override def isCompatibleWith(
-      other: IntMultipleOfProperty
+      other: IntMultipleOfProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     if (multiple.isEmpty) {
       // If we have no multiple, then compatible
@@ -453,7 +456,7 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
       // Otherwise, the multiple must be a multiple
       // of our multiple with the same sign
       (other.multiple.get == 0 && multiple.get == 0) ||
-      (other.multiple.get % multiple.get == 0 &&
+      (multiple.get != 0 && other.multiple.get % multiple.get == 0 &&
         multiple.get.signum == other.multiple.get.signum)
     }
   }

@@ -112,7 +112,8 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
   }
 
   override def isCompatibleWith(
-      other: EnumValuesProperty
+      other: EnumValuesProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     other.values.subsetOf(values)
   }

@@ -24,6 +24,22 @@ object ArraySchema {
     )
   }
 
+  def array(
+      value: JsonSchema[_]
+  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+    val newProps = apply(List(value)).properties
+      .replaceProperty(ItemTypeProperty(Left(value)))
+    ArraySchema(newProps)
+  }
+
+  def tuple(
+      value: List[JsonSchema[_]]
+  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+    val newProps =
+      apply(value).properties.replaceProperty(ItemTypeProperty(Right(value)))
+    ArraySchema(newProps)
+  }
+
   val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
@@ -260,28 +276,30 @@ final case class ItemTypeProperty(
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isCompatibleWith(
-      other: ItemTypeProperty
+      other: ItemTypeProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     (itemType, other.itemType) match {
       // Single types must match
-      case (Left(schema1), Left(schema2)) => schema1.isCompatibleWith(schema2)
+      case (Left(schema1), Left(schema2)) =>
+        !recursive || schema1.isCompatibleWith(schema2)
 
       // Tuple schemas cannot be compatible with item schemas
       case (Right(_), Left(_)) => false
 
       case (Left(schema), Right(schemas)) => {
         val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
-        schema.isCompatibleWith(oneSchema)
+        !recursive || schema.isCompatibleWith(oneSchema)
       }
 
       // Corresponding types must match
       case (Right(schemas1), Right(schemas2)) =>
-        schemas1
-          .zip(schemas2)
-          .forall({ case (s1, s2) =>
-            s1.isCompatibleWith(s2)
-          })
+        schemas1.length == schemas2.length &&
+          (!recursive || schemas1
+            .zip(schemas2)
+            .forall({ case (s1, s2) => s1.isCompatibleWith(s2) }))
     }
   }
 }
@@ -340,7 +358,8 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
   }
 
   override def isCompatibleWith(
-      other: MinItemsProperty
+      other: MinItemsProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMinCompatibleWith(minItems, false, other.minItems, false)
   }
@@ -400,7 +419,8 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
   }
 
   override def isCompatibleWith(
-      other: MaxItemsProperty
+      other: MaxItemsProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMaxCompatibleWith(maxItems, false, other.maxItems, false)
   }
@@ -475,7 +495,8 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
   }
 
   override def isCompatibleWith(
-      other: UniqueProperty
+      other: UniqueProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     (unique && !unary) >= (other.unique && !other.unary)
   }

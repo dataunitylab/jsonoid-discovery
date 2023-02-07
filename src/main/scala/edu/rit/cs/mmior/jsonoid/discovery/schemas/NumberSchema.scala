@@ -84,15 +84,17 @@ final case class NumberSchema(
   }
 
   override def isCompatibleWith(
-      other: JsonSchema[_]
+      other: JsonSchema[_],
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Integer schemas may be compatible with number schemas so try conversion
     if (other.isInstanceOf[IntegerSchema]) {
-      super.isCompatibleWith(other.asInstanceOf[IntegerSchema].asNumberSchema)(
-        p
-      )
+      super.isCompatibleWith(
+        other.asInstanceOf[IntegerSchema].asNumberSchema,
+        recursive
+      )(p)
     } else {
-      super.isCompatibleWith(other)(p)
+      super.isCompatibleWith(other, recursive)(p)
     }
   }
 }
@@ -175,7 +177,8 @@ final case class MinNumValueProperty(
   }
 
   override def isCompatibleWith(
-      other: MinNumValueProperty
+      other: MinNumValueProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMinCompatibleWith(
       minNumValue,
@@ -261,7 +264,8 @@ final case class MaxNumValueProperty(
   }
 
   override def isCompatibleWith(
-      other: MaxNumValueProperty
+      other: MaxNumValueProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMaxCompatibleWith(
       maxNumValue,
@@ -457,7 +461,8 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
     Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
   )
   override def isCompatibleWith(
-      other: NumMultipleOfProperty
+      other: NumMultipleOfProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     if (multiple.isEmpty) {
       // If we have no multiple, then compatible

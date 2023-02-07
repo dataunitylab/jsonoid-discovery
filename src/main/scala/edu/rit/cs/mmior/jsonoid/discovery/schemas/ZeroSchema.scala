@@ -31,7 +31,8 @@ final case class ZeroSchema(
   }
 
   // Compatibility doesn't really even make sense here, so go with false
-  override def isCompatibleWith(other: JsonSchema[_])(implicit
-      p: JsonoidParams
-  ): Boolean = false
+  override def isCompatibleWith(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = false
 }

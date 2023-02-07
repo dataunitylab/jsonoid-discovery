@@ -53,15 +53,17 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   ): Seq[Anomaly] =
     Seq.empty
 
-  def isCompatibleWith(other: S)(implicit p: JsonoidParams): Boolean =
-    isInformational
+  def isCompatibleWith(other: S, recursive: Boolean = true)(implicit
+      p: JsonoidParams
+  ): Boolean = isInformational
 
   def isCompatibleWithUntyped(
       other: SchemaProperty[_, _],
+      recursive: Boolean,
       p: JsonoidParams
   )(implicit tag: ClassTag[S]): Boolean = {
     if (tag.runtimeClass.isInstance(other)) {
-      isCompatibleWith(other.asInstanceOf[S])(p)
+      isCompatibleWith(other.asInstanceOf[S], recursive)(p)
     } else {
       false
     }

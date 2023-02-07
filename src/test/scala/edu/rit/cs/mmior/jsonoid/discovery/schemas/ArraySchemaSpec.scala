@@ -16,9 +16,7 @@ class ArraySchemaSpec extends UnitSpec {
     ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
   )
   private val schemaList = List(IntegerSchema(0), BooleanSchema(true))
-  private val tupleSchema = ArraySchema(
-    ArraySchema(schemaList).properties.mergeValue(schemaList)
-  )
+  private val tupleSchema = ArraySchema.tuple(schemaList)
 
   behavior of "MinItemsProperty"
 

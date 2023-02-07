@@ -218,12 +218,14 @@ final case class ObjectTypesProperty(
   }
 
   override def isCompatibleWith(
-      other: ObjectTypesProperty
+      other: ObjectTypesProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     val overlapCompatible = objectTypes.keySet.forall(key =>
       other.objectTypes.get(key) match {
-        case Some(schema) => objectTypes(key).isCompatibleWith(schema)
-        case None         => true
+        case Some(schema) =>
+          !recursive || objectTypes(key).isCompatibleWith(schema)
+        case None => true
       }
     )
     val newPropsCompatible = p.additionalProperties || other.objectTypes.keySet
@@ -399,7 +401,8 @@ final case class RequiredProperty(
   }
 
   override def isCompatibleWith(
-      other: RequiredProperty
+      other: RequiredProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Compatible if we have the same or fewer required properties
     other.required.getOrElse(Set()).subsetOf(required.getOrElse(Set()))
@@ -520,7 +523,8 @@ final case class DependenciesProperty(
   }
 
   override def isCompatibleWith(
-      other: DependenciesProperty
+      other: DependenciesProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // We must have a subset of dependencies to be compatible
     val dependencies = dependencyMap()
@@ -592,10 +596,12 @@ final case class StaticDependenciesProperty(
     }
   }
 
-  def isCompatibleWith(other: DependenciesProperty): Boolean = {
-    // Compatibility checking is possible, but we really
-    // need to compare with DependenciesProperty too
-    // which the current API does not permit
+  override def isCompatibleWith(
+      other: StaticDependenciesProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // Compatibility checking is possible, but we really need to compare
+    // with DependenciesProperty too which the current API does not permit
     false
   }
 }

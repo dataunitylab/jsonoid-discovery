@@ -115,16 +115,51 @@ final case class SchemaProperties[T](
     SchemaProperties(properties.filterKeys(!tags.contains(_)))
   }
 
+  def getIncompatibleProperties[S](
+      other: SchemaProperties[S],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Seq[PropertyTag[T]] = {
+    properties.keySet
+      .filter(tag => {
+        val otherTag = tag.asInstanceOf[PropertyTag[S]]
+        val prop = properties(tag)
+        if (other.properties.contains(otherTag)) {
+          !prop
+            .isCompatibleWithUntyped(other.properties(otherTag), recursive, p)
+        } else {
+          true
+        }
+      })
+      .toSeq
+  }
+
   def isCompatibleWith[S](
-      other: SchemaProperties[S]
+      other: SchemaProperties[S],
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     properties.forall { case (tag, prop) =>
       val otherTag = tag.asInstanceOf[PropertyTag[S]]
       if (other.properties.contains(otherTag)) {
-        prop.isCompatibleWithUntyped(other.properties(otherTag), p)
+        prop.isCompatibleWithUntyped(other.properties(otherTag), recursive, p)
       } else {
         true
       }
     }
+  }
+
+  def findIncompatibilities[S](
+      other: SchemaProperties[S],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Seq[ClassTag[_]] = {
+    properties.keySet.filter { tag =>
+      val prop = properties(tag)
+      val otherTag = tag.asInstanceOf[PropertyTag[S]]
+      if (other.properties.contains(otherTag)) {
+        !prop.isCompatibleWithUntyped(other.properties(otherTag), recursive, p)
+      } else {
+        // We may want to construct a default property instance here
+        false
+      }
+    }.toSeq
   }
 }

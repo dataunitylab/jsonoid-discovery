@@ -125,7 +125,8 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
   }
 
   override def isCompatibleWith(
-      other: MinLengthProperty
+      other: MinLengthProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMinCompatibleWith(minLength, false, other.minLength, false)
   }
@@ -174,7 +175,8 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
     }
   }
   override def isCompatibleWith(
-      other: MaxLengthProperty
+      other: MaxLengthProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMaxCompatibleWith(maxLength, false, other.maxLength, false)
   }
@@ -325,9 +327,9 @@ final case class FormatProperty(
       "org.wartremover.warts.TraversableOps"
     )
   )
-  private def maxFormat()(implicit p: JsonoidParams) = {
+  private def maxFormat(useLimit: Boolean = true)(implicit p: JsonoidParams) = {
     val total = formats.values.sum
-    if (total >= FormatProperty.MinExamples) {
+    if (!useLimit || total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)
       if (
         BigDecimal(maxFormat._2.toDouble) / BigDecimal(
@@ -344,7 +346,7 @@ final case class FormatProperty(
   }
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    maxFormat match {
+    maxFormat() match {
       case Some(format) => ("format" -> format)
       case None         => Nil
     }
@@ -382,9 +384,14 @@ final case class FormatProperty(
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isCompatibleWith(
-      other: FormatProperty
+      other: FormatProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    maxFormat.isEmpty || maxFormat == other.maxFormat
+    // Ignore minimum examples for the other schema since we have
+    // not received enough evidence yet to pick the correct format,
+    // but these schemas should still be considered compatible
+    val thisFormat = maxFormat()
+    thisFormat.isEmpty || thisFormat == other.maxFormat(false)
   }
 }
 
@@ -485,7 +492,8 @@ final case class PatternProperty(
   }
 
   override def isCompatibleWith(
-      other: PatternProperty
+      other: PatternProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     prefix.getOrElse("").startsWith(other.prefix.getOrElse("")) &&
     suffix.getOrElse("").endsWith(other.suffix.getOrElse(""))
@@ -530,7 +538,8 @@ final case class StaticPatternProperty(regex: Regex)
   }
 
   override def isCompatibleWith(
-      other: StaticPatternProperty
+      other: StaticPatternProperty,
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Regexes do not necessarily need to be equal to be
     // compatible, but this is the best that we attempt to do for now

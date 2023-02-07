@@ -586,11 +586,18 @@ trait JsonSchema[T] {
     )
   }
 
+  def findIncompatibilities(
+      other: JsonSchema[_],
+      recursive: Boolean
+  ): Seq[ClassTag[_]] =
+    properties.findIncompatibilities(other.properties, recursive)
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def isCompatibleWith(
-      other: JsonSchema[_]
+      other: JsonSchema[_],
+      recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     schemaType == other.schemaType &&
-    properties.isCompatibleWith(other.properties)(p)
+    properties.isCompatibleWith(other.properties, recursive)(p)
   }
 }
