@@ -30,7 +30,7 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def mergeValue(value: T)(implicit p: JsonoidParams): S
 
   // This must be implemented for any property which contains schema objects
-  // Currently this is only three properties:
+  // Currently this is only these properties:
   // * ObjectTypesProperty in ObjectSchema
   // * PatternTypesProperty in ObjectSchema
   // * ItemTypeProperty in ArraySchema
