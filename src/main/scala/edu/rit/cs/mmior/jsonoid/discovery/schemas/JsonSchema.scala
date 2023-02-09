@@ -540,12 +540,18 @@ trait JsonSchema[T] {
 
   def findByPointer(pointer: String): Option[JsonSchema[_]] = None
 
+  def replaceWithSchema(
+      pointer: String,
+      replaceSchema: JsonSchema[_]
+  )(implicit p: JsonoidParams): JsonSchema[_] =
+    this
+
   def replaceWithReference(
       pointer: String,
       reference: String,
       obj: Option[JsonSchema[_]] = None
   )(implicit p: JsonoidParams): JsonSchema[_] =
-    this
+    replaceWithSchema(pointer, ReferenceSchema(reference, obj))
 
   def isAnomalous[S <: JValue: ClassTag](
       value: S,

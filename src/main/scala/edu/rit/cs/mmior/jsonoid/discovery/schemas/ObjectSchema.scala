@@ -96,10 +96,9 @@ final case class ObjectSchema(
       "org.wartremover.warts.Recursion"
     )
   )
-  override def replaceWithReference(
+  override def replaceWithSchema(
       pointer: String,
-      reference: String,
-      obj: Option[JsonSchema[_]]
+      replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
@@ -107,17 +106,16 @@ final case class ObjectSchema(
       case Array(_) | Array(_, "") =>
         throw new IllegalArgumentException("Invalid path for reference")
       case Array(_, first) =>
-        objectTypes + (first -> ReferenceSchema(reference, obj))
+        objectTypes + (first -> replaceSchema)
 
       case Array(_, first, rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
             // Replace the type along the path with
             // one which has the replaced reference
-            objectTypes + (first -> schema.replaceWithReference(
+            objectTypes + (first -> schema.replaceWithSchema(
               "/" + rest,
-              reference,
-              obj
+              replaceSchema
             ))
           case _ =>
             throw new IllegalArgumentException("Invalid path for reference")
