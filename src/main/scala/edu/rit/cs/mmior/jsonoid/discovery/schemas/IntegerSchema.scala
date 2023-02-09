@@ -199,6 +199,15 @@ final case class MinIntValueProperty(
       other.exclusive
     )
   }
+
+  override def expandTo(other: MinIntValueProperty): MinIntValueProperty = {
+    val (newMin, newExclusive) = maybeContractInt(
+      minIntValue.map(_.toInt),
+      other.minIntValue.map(_.toInt + (if (other.exclusive) 1 else 0)),
+      exclusive
+    )
+    MinIntValueProperty(newMin.map(BigInt(_)), newExclusive)
+  }
 }
 
 final case class MaxIntValueProperty(
@@ -282,6 +291,15 @@ final case class MaxIntValueProperty(
       other.maxIntValue,
       other.exclusive
     )
+  }
+
+  override def expandTo(other: MaxIntValueProperty): MaxIntValueProperty = {
+    val (newMax, newExclusive) = maybeExpandInt(
+      maxIntValue.map(_.toInt),
+      other.maxIntValue.map(_.toInt - (if (other.exclusive) 1 else 0)),
+      exclusive
+    )
+    MaxIntValueProperty(newMax.map(BigInt(_)), newExclusive)
   }
 }
 
@@ -458,6 +476,22 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
       (other.multiple.get == 0 && multiple.get == 0) ||
       (multiple.get != 0 && other.multiple.get % multiple.get == 0 &&
         multiple.get.signum == other.multiple.get.signum)
+    }
+  }
+
+  override def expandTo(other: IntMultipleOfProperty): IntMultipleOfProperty = {
+    (multiple, other.multiple) match {
+      case (Some(mult), Some(otherMult)) =>
+        // Try removing the smallest prime factor
+        val newMult = (1 to MaxExpandRounds)
+          .scanLeft(mult.toInt) { (oldMult: Int, _) =>
+            oldMult / factorize(oldMult).sorted.headOption.getOrElse(1)
+          }
+          .find(otherMult % _ === 0)
+
+        IntMultipleOfProperty(newMult.map(BigInt(_)))
+      case (_, None) => IntMultipleOfProperty(None)
+      case (None, _) => this
     }
   }
 }

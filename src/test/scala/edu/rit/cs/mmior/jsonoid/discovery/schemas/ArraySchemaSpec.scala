@@ -24,10 +24,26 @@ class ArraySchemaSpec extends UnitSpec {
     arraySchema.properties should contain(MinItemsProperty(Some(1)))
   }
 
+  it should "expand by decrementing" in {
+    MinItemsProperty(Some(3))
+      .expandTo(
+        MinItemsProperty(Some(2))
+      )
+      .minItems shouldBe Some(2)
+  }
+
   behavior of "MaxItemsProperty"
 
   it should "track maximum array length" in {
     arraySchema.properties should contain(MaxItemsProperty(Some(2)))
+  }
+
+  it should "expand by incrementing" in {
+    MaxItemsProperty(Some(2))
+      .expandTo(
+        MaxItemsProperty(Some(3))
+      )
+      .maxItems shouldBe Some(3)
   }
 
   behavior of "UniqueProperty"
@@ -58,6 +74,18 @@ class ArraySchemaSpec extends UnitSpec {
       List(NumberSchema(1.0), NumberSchema(2.0))
     val uniqueArraySchema = ArraySchema(schemaList)
     uniqueArraySchema.properties should contain(UniqueProperty(true, false))
+  }
+
+  it should "not expand if both are unique" in {
+    UniqueProperty(true, false).expandTo(
+      UniqueProperty(true, false)
+    ) shouldBe UniqueProperty(true, false)
+  }
+
+  it should "expand to remove uniqueness" in {
+    UniqueProperty(true, false).expandTo(
+      UniqueProperty(false, false)
+    ) shouldBe UniqueProperty(false, false)
   }
 
   behavior of "ArraySchema"

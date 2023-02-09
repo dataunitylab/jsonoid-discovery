@@ -113,4 +113,36 @@ class HelpersSpec extends UnitSpec {
   it should "give the intersection if both sets are not None" in {
     intersectOrNone(Some(Set(1, 2)), Some(Set(0, 1))) should be(Some(Set(1)))
   }
+
+  behavior of "maybeExpandInt"
+
+  it should "expand to increment values by tens" in {
+    maybeExpandInt(Some(101), Some(117), false) shouldBe (Some(120), false)
+  }
+
+  it should "expand to increment values by one less than powers of 2" in {
+    maybeExpandInt(Some(123), Some(124), false) shouldBe (Some(127), false)
+  }
+
+  it should "expand negative values to remove the limit" in {
+    maybeExpandInt(Some(-123), Some(124), false) shouldBe (None, false)
+  }
+
+  it should "not expand if already covered" in {
+    maybeExpandInt(Some(14), Some(12), false) shouldBe (Some(14), false)
+  }
+
+  behavior of "maybeContractInt"
+
+  it should "expand to decrement values by tens" in {
+    maybeContractInt(Some(117), Some(101), false) shouldBe (Some(100), false)
+  }
+
+  it should "expand to decrement values by powers of 2" in {
+    maybeContractInt(Some(130), Some(129), false) shouldBe (Some(128), false)
+  }
+
+  it should "not expand if already covered" in {
+    maybeContractInt(Some(14), Some(28), false) shouldBe (Some(14), false)
+  }
 }

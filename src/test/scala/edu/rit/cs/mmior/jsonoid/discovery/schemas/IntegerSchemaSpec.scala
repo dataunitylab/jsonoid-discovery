@@ -29,6 +29,12 @@ class IntegerSchemaSpec extends UnitSpec {
     )
   }
 
+  it should "expand by incrementing values" in {
+    MaxIntValueProperty(Some(10))
+      .expandTo(MaxIntValueProperty((Some(11))))
+      .maxIntValue shouldBe Some(11)
+  }
+
   behavior of "MinIntValueProperty"
 
   it should "track the minimum value" in {
@@ -39,6 +45,12 @@ class IntegerSchemaSpec extends UnitSpec {
     integerSchemaIntersect.properties should contain(
       MinIntValueProperty(Some(8))
     )
+  }
+
+  it should "expand by decrementing values" in {
+    MinIntValueProperty(Some(14))
+      .expandTo(MinIntValueProperty((Some(13))))
+      .minIntValue shouldBe Some(13)
   }
 
   behavior of "IntHyperLogLogProperty"
@@ -111,6 +123,24 @@ class IntegerSchemaSpec extends UnitSpec {
     IntMultipleOfProperty(None).isCompatibleWith(
       IntMultipleOfProperty(Some(2))
     ) shouldBe true
+  }
+
+  it should "expand to remove a prime factor" in {
+    IntMultipleOfProperty(Some(2 * 3 * 5 * 7))
+      .expandTo(IntMultipleOfProperty((Some(5 * 7))))
+      .multiple shouldBe Some(5 * 7)
+  }
+
+  it should "stop expanding after MaxExpandRounds" in {
+    IntMultipleOfProperty(Some(1048576))
+      .expandTo(IntMultipleOfProperty((Some(2))))
+      .multiple shouldBe None
+  }
+
+  it should "not expand if already covered" in {
+    IntMultipleOfProperty(Some(14))
+      .expandTo(IntMultipleOfProperty((Some(28))))
+      .multiple shouldBe Some(14)
   }
 
   behavior of "IntHistogramProperty"

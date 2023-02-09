@@ -187,6 +187,15 @@ final case class MinNumValueProperty(
       other.exclusive
     )
   }
+
+  override def expandTo(other: MinNumValueProperty): MinNumValueProperty = {
+    val (newMin, newExclusive) = maybeContractInt(
+      minNumValue.map(_.toInt),
+      other.minNumValue.map(_.toInt + (if (other.exclusive) 1 else 0)),
+      exclusive
+    )
+    MinNumValueProperty(newMin.map(BigDecimal(_)), newExclusive)
+  }
 }
 
 final case class MaxNumValueProperty(
@@ -273,6 +282,16 @@ final case class MaxNumValueProperty(
       other.maxNumValue,
       other.exclusive
     )
+  }
+  override def expandTo(other: MaxNumValueProperty): MaxNumValueProperty = {
+    val (newMax, newExclusive) = maybeExpandInt(
+      maxNumValue.map(_.setScale(0, BigDecimal.RoundingMode.FLOOR).toInt),
+      other.maxNumValue.map(
+        _.setScale(0, BigDecimal.RoundingMode.CEILING).toInt
+      ),
+      exclusive
+    )
+    MaxNumValueProperty(newMax.map(BigDecimal(_)), newExclusive)
   }
 }
 
@@ -475,6 +494,23 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
       // of our multiple with the same sign
       (other.multiple.get / multiple.get).isValidInt &&
       multiple.get.signum == other.multiple.get.signum
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def expandTo(other: NumMultipleOfProperty): NumMultipleOfProperty = {
+    (multiple, other.multiple) match {
+      case (Some(mult), Some(otherMult)) =>
+        // Try halving the multiple
+        val newMult = (1 to MaxExpandRounds)
+          .scanLeft(mult) { (oldMult: BigDecimal, _) =>
+            oldMult / 2
+          }
+          .find(otherMult % _ == 0)
+
+        NumMultipleOfProperty(newMult)
+      case (_, None) => NumMultipleOfProperty(None)
+      case (None, _) => this
     }
   }
 }

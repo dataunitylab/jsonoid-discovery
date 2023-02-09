@@ -33,6 +33,12 @@ class NumberSchemaSpec extends UnitSpec {
     )
   }
 
+  it should "expand by incrementing values" in {
+    MaxNumValueProperty(Some(11))
+      .expandTo(MaxNumValueProperty((Some(12))))
+      .maxNumValue shouldBe Some(12)
+  }
+
   behavior of "MinNumValueProperty"
 
   it should "track the minimum value" in {
@@ -43,6 +49,12 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchemaIntersect.properties should contain(
       MinNumValueProperty(Some(7.0))
     )
+  }
+
+  it should "expand by decrementing values" in {
+    MinNumValueProperty(Some(11))
+      .expandTo(MinNumValueProperty((Some(10))))
+      .minNumValue shouldBe Some(10)
   }
 
   behavior of "NumHyperLogLogProperty"
@@ -119,6 +131,24 @@ class NumberSchemaSpec extends UnitSpec {
     NumMultipleOfProperty(None).isCompatibleWith(
       NumMultipleOfProperty(Some(BigDecimal(2.0)))
     ) shouldBe true
+  }
+
+  it should "expand by division by 2s" in {
+    NumMultipleOfProperty(Some(4.0))
+      .expandTo(NumMultipleOfProperty((Some(2.0))))
+      .multiple shouldBe Some(2.0)
+  }
+
+  it should "stop expanding after MaxExpandRounds" in {
+    NumMultipleOfProperty(Some(1048576.0))
+      .expandTo(NumMultipleOfProperty((Some(2.0))))
+      .multiple shouldBe None
+  }
+
+  it should "not expand if already covered" in {
+    NumMultipleOfProperty(Some(3.5))
+      .expandTo(NumMultipleOfProperty((Some(7.0))))
+      .multiple shouldBe Some(3.5)
   }
 
   behavior of "NumHistogramProperty"

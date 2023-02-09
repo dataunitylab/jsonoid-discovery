@@ -130,6 +130,11 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMinCompatibleWith(minLength, false, other.minLength, false)
   }
+
+  override def expandTo(other: MinLengthProperty): MinLengthProperty = {
+    val newMin = maybeContractInt(minLength, other.minLength, false)._1
+    MinLengthProperty(newMin)
+  }
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
@@ -179,6 +184,11 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMaxCompatibleWith(maxLength, false, other.maxLength, false)
+  }
+
+  override def expandTo(other: MaxLengthProperty): MaxLengthProperty = {
+    val newMax = maybeExpandInt(maxLength, other.maxLength, false)._1
+    MaxLengthProperty(newMax)
   }
 }
 
@@ -327,7 +337,9 @@ final case class FormatProperty(
       "org.wartremover.warts.TraversableOps"
     )
   )
-  private def maxFormat(useLimit: Boolean = true)(implicit p: JsonoidParams) = {
+  private[schemas] def maxFormat(
+      useLimit: Boolean = true
+  )(implicit p: JsonoidParams) = {
     val total = formats.values.sum
     if (!useLimit || total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)
@@ -392,6 +404,16 @@ final case class FormatProperty(
     // but these schemas should still be considered compatible
     val thisFormat = maxFormat()
     thisFormat.isEmpty || thisFormat == other.maxFormat(false)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def expandTo(other: FormatProperty): FormatProperty = {
+    if (maxFormat() == other.maxFormat(false)) {
+      this
+    } else {
+      // Reset to empty formats
+      FormatProperty()
+    }
   }
 }
 
@@ -497,6 +519,11 @@ final case class PatternProperty(
   )(implicit p: JsonoidParams): Boolean = {
     prefix.getOrElse("").startsWith(other.prefix.getOrElse("")) &&
     suffix.getOrElse("").endsWith(other.suffix.getOrElse(""))
+  }
+
+  override def expandTo(other: PatternProperty): PatternProperty = {
+    // TODO Work on heuristics for expansion
+    PatternProperty()
   }
 }
 

@@ -363,6 +363,11 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMinCompatibleWith(minItems, false, other.minItems, false)
   }
+
+  override def expandTo(other: MinItemsProperty): MinItemsProperty = {
+    val newMin = maybeContractInt(minItems, other.minItems, false)._1
+    MinItemsProperty(newMin)
+  }
 }
 
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
@@ -423,6 +428,11 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     Helpers.isMaxCompatibleWith(maxItems, false, other.maxItems, false)
+  }
+
+  override def expandTo(other: MaxItemsProperty): MaxItemsProperty = {
+    val newMax = maybeExpandInt(maxItems, other.maxItems, false)._1
+    MaxItemsProperty(newMax)
   }
 }
 
@@ -499,6 +509,22 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     (unique && !unary) >= (other.unique && !other.unary)
+  }
+
+  override def expandTo(other: UniqueProperty): UniqueProperty = {
+    (unique, unary, other.unique, other.unary) match {
+      // If we are unary, stay that way, since we haven't confirmed uniqueness
+      case (_, true, _, _) => this
+
+      // If not unique, no need to expand
+      case (false, _, _, _) => this
+
+      // If the other schema is unique, whether we are unique does not matter
+      case (_, _, true, _) => this
+
+      // If we are unique and the other is not, expand
+      case _ => UniqueProperty(false, unary)
+    }
   }
 }
 

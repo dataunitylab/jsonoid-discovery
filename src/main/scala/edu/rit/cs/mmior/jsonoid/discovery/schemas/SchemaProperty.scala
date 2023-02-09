@@ -68,4 +68,6 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
       false
     }
   }
+
+  def expandTo(other: S): S = this.asInstanceOf[S]
 }
