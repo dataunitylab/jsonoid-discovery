@@ -227,16 +227,55 @@ object DiscoverSchema {
           p = p.withFormatThreshold(config.formatThreshold.get)
         }
 
-        config.splitPercentage match {
+        val schema = config.splitPercentage match {
           case Some(pct) =>
             val schemas = splitDiscover(jsons, propSet, pct)(p)
             val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
             val testSchema = schemas._2.asInstanceOf[ObjectSchema]
-            val incompats = IncompatibilityCollector.findIncompatibilities(
-              trainSchema,
-              testSchema
+            val finalSchema = trainSchema.expandTo(testSchema)
+            if (!finalSchema.isCompatibleWith(testSchema)) {
+              val incompats = IncompatibilityCollector.findIncompatibilities(
+                finalSchema,
+                testSchema
+              )
+              incompats.foreach(System.err.println(_))
+
+              throw new IllegalStateException(
+                "Split discovery failed to find a compatible schema"
+              )
+            }
+
+            finalSchema
+          case None => discover(jsons, propSet)(p)
+        }
+
+        // Check if transformations are valid
+        if (
+          config.addDefinitions && config.propertySet =/= PropertySets.AllProperties
+        ) {
+          throw new IllegalArgumentException(
+            "All properties required to compute definitions"
+          )
+        }
+
+        var transformedSchema: JsonSchema[_] =
+          transformSchema(schema, config.addDefinitions)(p)
+
+        if (config.writeValues.isDefined) {
+          val outputStream = new FileOutputStream(config.writeValues.get)
+          ValueTableGenerator.writeValueTable(
+            transformedSchema,
+            outputStream
+          )
+        }
+
+        val schemaStr = pretty(render(transformedSchema.toJsonSchema()(p)))
+        config.writeOutput match {
+          case Some(file) =>
+            Files.write(
+              file.toPath(),
+              schemaStr.getBytes(StandardCharsets.UTF_8)
             )
-            incompats.foreach(println(_))
           case None => {
             val schema = discover(jsons, propSet)(p)
 

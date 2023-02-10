@@ -290,4 +290,9 @@ class NumberSchemaSpec extends UnitSpec {
   it should "be compatible with a matching schema" in {
     NumberSchema(1.0).isCompatibleWith(NumberSchema(1.0)) shouldBe true
   }
+
+  it should "expand to be compatible with a similar schema" in {
+    val schema = NumberSchema(2)
+    NumberSchema(1).expandTo(schema).isCompatibleWith(schema) shouldBe true
+  }
 }

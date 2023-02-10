@@ -5,7 +5,11 @@ import scala.reflect.ClassTag
 
 import org.json4s._
 
-trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
+trait SchemaProperty[T] {
+  type S <: SchemaProperty[T]
+
+  def newDefault: SchemaProperty[T]
+
   def mergeable: Boolean = true
 
   def isInformational: Boolean = false
@@ -18,7 +22,7 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def unionMerge(prop: S)(implicit p: JsonoidParams): S
 
   def mergeOnlySameType(
-      prop: SchemaProperty[T, _],
+      prop: SchemaProperty[T],
       mergeType: MergeType
   )(implicit p: JsonoidParams): S = {
     // XXX This only works if the S is the same as the wildcard type
@@ -56,18 +60,6 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def isCompatibleWith(other: S, recursive: Boolean = true)(implicit
       p: JsonoidParams
   ): Boolean = isInformational
-
-  def isCompatibleWithUntyped(
-      other: SchemaProperty[_, _],
-      recursive: Boolean,
-      p: JsonoidParams
-  )(implicit tag: ClassTag[S]): Boolean = {
-    if (tag.runtimeClass.isInstance(other)) {
-      isCompatibleWith(other.asInstanceOf[S], recursive)(p)
-    } else {
-      false
-    }
-  }
 
   def expandTo(other: S): S = this.asInstanceOf[S]
 }

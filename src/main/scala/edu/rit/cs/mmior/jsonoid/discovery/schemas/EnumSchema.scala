@@ -63,7 +63,11 @@ final case class EnumSchema(
 }
 
 final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
-    extends SchemaProperty[Set[JValue], EnumValuesProperty] {
+    extends SchemaProperty[Set[JValue]] {
+  override type S = EnumValuesProperty
+
+  override def newDefault: EnumValuesProperty = EnumValuesProperty()
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.Equals",

@@ -319,4 +319,38 @@ class ArraySchemaSpec extends UnitSpec {
     )
     arraySchema.isCompatibleWith(tupleSchema) shouldBe true
   }
+
+  it should "expand to be compatible with a similar array schema" in {
+    val schema = ArraySchema.array(IntegerSchema(0))
+    ArraySchema
+      .array(IntegerSchema(1))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand a tuple schema to be compatible with an array" in {
+    val schema = ArraySchema.array(IntegerSchema(0))
+    ArraySchema
+      .tuple(List(IntegerSchema(0), IntegerSchema(1)))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand a tuple schema to be compatible with another tuple" in {
+    val schema = ArraySchema.tuple(List(IntegerSchema(1), IntegerSchema(2)))
+    ArraySchema
+      .tuple(List(IntegerSchema(3), IntegerSchema(4)))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand tuple schemas of different sizes to an array" in {
+    val schema = ArraySchema.tuple(
+      List(IntegerSchema(0), IntegerSchema(1), IntegerSchema(2))
+    )
+    ArraySchema
+      .tuple(List(IntegerSchema(3), IntegerSchema(4)))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
 }

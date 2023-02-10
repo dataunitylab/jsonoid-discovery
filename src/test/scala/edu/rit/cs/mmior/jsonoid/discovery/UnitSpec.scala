@@ -27,8 +27,8 @@ object UnitSpec {
 
   implicit def containingNatureOfSchemaProperties[SchemaProperties[
       _
-  ] <: Iterable[SchemaProperty[_, _]]](implicit
-      equality: Equality[SchemaProperty[_, _]]
+  ] <: Iterable[SchemaProperty[_]]](implicit
+      equality: Equality[SchemaProperty[_]]
   ): Containing[SchemaProperties[_]] = new Containing[SchemaProperties[_]] {
     def contains(props: SchemaProperties[_], elem: Any): Boolean = {
       props.exists(equality.areEqual(_, elem))

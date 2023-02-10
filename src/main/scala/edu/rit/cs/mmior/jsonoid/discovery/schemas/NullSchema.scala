@@ -29,8 +29,9 @@ final case class NullSchema(
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isValidType[S <: JValue](value: S): Boolean = value == JNull
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isCompatibleWith(
       other: JsonSchema[_],
       recursive: Boolean = true
-  )(implicit p: JsonoidParams): Boolean = false
+  )(implicit p: JsonoidParams): Boolean = other.schemaType == "null"
 }

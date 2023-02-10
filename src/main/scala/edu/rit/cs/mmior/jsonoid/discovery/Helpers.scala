@@ -236,6 +236,16 @@ object Helpers {
     case (None, None)       => None
   }
 
+  def unionOrNone[A](
+      first: Option[Set[A]],
+      second: Option[Set[A]]
+  ): Option[Set[A]] = (first, second) match {
+    case (Some(a), None)    => first
+    case (None, Some(b))    => second
+    case (Some(a), Some(b)) => Some(a.union(b))
+    case (None, None)       => None
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def findCommonPrefix(str1: String, str2: String): String = {
     (str1, str2).zipped

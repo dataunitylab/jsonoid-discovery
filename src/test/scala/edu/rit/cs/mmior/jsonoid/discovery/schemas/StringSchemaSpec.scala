@@ -149,6 +149,15 @@ class StringSchemaSpec extends UnitSpec {
     newPattern.suffix shouldBe None
   }
 
+  it should "not expand to remove patterns if not needed" in {
+    val newPattern =
+      PatternProperty(Some("fo"), Some("ar")).expandTo(
+        PatternProperty(Some("foo"), Some("bar"))
+      )
+    newPattern.prefix shouldBe Some("fo")
+    newPattern.suffix shouldBe Some("ar")
+  }
+
   behavior of "StringLengthHistogramProperty"
 
   it should "keep a running histogram of lengths" in {
@@ -252,5 +261,10 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "be compatible with a matching schema" in {
     StringSchema("foo").isCompatibleWith(StringSchema("foo")) shouldBe true
+  }
+
+  it should "expand to be compatible with a similar schema" in {
+    val schema = StringSchema("a")
+    StringSchema("foo").expandTo(schema).isCompatibleWith(schema) shouldBe true
   }
 }

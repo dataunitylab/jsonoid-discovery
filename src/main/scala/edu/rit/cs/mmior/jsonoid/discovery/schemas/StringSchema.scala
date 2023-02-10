@@ -82,7 +82,11 @@ final case class StringSchema(
 }
 
 final case class MinLengthProperty(minLength: Option[Int] = None)
-    extends SchemaProperty[String, MinLengthProperty] {
+    extends SchemaProperty[String] {
+  override type S = MinLengthProperty
+
+  override def newDefault: MinLengthProperty = MinLengthProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("minLength" -> minLength)
 
@@ -138,7 +142,11 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
-    extends SchemaProperty[String, MaxLengthProperty] {
+    extends SchemaProperty[String] {
+  override type S = MaxLengthProperty
+
+  override def newDefault: MaxLengthProperty = MaxLengthProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("maxLength" -> maxLength)
 
@@ -192,9 +200,13 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
   }
 }
 
-final case class StringHyperLogLogProperty(
-    hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[String, StringHyperLogLogProperty] {
+final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
+    extends SchemaProperty[String] {
+  override type S = StringHyperLogLogProperty
+
+  override def newDefault: StringHyperLogLogProperty =
+    StringHyperLogLogProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -229,7 +241,12 @@ object StringBloomFilterProperty {
 
 final case class StringBloomFilterProperty(
     bloomFilter: BloomFilter[String] = BloomFilter[String]()
-) extends SchemaProperty[String, StringBloomFilterProperty] {
+) extends SchemaProperty[String] {
+  override type S = StringBloomFilterProperty
+
+  override def newDefault: StringBloomFilterProperty =
+    StringBloomFilterProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -274,7 +291,11 @@ final case class StringBloomFilterProperty(
 
 final case class StringExamplesProperty(
     examples: ExamplesProperty[String] = ExamplesProperty()
-) extends SchemaProperty[String, StringExamplesProperty] {
+) extends SchemaProperty[String] {
+  override type S = StringExamplesProperty
+
+  override def newDefault: StringExamplesProperty = StringExamplesProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
@@ -330,7 +351,11 @@ object FormatProperty {
 
 final case class FormatProperty(
     formats: Map[String, BigInt] = Map.empty[String, BigInt]
-) extends SchemaProperty[String, FormatProperty] {
+) extends SchemaProperty[String] {
+  override type S = FormatProperty
+
+  override def newDefault: FormatProperty = FormatProperty()
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.Equals",
@@ -428,7 +453,11 @@ final case class PatternProperty(
     suffix: Option[String] = None,
     examples: Int = 0,
     minLength: Option[Int] = None
-) extends SchemaProperty[String, PatternProperty] {
+) extends SchemaProperty[String] {
+  override type S = PatternProperty
+
+  override def newDefault: PatternProperty = PatternProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = if (
     examples >= PatternProperty.MinExamples
   ) {
@@ -517,18 +546,26 @@ final case class PatternProperty(
       other: PatternProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    prefix.getOrElse("").startsWith(other.prefix.getOrElse("")) &&
-    suffix.getOrElse("").endsWith(other.suffix.getOrElse(""))
+    other.prefix.getOrElse("").startsWith(prefix.getOrElse("")) &&
+    other.suffix.getOrElse("").endsWith(suffix.getOrElse(""))
   }
 
   override def expandTo(other: PatternProperty): PatternProperty = {
-    // TODO Work on heuristics for expansion
-    PatternProperty()
+    if (isCompatibleWith(other)) {
+      this
+    } else {
+      // TODO Work on heuristics for expansion
+      PatternProperty()
+    }
   }
 }
 
 final case class StaticPatternProperty(regex: Regex)
-    extends SchemaProperty[String, StaticPatternProperty] {
+    extends SchemaProperty[String] {
+  override type S = StaticPatternProperty
+
+  override def newDefault: StaticPatternProperty = StaticPatternProperty(".*".r)
+
   override def mergeable: Boolean = false
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -576,7 +613,12 @@ final case class StaticPatternProperty(regex: Regex)
 
 final case class StringLengthHistogramProperty(
     histogram: Histogram = Histogram()
-) extends SchemaProperty[String, StringLengthHistogramProperty] {
+) extends SchemaProperty[String] {
+  override type S = StringLengthHistogramProperty
+
+  override def newDefault: StringLengthHistogramProperty =
+    StringLengthHistogramProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {

@@ -21,4 +21,8 @@ class NullSchemaSpec extends UnitSpec {
   it should "not be compatible with other schemas" in {
     nullSchema.isCompatibleWith(StringSchema("foo")) shouldBe false
   }
+
+  it should "should be compatible with another null schema" in {
+    nullSchema.isCompatibleWith(nullSchema) shouldBe true
+  }
 }

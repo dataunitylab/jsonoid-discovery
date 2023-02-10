@@ -120,7 +120,11 @@ final case class IntegerSchema(
 final case class MinIntValueProperty(
     minIntValue: Option[BigInt] = None,
     exclusive: Boolean = false
-) extends SchemaProperty[BigInt, MinIntValueProperty] {
+) extends SchemaProperty[BigInt] {
+  override type S = MinIntValueProperty
+
+  override def newDefault: MinIntValueProperty = MinIntValueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMinimum" }
       else { "minimum" }) -> minIntValue)
@@ -213,7 +217,11 @@ final case class MinIntValueProperty(
 final case class MaxIntValueProperty(
     maxIntValue: Option[BigInt] = None,
     exclusive: Boolean = false
-) extends SchemaProperty[BigInt, MaxIntValueProperty] {
+) extends SchemaProperty[BigInt] {
+  override type S = MaxIntValueProperty
+
+  override def newDefault: MaxIntValueProperty = MaxIntValueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMaximum" }
       else { "maximum" }) -> maxIntValue)
@@ -305,7 +313,11 @@ final case class MaxIntValueProperty(
 
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[BigInt, IntHyperLogLogProperty] {
+) extends SchemaProperty[BigInt] {
+  override type S = IntHyperLogLogProperty
+
+  override def newDefault: IntHyperLogLogProperty = IntHyperLogLogProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -334,7 +346,11 @@ final case class IntHyperLogLogProperty(
 
 final case class IntBloomFilterProperty(
     bloomFilter: BloomFilter[Integer] = BloomFilter[Integer]()
-) extends SchemaProperty[BigInt, IntBloomFilterProperty] {
+) extends SchemaProperty[BigInt] {
+  override type S = IntBloomFilterProperty
+
+  override def newDefault: IntBloomFilterProperty = IntBloomFilterProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
@@ -379,7 +395,11 @@ final case class IntBloomFilterProperty(
 }
 
 final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
-    extends SchemaProperty[BigInt, IntStatsProperty] {
+    extends SchemaProperty[BigInt] {
+  override type S = IntStatsProperty
+
+  override def newDefault: IntStatsProperty = IntStatsProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -400,7 +420,11 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
 
 final case class IntExamplesProperty(
     examples: ExamplesProperty[BigInt] = ExamplesProperty()
-) extends SchemaProperty[BigInt, IntExamplesProperty] {
+) extends SchemaProperty[BigInt] {
+  override type S = IntExamplesProperty
+
+  override def newDefault: IntExamplesProperty = IntExamplesProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
@@ -420,7 +444,11 @@ final case class IntExamplesProperty(
 }
 
 final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
-    extends SchemaProperty[BigInt, IntMultipleOfProperty] {
+    extends SchemaProperty[BigInt] {
+  override type S = IntMultipleOfProperty
+
+  override def newDefault: IntMultipleOfProperty = IntMultipleOfProperty()
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
     case Some(intVal) if intVal > 1 => ("multipleOf" -> intVal)
@@ -479,26 +507,38 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def expandTo(other: IntMultipleOfProperty): IntMultipleOfProperty = {
     (multiple, other.multiple) match {
       case (Some(mult), Some(otherMult)) =>
         // Try removing the smallest prime factor
         val newMult = (1 to MaxExpandRounds)
           .scanLeft(mult.toInt) { (oldMult: Int, _) =>
-            oldMult / factorize(oldMult).sorted.headOption.getOrElse(1)
+            if (oldMult == 1 || oldMult == 0) {
+              // If we're down to one or zero, we have to stop
+              0
+            } else {
+              oldMult / factorize(oldMult).sorted.headOption.getOrElse(1)
+            }
           }
-          .find(otherMult % _ === 0)
+          .find(m => m == 0 || (m != 1 && otherMult % m === 0))
 
-        IntMultipleOfProperty(newMult.map(BigInt(_)))
+        newMult match {
+          case Some(0) => IntMultipleOfProperty(None)
+          case _       => IntMultipleOfProperty(newMult.map(BigInt(_)))
+        }
       case (_, None) => IntMultipleOfProperty(None)
       case (None, _) => this
     }
   }
 }
 
-final case class IntHistogramProperty(
-    histogram: Histogram = Histogram()
-) extends SchemaProperty[BigInt, IntHistogramProperty] {
+final case class IntHistogramProperty(histogram: Histogram = Histogram())
+    extends SchemaProperty[BigInt] {
+  override type S = IntHistogramProperty
+
+  override def newDefault: IntHistogramProperty = IntHistogramProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {

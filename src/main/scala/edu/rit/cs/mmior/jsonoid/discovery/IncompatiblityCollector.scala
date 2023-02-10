@@ -15,7 +15,11 @@ object IncompatibilityCollector {
       s1: JsonSchema[_],
       s2: JsonSchema[_],
       tag: ClassTag[_]
-  ): Seq[Incompatibility[_]] = if (s1.schemaType == s2.schemaType) {
+  ): Seq[Incompatibility[_]] = if (
+    s1.schemaType == s2.schemaType ||
+    s1.schemaType == "any" ||
+    s2.schemaType == "any"
+  ) {
     Seq()
   } else {
     Seq(Incompatibility(path, tag))
@@ -63,18 +67,37 @@ object IncompatibilityCollector {
 
         // Show incompatibilities from the closest compatible schemas
         t2.flatMap { s2 =>
-          t1.map(s1 => s1.properties.findIncompatibilities(s2.properties))
-            .minBy(_.length)
+          val compatTypes = t1.filter(s1 =>
+            s1.schemaType == "any" || s1.schemaType == s2.schemaType
+          )
+          if (compatTypes.nonEmpty) {
+            compatTypes
+              .map(s1 => s1.properties.findIncompatibilities(s2.properties))
+              .minBy(_.length)
+          } else {
+            Seq(ClassTag(classOf[ProductSchemaTypesProperty]))
+          }
         }.map(Incompatibility(path, _))
 
       case (ps: ProductSchema, _) =>
         // Collect incompatibilities from the most compatible schema
-        val types = ps.properties.get[ProductSchemaTypesProperty].schemas
-        types.zipWithIndex
-          .map { case (schema, index) =>
-            findIncompatibilitiesAtPath(schema, other, s"$path[$index]")
-          }
-          .minBy(_.length)
+        val types = ps.properties
+          .get[ProductSchemaTypesProperty]
+          .schemas
+          .filter(s =>
+            s.schemaType == "any" || s.schemaType == other.schemaType
+          )
+        if (types.isEmpty) {
+          Seq(
+            Incompatibility(path, ClassTag(classOf[ProductSchemaTypesProperty]))
+          )
+        } else {
+          types.zipWithIndex
+            .map { case (schema, index) =>
+              findIncompatibilitiesAtPath(schema, other, s"$path[$index]")
+            }
+            .minBy(_.length)
+        }
 
       case (a1: ArraySchema, a2: ArraySchema) =>
         val t1 = a1.properties.get[ItemTypeProperty].itemType

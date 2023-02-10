@@ -216,4 +216,9 @@ class IntegerSchemaSpec extends UnitSpec {
   it should "be compatible with a matching schema" in {
     IntegerSchema(1).isCompatibleWith(IntegerSchema(1)) shouldBe true
   }
+
+  it should "expand to be compatible with a similar schema" in {
+    val schema = IntegerSchema(0)
+    IntegerSchema(1).expandTo(schema).isCompatibleWith(schema) shouldBe true
+  }
 }

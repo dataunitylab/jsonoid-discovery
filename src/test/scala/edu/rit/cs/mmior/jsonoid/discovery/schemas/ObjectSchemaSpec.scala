@@ -185,4 +185,16 @@ class ObjectSchemaSpec extends UnitSpec {
   it should "show an object with a superset of properties as compatible if additionalProperties is false" in {
     ObjectSchema(singleType).isCompatibleWith(objectSchema) shouldBe false
   }
+
+  it should "expand to add new keys" in {
+    val schema =
+      ObjectSchema(Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema()))
+    objectSchema.expandTo(schema).isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand to combine types in the same key" in {
+    val schema1 = ObjectSchema(Map("foo" -> IntegerSchema(1)))
+    val schema2 = ObjectSchema(Map("foo" -> IntegerSchema(2)))
+    schema1.expandTo(schema2).isCompatibleWith(schema2) shouldBe true
+  }
 }

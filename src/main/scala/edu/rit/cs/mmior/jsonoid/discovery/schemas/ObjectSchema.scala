@@ -131,7 +131,11 @@ final case class ObjectSchema(
 
 final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
-) extends SchemaProperty[Map[String, JsonSchema[_]], ObjectTypesProperty] {
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = ObjectTypesProperty
+
+  override def newDefault: ObjectTypesProperty = ObjectTypesProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("properties" -> objectTypes.map { case (propType, schema) =>
       (propType -> schema.toJson()(p))
@@ -164,7 +168,7 @@ final case class ObjectTypesProperty(
 
   override def mergeValue(value: Map[String, JsonSchema[_]])(implicit
       p: JsonoidParams
-  ) = mergeValue(value, Union)(p)
+  ): ObjectTypesProperty = mergeValue(value, Union)(p)
 
   def mergeValue(
       value: Map[String, JsonSchema[_]],
@@ -231,11 +235,30 @@ final case class ObjectTypesProperty(
 
     overlapCompatible && newPropsCompatible
   }
+
+  override def expandTo(other: ObjectTypesProperty): ObjectTypesProperty = {
+    val newTypes =
+      objectTypes.keySet.union(other.objectTypes.keySet).map { key =>
+        (objectTypes.get(key), other.objectTypes.get(key)) match {
+          case (Some(schema), Some(otherSchema)) =>
+            key -> schema.expandTo(otherSchema)
+          case (Some(schema), None)      => key -> schema
+          case (None, Some(otherSchema)) => key -> otherSchema
+          case (None, None)              => key -> AnySchema()
+        }
+      }
+
+    ObjectTypesProperty(newTypes.toMap)
+  }
 }
 
 final case class PatternTypesProperty(
     patternTypes: Map[Regex, JsonSchema[_]] = Map.empty[Regex, JsonSchema[_]]
-) extends SchemaProperty[Map[String, JsonSchema[_]], PatternTypesProperty] {
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = PatternTypesProperty
+
+  override def newDefault: PatternTypesProperty = PatternTypesProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("patternProperties" -> patternTypes.map { case (pattern, schema) =>
       (pattern.toString -> schema.toJson()(p))
@@ -315,7 +338,11 @@ final case class PatternTypesProperty(
 final case class FieldPresenceProperty(
     fieldPresence: Map[String, BigInt] = Map.empty[String, BigInt],
     totalCount: BigInt = 0
-) extends SchemaProperty[Map[String, JsonSchema[_]], FieldPresenceProperty] {
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = FieldPresenceProperty
+
+  override def newDefault: FieldPresenceProperty = FieldPresenceProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -359,9 +386,20 @@ final case class FieldPresenceProperty(
 
 final case class RequiredProperty(
     required: Option[Set[String]] = None
-) extends SchemaProperty[Map[String, JsonSchema[_]], RequiredProperty] {
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = RequiredProperty
+
+  override def newDefault: RequiredProperty = RequiredProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("required" -> required)
+
+  override def intersectMerge(
+      otherProp: RequiredProperty
+  )(implicit p: JsonoidParams): RequiredProperty = {
+    val other = otherProp.required
+    RequiredProperty(unionOrNone(other, required))
+  }
 
   override def unionMerge(
       otherProp: RequiredProperty
@@ -405,6 +443,11 @@ final case class RequiredProperty(
     // Compatible if we have the same or fewer required properties
     other.required.getOrElse(Set()).subsetOf(required.getOrElse(Set()))
   }
+
+  override def expandTo(other: RequiredProperty): RequiredProperty = {
+    // TODO This depends specifically on the other set of required properties
+    intersectMerge(other)
+  }
 }
 
 object DependenciesProperty {
@@ -416,7 +459,11 @@ final case class DependenciesProperty(
     counts: Map[String, BigInt] = Map.empty,
     cooccurrence: Map[(String, String), BigInt] = Map.empty,
     overloaded: Boolean = false
-) extends SchemaProperty[Map[String, JsonSchema[_]], DependenciesProperty] {
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = DependenciesProperty
+
+  override def newDefault: DependenciesProperty = DependenciesProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
@@ -542,14 +589,21 @@ final case class DependenciesProperty(
       }
     }
   }
+
+  override def expandTo(other: DependenciesProperty): DependenciesProperty = {
+    // TODO This depends specifically on the other set of dependencies
+    intersectMerge(other)
+  }
 }
 
 final case class StaticDependenciesProperty(
     dependencies: Map[String, List[String]] = Map.empty
-) extends SchemaProperty[
-      Map[String, JsonSchema[_]],
-      StaticDependenciesProperty
-    ] {
+) extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = StaticDependenciesProperty
+
+  override def newDefault: StaticDependenciesProperty =
+    StaticDependenciesProperty()
+
   override def mergeable: Boolean = false
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))

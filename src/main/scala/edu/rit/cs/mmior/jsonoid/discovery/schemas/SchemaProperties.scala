@@ -4,10 +4,8 @@ package schemas
 import scala.reflect.ClassTag
 
 object SchemaProperties {
-  type PropertyTag[T] =
-    ClassTag[_ <: SchemaProperty[T, _ <: SchemaProperty[T, _]]]
-  type PropertyMap[T] =
-    Map[PropertyTag[T], SchemaProperty[T, _ <: SchemaProperty[T, _]]]
+  type PropertyTag[T] = ClassTag[_ <: SchemaProperty[T]]
+  type PropertyMap[T] = Map[PropertyTag[T], SchemaProperty[T]]
 
   def empty[T]: SchemaProperties[T] = {
     SchemaProperties[T]()
@@ -19,23 +17,23 @@ import SchemaProperties._
 @SuppressWarnings(Array("org.wartremover.warts.Var"))
 final case class SchemaProperties[T](
     var properties: PropertyMap[T] =
-      Map.empty[PropertyTag[T], SchemaProperty[T, _ <: SchemaProperty[T, _]]]
-) extends Iterable[SchemaProperty[T, _]] {
+      Map.empty[PropertyTag[T], SchemaProperty[T]]
+) extends Iterable[SchemaProperty[T]] {
 
-  override def iterator: Iterator[SchemaProperty[T, _]] =
+  override def iterator: Iterator[SchemaProperty[T]] =
     properties.values.iterator
 
-  def add[S <: SchemaProperty[T, S]](
+  def add[S <: SchemaProperty[T]](
       prop: S
   )(implicit tag: ClassTag[S]): Unit = {
     properties += (tag -> prop)
   }
 
-  def get[S <: SchemaProperty[T, S]](implicit tag: ClassTag[S]): S = {
+  def get[S <: SchemaProperty[T]](implicit tag: ClassTag[S]): S = {
     properties(tag).asInstanceOf[S]
   }
 
-  def getOrNone[S <: SchemaProperty[T, S]](implicit
+  def getOrNone[S <: SchemaProperty[T]](implicit
       tag: ClassTag[S]
   ): Option[S] = {
     if (properties.contains(tag)) {
@@ -45,11 +43,11 @@ final case class SchemaProperties[T](
     }
   }
 
-  def has[S <: SchemaProperty[T, S]](implicit tag: ClassTag[S]): Boolean = {
+  def has[S <: SchemaProperty[T]](implicit tag: ClassTag[S]): Boolean = {
     properties.contains(tag)
   }
 
-  def replaceProperty[S <: SchemaProperty[T, S]](
+  def replaceProperty[S <: SchemaProperty[T]](
       prop: S
   )(implicit tag: ClassTag[S]): SchemaProperties[T] = {
     SchemaProperties(properties + (tag -> prop))
@@ -125,7 +123,10 @@ final case class SchemaProperties[T](
         val prop = properties(tag)
         if (other.properties.contains(otherTag)) {
           !prop
-            .isCompatibleWithUntyped(other.properties(otherTag), recursive, p)
+            .isCompatibleWith(
+              other.properties(otherTag).asInstanceOf[prop.S],
+              recursive
+            )(p)
         } else {
           true
         }
@@ -140,7 +141,10 @@ final case class SchemaProperties[T](
     properties.forall { case (tag, prop) =>
       val otherTag = tag.asInstanceOf[PropertyTag[S]]
       if (other.properties.contains(otherTag)) {
-        prop.isCompatibleWithUntyped(other.properties(otherTag), recursive, p)
+        prop.isCompatibleWith(
+          other.properties(otherTag).asInstanceOf[prop.S],
+          recursive
+        )(p)
       } else {
         true
       }
@@ -155,11 +159,32 @@ final case class SchemaProperties[T](
       val prop = properties(tag)
       val otherTag = tag.asInstanceOf[PropertyTag[S]]
       if (other.properties.contains(otherTag)) {
-        !prop.isCompatibleWithUntyped(other.properties(otherTag), recursive, p)
+        !prop.isCompatibleWith(
+          other.properties(otherTag).asInstanceOf[prop.S],
+          recursive
+        )(p)
       } else {
         // We may want to construct a default property instance here
         false
       }
     }.toSeq
+  }
+
+  def expandTo(other: SchemaProperties[T]): SchemaProperties[T] = {
+    SchemaProperties(
+      properties.transform { case (tag, prop) =>
+        prop.expandTo(
+          other
+            .properties(tag.asInstanceOf[PropertyTag[T]])
+            .asInstanceOf[prop.S]
+        )
+      }
+    )
+  }
+
+  def copyWithReset(): SchemaProperties[T] = {
+    SchemaProperties(properties.transform { case (tag, prop) =>
+      prop.newDefault
+    })
   }
 }

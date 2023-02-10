@@ -172,9 +172,13 @@ final case class ArraySchema(
 
 final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
-) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
+) extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = ItemTypeProperty
+
+  override def newDefault: ItemTypeProperty = ItemTypeProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = itemType match {
-    case Left(schema) => ("items" -> schema.toJson()(p))
+    case Left(schema) => ("items" -> schema.toJson)
     case Right(schemas) =>
       if (schemas.nonEmpty) {
         ("items" -> JArray(schemas.map(_.toJson()(p))))
@@ -300,10 +304,46 @@ final case class ItemTypeProperty(
             .forall({ case (s1, s2) => s1.isCompatibleWith(s2) }))
     }
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def expandTo(other: ItemTypeProperty): ItemTypeProperty = {
+    (itemType, other.itemType) match {
+      case (Left(schema1), Left(schema2)) =>
+        // Expand the single item schema to match
+        ItemTypeProperty(Left(schema1.expandTo(schema2)))
+
+      case (Right(schemas), Left(schema)) =>
+        // Collapse down to a single schema and expand
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        ItemTypeProperty(Left(oneSchema.expandTo(schema)))
+
+      case (Right(schemas1), Right(schemas2)) =>
+        if (schemas1.length == schemas2.length) {
+          // Combine corresponding tuple schemas
+          val schemas =
+            schemas1.zip(schemas2).map { case (s1, s2) => s1.expandTo(s2) }
+          ItemTypeProperty(Right(schemas))
+        } else {
+          // Collapse both to a single schema and expand
+          val oneSchema1 = schemas1.fold(ZeroSchema())(_.merge(_, Union))
+          val oneSchema2 = schemas2.fold(ZeroSchema())(_.merge(_, Union))
+          ItemTypeProperty(Left(oneSchema1.expandTo(oneSchema2)))
+        }
+
+      case (Left(schema), Right(schemas)) =>
+        // Collapse the other side to a single schema and expand
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        ItemTypeProperty(Left(schema.expandTo(oneSchema)))
+    }
+  }
 }
 
 final case class MinItemsProperty(minItems: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]], MinItemsProperty] {
+    extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = MinItemsProperty
+
+  override def newDefault: MinItemsProperty = MinItemsProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("minItems" -> minItems)
 
@@ -369,7 +409,11 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 }
 
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]], MaxItemsProperty] {
+    extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = MaxItemsProperty
+
+  override def newDefault: MaxItemsProperty = MaxItemsProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("maxItems" -> maxItems)
 
@@ -435,7 +479,11 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 }
 
 final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
-    extends SchemaProperty[List[JsonSchema[_]], UniqueProperty] {
+    extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = UniqueProperty
+
+  override def newDefault: UniqueProperty = UniqueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = if (
     unique && !unary
   ) {
@@ -528,7 +576,12 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 
 final case class ArrayLengthHistogramProperty(
     histogram: DDSketch = DDSketches.unboundedDense(0.01)
-) extends SchemaProperty[List[JsonSchema[_]], ArrayLengthHistogramProperty] {
+) extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = ArrayLengthHistogramProperty
+
+  override def newDefault: ArrayLengthHistogramProperty =
+    ArrayLengthHistogramProperty()
+
   override val isInformational = true
 
   @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))

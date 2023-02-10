@@ -126,7 +126,7 @@ object JsonSchema {
     convertedSchema
   }
 
-  private def buildProductSchema(
+  def buildProductSchema(
       baseSchema: JsonSchema[_],
       schemas: List[JsonSchema[_]],
       productType: ProductType
@@ -526,6 +526,10 @@ trait JsonSchema[T] {
 
   def copy(properties: SchemaProperties[T]): JsonSchema[T]
 
+  def copyWithReset(): JsonSchema[T] = {
+    copy(properties.copyWithReset)
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def transformProperties(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
@@ -605,5 +609,17 @@ trait JsonSchema[T] {
   )(implicit p: JsonoidParams): Boolean = {
     schemaType == other.schemaType &&
     properties.isCompatibleWith(other.properties, recursive)(p)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def expandTo[S](other: JsonSchema[S]): JsonSchema[_] = {
+    if (schemaType == other.schemaType) {
+      copy(properties.expandTo(other.asInstanceOf[JsonSchema[T]].properties))
+    } else {
+      // Convert to a product schema if we need to add a new type
+      JsonSchema
+        .buildProductSchema(AnySchema(), List(this), OneOf)
+        .expandTo(other)
+    }
   }
 }

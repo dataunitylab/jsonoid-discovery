@@ -167,4 +167,40 @@ class ProductSchemaSpec extends UnitSpec {
   it should "not be compatible with a schema not contained inside" in {
     productSchema1.isCompatibleWith(NumberSchema(3.0)) shouldBe false
   }
+
+  it should "can expand to cover a new type" in {
+    productSchema1
+      .expandTo(StringSchema())
+      .asInstanceOf[ProductSchema]
+      .properties
+      .get[ProductSchemaTypesProperty]
+      .schemaTypes
+      .map(_.schemaType) should contain("string")
+  }
+
+  it should "expand an existing type to be compatbile" in {
+    // We need to rebuild some types using Simple properties
+    // to ensure that there is something that will be in conflict
+    // if the resulting types are not compatible
+    val oldSchema = IntegerSchema(0)(
+      PropertySets.SimpleProperties,
+      JsonoidParams.defaultJsonoidParams
+    )
+    val newSchema = IntegerSchema(3)(
+      PropertySets.SimpleProperties,
+      JsonoidParams.defaultJsonoidParams
+    )
+    val productSchema1 =
+      ProductSchema(schema1).merge(oldSchema).asInstanceOf[ProductSchema]
+
+    productSchema1
+      .expandTo(newSchema)
+      .asInstanceOf[ProductSchema]
+      .properties
+      .get[ProductSchemaTypesProperty]
+      .schemaTypes
+      .find(_.schemaType == "integer")
+      .get
+      .isCompatibleWith(newSchema) shouldBe true
+  }
 }

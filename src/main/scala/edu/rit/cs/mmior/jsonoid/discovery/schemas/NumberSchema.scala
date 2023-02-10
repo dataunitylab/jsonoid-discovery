@@ -102,7 +102,11 @@ final case class NumberSchema(
 final case class MinNumValueProperty(
     minNumValue: Option[BigDecimal] = None,
     exclusive: Boolean = false
-) extends SchemaProperty[BigDecimal, MinNumValueProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = MinNumValueProperty
+
+  override def newDefault: MinNumValueProperty = MinNumValueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMinimum" }
       else { "minimum" }) -> minNumValue)
@@ -201,7 +205,11 @@ final case class MinNumValueProperty(
 final case class MaxNumValueProperty(
     maxNumValue: Option[BigDecimal] = None,
     exclusive: Boolean = false
-) extends SchemaProperty[BigDecimal, MaxNumValueProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = MaxNumValueProperty
+
+  override def newDefault: MaxNumValueProperty = MaxNumValueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMaximum" }
       else { "maximum" }) -> maxNumValue)
@@ -295,9 +303,12 @@ final case class MaxNumValueProperty(
   }
 }
 
-final case class NumHyperLogLogProperty(
-    hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
+final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
+    extends SchemaProperty[BigDecimal] {
+  override type S = NumHyperLogLogProperty
+
+  override def newDefault: NumHyperLogLogProperty = NumHyperLogLogProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -335,7 +346,11 @@ final case class NumHyperLogLogProperty(
 
 final case class NumBloomFilterProperty(
     bloomFilter: BloomFilter[Double] = BloomFilter[Double]()
-) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = NumBloomFilterProperty
+
+  override def newDefault: NumBloomFilterProperty = NumBloomFilterProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
@@ -398,7 +413,11 @@ final case class NumBloomFilterProperty(
 }
 
 final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
-    extends SchemaProperty[BigDecimal, NumStatsProperty] {
+    extends SchemaProperty[BigDecimal] {
+  override type S = NumStatsProperty
+
+  override def newDefault: NumStatsProperty = NumStatsProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -419,7 +438,11 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 
 final case class NumExamplesProperty(
     examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
-) extends SchemaProperty[BigDecimal, NumExamplesProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = NumExamplesProperty
+
+  override def newDefault: NumExamplesProperty = NumExamplesProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
@@ -439,7 +462,11 @@ final case class NumExamplesProperty(
 }
 
 final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal, NumMultipleOfProperty] {
+    extends SchemaProperty[BigDecimal] {
+  override type S = NumMultipleOfProperty
+
+  override def newDefault: NumMultipleOfProperty = NumMultipleOfProperty()
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
     case Some(numVal) if numVal > 1 => ("multipleOf" -> numVal)
@@ -517,7 +544,11 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
 
 final case class NumHistogramProperty(
     histogram: Histogram = Histogram()
-) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = NumHistogramProperty
+
+  override def newDefault: NumHistogramProperty = NumHistogramProperty()
+
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
