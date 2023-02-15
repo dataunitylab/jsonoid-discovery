@@ -23,7 +23,8 @@ final case class Config(
       EquivalenceRelations.KindEquivalenceRelation,
     addDefinitions: Boolean = false,
     maxExamples: Option[Int] = None,
-    additionalProperties: Boolean = false
+    additionalProperties: Boolean = false,
+    formatThreshold: Option[Float] = None
 )
 
 object DiscoverSchema {
@@ -170,6 +171,10 @@ object DiscoverSchema {
       opt[Unit]('a', "additional-properties")
         .action((x, c) => c.copy(additionalProperties = true))
         .text("set additionalProperties to true in the generated schema")
+
+      opt[Double]("format-threshold")
+        .action((x, c) => c.copy(formatThreshold = Some(x.toFloat)))
+        .text("set the fraction of values that must match a given format")
     }
 
     parser.parse(args, Config()) match {
@@ -190,6 +195,9 @@ object DiscoverSchema {
           .withAdditionalProperties(config.additionalProperties)
         if (config.maxExamples.isDefined) {
           p = p.withMaxExamples(config.maxExamples.get)
+        }
+        if (config.formatThreshold.isDefined) {
+          p = p.withFormatThreshold(config.formatThreshold.get)
         }
 
         val schema =
@@ -212,7 +220,7 @@ object DiscoverSchema {
           ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
         }
 
-        val schemaStr = pretty(render(transformedSchema.toJsonSchema))
+        val schemaStr = pretty(render(transformedSchema.toJsonSchema()(p)))
         config.writeOutput match {
           case Some(file) =>
             Files.write(

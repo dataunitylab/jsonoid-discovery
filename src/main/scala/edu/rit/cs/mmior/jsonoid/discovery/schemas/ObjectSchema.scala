@@ -134,9 +134,10 @@ final case class ObjectSchema(
 final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
 ) extends SchemaProperty[Map[String, JsonSchema[_]], ObjectTypesProperty] {
-  override def toJson: JObject = ("properties" -> objectTypes.map {
-    case (propType, schema) => (propType -> schema.toJson)
-  })
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("properties" -> objectTypes.map { case (propType, schema) =>
+      (propType -> schema.toJson()(p))
+    })
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
@@ -220,9 +221,10 @@ final case class ObjectTypesProperty(
 final case class PatternTypesProperty(
     patternTypes: Map[Regex, JsonSchema[_]] = Map.empty[Regex, JsonSchema[_]]
 ) extends SchemaProperty[Map[String, JsonSchema[_]], PatternTypesProperty] {
-  override def toJson: JObject = ("patternProperties" -> patternTypes.map {
-    case (pattern, schema) => (pattern.toString -> schema.toJson)
-  })
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("patternProperties" -> patternTypes.map { case (pattern, schema) =>
+      (pattern.toString -> schema.toJson()(p))
+    })
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
@@ -299,9 +301,10 @@ final case class FieldPresenceProperty(
     fieldPresence: Map[String, BigInt] = Map.empty[String, BigInt],
     totalCount: BigInt = 0
 ) extends SchemaProperty[Map[String, JsonSchema[_]], FieldPresenceProperty] {
-  override def toJson: JObject = ("fieldPresence" -> fieldPresence.map {
-    case (key, count) => (key -> BigDecimal(count) / BigDecimal(totalCount))
-  })
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("fieldPresence" -> fieldPresence.map { case (key, count) =>
+      (key -> BigDecimal(count) / BigDecimal(totalCount))
+    })
 
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   override def intersectMerge(
@@ -340,7 +343,8 @@ final case class FieldPresenceProperty(
 final case class RequiredProperty(
     required: Option[Set[String]] = None
 ) extends SchemaProperty[Map[String, JsonSchema[_]], RequiredProperty] {
-  override def toJson: JObject = ("required" -> required)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("required" -> required)
 
   override def unionMerge(
       otherProp: RequiredProperty
@@ -388,7 +392,7 @@ final case class DependenciesProperty(
     cooccurrence: Map[(String, String), BigInt] = Map.empty,
     overloaded: Boolean = false
 ) extends SchemaProperty[Map[String, JsonSchema[_]], DependenciesProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
     val dependencies = dependencyMap
@@ -501,7 +505,8 @@ final case class StaticDependenciesProperty(
   override def mergeable: Boolean = false
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject = ("dependentRequired" -> dependencies)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("dependentRequired" -> dependencies)
 
   override def unionMerge(
       otherProp: StaticDependenciesProperty

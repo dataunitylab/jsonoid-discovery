@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Use ranking to improve possible primary key suggestions
+- Use a configurable threshold for format detection, defaulting to 1
 
 ## Fixed
 - Don't output a format if most string values have no format

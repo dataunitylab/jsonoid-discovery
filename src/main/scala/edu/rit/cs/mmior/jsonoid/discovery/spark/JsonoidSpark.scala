@@ -71,7 +71,7 @@ object JsonoidSpark {
             .asInstanceOf[ObjectSchema]
         }
 
-        println(compact(render(schema.toJsonSchema)))
+        println(compact(render(schema.toJsonSchema()(p))))
       case None =>
     }
   }

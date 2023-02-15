@@ -121,8 +121,9 @@ final case class MinIntValueProperty(
     minIntValue: Option[BigInt] = None,
     exclusive: Boolean = false
 ) extends SchemaProperty[BigInt, MinIntValueProperty] {
-  override def toJson: JObject = ((if (exclusive) { "exclusiveMinimum" }
-                                   else { "minimum" }) -> minIntValue)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ((if (exclusive) { "exclusiveMinimum" }
+      else { "minimum" }) -> minIntValue)
 
   override def intersectMerge(
       otherProp: MinIntValueProperty
@@ -192,8 +193,9 @@ final case class MaxIntValueProperty(
     maxIntValue: Option[BigInt] = None,
     exclusive: Boolean = false
 ) extends SchemaProperty[BigInt, MaxIntValueProperty] {
-  override def toJson: JObject = ((if (exclusive) { "exclusiveMaximum" }
-                                   else { "maximum" }) -> maxIntValue)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ((if (exclusive) { "exclusiveMaximum" }
+      else { "maximum" }) -> maxIntValue)
 
   override def intersectMerge(
       otherProp: MaxIntValueProperty
@@ -262,7 +264,7 @@ final case class MaxIntValueProperty(
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigInt, IntHyperLogLogProperty] {
-  override def toJson: JObject =
+  override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
 
   override def unionMerge(
@@ -289,7 +291,7 @@ final case class IntHyperLogLogProperty(
 final case class IntBloomFilterProperty(
     bloomFilter: BloomFilter[Integer] = BloomFilter[Integer]()
 ) extends SchemaProperty[BigInt, IntBloomFilterProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     ("bloomFilter" -> bloomFilter.toBase64)
   }
 
@@ -332,7 +334,8 @@ final case class IntBloomFilterProperty(
 
 final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigInt, IntStatsProperty] {
-  override def toJson: JObject = ("statistics" -> stats.toJson)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("statistics" -> stats.toJson)
 
   override def unionMerge(
       otherProp: IntStatsProperty
@@ -350,7 +353,7 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
 final case class IntExamplesProperty(
     examples: ExamplesProperty[BigInt] = ExamplesProperty()
 ) extends SchemaProperty[BigInt, IntExamplesProperty] {
-  override def toJson: JObject = ("examples" ->
+  override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
   override def unionMerge(
@@ -369,7 +372,7 @@ final case class IntExamplesProperty(
 final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
     extends SchemaProperty[BigInt, IntMultipleOfProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject = multiple match {
+  override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
     case Some(intVal) if intVal > 1 => ("multipleOf" -> intVal)
     case _                          => Nil
   }
@@ -408,7 +411,7 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
 final case class IntHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[BigInt, IntHistogramProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)
     })

@@ -88,8 +88,9 @@ final case class MinNumValueProperty(
     minNumValue: Option[BigDecimal] = None,
     exclusive: Boolean = false
 ) extends SchemaProperty[BigDecimal, MinNumValueProperty] {
-  override def toJson: JObject = ((if (exclusive) { "exclusiveMinimum" }
-                                   else { "minimum" }) -> minNumValue)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ((if (exclusive) { "exclusiveMinimum" }
+      else { "minimum" }) -> minNumValue)
 
   override def intersectMerge(
       otherProp: MinNumValueProperty
@@ -165,8 +166,9 @@ final case class MaxNumValueProperty(
     maxNumValue: Option[BigDecimal] = None,
     exclusive: Boolean = false
 ) extends SchemaProperty[BigDecimal, MaxNumValueProperty] {
-  override def toJson: JObject = ((if (exclusive) { "exclusiveMaximum" }
-                                   else { "maximum" }) -> maxNumValue)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ((if (exclusive) { "exclusiveMaximum" }
+      else { "maximum" }) -> maxNumValue)
 
   override def intersectMerge(
       otherProp: MaxNumValueProperty
@@ -238,8 +240,9 @@ final case class MaxNumValueProperty(
 final case class NumHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
-  override def toJson: JObject = ("distinctValues" -> hll.count()) ~ ("hll" ->
-    hll.toBase64)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("distinctValues" -> hll.count()) ~ ("hll" ->
+      hll.toBase64)
 
   override def unionMerge(
       otherProp: NumHyperLogLogProperty
@@ -273,7 +276,7 @@ final case class NumHyperLogLogProperty(
 final case class NumBloomFilterProperty(
     bloomFilter: BloomFilter[Double] = BloomFilter[Double]()
 ) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)
     oos.writeObject(bloomFilter)
@@ -334,7 +337,8 @@ final case class NumBloomFilterProperty(
 
 final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigDecimal, NumStatsProperty] {
-  override def toJson: JObject = ("statistics" -> stats.toJson)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("statistics" -> stats.toJson)
 
   override def unionMerge(
       otherProp: NumStatsProperty
@@ -352,7 +356,7 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 final case class NumExamplesProperty(
     examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
 ) extends SchemaProperty[BigDecimal, NumExamplesProperty] {
-  override def toJson: JObject = ("examples" ->
+  override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
   override def unionMerge(
@@ -371,7 +375,7 @@ final case class NumExamplesProperty(
 final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal, NumMultipleOfProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def toJson: JObject = multiple match {
+  override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
     case Some(numVal) if numVal > 1 => ("multipleOf" -> numVal)
     case _                          => Nil
   }
@@ -410,7 +414,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
 final case class NumHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)
     })

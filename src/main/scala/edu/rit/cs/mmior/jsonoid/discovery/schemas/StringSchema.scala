@@ -82,7 +82,8 @@ final case class StringSchema(
 
 final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String, MinLengthProperty] {
-  override def toJson: JObject = ("minLength" -> minLength)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("minLength" -> minLength)
 
   override def intersectMerge(
       otherProp: MinLengthProperty
@@ -125,7 +126,8 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String, MaxLengthProperty] {
-  override def toJson: JObject = ("maxLength" -> maxLength)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("maxLength" -> maxLength)
 
   override def intersectMerge(
       otherProp: MaxLengthProperty
@@ -169,8 +171,9 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 final case class StringHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[String, StringHyperLogLogProperty] {
-  override def toJson: JObject = ("distinctValues" -> hll.count()) ~ ("hll" ->
-    hll.toBase64)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("distinctValues" -> hll.count()) ~ ("hll" ->
+      hll.toBase64)
 
   override def unionMerge(
       otherProp: StringHyperLogLogProperty
@@ -201,9 +204,8 @@ object StringBloomFilterProperty {
 final case class StringBloomFilterProperty(
     bloomFilter: BloomFilter[String] = BloomFilter[String]()
 ) extends SchemaProperty[String, StringBloomFilterProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject =
     ("bloomFilter" -> bloomFilter.toBase64)
-  }
 
   override def unionMerge(
       otherProp: StringBloomFilterProperty
@@ -245,7 +247,7 @@ final case class StringBloomFilterProperty(
 final case class StringExamplesProperty(
     examples: ExamplesProperty[String] = ExamplesProperty()
 ) extends SchemaProperty[String, StringExamplesProperty] {
-  override def toJson: JObject = ("examples" ->
+  override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
   override def unionMerge(
@@ -263,8 +265,6 @@ final case class StringExamplesProperty(
 
 object FormatProperty {
   val MinExamples: Int = 10
-
-  val MinFraction: Double = 0.9
 
   def regex(expr: Regex): Function1[String, Boolean] = { str =>
     expr.anchored.findFirstIn(str.trim).isDefined
@@ -301,14 +301,14 @@ final case class FormatProperty(
       "org.wartremover.warts.TraversableOps"
     )
   )
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     val total = formats.values.sum
     if (total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)
       if (
         BigDecimal(maxFormat._2.toDouble) / BigDecimal(
           total
-        ) >= FormatProperty.MinFraction && maxFormat._1 != "none"
+        ) >= p.formatThreshold && maxFormat._1 != "none"
       ) {
         ("format" -> maxFormat._1)
       } else {
@@ -362,7 +362,9 @@ final case class PatternProperty(
     examples: Int = 0,
     minLength: Option[Int] = None
 ) extends SchemaProperty[String, PatternProperty] {
-  override def toJson: JObject = if (examples >= PatternProperty.MinExamples) {
+  override def toJson()(implicit p: JsonoidParams): JObject = if (
+    examples >= PatternProperty.MinExamples
+  ) {
     (prefix.getOrElse(""), suffix.getOrElse("")) match {
       case (str1, str2)
           if str1.length > 0 && str2.length > 0 &&
@@ -449,7 +451,8 @@ final case class StaticPatternProperty(regex: Regex)
     extends SchemaProperty[String, StaticPatternProperty] {
   override def mergeable: Boolean = false
 
-  override def toJson: JObject = ("pattern" -> regex.toString)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("pattern" -> regex.toString)
 
   override def unionMerge(
       otherProp: StaticPatternProperty
@@ -485,7 +488,7 @@ final case class StaticPatternProperty(regex: Regex)
 final case class StringLengthHistogramProperty(
     histogram: Histogram = Histogram()
 ) extends SchemaProperty[String, StringLengthHistogramProperty] {
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
       List(value.doubleValue, count.longValue)
     })

@@ -9,7 +9,7 @@ final case class AnySchema(
 ) extends JsonSchema[Nothing] {
   override val schemaType = "any"
 
-  override def toJson: JObject = Nil
+  override def toJson()(implicit p: JsonoidParams): JObject = Nil
 
   // XXX Actually all types are valid, but we still have to specify this set
   override val validTypes: Set[Class[_]] = Set.empty

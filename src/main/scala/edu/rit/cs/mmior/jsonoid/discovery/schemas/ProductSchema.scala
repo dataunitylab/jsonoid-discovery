@@ -190,7 +190,8 @@ final case class ProductSchemaTypesProperty(
     val productType: ProductType = OneOf
 )(implicit p: JsonoidParams)
     extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
-  override def toJson: JObject = (productType.toJson -> schemas.map(_.toJson))
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    (productType.toJson -> schemas.map(_.toJson()(p)))
 
   override def transform(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]

@@ -62,7 +62,7 @@ final case class ReferenceSchema(
 
 final case class ReferencePathProperty(path: String)
     extends SchemaProperty[String, ReferencePathProperty] {
-  override def toJson: JObject = ("$ref" -> path)
+  override def toJson()(implicit p: JsonoidParams): JObject = ("$ref" -> path)
 
   override def unionMerge(
       otherProp: ReferencePathProperty
@@ -79,7 +79,7 @@ final case class ReferencePathProperty(path: String)
 
 final case class ReferenceObjectProperty(schema: JsonSchema[_])
     extends SchemaProperty[String, ReferenceObjectProperty] {
-  override def toJson: JObject = Nil
+  override def toJson()(implicit p: JsonoidParams): JObject = Nil
 
   override def toString: String = "ReferenceObjectProperty(…)"
 

@@ -70,7 +70,9 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
       "org.wartremover.warts.TraversableOps"
     )
   )
-  override def toJson: JObject = if (values.size == 1) {
+  override def toJson()(implicit p: JsonoidParams): JObject = if (
+    values.size == 1
+  ) {
     ("const" -> values.head)
   } else {
     val sortedValues = if (values.head.isInstanceOf[JString]) {

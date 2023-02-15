@@ -57,8 +57,16 @@ class StringSchemaSpec extends UnitSpec {
     it should s"detect the ${format} format" in {
       var props = StringSchema().properties
       for (_ <- 1 to 10) { props = props.mergeValue(value) }
+      props = props.mergeValue("foofoofoofoofoofoo")
       val formatProp = props.get[FormatProperty]
-      (formatProp.toJson \ "format").extract[String] shouldBe format
+
+      // With a reasonable threshold, detect the format
+      (formatProp.toJson()(
+        JsonoidParams().withFormatThreshold(0.9f)
+      ) \ "format").extract[String] shouldBe format
+
+      // With default threshold, no format
+      (formatProp.toJson \ "format") shouldBe JNothing
     }
   }
 

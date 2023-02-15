@@ -38,7 +38,7 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def transform(transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]): S =
     this.asInstanceOf[S]
 
-  def toJson: JObject
+  def toJson()(implicit p: JsonoidParams): JObject
 
   def isAnomalous[S <: JValue](value: S, path: String = "$")(implicit
       tag: ClassTag[S]

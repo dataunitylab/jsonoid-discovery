@@ -159,11 +159,11 @@ final case class ArraySchema(
 final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
 ) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
-  override def toJson: JObject = itemType match {
-    case Left(schema) => ("items" -> schema.toJson)
+  override def toJson()(implicit p: JsonoidParams): JObject = itemType match {
+    case Left(schema) => ("items" -> schema.toJson()(p))
     case Right(schemas) =>
       if (schemas.nonEmpty) {
-        ("items" -> JArray(schemas.map(_.toJson)))
+        ("items" -> JArray(schemas.map(_.toJson()(p))))
       } else {
         Nil
       }
@@ -263,7 +263,8 @@ final case class ItemTypeProperty(
 
 final case class MinItemsProperty(minItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]], MinItemsProperty] {
-  override def toJson: JObject = ("minItems" -> minItems)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("minItems" -> minItems)
 
   override def intersectMerge(
       otherProp: MinItemsProperty
@@ -316,7 +317,8 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
 
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]], MaxItemsProperty] {
-  override def toJson: JObject = ("maxItems" -> maxItems)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("maxItems" -> maxItems)
 
   override def intersectMerge(
       otherProp: MaxItemsProperty
@@ -369,7 +371,9 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
 final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     extends SchemaProperty[List[JsonSchema[_]], UniqueProperty] {
-  override def toJson: JObject = if (unique && !unary) {
+  override def toJson()(implicit p: JsonoidParams): JObject = if (
+    unique && !unary
+  ) {
     ("uniqueItems" -> true)
   } else {
     // Since we only check uniqueness for primitive types, we may
@@ -438,7 +442,7 @@ final case class ArrayLengthHistogramProperty(
     histogram: DDSketch = DDSketches.unboundedDense(0.01)
 ) extends SchemaProperty[List[JsonSchema[_]], ArrayLengthHistogramProperty] {
   @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
-  override def toJson: JObject = {
+  override def toJson()(implicit p: JsonoidParams): JObject = {
     val indexMapping = histogram.getIndexMapping
     val bins = ListBuffer.empty[(Double, Int)]
 

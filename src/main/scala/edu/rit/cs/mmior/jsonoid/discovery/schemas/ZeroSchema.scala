@@ -9,7 +9,7 @@ final case class ZeroSchema(
 ) extends JsonSchema[Nothing] {
   override val schemaType = "zero"
 
-  override def toJson: JObject = ("not" -> Nil)
+  override def toJson()(implicit p: JsonoidParams): JObject = ("not" -> Nil)
 
   override val validTypes: Set[Class[_]] = Set.empty
 
