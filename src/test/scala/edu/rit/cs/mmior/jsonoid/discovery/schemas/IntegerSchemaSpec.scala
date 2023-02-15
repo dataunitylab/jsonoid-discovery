@@ -105,7 +105,7 @@ class IntegerSchemaSpec extends UnitSpec {
   it should "have no properties in the minimal property set" in {
     IntegerSchema(0)(
       PropertySets.MinProperties,
-      JsonoidParams.defaultJsonoidParams
+      JsonoidParams()
     ).properties shouldBe empty
   }
 

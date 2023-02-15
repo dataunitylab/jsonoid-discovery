@@ -185,7 +185,7 @@ object DiscoverSchema {
         }
 
         val jsons = jsonFromSource(source)
-        var p = JsonoidParams.defaultJsonoidParams
+        var p = JsonoidParams()
           .withER(config.equivalenceRelation)
           .withAdditionalProperties(config.additionalProperties)
         if (config.maxExamples.isDefined) {

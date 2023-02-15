@@ -138,7 +138,7 @@ class StringSchemaSpec extends UnitSpec {
   it should "have no properties in the minimal property set" in {
     StringSchema("foo")(
       PropertySets.MinProperties,
-      JsonoidParams.defaultJsonoidParams
+      JsonoidParams()
     ).properties shouldBe empty
   }
 

@@ -156,7 +156,7 @@ class NumberSchemaSpec extends UnitSpec {
   it should "have no properties in the minimal property set" in {
     NumberSchema(0.0)(
       PropertySets.MinProperties,
-      JsonoidParams.defaultJsonoidParams
+      JsonoidParams()
     ).properties shouldBe empty
   }
 

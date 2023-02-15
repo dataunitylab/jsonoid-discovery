@@ -1,9 +1,9 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
 final case class JsonoidParams(
-    val additionalProperties: Boolean,
-    val er: EquivalenceRelation,
-    val maxExamples: Int
+    val additionalProperties: Boolean = false,
+    val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation,
+    val maxExamples: Int = 100
 ) {
   def withAdditionalProperties(
       newAdditionalProperties: Boolean
@@ -21,9 +21,5 @@ final case class JsonoidParams(
 }
 
 object JsonoidParams {
-  implicit val defaultJsonoidParams: JsonoidParams = JsonoidParams(
-    false,
-    EquivalenceRelations.KindEquivalenceRelation,
-    100
-  )
+  implicit val defaultJsonoidParams: JsonoidParams = JsonoidParams()
 }

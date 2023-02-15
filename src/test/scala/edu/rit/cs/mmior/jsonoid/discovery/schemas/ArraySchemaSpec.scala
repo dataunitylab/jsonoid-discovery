@@ -116,7 +116,7 @@ class ArraySchemaSpec extends UnitSpec {
     val arrayProperties =
       ArraySchema(List(BooleanSchema()))(
         PropertySets.MinProperties,
-        JsonoidParams.defaultJsonoidParams
+        JsonoidParams()
       ).properties
 
     cp { arrayProperties should have size 1 }

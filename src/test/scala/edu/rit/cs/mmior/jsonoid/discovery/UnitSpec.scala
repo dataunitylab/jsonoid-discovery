@@ -23,7 +23,7 @@ abstract class UnitSpec
 }
 
 object UnitSpec {
-  implicit val p: JsonoidParams = JsonoidParams.defaultJsonoidParams
+  implicit val p: JsonoidParams = JsonoidParams()
 
   implicit def containingNatureOfSchemaProperties[SchemaProperties[
       _

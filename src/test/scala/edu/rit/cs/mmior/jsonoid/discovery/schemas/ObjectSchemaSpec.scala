@@ -90,7 +90,7 @@ class ObjectSchemaSpec extends UnitSpec {
 
     val objectProperties = ObjectSchema(Map("foo" -> BooleanSchema()))(
       PropertySets.MinProperties,
-      JsonoidParams.defaultJsonoidParams
+      JsonoidParams()
     ).properties
 
     cp { objectProperties should have size 1 }
@@ -157,7 +157,7 @@ class ObjectSchemaSpec extends UnitSpec {
 
   it should "allow additional properties if requested" in {
     val params =
-      JsonoidParams.defaultJsonoidParams.withAdditionalProperties(true)
+      JsonoidParams().withAdditionalProperties(true)
     val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))(
       PropertySets.MinProperties,
       params
