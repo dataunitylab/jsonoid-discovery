@@ -83,6 +83,7 @@ lazy val root = (project in file("."))
         jsonSchemaValidator,
         scopt,
         scalaCsv,
+        validator,
 
         spark % "provided",
         sparkSql % "provided",

@@ -10,6 +10,7 @@ import scala.util.matching.Regex
 import scala.util.Try
 
 import scalaz._
+import org.apache.commons.validator.routines.EmailValidator
 import org.json4s.JsonDSL._
 import org.json4s._
 import Scalaz._
@@ -279,7 +280,10 @@ object FormatProperty {
       str => Try { new URI(str).getScheme().length > 0 }.getOrElse(false)
     ),
     ("uuid", str => Try { UUID.fromString(str) }.isSuccess),
-    ("email", regex("(?=[^\\s]+)(?=(\\w+)@([\\w\\.]+))".r)),
+    (
+      "email",
+      str => Try { EmailValidator.getInstance().isValid(str) }.getOrElse(false)
+    ),
     (
       "ipv4",
       regex(
