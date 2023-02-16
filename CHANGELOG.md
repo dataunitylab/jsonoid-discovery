@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Fixed
 - Don't output a format if most string values have no format
+- Correctly check UUID format
 
 ## [0.11.0]
 ### Added

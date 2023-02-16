@@ -274,7 +274,10 @@ object FormatProperty {
     ("date", str => Try { LocalDate.parse(str) }.isSuccess),
     ("date-time", str => Try { OffsetDateTime.parse(str) }.isSuccess),
     ("time", str => Try { OffsetTime.parse(str) }.isSuccess),
-    ("uri", str => Try { new URI(str).getScheme().length > 0 }.isSuccess),
+    (
+      "uri",
+      str => Try { new URI(str).getScheme().length > 0 }.getOrElse(false)
+    ),
     ("uuid", str => Try { UUID.fromString(str) }.isSuccess),
     ("email", regex("(?=[^\\s]+)(?=(\\w+)@([\\w\\.]+))".r)),
     (
