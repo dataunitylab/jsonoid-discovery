@@ -188,13 +188,17 @@ final case class ItemTypeProperty(
   }
 
   override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): ItemTypeProperty = {
     ItemTypeProperty(itemType match {
       case Left(singleType) =>
-        Left(singleType.transformProperties(transformer, true))
+        Left(singleType.transformPropertiesWithPath(transformer, true, "[*]"))
       case Right(typeList) =>
-        Right(typeList.map(_.transformProperties(transformer, true)))
+        Right(typeList.zipWithIndex.map {
+          case (schema, index) =>
+            schema.transformPropertiesWithPath(transformer, true, s"${path}[${index}]")
+        })
     })
   }
 

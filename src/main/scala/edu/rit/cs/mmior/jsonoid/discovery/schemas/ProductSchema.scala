@@ -231,11 +231,15 @@ final case class ProductSchemaTypesProperty(
     (productType.toJson -> schemas.map(_.toJson()(p)))
 
   override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(
-      baseSchema.transformProperties(transformer, true),
-      schemaTypes.map(_.transformProperties(transformer, true)),
+      baseSchema.transformPropertiesWithPath(transformer, true, path),
+      schemaTypes.zipWithIndex.map {
+        case (schema, index) =>
+          schema.transformPropertiesWithPath(transformer, true, s"${path}[$index]")
+      },
       schemaCounts,
       productType
     )

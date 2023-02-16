@@ -530,15 +530,30 @@ trait JsonSchema[T] {
     copy(properties.copyWithReset)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def transformProperties(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
-      transformBase: Boolean = false
+    transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
+    transformBase: Boolean = false
   ): JsonSchema[_] = {
-    if (transformer.isDefinedAt(this) && transformBase) {
-      transformer(this).transformProperties(transformer, false)
+    val newTransformer = new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
+      def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
+      def typedApply[S](s: JsonSchema[S]): JsonSchema[S] =
+        transformer(s).asInstanceOf[JsonSchema[S]]
+      def isDefinedAt(x: (String, JsonSchema[_])) = transformer.isDefinedAt(x._2)
+    }
+
+    transformPropertiesWithPath(newTransformer, transformBase)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  def transformPropertiesWithPath(
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      transformBase: Boolean = false,
+      path: String = "$"
+  ): JsonSchema[_] = {
+    if (transformer.isDefinedAt((path, this)) && transformBase) {
+      transformer((path, this)).transformPropertiesWithPath(transformer, false, path)
     } else {
-      copy(properties.transform(transformer))
+      copy(properties.transform(transformer, path))
     }
   }
 
@@ -576,16 +591,16 @@ trait JsonSchema[T] {
   }
 
   def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
-    val copyProps = new PartialFunction[JsonSchema[_], JsonSchema[_]] {
-      def apply(s: JsonSchema[_]) = typedApply(s)
+    val copyProps = new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
+      def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
       def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
         val newProps =
           s.properties.only(props).asInstanceOf[SchemaProperties[S]]
         s.copy(newProps)
       }
-      def isDefinedAt(s: JsonSchema[_]) = true
+      def isDefinedAt(x: (String, JsonSchema[_])) = true
     }
-    transformProperties(copyProps, true).asInstanceOf[JsonSchema[T]]
+    transformPropertiesWithPath(copyProps, true).asInstanceOf[JsonSchema[T]]
   }
 
   def onlyPropertiesNamed(props: Seq[String]): JsonSchema[T] = {

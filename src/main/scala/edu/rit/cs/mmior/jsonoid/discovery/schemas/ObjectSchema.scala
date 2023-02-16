@@ -142,11 +142,14 @@ final case class ObjectTypesProperty(
     })
 
   override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): ObjectTypesProperty = {
     ObjectTypesProperty(
       objectTypes
-        .mapValues(_.transformProperties(transformer, true))
+        .map { case (key, schema) =>
+          key -> schema.transformPropertiesWithPath(transformer, true, s"${path}.${key}")
+        }
         .map(identity)
         .toMap
     )
@@ -265,11 +268,14 @@ final case class PatternTypesProperty(
     })
 
   override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): PatternTypesProperty = {
     PatternTypesProperty(
       patternTypes
-        .mapValues(_.transformProperties(transformer, true))
+        .map { case (regex, schema) =>
+          regex -> schema.transformPropertiesWithPath(transformer, false, path + "." + regex.toString)
+        }
         .map(identity)
         .toMap
     )

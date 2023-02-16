@@ -92,13 +92,14 @@ final case class SchemaProperties[T](
   }
 
   def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): SchemaProperties[T] = {
     SchemaProperties(
       properties
         .mapValues(_.transform(transformer.orElse { case x =>
-          x.transformProperties(transformer)
-        }))
+          x._2.transformPropertiesWithPath(transformer, false, path)
+        }, path))
         .asInstanceOf[PropertyMap[T]]
     )
   }
