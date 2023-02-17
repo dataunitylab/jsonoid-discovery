@@ -178,6 +178,22 @@ class ProductSchemaSpec extends UnitSpec {
       .map(_.schemaType) should contain("string")
   }
 
+  it should "can expand to cover object types" in {
+    productSchema1
+      .expandTo(ObjectSchema(Map("foo" -> BooleanSchema())))
+      .asInstanceOf[ProductSchema]
+      .properties
+      .get[ProductSchemaTypesProperty]
+      .schemaTypes
+      .find(_.isInstanceOf[ObjectSchema])
+      .get
+      .asInstanceOf[ObjectSchema]
+      .properties
+      .get[ObjectTypesProperty]
+      .objectTypes
+      .keySet should contain("foo")
+  }
+
   it should "expand an existing type to be compatbile" in {
     // We need to rebuild some types using Simple properties
     // to ensure that there is something that will be in conflict

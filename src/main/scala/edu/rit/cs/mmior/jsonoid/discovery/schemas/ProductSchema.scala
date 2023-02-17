@@ -236,9 +236,9 @@ final case class ProductSchemaTypesProperty(
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(
       baseSchema.transformPropertiesWithPath(transformer, true, path),
-      schemaTypes.zipWithIndex.map {
-        case (schema, index) =>
-          schema.transformPropertiesWithPath(transformer, true, s"${path}[$index]")
+      schemaTypes.zipWithIndex.map { case (schema, index) =>
+        schema
+          .transformPropertiesWithPath(transformer, true, s"${path}[$index]")
       },
       schemaCounts,
       productType
@@ -382,7 +382,7 @@ final case class ProductSchemaTypesProperty(
         val matchingTypes = types.getOrElse(s.schemaType, List())
         if (matchingTypes.isEmpty && !hasAny) {
           // We have no matching type, so add a new one
-          newTypes += s.copyWithReset
+          newTypes += s.copyWithReset.expandTo(s)
         } else {
           // Of the matching types, find the closest
           val (closestType, index) = matchingTypes.minBy(

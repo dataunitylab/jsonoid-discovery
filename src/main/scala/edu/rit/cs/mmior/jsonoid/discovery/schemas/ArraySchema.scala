@@ -195,9 +195,12 @@ final case class ItemTypeProperty(
       case Left(singleType) =>
         Left(singleType.transformPropertiesWithPath(transformer, true, "[*]"))
       case Right(typeList) =>
-        Right(typeList.zipWithIndex.map {
-          case (schema, index) =>
-            schema.transformPropertiesWithPath(transformer, true, s"${path}[${index}]")
+        Right(typeList.zipWithIndex.map { case (schema, index) =>
+          schema.transformPropertiesWithPath(
+            transformer,
+            true,
+            s"${path}[${index}]"
+          )
         })
     })
   }

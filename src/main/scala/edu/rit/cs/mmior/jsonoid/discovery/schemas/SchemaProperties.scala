@@ -97,9 +97,14 @@ final case class SchemaProperties[T](
   ): SchemaProperties[T] = {
     SchemaProperties(
       properties
-        .mapValues(_.transform(transformer.orElse { case x =>
-          x._2.transformPropertiesWithPath(transformer, false, path)
-        }, path))
+        .mapValues(
+          _.transform(
+            transformer.orElse { case x =>
+              x._2.transformPropertiesWithPath(transformer, false, path)
+            },
+            path
+          )
+        )
         .asInstanceOf[PropertyMap[T]]
     )
   }

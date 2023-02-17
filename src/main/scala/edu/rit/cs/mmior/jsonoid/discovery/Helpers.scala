@@ -6,6 +6,10 @@ import scalaz._
 import Scalaz._
 
 object Helpers {
+  def pathToPointer(path: String): String = {
+    path.substring(1).replace(".", "/")
+  }
+
   val MaxExpandRounds: Int = 10
 
   def maybeExpandInt(

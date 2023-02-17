@@ -448,7 +448,7 @@ trait JsonSchema[T] {
     typedPropertyJson.merge(definitionJson)
   }
 
-  def toJsonSchema()(p: JsonoidParams): JObject = {
+  def toJsonSchema()(implicit p: JsonoidParams): JObject = {
     val schemaObj: JObject =
       ("$schema" -> "https://json-schema.org/draft/2019-09/schema") ~
         ("description" ->
@@ -531,15 +531,17 @@ trait JsonSchema[T] {
   }
 
   def transformProperties(
-    transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
-    transformBase: Boolean = false
+      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
+      transformBase: Boolean = false
   ): JsonSchema[_] = {
-    val newTransformer = new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
-      def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
-      def typedApply[S](s: JsonSchema[S]): JsonSchema[S] =
-        transformer(s).asInstanceOf[JsonSchema[S]]
-      def isDefinedAt(x: (String, JsonSchema[_])) = transformer.isDefinedAt(x._2)
-    }
+    val newTransformer =
+      new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
+        def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
+        def typedApply[S](s: JsonSchema[S]): JsonSchema[S] =
+          transformer(s).asInstanceOf[JsonSchema[S]]
+        def isDefinedAt(x: (String, JsonSchema[_])) =
+          transformer.isDefinedAt(x._2)
+      }
 
     transformPropertiesWithPath(newTransformer, transformBase)
   }
@@ -551,13 +553,21 @@ trait JsonSchema[T] {
       path: String = "$"
   ): JsonSchema[_] = {
     if (transformer.isDefinedAt((path, this)) && transformBase) {
-      transformer((path, this)).transformPropertiesWithPath(transformer, false, path)
+      transformer((path, this))
+        .transformPropertiesWithPath(transformer, false, path)
     } else {
       copy(properties.transform(transformer, path))
     }
   }
 
-  def findByPointer(pointer: String): Option[JsonSchema[_]] = None
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def findByPointer(pointer: String): Option[JsonSchema[_]] = if (
+    pointer == ""
+  ) {
+    Some(this)
+  } else {
+    None
+  }
 
   def replaceWithSchema(
       pointer: String,
@@ -591,15 +601,16 @@ trait JsonSchema[T] {
   }
 
   def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
-    val copyProps = new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
-      def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
-      def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
-        val newProps =
-          s.properties.only(props).asInstanceOf[SchemaProperties[S]]
-        s.copy(newProps)
+    val copyProps =
+      new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
+        def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
+        def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
+          val newProps =
+            s.properties.only(props).asInstanceOf[SchemaProperties[S]]
+          s.copy(newProps)
+        }
+        def isDefinedAt(x: (String, JsonSchema[_])) = true
       }
-      def isDefinedAt(x: (String, JsonSchema[_])) = true
-    }
     transformPropertiesWithPath(copyProps, true).asInstanceOf[JsonSchema[T]]
   }
 

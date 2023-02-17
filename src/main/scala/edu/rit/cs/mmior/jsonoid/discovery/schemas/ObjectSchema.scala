@@ -148,7 +148,8 @@ final case class ObjectTypesProperty(
     ObjectTypesProperty(
       objectTypes
         .map { case (key, schema) =>
-          key -> schema.transformPropertiesWithPath(transformer, true, s"${path}.${key}")
+          key -> schema
+            .transformPropertiesWithPath(transformer, true, s"${path}.${key}")
         }
         .map(identity)
         .toMap
@@ -274,7 +275,11 @@ final case class PatternTypesProperty(
     PatternTypesProperty(
       patternTypes
         .map { case (regex, schema) =>
-          regex -> schema.transformPropertiesWithPath(transformer, false, path + "." + regex.toString)
+          regex -> schema.transformPropertiesWithPath(
+            transformer,
+            false,
+            path + "." + regex.toString
+          )
         }
         .map(identity)
         .toMap

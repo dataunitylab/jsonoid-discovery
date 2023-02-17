@@ -41,7 +41,10 @@ trait SchemaProperty[T] {
   // * PatternTypesProperty in ObjectSchema
   // * ItemTypeProperty in ArraySchema
   // * ProductSchemaTypesProperty in ProductSchema
-  def transform(transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]], path: String): S = this.asInstanceOf[S]
+  def transform(
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
+  ): S = this.asInstanceOf[S]
 
   def toJson()(implicit p: JsonoidParams): JObject
 

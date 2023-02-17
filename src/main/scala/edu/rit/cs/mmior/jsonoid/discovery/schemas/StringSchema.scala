@@ -366,7 +366,7 @@ final case class FormatProperty(
       useLimit: Boolean = true
   )(implicit p: JsonoidParams) = {
     val total = formats.values.sum
-    if (!useLimit || total >= FormatProperty.MinExamples) {
+    if ((total > 0 && !useLimit) || total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)
       if (
         BigDecimal(maxFormat._2.toDouble) / BigDecimal(

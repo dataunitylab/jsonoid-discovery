@@ -5,6 +5,7 @@ import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import scala.io.Source
+import scala.language.existentials
 
 import scopt.OptionParser
 import org.json4s._
@@ -104,6 +105,7 @@ object DiscoverSchema {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def transformSchema(
       schema: JsonSchema[_],
+      otherSchema: Option[JsonSchema[_]] = None,
       addDefinitions: Boolean = false
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     var transformedSchema = schema
@@ -112,7 +114,7 @@ object DiscoverSchema {
         .transformSchema(transformedSchema)(p)
     }
     transformedSchema = EnumTransformer
-      .transformSchema(transformedSchema)(p)
+      .transformSchema(transformedSchema, otherSchema)(p)
 
     transformedSchema
   }
@@ -227,27 +229,27 @@ object DiscoverSchema {
           p = p.withFormatThreshold(config.formatThreshold.get)
         }
 
-        val schema = config.splitPercentage match {
-          case Some(pct) =>
-            val schemas = splitDiscover(jsons, propSet, pct)(p)
-            val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
-            val testSchema = schemas._2.asInstanceOf[ObjectSchema]
-            val finalSchema = trainSchema.expandTo(testSchema)
-            if (!finalSchema.isCompatibleWith(testSchema)) {
-              val incompats = IncompatibilityCollector.findIncompatibilities(
-                finalSchema,
-                testSchema
-              )
-              incompats.foreach(System.err.println(_))
+        val (schema: ObjectSchema, testSchema: Option[ObjectSchema]) =
+          config.splitPercentage match {
+            case Some(pct) =>
+              val schemas = splitDiscover(jsons, propSet, pct)(p)
+              val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
+              val testSchema = schemas._2.asInstanceOf[ObjectSchema]
+              val finalSchema = trainSchema.expandTo(testSchema)
+              if (!finalSchema.isCompatibleWith(testSchema)) {
+                val incompats = IncompatibilityCollector.findIncompatibilities(
+                  finalSchema,
+                  testSchema
+                )
+                incompats.foreach(System.err.println(_))
+                throw new IllegalStateException(
+                  "Split discovery failed to find a compatible schema"
+                )
+              }
 
-              throw new IllegalStateException(
-                "Split discovery failed to find a compatible schema"
-              )
-            }
-
-            finalSchema
-          case None => discover(jsons, propSet)(p)
-        }
+              (finalSchema, Some(testSchema))
+            case None => (discover(jsons, propSet)(p), None)
+          }
 
         // Check if transformations are valid
         if (
@@ -259,7 +261,7 @@ object DiscoverSchema {
         }
 
         var transformedSchema: JsonSchema[_] =
-          transformSchema(schema, config.addDefinitions)(p)
+          transformSchema(schema, testSchema, config.addDefinitions)(p)
 
         if (config.writeValues.isDefined) {
           val outputStream = new FileOutputStream(config.writeValues.get)
@@ -276,39 +278,7 @@ object DiscoverSchema {
               file.toPath(),
               schemaStr.getBytes(StandardCharsets.UTF_8)
             )
-          case None => {
-            val schema = discover(jsons, propSet)(p)
-
-            // Check if transformations are valid
-            if (
-              config.addDefinitions && config.propertySet =/= PropertySets.AllProperties
-            ) {
-              throw new IllegalArgumentException(
-                "All properties required to compute definitions"
-              )
-            }
-
-            var transformedSchema: JsonSchema[_] =
-              transformSchema(schema, config.addDefinitions)(p)
-
-            if (config.writeValues.isDefined) {
-              val outputStream = new FileOutputStream(config.writeValues.get)
-              ValueTableGenerator.writeValueTable(
-                transformedSchema,
-                outputStream
-              )
-            }
-
-            val schemaStr = pretty(render(transformedSchema.toJsonSchema()(p)))
-            config.writeOutput match {
-              case Some(file) =>
-                Files.write(
-                  file.toPath(),
-                  schemaStr.getBytes(StandardCharsets.UTF_8)
-                )
-              case None => println(schemaStr)
-            }
-          }
+          case None => println(schemaStr)
         }
       case None =>
     }
