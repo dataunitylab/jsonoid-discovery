@@ -128,6 +128,14 @@ final case class ProductSchema(
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+    val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
+    schemas.foldLeft(Seq.empty[JsonSchema[_]])(
+      _ ++ _.findByInexactPointer(pointer)
+    )
+  }
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
@@ -235,10 +243,10 @@ final case class ProductSchemaTypesProperty(
       path: String
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(
-      baseSchema.transformPropertiesWithPath(transformer, true, path),
+      baseSchema.transformPropertiesWithInexactPath(transformer, true, path),
       schemaTypes.zipWithIndex.map { case (schema, index) =>
         schema
-          .transformPropertiesWithPath(transformer, true, s"${path}[$index]")
+          .transformPropertiesWithInexactPath(transformer, true, path)
       },
       schemaCounts,
       productType

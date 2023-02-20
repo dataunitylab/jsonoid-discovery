@@ -100,7 +100,7 @@ final case class SchemaProperties[T](
         .mapValues(
           _.transform(
             transformer.orElse { case x =>
-              x._2.transformPropertiesWithPath(transformer, false, path)
+              x._2.transformPropertiesWithInexactPath(transformer, false, x._1)
             },
             path
           )

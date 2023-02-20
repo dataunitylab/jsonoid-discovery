@@ -118,6 +118,19 @@ final case class ArraySchema(
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+    properties.get[ItemTypeProperty].itemType match {
+      // We can only follow pointers for tuple schemas, not real array schemas
+      case Left(schema) =>
+        schema.findByInexactPointer(pointer)
+      case Right(schemas) =>
+        schemas.foldLeft(Seq.empty[JsonSchema[_]]) {
+          _ ++ _.findByInexactPointer(pointer)
+        }
+    }
+  }
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
@@ -193,13 +206,15 @@ final case class ItemTypeProperty(
   ): ItemTypeProperty = {
     ItemTypeProperty(itemType match {
       case Left(singleType) =>
-        Left(singleType.transformPropertiesWithPath(transformer, true, "[*]"))
+        Left(
+          singleType.transformPropertiesWithInexactPath(transformer, true, path)
+        )
       case Right(typeList) =>
         Right(typeList.zipWithIndex.map { case (schema, index) =>
-          schema.transformPropertiesWithPath(
+          schema.transformPropertiesWithInexactPath(
             transformer,
             true,
-            s"${path}[${index}]"
+            path
           )
         })
     })

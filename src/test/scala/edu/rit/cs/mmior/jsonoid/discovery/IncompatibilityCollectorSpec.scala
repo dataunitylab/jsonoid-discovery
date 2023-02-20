@@ -79,7 +79,7 @@ class IncompatibilityCollectorSpec extends UnitSpec {
       tupleSchema1,
       tupleSchema2
     ) should contain theSameElementsAs List(
-      Incompatibility("$[1]", ClassTag(classOf[ItemTypeProperty]))
+      Incompatibility("$", ClassTag(classOf[ItemTypeProperty]))
     )
   }
 

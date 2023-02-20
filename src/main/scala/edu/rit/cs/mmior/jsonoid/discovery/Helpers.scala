@@ -6,8 +6,9 @@ import scalaz._
 import Scalaz._
 
 object Helpers {
-  def pathToPointer(path: String): String = {
-    path.substring(1).replace(".", "/")
+  def pathToInexactPointer(path: String): String = {
+    // Change dots to slashses and remove any array accesses
+    path.substring(1).replace(".", "/").replaceAll("\\[[^]+]\\]", "")
   }
 
   val MaxExpandRounds: Int = 10

@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Don't output a format if most string values have no format
 - Correctly check UUID format
 - Correctly check email format
+- Fix generation of enums in split discovery
 
 ## [0.11.0]
 ### Added

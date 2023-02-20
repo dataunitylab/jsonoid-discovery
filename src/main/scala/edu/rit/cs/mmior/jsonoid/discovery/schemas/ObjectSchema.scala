@@ -90,6 +90,21 @@ final case class ObjectSchema(
     }
   }
 
+  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+    val objectTypes = properties.get[ObjectTypesProperty].objectTypes
+    pointer.split("/", 3) match {
+      case Array(_)        => Seq()
+      case Array(_, "")    => Seq(this)
+      case Array(_, first) => objectTypes.get(first).toList
+      case Array(_, first, rest) =>
+        objectTypes.get(first) match {
+          case Some(schema: JsonSchema[_]) =>
+            schema.findByInexactPointer("/" + rest)
+          case _ => Seq()
+        }
+    }
+  }
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
@@ -149,7 +164,11 @@ final case class ObjectTypesProperty(
       objectTypes
         .map { case (key, schema) =>
           key -> schema
-            .transformPropertiesWithPath(transformer, true, s"${path}.${key}")
+            .transformPropertiesWithInexactPath(
+              transformer,
+              true,
+              s"${path}.${key}"
+            )
         }
         .map(identity)
         .toMap
@@ -275,7 +294,7 @@ final case class PatternTypesProperty(
     PatternTypesProperty(
       patternTypes
         .map { case (regex, schema) =>
-          regex -> schema.transformPropertiesWithPath(
+          regex -> schema.transformPropertiesWithInexactPath(
             transformer,
             false,
             path + "." + regex.toString

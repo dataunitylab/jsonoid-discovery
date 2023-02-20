@@ -94,7 +94,7 @@ object IncompatibilityCollector {
         } else {
           types.zipWithIndex
             .map { case (schema, index) =>
-              findIncompatibilitiesAtPath(schema, other, s"$path[$index]")
+              findIncompatibilitiesAtPath(schema, other, path)
             }
             .minBy(_.length)
         }
@@ -118,7 +118,7 @@ object IncompatibilityCollector {
             ) ++ arrayIncompats ++ findIncompatibilitiesAtPath(
               s1,
               s2,
-              s"$path[*]"
+              path
             )
 
           case (Left(schema), Right(schemas)) =>
@@ -127,7 +127,7 @@ object IncompatibilityCollector {
             arrayIncompats ++ findIncompatibilitiesAtPath(
               schema,
               oneSchema,
-              s"$path[*]"
+              path
             )
 
           case (Right(schemas1), Right(schemas2))
@@ -135,15 +135,14 @@ object IncompatibilityCollector {
             // Compare items in tuple schemas pairwise
             arrayIncompats ++ schemas1.zip(schemas2).zipWithIndex.flatMap {
               case ((s1, s2), index) =>
-                val arrayPath = s"$path[$index]"
                 typeIncompat(
-                  arrayPath,
+                  path,
                   s1,
                   s2,
                   ClassTag(classOf[ItemTypeProperty])
                 ) ++ s1.properties
                   .findIncompatibilities(s2.properties)
-                  .map(Incompatibility(arrayPath, _))
+                  .map(Incompatibility(path, _))
             }
 
           // We can't provide more detail on incompatibility here

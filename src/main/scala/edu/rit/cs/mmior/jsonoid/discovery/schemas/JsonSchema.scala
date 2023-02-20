@@ -543,18 +543,18 @@ trait JsonSchema[T] {
           transformer.isDefinedAt(x._2)
       }
 
-    transformPropertiesWithPath(newTransformer, transformBase)
+    transformPropertiesWithInexactPath(newTransformer, transformBase)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  def transformPropertiesWithPath(
+  def transformPropertiesWithInexactPath(
       transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
       transformBase: Boolean = false,
       path: String = "$"
   ): JsonSchema[_] = {
     if (transformer.isDefinedAt((path, this)) && transformBase) {
       transformer((path, this))
-        .transformPropertiesWithPath(transformer, false, path)
+        .transformPropertiesWithInexactPath(transformer, false, path)
     } else {
       copy(properties.transform(transformer, path))
     }
@@ -567,6 +567,15 @@ trait JsonSchema[T] {
     Some(this)
   } else {
     None
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = if (
+    pointer == ""
+  ) {
+    Seq(this)
+  } else {
+    Seq.empty
   }
 
   def replaceWithSchema(
@@ -602,16 +611,16 @@ trait JsonSchema[T] {
 
   def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
     val copyProps =
-      new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
-        def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
+      new PartialFunction[JsonSchema[_], JsonSchema[_]] {
+        def apply(x: JsonSchema[_]) = typedApply(x)
         def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
           val newProps =
             s.properties.only(props).asInstanceOf[SchemaProperties[S]]
           s.copy(newProps)
         }
-        def isDefinedAt(x: (String, JsonSchema[_])) = true
+        def isDefinedAt(x: JsonSchema[_]) = true
       }
-    transformPropertiesWithPath(copyProps, true).asInstanceOf[JsonSchema[T]]
+    transformProperties(copyProps, true).asInstanceOf[JsonSchema[T]]
   }
 
   def onlyPropertiesNamed(props: Seq[String]): JsonSchema[T] = {

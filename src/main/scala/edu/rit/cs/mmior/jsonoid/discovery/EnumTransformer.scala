@@ -1,7 +1,5 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
-import scala.reflect.{ClassTag, classTag}
-
 import org.json4s._
 
 import schemas._
@@ -10,45 +8,48 @@ object EnumTransformer {
   val EnumRatio: Int = 10
   val MaxValues: Int = 50
 
-  def getFromOther[S <: JsonSchema[_]: ClassTag](
-      schema: S,
+  def getFromOther(
+      schema: JsonSchema[_],
       maybeOtherSchema: Option[JsonSchema[_]],
       path: String
-  ): Option[S] = {
-    val pointer = Helpers.pathToPointer(path)
-    maybeOtherSchema match {
-      case Some(otherSchema) =>
-        otherSchema.findByPointer(pointer) match {
-          case Some(other: S) if classTag[S].runtimeClass.isInstance(other) =>
-            Some(other.asInstanceOf[S])
-          case _ =>
-            throw new IllegalStateException(
-              "Could not find matching schema when transforming to enum"
-            )
-        }
-      case None => None
-    }
+  ): Seq[JsonSchema[_]] = {
+    val pointer = Helpers.pathToInexactPointer(path)
+    maybeOtherSchema.map(_.findByInexactPointer(pointer)).getOrElse(Seq.empty)
   }
 
   def transformSchema(
       schema: JsonSchema[_],
       otherSchema: Option[JsonSchema[_]] = None
   )(implicit p: JsonoidParams): JsonSchema[_] = {
-    schema.transformPropertiesWithPath(
+    schema.transformPropertiesWithInexactPath(
       {
         case (path, i: IntegerSchema)
             if i.properties.has[IntExamplesProperty] =>
           val examples = i.properties.get[IntExamplesProperty].examples
-          val otherExamples = getFromOther(i, otherSchema, path).map(
-            _.properties.get[IntExamplesProperty].examples
-          )
+          val otherSchemas = getFromOther(i, otherSchema, path)
+          val otherExamples = if (otherSchema.isDefined) {
+            otherSchemas match {
+              case Seq(otherInt: IntegerSchema) =>
+                Some(otherInt.properties.get[IntExamplesProperty].examples)
+              case _ => Some(ExamplesProperty[BigInt]())
+            }
+          } else {
+            None
+          }
           maybeEnum(examples, otherExamples, { case v: BigInt => JInt(v) })
             .getOrElse(i)
         case (path, n: NumberSchema) if n.properties.has[NumExamplesProperty] =>
           val examples = n.properties.get[NumExamplesProperty].examples
-          val otherExamples = getFromOther(n, otherSchema, path).map(
-            _.properties.get[NumExamplesProperty].examples
-          )
+          val otherSchemas = getFromOther(n, otherSchema, path)
+          val otherExamples = if (otherSchema.isDefined) {
+            otherSchemas match {
+              case Seq(otherInt: NumberSchema) =>
+                Some(otherInt.properties.get[NumExamplesProperty].examples)
+              case _ => Some(ExamplesProperty[BigDecimal]())
+            }
+          } else {
+            None
+          }
           maybeEnum(
             examples,
             otherExamples,
@@ -57,9 +58,16 @@ object EnumTransformer {
         case (path, s: StringSchema)
             if s.properties.has[StringExamplesProperty] =>
           val examples = s.properties.get[StringExamplesProperty].examples
-          val otherExamples = getFromOther(s, otherSchema, path).map(
-            _.properties.get[StringExamplesProperty].examples
-          )
+          val otherSchemas = getFromOther(s, otherSchema, path)
+          val otherExamples = if (otherSchema.isDefined) {
+            otherSchemas match {
+              case Seq(otherInt: StringSchema) =>
+                Some(otherInt.properties.get[StringExamplesProperty].examples)
+              case _ => Some(ExamplesProperty[String]())
+            }
+          } else {
+            None
+          }
           maybeEnum(examples, otherExamples, { case v: String => JString(v) })
             .getOrElse(s)
       },
