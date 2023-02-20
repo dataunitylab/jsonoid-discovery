@@ -9,7 +9,8 @@ import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.json4s.jackson.JsonMethods._
 
-final case class Config(
+/** Internal configuration for JSONoid on Spark. */
+private final case class Config(
     input: String = "",
     propertySet: PropertySet = PropertySets.AllProperties,
     addDefinitions: Boolean = false

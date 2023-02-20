@@ -14,9 +14,13 @@ import com.github.prasanthj.hll.{HyperLogLog => HLL, HyperLogLogUtils}
 
 object HyperLogLog {
   implicit def unwrapHLL(hll: HyperLogLog): HLL = hll.hll
+
+  /** The default number of register index bits to use in the HLL data structure. */
   val DefaultRegisterIndexBits: Int = 10
 }
 
+/** A HyperLogLog data structure to track the cardinality of a set of values.
+  */
 class HyperLogLog extends Serializable {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   @transient var hll: HLL = HLL
@@ -27,6 +31,7 @@ class HyperLogLog extends Serializable {
 
   override def toString(): String = hll.toString()
 
+  /** Serialize the HLL to a base-64 encoded string. */
   def toBase64(): String = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)

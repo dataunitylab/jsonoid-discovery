@@ -2,7 +2,19 @@ package edu.rit.cs.mmior.jsonoid.discovery
 
 import schemas._
 
+/** Resolve references in a schema by annotating all references with the schema
+  * that is being referenced. Specifically any instances of
+  * [[schemas.ReferencePathProperty]] in [[schemas.ReferenceSchema]] will have
+  * an instances of [[schemas.ReferenceObjectProperty]] added.
+  */
 object ReferenceResolver extends SchemaWalker[Unit] {
+
+  /** Resolve references in a schema.
+    *
+    * @param schema the schema to resolve references in
+    *
+    * @return the schema with annotated references
+    */
   @SuppressWarnings(
     Array("org.wartremover.warts.While", "org.wartremover.warts.Var")
   )
@@ -30,6 +42,14 @@ object ReferenceResolver extends SchemaWalker[Unit] {
     schema
   }
 
+  /** Helper for [[resolveReferences]] which finds the schema for a referenced
+    * path.
+    *
+    * @param path the path of the referenced schema
+    * @param rootSchema the root schema where definitions are located
+    *
+    * @return the schema being referenced
+    */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   private def resolvePath(
       path: String,
@@ -54,6 +74,10 @@ object ReferenceResolver extends SchemaWalker[Unit] {
     }
   }
 
+  /** Used in [[transformSchema]] to resolve references.
+    *
+    * @param rootSchema the root schema where definitions are located
+    */
   private def resolveReferences(
       rootSchema: JsonSchema[_]
   ): PartialFunction[(String, JsonSchema[_]), Unit] = {

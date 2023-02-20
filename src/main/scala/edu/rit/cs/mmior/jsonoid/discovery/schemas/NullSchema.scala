@@ -3,6 +3,7 @@ package schemas
 
 import org.json4s._
 
+/** Represents `null` in JSON Schema. */
 final case class NullSchema(
     override val properties: SchemaProperties[Nothing] =
       SchemaProperties.empty[Nothing]

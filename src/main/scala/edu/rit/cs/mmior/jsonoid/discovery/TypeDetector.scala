@@ -4,7 +4,12 @@ import scala.util.Try
 
 import org.json4s._
 
+/** Provides the ability to detect the schema type of a serialized JSON Schema
+  *  object without `type` based on other available properties.
+  */
 object TypeDetector {
+
+  /** A map from JSON Schema types to their commonly observed properties. */
   val propertyTypes: Map[String, Set[String]] = Map(
     "array" -> Set(
       "additionalItems",
@@ -43,6 +48,7 @@ object TypeDetector {
     )
   )
 
+  /** Detect the possible type of a serialized JSON Schema object. */
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def detectType(properties: Map[String, JValue]): Option[String] = {
     Try(
@@ -53,6 +59,7 @@ object TypeDetector {
     ).toOption
   }
 
+  /** Detect all possible types of a serialized JSON Schema object. */
   def detectAllTypes(properties: Map[String, JValue]): List[String] = {
     propertyTypes
       .transform { (key, value) =>

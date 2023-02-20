@@ -49,6 +49,8 @@ object IntegerSchema {
   }
 }
 
+/** Represents integers in JSON Schema.
+  */
 final case class IntegerSchema(
     override val properties: SchemaProperties[BigInt] =
       IntegerSchema.AllProperties
@@ -117,6 +119,12 @@ final case class IntegerSchema(
   }
 }
 
+/** Tracks the minimum value of all integers.
+  *
+  * @constructor Create a new minimum integer value property
+  * @param minIntValue the minimum value
+  * @param exclusive whether the minimum value is exclusive
+  */
 final case class MinIntValueProperty(
     minIntValue: Option[BigInt] = None,
     exclusive: Boolean = false
@@ -214,6 +222,12 @@ final case class MinIntValueProperty(
   }
 }
 
+/** Tracks the maximum value of all integers.
+  *
+  * @constructor Create a new maximum integer value property
+  * @param maxIntValue the maximum value
+  * @param exclusive whether the maximum value is exclusive
+  */
 final case class MaxIntValueProperty(
     maxIntValue: Option[BigInt] = None,
     exclusive: Boolean = false
@@ -311,6 +325,11 @@ final case class MaxIntValueProperty(
   }
 }
 
+/** Tracks the estimated cardinality of the set of integer values.
+  *
+  * @constructor Create a new HLL property
+  * @param hll the HyperLogLog data structure used to track the cardinality
+  */
 final case class IntHyperLogLogProperty(
     hll: HyperLogLog = new HyperLogLog()
 ) extends SchemaProperty[BigInt] {
@@ -344,6 +363,11 @@ final case class IntHyperLogLogProperty(
   }
 }
 
+/** Tracks possible integers which can be contained in the set
+  *
+  * @constructor Create a new integer Bloom filter property
+  * @param bloomFilter the Bloom filter used to track the set of integers
+  */
 final case class IntBloomFilterProperty(
     bloomFilter: BloomFilter[Integer] = BloomFilter[Integer]()
 ) extends SchemaProperty[BigInt] {
@@ -394,6 +418,11 @@ final case class IntBloomFilterProperty(
   }
 }
 
+/** Tracks statistics on the integers in this set
+  *
+  * @constructor Create a new integer statistics property
+  * @param stats the statistics used to track the set of integers
+  */
 final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigInt] {
   override type S = IntStatsProperty
@@ -418,6 +447,11 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
   }
 }
 
+/** Tracks examples observed for these integers.
+  *
+  * @constructor Create a new integer examples property
+  * @param examples the example integers observed
+  */
 final case class IntExamplesProperty(
     examples: ExamplesProperty[BigInt] = ExamplesProperty()
 ) extends SchemaProperty[BigInt] {
@@ -443,6 +477,11 @@ final case class IntExamplesProperty(
   }
 }
 
+/** Tracks a common multiple of these integers.
+  *
+  * @constructor Create a new integer multiple property
+  * @param multiple a possible common multiple of the integers
+  */
 final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
   override type S = IntMultipleOfProperty
@@ -533,6 +572,11 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
   }
 }
 
+/** Tracks a histogram of integer values.
+  *
+  * @constructor Create a new integer histogram property
+  * @param histogram a histogram of integer values
+  */
 final case class IntHistogramProperty(histogram: Histogram = Histogram())
     extends SchemaProperty[BigInt] {
   override type S = IntHistogramProperty

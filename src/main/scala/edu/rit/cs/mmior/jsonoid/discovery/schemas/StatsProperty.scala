@@ -12,6 +12,14 @@ object StatsProperty {
   }
 }
 
+/** Data for properties which track statistics on a set of values.
+  *
+  * @param totalN the total count of values
+  * @param m1 the first statistical moment
+  * @param m2 the second statistical moment
+  * @param m3 the third statistical moment
+  * @param m4 the fourth statistical moment
+  */
 final case class StatsProperty(
     val totalN: BigInt = 0,
     val m1: BigDecimal = 0,
@@ -25,36 +33,47 @@ final case class StatsProperty(
     ("skewness" -> skewness) ~
     ("kurtosis" -> kurtosis)
 
+  /** The mean of the observed values. */
   def mean: BigDecimal = m1
 
+  /** The variance of the observed values. */
   def variance: Option[BigDecimal] = if (totalN > 1) {
     Some(m2 / (BigDecimal(totalN) - 1))
   } else {
     None
   }
 
-  // XXX This should really be using BigDecimal.sqrt, but we don't have it yet
+  /** The standard deviation of the observed values. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def stdev: Option[BigDecimal] = if (totalN > 1) {
+    // XXX This should really be using BigDecimal.sqrt, but we don't have it yet
     Some(BigDecimal(sqrt(variance.get.toDouble)))
   } else {
     None
   }
 
-  // XXX This should really be using BigDecimal.{pow, sqrt},
-  //     but we don't have it yet
+  /** The skewness of the observed values. */
   def skewness: Option[BigDecimal] = if (m2 > 0) {
+    // XXX This should really be using BigDecimal.{pow, sqrt},
+    //     but we don't have it yet
     Some(sqrt(totalN.toDouble) * m3 / pow(m2.toDouble, 1.5))
   } else {
     None
   }
 
+  /** The kurtosis of the observed values. */
   def kurtosis: Option[BigDecimal] = if (m2 > 0) {
     Some(BigDecimal(totalN) * m4 / (m2 * m2) - 3.0)
   } else {
     None
   }
 
+  /** Merge these statistical values together.
+    *
+    * @param other the other statistics to merge with
+    *
+    * @return the merged statistics
+    */
   def merge(other: StatsProperty): StatsProperty = {
     // See https://www.johndcook.com/blog/skewness_kurtosis/
     val newTotalN = totalN + other.totalN

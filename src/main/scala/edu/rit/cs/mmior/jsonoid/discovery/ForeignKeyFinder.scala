@@ -3,10 +3,24 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import schemas._
 import utils.BloomFilter
 
+/** Represents a discovered foreign key.
+  *
+  * @constructor Create a new foreign key with two paths.
+  * @param localPath the path of the referencing property
+  * @param foreignPath the path of the referenced property
+  */
 final case class ForeignKey(localPath: String, foreignPath: String)
 
+/** Find possible foreign keys by comparing values discovered from the schema.
+  */
 object ForeignKeyFinder extends SchemaWalker[BloomFilter[_]] {
-  def collectFiltersByPath(
+
+  /** Collect Bloom filters of all types in the schemas.
+    *
+    * @param schemas the schemas to search for filters
+    * @return a map from paths to Bloom filters
+    */
+  private def collectFiltersByPath(
       schema: JsonSchema[_]
   ): Map[String, BloomFilter[_]] = {
     val extractor: PartialFunction[(String, JsonSchema[_]), BloomFilter[_]] = {
@@ -21,9 +35,14 @@ object ForeignKeyFinder extends SchemaWalker[BloomFilter[_]] {
     walk(schema, extractor).toMap
   }
 
+  /** Returns a list of possible foreign keys.
+    *
+    * @param schema the schema to search for foreign keys
+    */
   def findForeignKeys(schema: JsonSchema[_]): List[ForeignKey] = {
     val filters = collectFiltersByPath(schema)
 
+    // Check all possible pairs of keys (in any order)
     filters.keySet.toSeq
       .combinations(2)
       .flatMap { case Seq(pathA, pathB) =>

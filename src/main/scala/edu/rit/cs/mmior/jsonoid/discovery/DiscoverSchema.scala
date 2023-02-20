@@ -14,7 +14,9 @@ import org.json4s.jackson.JsonMethods._
 import Helpers._
 import schemas._
 
-final case class Config(
+/** Internal configuration object for the command line interface.
+  */
+private final case class Config(
     input: Option[File] = None,
     writeOutput: Option[File] = None,
     writeValues: Option[File] = None,
@@ -30,6 +32,16 @@ final case class Config(
 )
 
 object DiscoverSchema {
+
+  /** Perform split schema discovery by randomly splitting the input and
+    * generating two different schemas.
+    *
+    * @param jsons an iterator of JSON objects to perform schema discovery on
+    * @param propSet the property set to use for schema discovery
+    * @param splitPercentage the percentage of the input to use for training
+    *
+    * @return a tuple of the discovered schemas
+    */
   def splitDiscover(
       jsons: Iterator[JValue],
       propSet: PropertySet = PropertySets.AllProperties,
@@ -52,6 +64,12 @@ object DiscoverSchema {
     }
   }
 
+  /** Perform schema discovery on a set of JSON objects.
+    *
+    * @param jsons an iterator of JSON objects to perform schema discovery on
+    * @param propSet the property set to use for schema discovery
+    * @return tthe discovered schema
+    */
   def discover(
       jsons: Iterator[JValue],
       propSet: PropertySet = PropertySets.AllProperties
@@ -59,6 +77,11 @@ object DiscoverSchema {
     jsons.map(discoverFromValue(_, propSet)).fold(ZeroSchema())(_.merge(_))
   }
 
+  /** Discover a schema from a single JSON object.
+    *
+    * @param value the JSON object to discover the schema for
+    * @param propSet the property set to use for schema discovery
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def discoverFromValue(
       value: JValue,
@@ -84,7 +107,12 @@ object DiscoverSchema {
     }
   }
 
-  def discoverObjectFields(
+  /** Discover a schema from a set of fields in a JSON object.
+    *
+    * @param fields the fields to discover the schema for
+    * @param propSet the property set to use for schema discovery
+    */
+  private def discoverObjectFields(
       fields: Seq[JField],
       propSet: PropertySet
   )(implicit p: JsonoidParams): JsonSchema[_] = {
@@ -98,6 +126,8 @@ object DiscoverSchema {
     )(propSet, p)
   }
 
+  /** Produce an iterator of JSON objects from a source.
+    */
   def jsonFromSource(source: Source): Iterator[JValue] = {
     source.getLines().map(parse(_))
   }

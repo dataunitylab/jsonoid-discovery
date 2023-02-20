@@ -4,6 +4,8 @@ package schemas
 import org.json4s.JsonDSL._
 import org.json4s._
 
+/** Represents an empty object in JSON Schema which will accept any value.
+  */
 final case class AnySchema(
     override val properties: SchemaProperties[Nothing] = SchemaProperties.empty
 ) extends JsonSchema[Nothing] {

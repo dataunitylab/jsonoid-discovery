@@ -160,3 +160,18 @@ assemblyPrependShellScript := Some(defaultUniversalScript(shebang = false))
 run / connectInput := true
 
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
+
+apiMappings ++= {
+  def mappingsFor(organization: String, names: List[String], location: String, revision: (String) => String = identity): Seq[(File, URL)] =
+    for {
+      entry: Attributed[File] <- (Compile / fullClasspath).value
+      module: ModuleID <- entry.get(moduleID.key)
+      if module.organization == organization
+      if names.exists(module.name.startsWith)
+    } yield entry.data -> url(location.format(revision(module.revision)))
+
+  val mappings: Seq[(File, URL)] =
+    mappingsFor("org.scala-lang", List("scala-library"), "http://scala-lang.org/api/%s/")
+
+  mappings.toMap
+}

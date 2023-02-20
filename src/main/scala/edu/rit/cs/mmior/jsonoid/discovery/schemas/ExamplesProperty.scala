@@ -25,12 +25,27 @@ object ExamplesProperty {
   }
 }
 
+/** Used to track examples across atomic values collected from schemas.
+  *
+  * @constructor Create a new set of examples
+  * @param examples a list of example values
+  * @param totalExamples the total number of examples seen so far
+  * @param nextSample the bounds on the next sample to consider
+  * @param sampleW weight to determine the next sample
+  */
 final case class ExamplesProperty[T](
     val examples: List[T] = List.empty[T],
     val totalExamples: BigInt = 0,
     val nextSample: BigInt = 0,
     val sampleW: Double = 0
 ) {
+
+  /** Add a new example to the set of examples.
+    *
+    * @param value the new example to merge
+    *
+    * @return a new set of examples containing the new example
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def mergeValue(value: T)(implicit p: JsonoidParams): ExamplesProperty[T] = {
     // Only keep the first ExamplesProperty.MaxStringLength characters of strings
@@ -64,6 +79,12 @@ final case class ExamplesProperty[T](
     )
   }
 
+  /** Combine two sets of examples by merging according to each weight.
+    *
+    * @param other the other set of examples to merge
+    *
+    * @return a merged set of examples
+    */
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.MutableDataStructures",

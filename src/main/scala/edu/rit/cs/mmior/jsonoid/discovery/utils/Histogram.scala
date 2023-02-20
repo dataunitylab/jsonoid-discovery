@@ -8,13 +8,24 @@ import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
 import com.datadoghq.sketch.ddsketch.store.Bin
 
 object Histogram {
+
+  /** Default error tolerance of the histogram. */
   val Tolerance: Double = 0.01
 }
 
+/** A histogram of the values in a given set.:w
+  *
+  * @constructor Create a new histogram
+  * @param sketch the sketch to use for the histogram
+  */
 final case class Histogram(
     sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance)
 ) {
 
+  /** Produce bins for the histogram.
+    *
+    * @return a list of bins representing the histogram
+    */
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.MutableDataStructures",
@@ -49,6 +60,12 @@ final case class Histogram(
     bins.toList
   }
 
+  /** Merge this histogram with another histogram.
+    *
+    * @param other the histogram to merge with
+    *
+    * @return the merged histogram
+    */
   def merge(other: Histogram): Histogram = {
     val newHistogram = Histogram()
     newHistogram.sketch.mergeWith(sketch)
@@ -57,6 +74,12 @@ final case class Histogram(
     newHistogram
   }
 
+  /** Merge a value into this histogram.
+    *
+    * @param value the value to merge into the histogram
+    *
+    * @return the merged histogram
+    */
   def merge(value: Double): Histogram = {
     val newHistogram = Histogram()
     newHistogram.sketch.mergeWith(sketch)
@@ -65,6 +88,12 @@ final case class Histogram(
     newHistogram
   }
 
+  /** Check if a value is anamolous according to the histogram.
+    *
+    * @param value the value to check for in the histogram
+    *
+    * @return whether the value is anomalous according to the histogram
+    */
   def isAnomalous(value: Double): Boolean = {
     val mapping = sketch.getIndexMapping
 

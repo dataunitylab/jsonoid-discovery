@@ -24,6 +24,8 @@ object ReferenceSchema {
   }
 }
 
+/** Represents a reference (`\$ref`) in JSON Schema.
+  */
 final case class ReferenceSchema(
     override val properties: SchemaProperties[String]
 ) extends JsonSchema[String] {
@@ -60,6 +62,11 @@ final case class ReferenceSchema(
   }
 }
 
+/** Represents a reference to a particular path.
+  *
+  * @constructor Create a path reference property
+  * @param path the referenced path
+  */
 final case class ReferencePathProperty(path: String)
     extends SchemaProperty[String] {
   override type S = ReferencePathProperty
@@ -81,6 +88,11 @@ final case class ReferencePathProperty(path: String)
   }
 }
 
+/** Represents a reference to a particular schema object.
+  *
+  * @constructor Create an object reference property
+  * @param schema the referenced object
+  */
 final case class ReferenceObjectProperty(schema: JsonSchema[_])
     extends SchemaProperty[String] {
   override type S = ReferenceObjectProperty

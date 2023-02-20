@@ -24,6 +24,8 @@ object ProductSchema {
   }
 }
 
+/** Represents `allOf`, `anyOf`, and `oneOf` in JSON Schema.
+  */
 final case class ProductSchema(
     override val properties: SchemaProperties[JsonSchema[_]]
 )(implicit p: JsonoidParams)
@@ -223,6 +225,14 @@ case object OneOf extends ProductType {
   override val toJson = "oneOf"
 }
 
+/** The types of all values in a product schema.
+  *
+  * @constructor Create a new product schema types property.
+  * @param baseSchema a schema which all values in the product schema are compatible with
+  * @param schemaTypes the types of each value in the product schema
+  * @param schemaCounts the number of values in each type in the product schema
+  * @param productType the type of the product schema
+  */
 final case class ProductSchemaTypesProperty(
     val baseSchema: JsonSchema[_] = AnySchema(),
     val schemaTypes: List[JsonSchema[_]] = List.empty[JsonSchema[_]],

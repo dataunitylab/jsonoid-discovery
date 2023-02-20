@@ -2,6 +2,8 @@ package edu.rit.cs.mmior.jsonoid.discovery
 
 import schemas._
 
+/** Combine multiple instances of `allOf` into a single schema.
+  */
 object MergeAllOfTransformer {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def transformSchema(

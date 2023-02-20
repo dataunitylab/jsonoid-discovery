@@ -5,14 +5,18 @@ import scala.annotation.tailrec
 import scalaz._
 import Scalaz._
 
+/** Various helper functions used in the rest of the code.
+  */
 object Helpers {
   def pathToInexactPointer(path: String): String = {
     // Change dots to slashses and remove any array accesses
     path.substring(1).replace(".", "/").replaceAll("\\[[^]+]\\]", "")
   }
 
+  /** The maximum number of rounds to consider during schema expansion. */
   val MaxExpandRounds: Int = 10
 
+  /** A wrapper for [[expandInt]] that works with [[scala.Option]] values. */
   def maybeExpandInt(
       current: Option[Int],
       limit: Option[Int],
@@ -35,6 +39,15 @@ object Helpers {
     }
   }
 
+  /** Expands an integer used for a minimum value to meet a given limit.
+    *
+    * @param current the current minimum value
+    * @param limit the limit from the other schema
+    * @param exclusive whether the current limit is exclusive or not
+    * @param round the current round of expansion
+    *
+    * @return the new minimum value and whether it is exclusive
+    */
   def expandInt(
       current: Int,
       limit: Int,
@@ -80,6 +93,8 @@ object Helpers {
     }
   }
 
+  /** A wrapper for [[contractInt]] that works with [[scala.Option]] values.
+    */
   def maybeContractInt(
       current: Option[Int],
       limit: Option[Int],
@@ -102,6 +117,15 @@ object Helpers {
     }
   }
 
+  /** Contracts an integer used for a maxium value to meet a given limit.
+    *
+    * @param current the current maximum value
+    * @param limit the limit from the other schema
+    * @param exclusive whether the current limit is exclusive or not
+    * @param round the current round of expansion
+    *
+    * @return the new maximum value and whether it is exclusive
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def contractInt(
       current: Int,
@@ -153,6 +177,7 @@ object Helpers {
     }
   }
 
+  /** Produce a list of all prime factors of an integer. */
   // Source: https://stackoverflow.com/a/30281343/123695
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def factorize(x: Int): List[Int] = {
@@ -165,6 +190,16 @@ object Helpers {
     foo(x, 2).sorted
   }
 
+  /** Determine if two minimum values are compatible with each other, considering
+    * whether each minimum is exclusive or not.
+    *
+    * @param value1 the first minimum value
+    * @param exclusive1 whether the first minimum value is exclusive
+    * @param value2 the second minimum value
+    * @param exclusive2 whether the second minimum value is exclusive
+    *
+    * @return true if the two minimum values are compatible, false otherwise
+    */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def isMinCompatibleWith[A: Order](
       value1: Option[A],
@@ -188,6 +223,15 @@ object Helpers {
     }
   }
 
+  /** Determine if two maximum values are compatible with each other, considering
+    * whether each maximum is exclusive or not.
+    *
+    * @param value1 the first maximum value
+    * @param exclusive1 whether the first maximum value is exclusive
+    * @param value2 the second maximum value
+    * @param exclusive2 whether the second maximum value is exclusive
+    * @return true if the two maximum values are compatible, false otherwise
+    */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def isMaxCompatibleWith[A: Order](
       value1: Option[A],
@@ -211,6 +255,7 @@ object Helpers {
     }
   }
 
+  /** Find the maximum of two values or None if neither is specified. */
   def maxOrNone[A: Order](first: Option[A], second: Option[A]): Option[A] =
     (first, second) match {
       case (Some(a), None) => first
@@ -221,6 +266,7 @@ object Helpers {
       case (None, None) => None
     }
 
+  /** Find the minimum of two values or None if neither is specified. */
   def minOrNone[A: Order](first: Option[A], second: Option[A]): Option[A] =
     (first, second) match {
       case (Some(a), None) => first
@@ -231,6 +277,9 @@ object Helpers {
       case (None, None) => None
     }
 
+  /** Find the intersection of two optional sets or None if neither set is
+    *  specified.
+    */
   def intersectOrNone[A](
       first: Option[Set[A]],
       second: Option[Set[A]]
@@ -241,6 +290,7 @@ object Helpers {
     case (None, None)       => None
   }
 
+  /** Find the union of two optional sets or None if neither set is specified. */
   def unionOrNone[A](
       first: Option[Set[A]],
       second: Option[Set[A]]
@@ -251,6 +301,7 @@ object Helpers {
     case (None, None)       => None
   }
 
+  /** Find a possible common prefix of two strings. */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def findCommonPrefix(str1: String, str2: String): String = {
     (str1, str2).zipped
@@ -289,16 +340,20 @@ object Helpers {
   }
   // scalastyle:on method.name
 
+  /** Find the greatest common divisor of two integers. */
   @tailrec
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def gcd(a: BigInt, b: BigInt): BigInt = if (b == 0) a else gcd(b, a % b)
 
+  /** Find the greatest common divisor of two decimals. */
   @tailrec
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def gcd(a: BigDecimal, b: BigDecimal): BigDecimal =
     if (b == 0) a else gcd(b, a % b)
 
+  /** Find the lowest common mu,tiple of two integers. */
   def lcm(a: BigInt, b: BigInt): BigInt = a * b / gcd(a, b)
 
+  /** Find the lowest common mu,tiple of two decimals. */
   def lcm(a: BigDecimal, b: BigDecimal): BigDecimal = a * b / gcd(a, b)
 }

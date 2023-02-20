@@ -19,6 +19,8 @@ object BooleanSchema {
     SchemaProperties.empty[Boolean]
 }
 
+/** Represents Boolean values in JSON Schema.
+  */
 final case class BooleanSchema(
     override val properties: SchemaProperties[Boolean] =
       BooleanSchema.AllProperties

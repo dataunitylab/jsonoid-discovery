@@ -4,6 +4,8 @@ package schemas
 import org.json4s.JsonDSL._
 import org.json4s._
 
+/** Represents `{"not": {}}` in JSON Schema or the schema which admits no values.
+  */
 final case class ZeroSchema(
     override val properties: SchemaProperties[Nothing] = SchemaProperties.empty
 ) extends JsonSchema[Nothing] {

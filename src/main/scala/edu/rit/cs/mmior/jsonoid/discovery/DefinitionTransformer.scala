@@ -8,19 +8,45 @@ import org.christopherfrantz.dbscan.{DBSCANClusterer, DistanceMetric}
 import Helpers._
 import schemas._
 
+/** Used to calculate similarity fuzzy sets located at two paths.
+  *
+  * @constructor Create a new similarity fuzzy set calculator.
+  * @param fuzzySets a map of fuzzy sets to paths
+  */
 final case class SimilarityMetric(val fuzzySets: Map[String, FuzzySet[String]])
     extends DistanceMetric[String] {
+
+  /** Calculate the distance between the fuzzy sets at two paths.
+    *
+    * @param path1 the first path
+    * @param path2 the second path
+    */
   def calculateDistance(path1: String, path2: String): Double = {
     // Look up the set based on path, calculate similarity, and invert it
     1.0 - fuzzySets(path1).similarity(fuzzySets(path2))
   }
 }
 
+/** Use fuzzy set similarity to transform a schema by creating definitions that
+  * capture repeated structures within the schema.
+  */
 object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
+
+  /** Convert a JSON Path value into a JSON Pointer.
+    *
+    * @param path the JSON Path value
+    * @return the JSON Pointer
+    */
   def pathToPointer(path: String): String = {
     path.substring(1).replace(".", "/").replaceAll("""\[(.+?)\]""", "/$1")
   }
 
+  /** Transform the schema to replace repeated structures.
+    *
+    * @param schema the schema to transform
+    * @param addObject whether to capture the object within the created reference
+    * @return the transformed schema
+    */
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.OptionPartial",
@@ -99,6 +125,11 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     definitionSchema
   }
 
+  /** Find clusters of similar nested keyswithin the schema.
+    *
+    * @param schema the schema to cluster
+    * @return a set of set of paths which are clusters
+    */
   def findClusters(schema: JsonSchema[_]): Set[Set[String]] = {
     // Build fuzzy sets representing key occurrence in all objects
     val fuzzySets = walk(schema, buildFuzzySet)
@@ -115,6 +146,8 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     }
   }
 
+  /** Build a fuzzy set representing key occurrence at a path.
+    */
   private val buildFuzzySet
       : PartialFunction[(String, JsonSchema[_]), FuzzySet[String]] = {
     case (_, o: ObjectSchema) if o.properties.has[FieldPresenceProperty] =>

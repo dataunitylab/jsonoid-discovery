@@ -3,12 +3,28 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import schemas._
 import utils.HyperLogLog
 
+/** Represents a discovered primary key.
+  *
+  * @constructor Create a new primary key with two paths.
+  * @param path the path of the primary key
+  */
 final case class PrimaryKey(path: String)
 
 object PrimaryKeyFeatures {
+
+  /** A penalty applied to long primary keys. */
   val LengthPenalty: Int = 50
 }
 
+/** A set of features used to score primary key candidates.
+  *
+  * @constructor Create a new set of primary key features.
+  * @param maxCount the maximum cardinality of values at this path
+  * @param hasPrefixOrSuffix whether the path has a prefix or suffix common to primary keys
+  * @param depth the depth of the primary key in the JSON document
+  * @param idType the type of the primary key
+  * @param maxLength the maximum length of all prinary key values
+  */
 final case class PrimaryKeyFeatures(
     maxCount: Double,
     hasPrefixOrSuffix: Boolean,
@@ -17,6 +33,7 @@ final case class PrimaryKeyFeatures(
     maxLength: Int
 ) {
 
+  /** A score for ranking candidate primary keys. */
   def score: Double = {
     // These features are taken primarily from "An embedding driven approach to
     // automatically detect identifiers and references in document stores" by
@@ -33,9 +50,14 @@ final case class PrimaryKeyFeatures(
 }
 
 object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
+
+  /** A list of common prefixes and suffixes for primary keys. */
   val prefixOrSuffix: List[String] =
     List("id", "key", "nr", "no", "pk", "num", "code")
 
+  /** Helper for [[getFeatures]] to construct a [[PrimaryKeyFeatures]] object
+    * from information extracted from the schema.
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def extractFeatures(
       hll: HyperLogLog,
@@ -56,6 +78,8 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
     )
   }
 
+  /** Used in [[findPrimaryKeys]] to extract featuers useful for ranking.
+    */
   private val getFeatures
       : PartialFunction[(String, JsonSchema[_]), PrimaryKeyFeatures] = {
     // Get the features for the specific type
@@ -111,6 +135,12 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
       )
   }
 
+  /** Find a list of possible primary keys in a schema.
+    *
+    * @param schema the schema to search for primary keys
+    *
+    * @return a list of possible primary keys
+    */
   def findPrimaryKeys(schema: JsonSchema[_]): List[PrimaryKey] = {
     schema match {
       case o: ObjectSchema =>

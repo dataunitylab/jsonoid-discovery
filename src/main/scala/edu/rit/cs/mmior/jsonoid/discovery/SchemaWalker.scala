@@ -2,7 +2,14 @@ package edu.rit.cs.mmior.jsonoid.discovery
 
 import schemas._
 
+/** A helper trait for any class that needs to walk a schema and build a map
+  * of values collected from the properties.
+  */
 trait SchemaWalker[T] {
+
+  /** Helper for [[extractValues]] that extracts a sequence of values from a
+    *  single schema without recursion.
+    */
   private def extractSingle(
       schema: JsonSchema[_],
       extractor: PartialFunction[(String, JsonSchema[_]), T],
@@ -15,6 +22,8 @@ trait SchemaWalker[T] {
     }
   }
 
+  /** Helper for [[walk]] that recursively extracts values from a schema.
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def extractValues(
       schema: JsonSchema[_],
@@ -94,6 +103,15 @@ trait SchemaWalker[T] {
     }
   }
 
+  /** Recursively extracts values from a schema to build a map from paths to the
+    * extracted values.
+    *
+    * @param schema the schema to extract values from
+    * @param extractor a function that extracts values from a single schema
+    * @param follow a function that returns true if the traversal should continue
+    *
+    * @return a map from paths to the extracted values
+    */
   def walk(
       schema: JsonSchema[_],
       extractor: PartialFunction[(String, JsonSchema[_]), T],

@@ -28,6 +28,8 @@ object EnumSchema {
   }
 }
 
+/** Represents both `enum` and `const` in JSON Schema.`
+  */
 final case class EnumSchema(
     override val properties: SchemaProperties[Set[JValue]] =
       EnumSchema.AllProperties
@@ -62,6 +64,11 @@ final case class EnumSchema(
   }
 }
 
+/** Tracks all possible values of the enum.
+  *
+  * @constructor Create a new enum values property
+  * @param values the values of the enum
+  */
 final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     extends SchemaProperty[Set[JValue]] {
   override type S = EnumValuesProperty

@@ -3,7 +3,13 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import Helpers._
 import schemas._
 
+/** Predefined sets of equivalence relations.
+  */
 object EquivalenceRelations {
+
+  /** An equivalence relation which considers objects equal if they have the same
+    * set of keys.
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object LabelEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -19,6 +25,9 @@ object EquivalenceRelations {
     }
   }
 
+  /** An equivalence relation which considers objects equal if they have any
+    * overlapping set of keys.
+    */
   implicit object IntersectingLabelEquivalenceRelation
       extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -34,6 +43,9 @@ object EquivalenceRelations {
     }
   }
 
+  /** An equivalence relation which considers objects equal if all keys which are
+    * in common between the objects have the same type.
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object TypeMatchEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -52,6 +64,9 @@ object EquivalenceRelations {
     }
   }
 
+  /** An equivalence relation which considers schemas equal if they have the same
+    * type.
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object KindEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -59,16 +74,34 @@ object EquivalenceRelations {
     }
   }
 
+  /** An equivalence relation which *always* considers schemas equal.
+    */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object AlwaysEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = true
   }
 
+  /** An equivalence relation which *never* considers schemas equal.
+    */
   implicit object NonEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = false
   }
 }
 
+/** Represents an equivalence relation between two schemas that determines
+  * whether two schemas should be considered equivalent in the final discovered
+  * schema.
+  *
+  * For more details see [Parametric inference for massive JSON
+  * datasets](https://link.springer.com/article/10.1007/s00778-018-0532-7) by
+  * Baazizi et al
+  */
 abstract class EquivalenceRelation extends Serializable {
+
+  /** Returns true if the two schemas should be considered equivalent.
+    *
+    * @param kind1 the first schema to compare
+    * @param kind2 the second schem to compare
+    */
   def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean
 }

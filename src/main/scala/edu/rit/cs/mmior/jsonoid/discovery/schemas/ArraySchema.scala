@@ -69,6 +69,8 @@ object ArraySchema {
   }
 }
 
+/** Represents both tuples and arrays in JSON Schema.
+  */
 final case class ArraySchema(
     override val properties: SchemaProperties[List[JsonSchema[_]]] =
       ArraySchema.AllProperties
@@ -183,6 +185,11 @@ final case class ArraySchema(
   }
 }
 
+/** The type of item stored in this array schema.
+  *
+  * @constructor Create a new item type property.
+  * @param itemType either `Left` for a single item type or `Right` for a tuple schema with multiple types
+  */
 final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
 ) extends SchemaProperty[List[JsonSchema[_]]] {
@@ -360,6 +367,11 @@ final case class ItemTypeProperty(
   }
 }
 
+/** Tracks the minimum number of items in the array.
+  *
+  * @constructor Create a new minimum items property
+  * @param minItems the minimum number of items in the array
+  */
 final case class MinItemsProperty(minItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = MinItemsProperty
@@ -430,6 +442,12 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
   }
 }
 
+/*
+ * Tracks the maximum number of items in the array.
+ *
+ * @constructor Create a new maximum items property
+ * @param maxItems the maximum number of items in the array
+ */
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = MaxItemsProperty
@@ -500,6 +518,13 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
   }
 }
 
+/*
+ * Tracks whether array items are unique.
+ *
+ * @constructor Create a new unique items property
+ * @param unique whether all observed items are unique
+ * @param unary whether only one item has been observed
+ */
 final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = UniqueProperty
@@ -596,6 +621,12 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
   }
 }
 
+/*
+ * Tracks a histogram of array lengths.
+ *
+ * @constructor Create a new length histogram property
+ * @param histogram the initial histogram of lengths
+ */
 final case class ArrayLengthHistogramProperty(
     histogram: DDSketch = DDSketches.unboundedDense(0.01)
 ) extends SchemaProperty[List[JsonSchema[_]]] {
