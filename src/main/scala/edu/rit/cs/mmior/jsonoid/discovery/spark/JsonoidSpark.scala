@@ -67,7 +67,7 @@ object JsonoidSpark {
         // Skip transformation if we know the required properties don't exist
         if (!(config.propertySet === PropertySets.MinProperties)) {
           schema = DiscoverSchema
-            .transformSchema(schema, config.addDefinitions)(p)
+            .transformSchema(schema, None, config.addDefinitions)(p)
             .asInstanceOf[ObjectSchema]
         }
 

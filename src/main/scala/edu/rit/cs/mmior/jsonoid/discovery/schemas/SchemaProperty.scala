@@ -5,8 +5,14 @@ import scala.reflect.ClassTag
 
 import org.json4s._
 
-trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
+trait SchemaProperty[T] {
+  type S <: SchemaProperty[T]
+
+  def newDefault: SchemaProperty[T]
+
   def mergeable: Boolean = true
+
+  def isInformational: Boolean = false
 
   def intersectMerge(prop: S)(implicit p: JsonoidParams): S =
     unionMerge(prop)(p)
@@ -16,7 +22,7 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   def unionMerge(prop: S)(implicit p: JsonoidParams): S
 
   def mergeOnlySameType(
-      prop: SchemaProperty[T, _],
+      prop: SchemaProperty[T],
       mergeType: MergeType
   )(implicit p: JsonoidParams): S = {
     // XXX This only works if the S is the same as the wildcard type
@@ -35,8 +41,10 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
   // * PatternTypesProperty in ObjectSchema
   // * ItemTypeProperty in ArraySchema
   // * ProductSchemaTypesProperty in ProductSchema
-  def transform(transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]): S =
-    this.asInstanceOf[S]
+  def transform(
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
+  ): S = this.asInstanceOf[S]
 
   def toJson()(implicit p: JsonoidParams): JObject
 
@@ -50,4 +58,10 @@ trait SchemaProperty[T, S <: SchemaProperty[T, _]] {
       tag: ClassTag[S]
   ): Seq[Anomaly] =
     Seq.empty
+
+  def isCompatibleWith(other: S, recursive: Boolean = true)(implicit
+      p: JsonoidParams
+  ): Boolean = isInformational
+
+  def expandTo(other: S): S = this.asInstanceOf[S]
 }

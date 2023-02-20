@@ -9,6 +9,13 @@ class EnumSchemaSpec extends UnitSpec {
   val values: Set[JValue] = Set(JString("foo"), JString("bar"))
   val enumSchema: EnumSchema = EnumSchema(values)
 
+  val smallValues: Set[JValue] = Set(JString("foo"))
+  val smallEnumSchema: EnumSchema = EnumSchema(smallValues)
+
+  val bigValues: Set[JValue] =
+    Set(JString("foo"), JString("bar"), JString("baz"))
+  val bigEnumSchema: EnumSchema = EnumSchema(bigValues)
+
   it should "not detect anamolies for values in the given set" in {
     enumSchema.collectAnomalies(JString("foo")) shouldBe empty
   }
@@ -17,5 +24,13 @@ class EnumSchemaSpec extends UnitSpec {
     enumSchema.collectAnomalies(JString("quux")) shouldBe List(
       Anomaly("$", "enum value not found", Fatal)
     )
+  }
+
+  it should "be compatible with a smaller enum" in {
+    enumSchema.isCompatibleWith(smallEnumSchema) shouldBe true
+  }
+
+  it should "not be compatible with a larger enum" in {
+    enumSchema.isCompatibleWith(bigEnumSchema) shouldBe false
   }
 }

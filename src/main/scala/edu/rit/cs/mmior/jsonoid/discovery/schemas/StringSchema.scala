@@ -82,7 +82,11 @@ final case class StringSchema(
 }
 
 final case class MinLengthProperty(minLength: Option[Int] = None)
-    extends SchemaProperty[String, MinLengthProperty] {
+    extends SchemaProperty[String] {
+  override type S = MinLengthProperty
+
+  override def newDefault: MinLengthProperty = MinLengthProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("minLength" -> minLength)
 
@@ -123,10 +127,26 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinLengthProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(minLength, false, other.minLength, false)
+  }
+
+  override def expandTo(other: MinLengthProperty): MinLengthProperty = {
+    val newMin = maybeContractInt(minLength, other.minLength, false)._1
+    MinLengthProperty(newMin)
+  }
 }
 
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
-    extends SchemaProperty[String, MaxLengthProperty] {
+    extends SchemaProperty[String] {
+  override type S = MaxLengthProperty
+
+  override def newDefault: MaxLengthProperty = MaxLengthProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("maxLength" -> maxLength)
 
@@ -167,11 +187,28 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+  override def isCompatibleWith(
+      other: MaxLengthProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(maxLength, false, other.maxLength, false)
+  }
+
+  override def expandTo(other: MaxLengthProperty): MaxLengthProperty = {
+    val newMax = maybeExpandInt(maxLength, other.maxLength, false)._1
+    MaxLengthProperty(newMax)
+  }
 }
 
-final case class StringHyperLogLogProperty(
-    hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[String, StringHyperLogLogProperty] {
+final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
+    extends SchemaProperty[String] {
+  override type S = StringHyperLogLogProperty
+
+  override def newDefault: StringHyperLogLogProperty =
+    StringHyperLogLogProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" ->
       hll.toBase64)
@@ -204,7 +241,14 @@ object StringBloomFilterProperty {
 
 final case class StringBloomFilterProperty(
     bloomFilter: BloomFilter[String] = BloomFilter[String]()
-) extends SchemaProperty[String, StringBloomFilterProperty] {
+) extends SchemaProperty[String] {
+  override type S = StringBloomFilterProperty
+
+  override def newDefault: StringBloomFilterProperty =
+    StringBloomFilterProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("bloomFilter" -> bloomFilter.toBase64)
 
@@ -247,7 +291,13 @@ final case class StringBloomFilterProperty(
 
 final case class StringExamplesProperty(
     examples: ExamplesProperty[String] = ExamplesProperty()
-) extends SchemaProperty[String, StringExamplesProperty] {
+) extends SchemaProperty[String] {
+  override type S = StringExamplesProperty
+
+  override def newDefault: StringExamplesProperty = StringExamplesProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
@@ -301,28 +351,41 @@ object FormatProperty {
 
 final case class FormatProperty(
     formats: Map[String, BigInt] = Map.empty[String, BigInt]
-) extends SchemaProperty[String, FormatProperty] {
+) extends SchemaProperty[String] {
+  override type S = FormatProperty
+
+  override def newDefault: FormatProperty = FormatProperty()
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.Equals",
       "org.wartremover.warts.TraversableOps"
     )
   )
-  override def toJson()(implicit p: JsonoidParams): JObject = {
+  private[schemas] def maxFormat(
+      useLimit: Boolean = true
+  )(implicit p: JsonoidParams) = {
     val total = formats.values.sum
-    if (total >= FormatProperty.MinExamples) {
+    if ((total > 0 && !useLimit) || total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)
       if (
         BigDecimal(maxFormat._2.toDouble) / BigDecimal(
           total
         ) >= p.formatThreshold && maxFormat._1 != "none"
       ) {
-        ("format" -> maxFormat._1)
+        Some(maxFormat._1)
       } else {
-        Nil
+        None
       }
     } else {
-      Nil
+      None
+    }
+  }
+
+  override def toJson()(implicit p: JsonoidParams): JObject = {
+    maxFormat() match {
+      case Some(format) => ("format" -> format)
+      case None         => Nil
     }
   }
 
@@ -355,6 +418,28 @@ final case class FormatProperty(
       case None         => unionMerge(FormatProperty(Map(("none", 1))))
     }
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def isCompatibleWith(
+      other: FormatProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // Ignore minimum examples for the other schema since we have
+    // not received enough evidence yet to pick the correct format,
+    // but these schemas should still be considered compatible
+    val thisFormat = maxFormat()
+    thisFormat.isEmpty || thisFormat == other.maxFormat(false)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def expandTo(other: FormatProperty): FormatProperty = {
+    if (maxFormat() == other.maxFormat(false)) {
+      this
+    } else {
+      // Reset to empty formats
+      FormatProperty()
+    }
+  }
 }
 
 object PatternProperty {
@@ -368,7 +453,11 @@ final case class PatternProperty(
     suffix: Option[String] = None,
     examples: Int = 0,
     minLength: Option[Int] = None
-) extends SchemaProperty[String, PatternProperty] {
+) extends SchemaProperty[String] {
+  override type S = PatternProperty
+
+  override def newDefault: PatternProperty = PatternProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = if (
     examples >= PatternProperty.MinExamples
   ) {
@@ -452,10 +541,31 @@ final case class PatternProperty(
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: PatternProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    other.prefix.getOrElse("").startsWith(prefix.getOrElse("")) &&
+    other.suffix.getOrElse("").endsWith(suffix.getOrElse(""))
+  }
+
+  override def expandTo(other: PatternProperty): PatternProperty = {
+    if (isCompatibleWith(other)) {
+      this
+    } else {
+      // TODO Work on heuristics for expansion
+      PatternProperty()
+    }
+  }
 }
 
 final case class StaticPatternProperty(regex: Regex)
-    extends SchemaProperty[String, StaticPatternProperty] {
+    extends SchemaProperty[String] {
+  override type S = StaticPatternProperty
+
+  override def newDefault: StaticPatternProperty = StaticPatternProperty(".*".r)
+
   override def mergeable: Boolean = false
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -490,11 +600,27 @@ final case class StaticPatternProperty(regex: Regex)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: StaticPatternProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // Regexes do not necessarily need to be equal to be
+    // compatible, but this is the best that we attempt to do for now
+    regex === other.regex
+  }
 }
 
 final case class StringLengthHistogramProperty(
     histogram: Histogram = Histogram()
-) extends SchemaProperty[String, StringLengthHistogramProperty] {
+) extends SchemaProperty[String] {
+  override type S = StringLengthHistogramProperty
+
+  override def newDefault: StringLengthHistogramProperty =
+    StringLengthHistogramProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
       List(value.doubleValue, count.longValue)

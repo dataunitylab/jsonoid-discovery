@@ -32,4 +32,9 @@ final case class AnySchema(
 
     newSchema
   }
+
+  override def isCompatibleWith(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = true
 }

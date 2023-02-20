@@ -1,6 +1,7 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 package schemas
 
+import scala.collection.mutable.ListBuffer
 import scala.language.existentials
 import scala.reflect.ClassTag
 
@@ -127,16 +128,23 @@ final case class ProductSchema(
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+    val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
+    schemas.foldLeft(Seq.empty[JsonSchema[_]])(
+      _ ++ _.findByInexactPointer(pointer)
+    )
+  }
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
       "org.wartremover.warts.Recursion"
     )
   )
-  override def replaceWithReference(
+  override def replaceWithSchema(
       pointer: String,
-      reference: String,
-      obj: Option[JsonSchema[_]]
+      replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     val typesProp = properties.get[ProductSchemaTypesProperty]
     // Build a new type list that replaces the required type
@@ -146,15 +154,12 @@ final case class ProductSchema(
       case Array(_, "") =>
         throw new IllegalArgumentException("Invalid path for reference")
       case Array(_, first) =>
-        typesProp.schemaTypes.updated(
-          first.toInt,
-          ReferenceSchema(reference, obj)
-        )
+        typesProp.schemaTypes.updated(first.toInt, replaceSchema)
       case Array(_, first, rest) =>
         val schema = typesProp.schemaTypes(first.toInt)
         typesProp.schemaTypes.updated(
           first.toInt,
-          schema.replaceWithReference("/" + rest, reference, obj)
+          schema.replaceWithSchema("/" + rest, replaceSchema)
         )
     }
 
@@ -167,6 +172,41 @@ final case class ProductSchema(
     val newSchema = ProductSchema(this.properties.replaceProperty(typeProp))
     newSchema.definitions ++= this.definitions
     newSchema
+  }
+
+  override def isCompatibleWith(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // Check if this type is compatible with anything in the product schema
+    val types = properties.get[ProductSchemaTypesProperty].schemaTypes
+    other match {
+      // For two product schemas, find any compatible pair
+      case ProductSchema(ps) =>
+        val otherTypes = ps.get[ProductSchemaTypesProperty].schemaTypes
+        otherTypes.forall(s =>
+          types.exists(_.isCompatibleWith(s, recursive)(p))
+        )
+
+      // Otherwise check if the single type is compatible
+      case _ => types.exists(_.isCompatibleWith(other, recursive)(p))
+    }
+  }
+
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
+  )
+  override def expandTo[S](other: JsonSchema[S]): JsonSchema[_] = {
+    if (other.isInstanceOf[ProductSchema]) {
+      copy(
+        properties.expandTo(
+          other.properties.asInstanceOf[SchemaProperties[JsonSchema[_]]]
+        )
+      )
+    } else {
+      // If the other schema is not a product schema, wrap it in one first
+      expandTo(JsonSchema.buildProductSchema(AnySchema(), List(other), OneOf))
+    }
   }
 }
 
@@ -189,16 +229,25 @@ final case class ProductSchemaTypesProperty(
     val schemaCounts: List[BigInt] = List.empty[BigInt],
     val productType: ProductType = OneOf
 )(implicit p: JsonoidParams)
-    extends SchemaProperty[JsonSchema[_], ProductSchemaTypesProperty] {
+    extends SchemaProperty[JsonSchema[_]] {
+  override type S = ProductSchemaTypesProperty
+
+  override def newDefault: ProductSchemaTypesProperty =
+    ProductSchemaTypesProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     (productType.toJson -> schemas.map(_.toJson()(p)))
 
   override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): ProductSchemaTypesProperty = {
     ProductSchemaTypesProperty(
-      baseSchema.transformProperties(transformer, true),
-      schemaTypes.map(_.transformProperties(transformer, true)),
+      baseSchema.transformPropertiesWithInexactPath(transformer, true, path),
+      schemaTypes.zipWithIndex.map { case (schema, index) =>
+        schema
+          .transformPropertiesWithInexactPath(transformer, true, path)
+      },
       schemaCounts,
       productType
     )
@@ -291,6 +340,69 @@ final case class ProductSchemaTypesProperty(
       Seq.empty
     } else {
       Seq(Anomaly(path, f"no alternative found for ${value}", Fatal))
+    }
+  }
+
+  override def isCompatibleWith(
+      other: ProductSchemaTypesProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // The base schema and type of product must match
+    val baseMatches = baseSchema.schemaType === other.baseSchema.schemaType
+    val typeMatches = productType === other.productType
+
+    // And there must be a compatible type for each alternative
+    val allTypesCompatible = other.schemaTypes.forall(schema =>
+      schemaTypes.exists(_.isCompatibleWith(schema, recursive))
+    )
+
+    baseMatches && typeMatches && allTypesCompatible
+  }
+
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.TraversableOps"
+    )
+  )
+  override def expandTo(
+      other: ProductSchemaTypesProperty
+  ): ProductSchemaTypesProperty = {
+    // Build a map from schema type to a list of (schema, index) pairs
+    val types = schemaTypes.zipWithIndex.groupBy(_._1.schemaType)
+
+    // Expand the base schema if needed
+    val newBase = if (baseSchema.isCompatibleWith(other.baseSchema)) {
+      baseSchema
+    } else {
+      baseSchema.expandTo(other.baseSchema)
+    }
+
+    // Build a mutable copy of the new schema types
+    val newTypes = schemaTypes.to[ListBuffer]
+    val hasAny = types.contains("any")
+
+    if (types.contains("any")) {
+      // We have any AnySchema here, so definitely compatible
+      this
+    } else {
+      other.schemaTypes.foreach { s =>
+        val matchingTypes = types.getOrElse(s.schemaType, List())
+        if (matchingTypes.isEmpty && !hasAny) {
+          // We have no matching type, so add a new one
+          newTypes += s.copyWithReset.expandTo(s)
+        } else {
+          // Of the matching types, find the closest
+          val (closestType, index) = matchingTypes.minBy(
+            _._1.properties.findIncompatibilities(s.properties).length
+          )
+
+          // Expand the closest type to match
+          newTypes(index) = closestType.expandTo(s)
+        }
+      }
+
+      ProductSchemaTypesProperty(newBase, newTypes.toList)
     }
   }
 }

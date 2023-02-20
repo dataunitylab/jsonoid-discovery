@@ -126,7 +126,7 @@ object JsonSchema {
     convertedSchema
   }
 
-  private def buildProductSchema(
+  def buildProductSchema(
       baseSchema: JsonSchema[_],
       schemas: List[JsonSchema[_]],
       productType: ProductType
@@ -448,7 +448,7 @@ trait JsonSchema[T] {
     typedPropertyJson.merge(definitionJson)
   }
 
-  def toJsonSchema()(p: JsonoidParams): JObject = {
+  def toJsonSchema()(implicit p: JsonoidParams): JObject = {
     val schemaObj: JObject =
       ("$schema" -> "https://json-schema.org/draft/2019-09/schema") ~
         ("description" ->
@@ -526,26 +526,70 @@ trait JsonSchema[T] {
 
   def copy(properties: SchemaProperties[T]): JsonSchema[T]
 
-  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  def copyWithReset(): JsonSchema[T] = {
+    copy(properties.copyWithReset)
+  }
+
   def transformProperties(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
       transformBase: Boolean = false
   ): JsonSchema[_] = {
-    if (transformer.isDefinedAt(this) && transformBase) {
-      transformer(this).transformProperties(transformer, false)
+    val newTransformer =
+      new PartialFunction[(String, JsonSchema[_]), JsonSchema[_]] {
+        def apply(x: (String, JsonSchema[_])) = typedApply(x._2)
+        def typedApply[S](s: JsonSchema[S]): JsonSchema[S] =
+          transformer(s).asInstanceOf[JsonSchema[S]]
+        def isDefinedAt(x: (String, JsonSchema[_])) =
+          transformer.isDefinedAt(x._2)
+      }
+
+    transformPropertiesWithInexactPath(newTransformer, transformBase)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  def transformPropertiesWithInexactPath(
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      transformBase: Boolean = false,
+      path: String = "$"
+  ): JsonSchema[_] = {
+    if (transformer.isDefinedAt((path, this)) && transformBase) {
+      transformer((path, this))
+        .transformPropertiesWithInexactPath(transformer, false, path)
     } else {
-      copy(properties.transform(transformer))
+      copy(properties.transform(transformer, path))
     }
   }
 
-  def findByPointer(pointer: String): Option[JsonSchema[_]] = None
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def findByPointer(pointer: String): Option[JsonSchema[_]] = if (
+    pointer == ""
+  ) {
+    Some(this)
+  } else {
+    None
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = if (
+    pointer == ""
+  ) {
+    Seq(this)
+  } else {
+    Seq.empty
+  }
+
+  def replaceWithSchema(
+      pointer: String,
+      replaceSchema: JsonSchema[_]
+  )(implicit p: JsonoidParams): JsonSchema[_] =
+    this
 
   def replaceWithReference(
       pointer: String,
       reference: String,
       obj: Option[JsonSchema[_]] = None
   )(implicit p: JsonoidParams): JsonSchema[_] =
-    this
+    replaceWithSchema(pointer, ReferenceSchema(reference, obj))
 
   def isAnomalous[S <: JValue: ClassTag](
       value: S,
@@ -566,15 +610,16 @@ trait JsonSchema[T] {
   }
 
   def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
-    val copyProps = new PartialFunction[JsonSchema[_], JsonSchema[_]] {
-      def apply(s: JsonSchema[_]) = typedApply(s)
-      def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
-        val newProps =
-          s.properties.only(props).asInstanceOf[SchemaProperties[S]]
-        s.copy(newProps)
+    val copyProps =
+      new PartialFunction[JsonSchema[_], JsonSchema[_]] {
+        def apply(x: JsonSchema[_]) = typedApply(x)
+        def typedApply[S](s: JsonSchema[S]): JsonSchema[S] = {
+          val newProps =
+            s.properties.only(props).asInstanceOf[SchemaProperties[S]]
+          s.copy(newProps)
+        }
+        def isDefinedAt(x: JsonSchema[_]) = true
       }
-      def isDefinedAt(s: JsonSchema[_]) = true
-    }
     transformProperties(copyProps, true).asInstanceOf[JsonSchema[T]]
   }
 
@@ -584,5 +629,32 @@ trait JsonSchema[T] {
         Class.forName("edu.rit.cs.mmior.jsonoid.discovery.schemas." + c)
       )
     )
+  }
+
+  def findIncompatibilities(
+      other: JsonSchema[_],
+      recursive: Boolean
+  ): Seq[ClassTag[_]] =
+    properties.findIncompatibilities(other.properties, recursive)
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def isCompatibleWith(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    schemaType == other.schemaType &&
+    properties.isCompatibleWith(other.properties, recursive)(p)
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def expandTo[S](other: JsonSchema[S]): JsonSchema[_] = {
+    if (schemaType == other.schemaType) {
+      copy(properties.expandTo(other.asInstanceOf[JsonSchema[T]].properties))
+    } else {
+      // Convert to a product schema if we need to add a new type
+      JsonSchema
+        .buildProductSchema(AnySchema(), List(this), OneOf)
+        .expandTo(other)
+    }
   }
 }

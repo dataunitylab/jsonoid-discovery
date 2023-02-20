@@ -3,6 +3,8 @@ package schemas
 
 import org.json4s._
 
+import PropertySets._
+
 class AnySchemaSpec extends UnitSpec {
   behavior of "AnySchema"
 
@@ -27,5 +29,9 @@ class AnySchemaSpec extends UnitSpec {
     anySchema.isValidType(JNull) shouldBe (true)
     anySchema.isValidType(JObject()) shouldBe (true)
     anySchema.isValidType(JString("foo")) shouldBe (true)
+  }
+
+  it should "be compatible with other schemas" in {
+    anySchema.isCompatibleWith(StringSchema("foo")) shouldBe true
   }
 }

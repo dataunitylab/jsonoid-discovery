@@ -29,6 +29,12 @@ class IntegerSchemaSpec extends UnitSpec {
     )
   }
 
+  it should "expand by incrementing values" in {
+    MaxIntValueProperty(Some(10))
+      .expandTo(MaxIntValueProperty((Some(11))))
+      .maxIntValue shouldBe Some(11)
+  }
+
   behavior of "MinIntValueProperty"
 
   it should "track the minimum value" in {
@@ -39,6 +45,12 @@ class IntegerSchemaSpec extends UnitSpec {
     integerSchemaIntersect.properties should contain(
       MinIntValueProperty(Some(8))
     )
+  }
+
+  it should "expand by decrementing values" in {
+    MinIntValueProperty(Some(14))
+      .expandTo(MinIntValueProperty((Some(13))))
+      .minIntValue shouldBe Some(13)
   }
 
   behavior of "IntHyperLogLogProperty"
@@ -87,6 +99,48 @@ class IntegerSchemaSpec extends UnitSpec {
       IntegerSchema(0).merge(IntegerSchema(0)).asInstanceOf[IntegerSchema]
     val multipleProp = zeroIntSchema.properties.get[IntMultipleOfProperty]
     multipleProp.toJson shouldBe JObject()
+  }
+
+  it should "be compatible with the same multiple" in {
+    IntMultipleOfProperty(Some(3)).isCompatibleWith(
+      IntMultipleOfProperty(Some(3))
+    ) shouldBe true
+  }
+
+  it should "be compatible with a larger multiple" in {
+    IntMultipleOfProperty(Some(3)).isCompatibleWith(
+      IntMultipleOfProperty(Some(6))
+    ) shouldBe true
+  }
+
+  it should "not be compatible with a smaller multiple" in {
+    IntMultipleOfProperty(Some(4)).isCompatibleWith(
+      IntMultipleOfProperty(Some(2))
+    ) shouldBe false
+  }
+
+  it should "be compatible if no multiple" in {
+    IntMultipleOfProperty(None).isCompatibleWith(
+      IntMultipleOfProperty(Some(2))
+    ) shouldBe true
+  }
+
+  it should "expand to remove a prime factor" in {
+    IntMultipleOfProperty(Some(2 * 3 * 5 * 7))
+      .expandTo(IntMultipleOfProperty((Some(5 * 7))))
+      .multiple shouldBe Some(5 * 7)
+  }
+
+  it should "stop expanding after MaxExpandRounds" in {
+    IntMultipleOfProperty(Some(1048576))
+      .expandTo(IntMultipleOfProperty((Some(2))))
+      .multiple shouldBe None
+  }
+
+  it should "not expand if already covered" in {
+    IntMultipleOfProperty(Some(14))
+      .expandTo(IntMultipleOfProperty((Some(28))))
+      .multiple shouldBe Some(14)
   }
 
   behavior of "IntHistogramProperty"
@@ -157,5 +211,14 @@ class IntegerSchemaSpec extends UnitSpec {
       .collectAnomalies(JInt(30)) shouldBe Seq(
       Anomaly("$", "value outside histogram bounds", Warning)
     )
+  }
+
+  it should "be compatible with a matching schema" in {
+    IntegerSchema(1).isCompatibleWith(IntegerSchema(1)) shouldBe true
+  }
+
+  it should "expand to be compatible with a similar schema" in {
+    val schema = IntegerSchema(0)
+    IntegerSchema(1).expandTo(schema).isCompatibleWith(schema) shouldBe true
   }
 }

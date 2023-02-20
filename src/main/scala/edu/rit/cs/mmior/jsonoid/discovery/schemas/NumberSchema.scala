@@ -82,12 +82,31 @@ final case class NumberSchema(
 
     newSchema
   }
+
+  override def isCompatibleWith(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // Integer schemas may be compatible with number schemas so try conversion
+    if (other.isInstanceOf[IntegerSchema]) {
+      super.isCompatibleWith(
+        other.asInstanceOf[IntegerSchema].asNumberSchema,
+        recursive
+      )(p)
+    } else {
+      super.isCompatibleWith(other, recursive)(p)
+    }
+  }
 }
 
 final case class MinNumValueProperty(
     minNumValue: Option[BigDecimal] = None,
     exclusive: Boolean = false
-) extends SchemaProperty[BigDecimal, MinNumValueProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = MinNumValueProperty
+
+  override def newDefault: MinNumValueProperty = MinNumValueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMinimum" }
       else { "minimum" }) -> minNumValue)
@@ -160,12 +179,37 @@ final case class MinNumValueProperty(
       case None => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinNumValueProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(
+      minNumValue,
+      exclusive,
+      other.minNumValue,
+      other.exclusive
+    )
+  }
+
+  override def expandTo(other: MinNumValueProperty): MinNumValueProperty = {
+    val (newMin, newExclusive) = maybeContractInt(
+      minNumValue.map(_.toInt),
+      other.minNumValue.map(_.toInt + (if (other.exclusive) 1 else 0)),
+      exclusive
+    )
+    MinNumValueProperty(newMin.map(BigDecimal(_)), newExclusive)
+  }
 }
 
 final case class MaxNumValueProperty(
     maxNumValue: Option[BigDecimal] = None,
     exclusive: Boolean = false
-) extends SchemaProperty[BigDecimal, MaxNumValueProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = MaxNumValueProperty
+
+  override def newDefault: MaxNumValueProperty = MaxNumValueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMaximum" }
       else { "maximum" }) -> maxNumValue)
@@ -235,11 +279,38 @@ final case class MaxNumValueProperty(
       case None => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MaxNumValueProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(
+      maxNumValue,
+      exclusive,
+      other.maxNumValue,
+      other.exclusive
+    )
+  }
+  override def expandTo(other: MaxNumValueProperty): MaxNumValueProperty = {
+    val (newMax, newExclusive) = maybeExpandInt(
+      maxNumValue.map(_.setScale(0, BigDecimal.RoundingMode.FLOOR).toInt),
+      other.maxNumValue.map(
+        _.setScale(0, BigDecimal.RoundingMode.CEILING).toInt
+      ),
+      exclusive
+    )
+    MaxNumValueProperty(newMax.map(BigDecimal(_)), newExclusive)
+  }
 }
 
-final case class NumHyperLogLogProperty(
-    hll: HyperLogLog = new HyperLogLog()
-) extends SchemaProperty[BigDecimal, NumHyperLogLogProperty] {
+final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
+    extends SchemaProperty[BigDecimal] {
+  override type S = NumHyperLogLogProperty
+
+  override def newDefault: NumHyperLogLogProperty = NumHyperLogLogProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" ->
       hll.toBase64)
@@ -275,7 +346,13 @@ final case class NumHyperLogLogProperty(
 
 final case class NumBloomFilterProperty(
     bloomFilter: BloomFilter[Double] = BloomFilter[Double]()
-) extends SchemaProperty[BigDecimal, NumBloomFilterProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = NumBloomFilterProperty
+
+  override def newDefault: NumBloomFilterProperty = NumBloomFilterProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)
@@ -336,7 +413,13 @@ final case class NumBloomFilterProperty(
 }
 
 final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
-    extends SchemaProperty[BigDecimal, NumStatsProperty] {
+    extends SchemaProperty[BigDecimal] {
+  override type S = NumStatsProperty
+
+  override def newDefault: NumStatsProperty = NumStatsProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("statistics" -> stats.toJson)
 
@@ -355,7 +438,13 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 
 final case class NumExamplesProperty(
     examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
-) extends SchemaProperty[BigDecimal, NumExamplesProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = NumExamplesProperty
+
+  override def newDefault: NumExamplesProperty = NumExamplesProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = ("examples" ->
     examples.examples.distinct.sorted)
 
@@ -373,7 +462,11 @@ final case class NumExamplesProperty(
 }
 
 final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal, NumMultipleOfProperty] {
+    extends SchemaProperty[BigDecimal] {
+  override type S = NumMultipleOfProperty
+
+  override def newDefault: NumMultipleOfProperty = NumMultipleOfProperty()
+
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
     case Some(numVal) if numVal > 1 => ("multipleOf" -> numVal)
@@ -409,11 +502,55 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
   )(implicit p: JsonoidParams): NumMultipleOfProperty = {
     unionMerge(NumMultipleOfProperty(Some(value)))
   }
+
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
+  )
+  override def isCompatibleWith(
+      other: NumMultipleOfProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    if (multiple.isEmpty) {
+      // If we have no multiple, then compatible
+      true
+    } else if (other.multiple.isEmpty) {
+      // If we have a multiple and the other schema doesn't, not compatible
+      false
+    } else {
+      // Otherwise, the multiple must be a multiple
+      // of our multiple with the same sign
+      (other.multiple.get / multiple.get).isValidInt &&
+      multiple.get.signum == other.multiple.get.signum
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def expandTo(other: NumMultipleOfProperty): NumMultipleOfProperty = {
+    (multiple, other.multiple) match {
+      case (Some(mult), Some(otherMult)) =>
+        // Try halving the multiple
+        val newMult = (1 to MaxExpandRounds)
+          .scanLeft(mult) { (oldMult: BigDecimal, _) =>
+            oldMult / 2
+          }
+          .find(otherMult % _ == 0)
+
+        NumMultipleOfProperty(newMult)
+      case (_, None) => NumMultipleOfProperty(None)
+      case (None, _) => this
+    }
+  }
 }
 
 final case class NumHistogramProperty(
     histogram: Histogram = Histogram()
-) extends SchemaProperty[BigDecimal, NumHistogramProperty] {
+) extends SchemaProperty[BigDecimal] {
+  override type S = NumHistogramProperty
+
+  override def newDefault: NumHistogramProperty = NumHistogramProperty()
+
+  override val isInformational = true
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)

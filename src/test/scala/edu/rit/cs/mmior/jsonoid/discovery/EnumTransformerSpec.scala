@@ -12,11 +12,16 @@ class EnumTransformerSpec extends UnitSpec {
 
   implicit val formats: Formats = DefaultFormats
 
+  def repeatedMerge(schema: JsonSchema[_]): JsonSchema[_] = {
+    var repeatedSchema: JsonSchema[_] = schema
+    for (_ <- 1 to 4) { repeatedSchema = repeatedSchema.merge(repeatedSchema) }
+
+    repeatedSchema
+  }
+
   def schemaWithOneValue[T](schema: JsonSchema[T], value: T): Unit = {
     it should s"convert single examples to constants for ${schema.getClass.getSimpleName}" in {
-      var valueSchema: JsonSchema[_] = schema
-      for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
-
+      var valueSchema = repeatedMerge(schema)
       val transformedSchema =
         EnumTransformer.transformSchema(ObjectSchema(Map(("foo", valueSchema))))
 
@@ -34,9 +39,7 @@ class EnumTransformerSpec extends UnitSpec {
       values: Set[T]
   ): Unit = {
     it should s"convert multiple examples to enums for ${schema.getClass.getSimpleName}" in {
-      var valueSchema: JsonSchema[_] = schema
-      for (_ <- 1 to 4) { valueSchema = valueSchema.merge(valueSchema) }
-
+      var valueSchema = repeatedMerge(schema)
       val transformedSchema = EnumTransformer.transformSchema(valueSchema)
 
       transformedSchema.toJson.extract[Map[String, Set[String]]] shouldBe Map(
@@ -63,6 +66,16 @@ class EnumTransformerSpec extends UnitSpec {
       IntegerSchema(1).merge(IntegerSchema(2)).asInstanceOf[IntegerSchema]
 
     val transformedSchema = EnumTransformer.transformSchema(schema)
+
+    transformedSchema shouldBe a[IntegerSchema]
+  }
+
+  it should "not convert if the other schema has extra values" in {
+    val schema = repeatedMerge(IntegerSchema(1))
+    val otherSchema = IntegerSchema(2)
+
+    val transformedSchema =
+      EnumTransformer.transformSchema(schema, Some(otherSchema))
 
     transformedSchema shouldBe a[IntegerSchema]
   }

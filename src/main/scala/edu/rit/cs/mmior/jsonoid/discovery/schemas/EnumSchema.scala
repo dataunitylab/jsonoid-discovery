@@ -63,7 +63,11 @@ final case class EnumSchema(
 }
 
 final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
-    extends SchemaProperty[Set[JValue], EnumValuesProperty] {
+    extends SchemaProperty[Set[JValue]] {
+  override type S = EnumValuesProperty
+
+  override def newDefault: EnumValuesProperty = EnumValuesProperty()
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.Equals",
@@ -109,5 +113,12 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     } else {
       Seq(Anomaly(path, "enum value not found", Fatal))
     }
+  }
+
+  override def isCompatibleWith(
+      other: EnumValuesProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    other.values.subsetOf(values)
   }
 }

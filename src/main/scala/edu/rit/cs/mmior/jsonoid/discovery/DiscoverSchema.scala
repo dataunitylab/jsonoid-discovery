@@ -5,6 +5,7 @@ import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import scala.io.Source
+import scala.language.existentials
 
 import scopt.OptionParser
 import org.json4s._
@@ -24,10 +25,33 @@ final case class Config(
     addDefinitions: Boolean = false,
     maxExamples: Option[Int] = None,
     additionalProperties: Boolean = false,
-    formatThreshold: Option[Float] = None
+    formatThreshold: Option[Float] = None,
+    splitPercentage: Option[Double] = None
 )
 
 object DiscoverSchema {
+  def splitDiscover(
+      jsons: Iterator[JValue],
+      propSet: PropertySet = PropertySets.AllProperties,
+      splitFraction: Double = 0.9f
+  )(implicit p: JsonoidParams): (JsonSchema[_], JsonSchema[_]) = {
+    val initialSchemas: (JsonSchema[_], JsonSchema[_]) =
+      (ZeroSchema(), ZeroSchema())
+    jsons.foldLeft(initialSchemas) { (schemas, json) =>
+      {
+        // Discover the schema for this single value
+        val newSchema = discoverFromValue(json, propSet)
+
+        // Merge the value into the appropriate schema
+        if (util.Random.nextDouble > splitFraction) {
+          (schemas._1.merge(newSchema), schemas._2)
+        } else {
+          (schemas._1, schemas._2.merge(newSchema))
+        }
+      }
+    }
+  }
+
   def discover(
       jsons: Iterator[JValue],
       propSet: PropertySet = PropertySets.AllProperties
@@ -81,6 +105,7 @@ object DiscoverSchema {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   def transformSchema(
       schema: JsonSchema[_],
+      otherSchema: Option[JsonSchema[_]] = None,
       addDefinitions: Boolean = false
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     var transformedSchema = schema
@@ -89,7 +114,7 @@ object DiscoverSchema {
         .transformSchema(transformedSchema)(p)
     }
     transformedSchema = EnumTransformer
-      .transformSchema(transformedSchema)(p)
+      .transformSchema(transformedSchema, otherSchema)(p)
 
     transformedSchema
   }
@@ -175,6 +200,10 @@ object DiscoverSchema {
       opt[Double]("format-threshold")
         .action((x, c) => c.copy(formatThreshold = Some(x.toFloat)))
         .text("set the fraction of values that must match a given format")
+
+      opt[Double]('s', "split-percentage")
+        .action((x, c) => c.copy(splitPercentage = Some(x)))
+        .text("use split discovery with a specified percentage of documents")
     }
 
     parser.parse(args, Config()) match {
@@ -200,8 +229,27 @@ object DiscoverSchema {
           p = p.withFormatThreshold(config.formatThreshold.get)
         }
 
-        val schema =
-          discover(jsons, propSet)(p)
+        val (schema: ObjectSchema, testSchema: Option[ObjectSchema]) =
+          config.splitPercentage match {
+            case Some(pct) =>
+              val schemas = splitDiscover(jsons, propSet, pct)(p)
+              val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
+              val testSchema = schemas._2.asInstanceOf[ObjectSchema]
+              val finalSchema = trainSchema.expandTo(testSchema)
+              if (!finalSchema.isCompatibleWith(testSchema)) {
+                val incompats = IncompatibilityCollector.findIncompatibilities(
+                  finalSchema,
+                  testSchema
+                )
+                incompats.foreach(System.err.println(_))
+                throw new IllegalStateException(
+                  "Split discovery failed to find a compatible schema"
+                )
+              }
+
+              (finalSchema, Some(testSchema))
+            case None => (discover(jsons, propSet)(p), None)
+          }
 
         // Check if transformations are valid
         if (
@@ -213,11 +261,14 @@ object DiscoverSchema {
         }
 
         var transformedSchema: JsonSchema[_] =
-          transformSchema(schema, config.addDefinitions)(p)
+          transformSchema(schema, testSchema, config.addDefinitions)(p)
 
         if (config.writeValues.isDefined) {
           val outputStream = new FileOutputStream(config.writeValues.get)
-          ValueTableGenerator.writeValueTable(transformedSchema, outputStream)
+          ValueTableGenerator.writeValueTable(
+            transformedSchema,
+            outputStream
+          )
         }
 
         val schemaStr = pretty(render(transformedSchema.toJsonSchema()(p)))

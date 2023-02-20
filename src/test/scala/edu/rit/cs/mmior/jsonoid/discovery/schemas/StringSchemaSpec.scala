@@ -92,6 +92,18 @@ class StringSchemaSpec extends UnitSpec {
     (formatProp.toJson \ "format") shouldBe JNothing
   }
 
+  it should "not expand for compatible formats" in {
+    FormatProperty(Map("url" -> 100))
+      .expandTo(FormatProperty(Map("url" -> 10)))
+      .maxFormat() shouldBe Some("url")
+  }
+
+  it should "expand to remove formats if needed" in {
+    FormatProperty(Map("url" -> 100))
+      .expandTo(FormatProperty(Map("email" -> 10)))
+      .maxFormat() shouldBe None
+  }
+
   behavior of "StaticPatternProperty"
 
   it should "should not allow merging regex properties" in {
@@ -128,6 +140,22 @@ class StringSchemaSpec extends UnitSpec {
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("bazfoo") }
     val prefixProp = prefixSchema.get[PatternProperty]
     (prefixProp.toJson \ "pattern").extract[String] shouldBe "^ba.*foo$"
+  }
+
+  it should "expand to remove patterns if needed" in {
+    val newPattern =
+      PatternProperty(Some("foo"), Some("bar")).expandTo(PatternProperty())
+    newPattern.prefix shouldBe None
+    newPattern.suffix shouldBe None
+  }
+
+  it should "not expand to remove patterns if not needed" in {
+    val newPattern =
+      PatternProperty(Some("fo"), Some("ar")).expandTo(
+        PatternProperty(Some("foo"), Some("bar"))
+      )
+    newPattern.prefix shouldBe Some("fo")
+    newPattern.suffix shouldBe Some("ar")
   }
 
   behavior of "StringLengthHistogramProperty"
@@ -229,5 +257,14 @@ class StringSchemaSpec extends UnitSpec {
     anomalies shouldBe List(
       Anomaly("$", "value does not match the required regex", Fatal)
     )
+  }
+
+  it should "be compatible with a matching schema" in {
+    StringSchema("foo").isCompatibleWith(StringSchema("foo")) shouldBe true
+  }
+
+  it should "expand to be compatible with a similar schema" in {
+    val schema = StringSchema("a")
+    StringSchema("foo").expandTo(schema).isCompatibleWith(schema) shouldBe true
   }
 }

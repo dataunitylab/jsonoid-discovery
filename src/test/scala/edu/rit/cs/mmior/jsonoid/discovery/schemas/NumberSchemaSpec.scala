@@ -33,6 +33,12 @@ class NumberSchemaSpec extends UnitSpec {
     )
   }
 
+  it should "expand by incrementing values" in {
+    MaxNumValueProperty(Some(11))
+      .expandTo(MaxNumValueProperty((Some(12))))
+      .maxNumValue shouldBe Some(12)
+  }
+
   behavior of "MinNumValueProperty"
 
   it should "track the minimum value" in {
@@ -43,6 +49,12 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchemaIntersect.properties should contain(
       MinNumValueProperty(Some(7.0))
     )
+  }
+
+  it should "expand by decrementing values" in {
+    MinNumValueProperty(Some(11))
+      .expandTo(MinNumValueProperty((Some(10))))
+      .minNumValue shouldBe Some(10)
   }
 
   behavior of "NumHyperLogLogProperty"
@@ -95,6 +107,48 @@ class NumberSchemaSpec extends UnitSpec {
       NumberSchema(0).merge(NumberSchema(0)).asInstanceOf[NumberSchema]
     val multipleProp = zeroNumSchema.properties.get[NumMultipleOfProperty]
     multipleProp.toJson shouldBe JObject()
+  }
+
+  it should "be compatible with the same multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(3.0)))
+    ) shouldBe true
+  }
+
+  it should "be compatible with a larger multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(6.0)))
+    ) shouldBe true
+  }
+
+  it should "not be compatible with a smaller multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(4.0))).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(2.0)))
+    ) shouldBe false
+  }
+
+  it should "be compatible if no multiple" in {
+    NumMultipleOfProperty(None).isCompatibleWith(
+      NumMultipleOfProperty(Some(BigDecimal(2.0)))
+    ) shouldBe true
+  }
+
+  it should "expand by division by 2s" in {
+    NumMultipleOfProperty(Some(4.0))
+      .expandTo(NumMultipleOfProperty((Some(2.0))))
+      .multiple shouldBe Some(2.0)
+  }
+
+  it should "stop expanding after MaxExpandRounds" in {
+    NumMultipleOfProperty(Some(1048576.0))
+      .expandTo(NumMultipleOfProperty((Some(2.0))))
+      .multiple shouldBe None
+  }
+
+  it should "not expand if already covered" in {
+    NumMultipleOfProperty(Some(3.5))
+      .expandTo(NumMultipleOfProperty((Some(7.0))))
+      .multiple shouldBe Some(3.5)
   }
 
   behavior of "NumHistogramProperty"
@@ -227,5 +281,18 @@ class NumberSchemaSpec extends UnitSpec {
       .collectAnomalies(JInt(30)) shouldBe Seq(
       Anomaly("$", "value outside histogram bounds", Warning)
     )
+  }
+
+  it should "be compatible with a similar integer schema" in {
+    NumberSchema(1.0).isCompatibleWith(IntegerSchema(1)) shouldBe true
+  }
+
+  it should "be compatible with a matching schema" in {
+    NumberSchema(1.0).isCompatibleWith(NumberSchema(1.0)) shouldBe true
+  }
+
+  it should "expand to be compatible with a similar schema" in {
+    val schema = NumberSchema(2)
+    NumberSchema(1).expandTo(schema).isCompatibleWith(schema) shouldBe true
   }
 }

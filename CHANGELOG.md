@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow additional ER choices in CLI
 - Allow the maximum number of examples to be configured
 - Allow configuration of `additionalProperties`
+- Allow checking of schema compatibility
+- Expand schema properties to cover another schema where possible
 
 ### Changed
 - Use ranking to improve possible primary key suggestions
 - Use a configurable threshold for format detection, defaulting to 1
+- Refactor reference replacement to allow replacing with any schema
 
 ## Fixed
 - Don't output a format if most string values have no format

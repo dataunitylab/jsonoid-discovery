@@ -15,10 +15,8 @@ class ArraySchemaSpec extends UnitSpec {
   private val arraySchema = ArraySchema(
     ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
   )
-  private val schemaList = List(NullSchema(), BooleanSchema(true))
-  private val tupleSchema = ArraySchema(
-    ArraySchema(schemaList).properties.mergeValue(schemaList)
-  )
+  private val schemaList = List(IntegerSchema(0), BooleanSchema(true))
+  private val tupleSchema = ArraySchema.tuple(schemaList)
 
   behavior of "MinItemsProperty"
 
@@ -26,10 +24,26 @@ class ArraySchemaSpec extends UnitSpec {
     arraySchema.properties should contain(MinItemsProperty(Some(1)))
   }
 
+  it should "expand by decrementing" in {
+    MinItemsProperty(Some(3))
+      .expandTo(
+        MinItemsProperty(Some(2))
+      )
+      .minItems shouldBe Some(2)
+  }
+
   behavior of "MaxItemsProperty"
 
   it should "track maximum array length" in {
     arraySchema.properties should contain(MaxItemsProperty(Some(2)))
+  }
+
+  it should "expand by incrementing" in {
+    MaxItemsProperty(Some(2))
+      .expandTo(
+        MaxItemsProperty(Some(3))
+      )
+      .maxItems shouldBe Some(3)
   }
 
   behavior of "UniqueProperty"
@@ -60,6 +74,18 @@ class ArraySchemaSpec extends UnitSpec {
       List(NumberSchema(1.0), NumberSchema(2.0))
     val uniqueArraySchema = ArraySchema(schemaList)
     uniqueArraySchema.properties should contain(UniqueProperty(true, false))
+  }
+
+  it should "not expand if both are unique" in {
+    UniqueProperty(true, false).expandTo(
+      UniqueProperty(true, false)
+    ) shouldBe UniqueProperty(true, false)
+  }
+
+  it should "expand to remove uniqueness" in {
+    UniqueProperty(true, false).expandTo(
+      UniqueProperty(false, false)
+    ) shouldBe UniqueProperty(false, false)
   }
 
   behavior of "ArraySchema"
@@ -180,7 +206,7 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "find a type in a tuple schema" in {
-    tupleSchema.findByPointer("/0").shouldEqual(Some(NullSchema()))
+    tupleSchema.findByPointer("/1").shouldEqual(Some(BooleanSchema()))
   }
 
   it should "find the tuple schema itself" in {
@@ -210,7 +236,7 @@ class ArraySchemaSpec extends UnitSpec {
   it should "not show anomalies in tuple schemas with the correct type" in {
     tupleSchema.properties
       .get[ItemTypeProperty]
-      .isAnomalous(JArray(List(JNull, JBool(true))))
+      .isAnomalous(JArray(List(JInt(0), JBool(true))))
       .shouldBe(false)
   }
 
@@ -268,5 +294,63 @@ class ArraySchemaSpec extends UnitSpec {
       .collectAnomalies(
         JArray(List(JString("foo"), JString("foo")))
       ) shouldBe Seq(Anomaly("$", "array items are not unique", Fatal))
+  }
+
+  it should "be compatible with a matching schema" in {
+    ArraySchema(List(BooleanSchema()))
+      .isCompatibleWith(ArraySchema(List(BooleanSchema()))) shouldBe true
+  }
+
+  it should "show tuple schemas with matching types as compatible" in {
+    tupleSchema.isCompatibleWith(tupleSchema) shouldBe true
+  }
+
+  it should "show tuple schemas with mismatched types as not compatible with array schemas" in {
+    arraySchema.isCompatibleWith(tupleSchema) shouldBe false
+  }
+
+  it should "show tuple schemas with matching types as compatible with array schemas" in {
+    val productSchema = ProductSchema(IntegerSchema(0))
+      .merge(BooleanSchema())
+      .asInstanceOf[ProductSchema]
+    val arraySchema = ArraySchema(
+      ArraySchema(List(productSchema)).properties
+        .mergeValue(List(productSchema, productSchema))
+    )
+    arraySchema.isCompatibleWith(tupleSchema) shouldBe true
+  }
+
+  it should "expand to be compatible with a similar array schema" in {
+    val schema = ArraySchema.array(IntegerSchema(0))
+    ArraySchema
+      .array(IntegerSchema(1))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand a tuple schema to be compatible with an array" in {
+    val schema = ArraySchema.array(IntegerSchema(0))
+    ArraySchema
+      .tuple(List(IntegerSchema(0), IntegerSchema(1)))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand a tuple schema to be compatible with another tuple" in {
+    val schema = ArraySchema.tuple(List(IntegerSchema(1), IntegerSchema(2)))
+    ArraySchema
+      .tuple(List(IntegerSchema(3), IntegerSchema(4)))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "expand tuple schemas of different sizes to an array" in {
+    val schema = ArraySchema.tuple(
+      List(IntegerSchema(0), IntegerSchema(1), IntegerSchema(2))
+    )
+    ArraySchema
+      .tuple(List(IntegerSchema(3), IntegerSchema(4)))
+      .expandTo(schema)
+      .isCompatibleWith(schema) shouldBe true
   }
 }

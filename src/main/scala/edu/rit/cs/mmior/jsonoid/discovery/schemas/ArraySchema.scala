@@ -24,6 +24,22 @@ object ArraySchema {
     )
   }
 
+  def array(
+      value: JsonSchema[_]
+  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+    val newProps = apply(List(value)).properties
+      .replaceProperty(ItemTypeProperty(Left(value)))
+    ArraySchema(newProps)
+  }
+
+  def tuple(
+      value: List[JsonSchema[_]]
+  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+    val newProps =
+      apply(value).properties.replaceProperty(ItemTypeProperty(Right(value)))
+    ArraySchema(newProps)
+  }
+
   val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
@@ -102,16 +118,28 @@ final case class ArraySchema(
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+    properties.get[ItemTypeProperty].itemType match {
+      // We can only follow pointers for tuple schemas, not real array schemas
+      case Left(schema) =>
+        schema.findByInexactPointer(pointer)
+      case Right(schemas) =>
+        schemas.foldLeft(Seq.empty[JsonSchema[_]]) {
+          _ ++ _.findByInexactPointer(pointer)
+        }
+    }
+  }
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
       "org.wartremover.warts.Recursion"
     )
   )
-  override def replaceWithReference(
+  override def replaceWithSchema(
       pointer: String,
-      reference: String,
-      obj: Option[JsonSchema[_]]
+      replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     val itemTypes = properties.get[ItemTypeProperty].itemType
     itemTypes match {
@@ -121,10 +149,10 @@ final case class ArraySchema(
         // Build a new type property that replaces the required type
         val typeProp = pointer.split("/", 3) match {
           case Array(_, "*") =>
-            ItemTypeProperty(Left(ReferenceSchema(reference, obj)))
+            ItemTypeProperty(Left(replaceSchema))
           case Array(_, "*", rest) =>
             ItemTypeProperty(
-              Left(schema.replaceWithReference("/" + rest, reference, obj))
+              Left(schema.replaceWithSchema("/" + rest, replaceSchema))
             )
           case _ =>
             throw new IllegalArgumentException("Invalid path for reference")
@@ -139,12 +167,11 @@ final case class ArraySchema(
           case Array(_, "") =>
             throw new IllegalArgumentException("Invalid path for reference")
           case Array(_, first) =>
-            schemas.updated(first.toInt, ReferenceSchema(reference, obj))
+            schemas.updated(first.toInt, replaceSchema)
           case Array(_, first, rest) =>
             schemas.updated(
               first.toInt,
-              schemas(first.toInt)
-                .replaceWithReference("/" + rest, reference, obj)
+              schemas(first.toInt).replaceWithSchema("/" + rest, replaceSchema)
             )
         }
 
@@ -158,9 +185,13 @@ final case class ArraySchema(
 
 final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
-) extends SchemaProperty[List[JsonSchema[_]], ItemTypeProperty] {
+) extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = ItemTypeProperty
+
+  override def newDefault: ItemTypeProperty = ItemTypeProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = itemType match {
-    case Left(schema) => ("items" -> schema.toJson()(p))
+    case Left(schema) => ("items" -> schema.toJson)
     case Right(schemas) =>
       if (schemas.nonEmpty) {
         ("items" -> JArray(schemas.map(_.toJson()(p))))
@@ -170,13 +201,22 @@ final case class ItemTypeProperty(
   }
 
   override def transform(
-      transformer: PartialFunction[JsonSchema[_], JsonSchema[_]]
+      transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
+      path: String
   ): ItemTypeProperty = {
     ItemTypeProperty(itemType match {
       case Left(singleType) =>
-        Left(singleType.transformProperties(transformer, true))
+        Left(
+          singleType.transformPropertiesWithInexactPath(transformer, true, path)
+        )
       case Right(typeList) =>
-        Right(typeList.map(_.transformProperties(transformer, true)))
+        Right(typeList.zipWithIndex.map { case (schema, index) =>
+          schema.transformPropertiesWithInexactPath(
+            transformer,
+            true,
+            path
+          )
+        })
     })
   }
 
@@ -259,10 +299,73 @@ final case class ItemTypeProperty(
       case _ => Seq.empty
     }
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def isCompatibleWith(
+      other: ItemTypeProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    (itemType, other.itemType) match {
+      // Single types must match
+      case (Left(schema1), Left(schema2)) =>
+        !recursive || schema1.isCompatibleWith(schema2)
+
+      // Tuple schemas cannot be compatible with item schemas
+      case (Right(_), Left(_)) => false
+
+      case (Left(schema), Right(schemas)) => {
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        !recursive || schema.isCompatibleWith(oneSchema)
+      }
+
+      // Corresponding types must match
+      case (Right(schemas1), Right(schemas2)) =>
+        schemas1.length == schemas2.length &&
+          (!recursive || schemas1
+            .zip(schemas2)
+            .forall({ case (s1, s2) => s1.isCompatibleWith(s2) }))
+    }
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  override def expandTo(other: ItemTypeProperty): ItemTypeProperty = {
+    (itemType, other.itemType) match {
+      case (Left(schema1), Left(schema2)) =>
+        // Expand the single item schema to match
+        ItemTypeProperty(Left(schema1.expandTo(schema2)))
+
+      case (Right(schemas), Left(schema)) =>
+        // Collapse down to a single schema and expand
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        ItemTypeProperty(Left(oneSchema.expandTo(schema)))
+
+      case (Right(schemas1), Right(schemas2)) =>
+        if (schemas1.length == schemas2.length) {
+          // Combine corresponding tuple schemas
+          val schemas =
+            schemas1.zip(schemas2).map { case (s1, s2) => s1.expandTo(s2) }
+          ItemTypeProperty(Right(schemas))
+        } else {
+          // Collapse both to a single schema and expand
+          val oneSchema1 = schemas1.fold(ZeroSchema())(_.merge(_, Union))
+          val oneSchema2 = schemas2.fold(ZeroSchema())(_.merge(_, Union))
+          ItemTypeProperty(Left(oneSchema1.expandTo(oneSchema2)))
+        }
+
+      case (Left(schema), Right(schemas)) =>
+        // Collapse the other side to a single schema and expand
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        ItemTypeProperty(Left(schema.expandTo(oneSchema)))
+    }
+  }
 }
 
 final case class MinItemsProperty(minItems: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]], MinItemsProperty] {
+    extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = MinItemsProperty
+
+  override def newDefault: MinItemsProperty = MinItemsProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("minItems" -> minItems)
 
@@ -313,10 +416,26 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MinItemsProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMinCompatibleWith(minItems, false, other.minItems, false)
+  }
+
+  override def expandTo(other: MinItemsProperty): MinItemsProperty = {
+    val newMin = maybeContractInt(minItems, other.minItems, false)._1
+    MinItemsProperty(newMin)
+  }
 }
 
 final case class MaxItemsProperty(maxItems: Option[Int] = None)
-    extends SchemaProperty[List[JsonSchema[_]], MaxItemsProperty] {
+    extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = MaxItemsProperty
+
+  override def newDefault: MaxItemsProperty = MaxItemsProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("maxItems" -> maxItems)
 
@@ -367,10 +486,26 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: MaxItemsProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    Helpers.isMaxCompatibleWith(maxItems, false, other.maxItems, false)
+  }
+
+  override def expandTo(other: MaxItemsProperty): MaxItemsProperty = {
+    val newMax = maybeExpandInt(maxItems, other.maxItems, false)._1
+    MaxItemsProperty(newMax)
+  }
 }
 
 final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
-    extends SchemaProperty[List[JsonSchema[_]], UniqueProperty] {
+    extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = UniqueProperty
+
+  override def newDefault: UniqueProperty = UniqueProperty()
+
   override def toJson()(implicit p: JsonoidParams): JObject = if (
     unique && !unary
   ) {
@@ -436,11 +571,41 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
       case _ => Seq.empty
     }
   }
+
+  override def isCompatibleWith(
+      other: UniqueProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    (unique && !unary) >= (other.unique && !other.unary)
+  }
+
+  override def expandTo(other: UniqueProperty): UniqueProperty = {
+    (unique, unary, other.unique, other.unary) match {
+      // If we are unary, stay that way, since we haven't confirmed uniqueness
+      case (_, true, _, _) => this
+
+      // If not unique, no need to expand
+      case (false, _, _, _) => this
+
+      // If the other schema is unique, whether we are unique does not matter
+      case (_, _, true, _) => this
+
+      // If we are unique and the other is not, expand
+      case _ => UniqueProperty(false, unary)
+    }
+  }
 }
 
 final case class ArrayLengthHistogramProperty(
     histogram: DDSketch = DDSketches.unboundedDense(0.01)
-) extends SchemaProperty[List[JsonSchema[_]], ArrayLengthHistogramProperty] {
+) extends SchemaProperty[List[JsonSchema[_]]] {
+  override type S = ArrayLengthHistogramProperty
+
+  override def newDefault: ArrayLengthHistogramProperty =
+    ArrayLengthHistogramProperty()
+
+  override val isInformational = true
+
   @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   override def toJson()(implicit p: JsonoidParams): JObject = {
     val indexMapping = histogram.getIndexMapping
