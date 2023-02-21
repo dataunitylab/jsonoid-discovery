@@ -45,7 +45,7 @@ final case class PrimaryKeyFeatures(
     (if (hasPrefixOrSuffix) 1.0 else 0.0) +
       1.0 / (depth + 1) +
       (if (idType) 1.0 else 0.0) +
-      1.0.max(maxLength - PrimaryKeyFeatures.LengthPenalty)
+      1.0 / 1.0.max(maxLength - PrimaryKeyFeatures.LengthPenalty)
   }
 }
 
