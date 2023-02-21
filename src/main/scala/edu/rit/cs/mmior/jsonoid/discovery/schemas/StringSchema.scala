@@ -397,9 +397,9 @@ final case class FormatProperty(
       "org.wartremover.warts.TraversableOps"
     )
   )
-  private[schemas] def maxFormat(
+  def maxFormat(
       useLimit: Boolean = true
-  )(implicit p: JsonoidParams) = {
+  )(implicit p: JsonoidParams): Option[String] = {
     val total = formats.values.sum
     if ((total > 0 && !useLimit) || total >= FormatProperty.MinExamples) {
       val maxFormat = formats.maxBy(_._2)

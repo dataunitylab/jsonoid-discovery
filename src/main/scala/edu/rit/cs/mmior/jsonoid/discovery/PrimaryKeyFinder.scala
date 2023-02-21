@@ -1,5 +1,6 @@
 package edu.rit.cs.mmior.jsonoid.discovery
 
+import Helpers._
 import schemas._
 import utils.HyperLogLog
 
@@ -40,8 +41,8 @@ final case class PrimaryKeyFeatures(
     // Manel Souibgui, Faten Atiguia, Sadok Ben Yahia, and Samira Si-Said Cherfi
     // https://www.sciencedirect.com/science/article/pii/S0169023X22000209
     //
-    // We currently only consider single attribute primary keys
-    // so we ignore the cardinality feature
+    // We currently only consider single attribute primary keys so we ignore
+    // the cardinality feature. We also consider UUIDs to have length 0.
     (if (hasPrefixOrSuffix) 1.0 else 0.0) +
       1.0 / (depth + 1) +
       (if (idType) 1.0 else 0.0) +
@@ -122,7 +123,13 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
 
     case (path, s: StringSchema)
         if s.properties.has[StringHyperLogLogProperty] =>
-      val maxLength = if (s.properties.has[MaxLengthProperty]) {
+      // If we have UUID format, consider the length as zero since UUIDs are
+      // long, but fairly likely to be used as primary key values
+      val format =
+        s.properties.getOrNone[FormatProperty].map(_.maxFormat().getOrElse(""))
+      val isUUID = format.map(_ === "uuid").getOrElse(false)
+
+      val maxLength = if (s.properties.has[MaxLengthProperty] && !isUUID) {
         s.properties.get[MaxLengthProperty].maxLength.getOrElse(0)
       } else {
         0
