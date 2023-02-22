@@ -53,6 +53,15 @@ final case class SchemaProperties[T](
     SchemaProperties(properties + (tag -> prop))
   }
 
+  def replacePropertyWithDefault[S <: SchemaProperty[T]]()(implicit
+      tag: ClassTag[S]
+  ): SchemaProperties[T] = {
+    properties.get(tag) match {
+      case Some(prop) => SchemaProperties(properties + (tag -> prop.newDefault))
+      case None       => SchemaProperties(properties)
+    }
+  }
+
   def mergeValue(
       value: T
   )(implicit p: JsonoidParams): SchemaProperties[T] = {

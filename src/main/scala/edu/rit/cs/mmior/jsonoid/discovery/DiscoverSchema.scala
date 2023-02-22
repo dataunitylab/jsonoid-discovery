@@ -28,7 +28,8 @@ private final case class Config(
     maxExamples: Option[Int] = None,
     additionalProperties: Boolean = false,
     formatThreshold: Option[Float] = None,
-    splitPercentage: Option[Double] = None
+    splitPercentage: Option[Double] = None,
+    resetFormatLength: Boolean = false
 )
 
 object DiscoverSchema {
@@ -146,6 +147,26 @@ object DiscoverSchema {
     transformedSchema = EnumTransformer
       .transformSchema(transformedSchema, otherSchema)(p)
 
+    // Reset max/min length from strings if a format is defined
+    if (p.resetFormatLength) {
+      transformedSchema = schema.transformProperties(
+        { case s: StringSchema =>
+          val format =
+            s.properties.getOrNone[FormatProperty].map(_.maxFormat()(p))
+          if (format.isDefined) {
+            StringSchema(
+              s.properties
+                .replacePropertyWithDefault[MaxLengthProperty]()
+                .replacePropertyWithDefault[MinLengthProperty]()
+            )
+          } else {
+            s
+          }
+        },
+        true
+      )
+    }
+
     transformedSchema
   }
 
@@ -234,6 +255,10 @@ object DiscoverSchema {
       opt[Double]('s', "split-percentage")
         .action((x, c) => c.copy(splitPercentage = Some(x)))
         .text("use split discovery with a specified percentage of documents")
+
+      opt[Unit]("reset-format-length")
+        .action((x, c) => c.copy(resetFormatLength = true))
+        .text("reset the max/min length of strings with a format")
     }
 
     parser.parse(args, Config()) match {
@@ -252,6 +277,7 @@ object DiscoverSchema {
         var p = JsonoidParams()
           .withER(config.equivalenceRelation)
           .withAdditionalProperties(config.additionalProperties)
+          .withResetFormatLength(config.resetFormatLength)
         if (config.maxExamples.isDefined) {
           p = p.withMaxExamples(config.maxExamples.get)
         }

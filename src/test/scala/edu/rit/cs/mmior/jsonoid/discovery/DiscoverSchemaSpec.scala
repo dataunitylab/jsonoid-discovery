@@ -100,4 +100,19 @@ class DiscoverSchemaSpec extends UnitSpec {
       errors shouldBe empty
     }
   }
+
+  it should "reset min/max length for strings when transforming" in {
+    implicit val propSet = PropertySets.SimpleProperties
+    var schema = StringSchema("http://example.com/")
+    val p = JsonoidParams.defaultJsonoidParams.withResetFormatLength(true)
+    for (_ <- 1 to 10) {
+      schema = schema
+        .mergeSameType(Union)(p)(schema)
+        .asInstanceOf[StringSchema]
+    }
+    val transformedSchema =
+      DiscoverSchema.transformSchema(schema)(p).asInstanceOf[StringSchema]
+    transformedSchema.properties.get[MinLengthProperty].minLength shouldBe None
+    transformedSchema.properties.get[MaxLengthProperty].maxLength shouldBe None
+  }
 }
