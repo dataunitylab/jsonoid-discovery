@@ -3,23 +3,27 @@ package schemas
 
 import org.json4s._
 
+import UnitSpec._
+
 class BooleanSchemaSpec extends UnitSpec {
+  implicit val formats: Formats = DefaultFormats
+
   behavior of "BooleanSchema"
 
-  val booleanSchema: BooleanSchema = BooleanSchema()
+  private val booleanSchema = BooleanSchema()
 
-  it should "show booleans as a valid type" in {
-    val bool: JValue = JBool(true)
-    booleanSchema.isValidType(bool) shouldBe (true)
+  it should "have type 'boolean'" in {
+    booleanSchema.schemaType shouldBe "boolean"
   }
 
-  it should "show non-booleans as an invalid type" in {
-    booleanSchema.isValidType(JString("foo")) shouldBe (false)
+  it should "have only boolean as a valid type" in {
+    booleanSchema.validTypes shouldBe Set(classOf[JBool])
   }
 
-  it should "detect no anomalies with a non-boolean type" in {
-    booleanSchema.properties.flatMap(
-      _.collectAnomalies(JDouble(3.4))
-    ) shouldBe empty
+  behavior of "BooleanPercentProperty"
+
+  it should "track the percentage of true values" in {
+    val pctProp = BooleanPercentProperty().mergeValue(true).mergeValue(false)
+    (pctProp.toJson \ "pctTrue").extract[Double] shouldBe 0.5
   }
 }

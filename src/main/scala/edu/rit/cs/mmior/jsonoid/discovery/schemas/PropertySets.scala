@@ -5,6 +5,7 @@ package schemas
   *
   * @constructor Create a new set of properties
   * @param arrayProperties properties related to [[ArraySchema]]
+  * @param booleanProperties properties related to [[BooleanSchema]]
   * @param integerProperties properties related to [[IntegerSchema]]
   * @param numberProperties properties related to [[NumberSchema]]
   * @param objectPropperties properties related to [[ObjectSchema]]
@@ -12,6 +13,7 @@ package schemas
   */
 final case class PropertySet(
     val arrayProperties: SchemaProperties[List[JsonSchema[_]]],
+    val booleanProperties: SchemaProperties[Boolean],
     val integerProperties: SchemaProperties[BigInt],
     val numberProperties: SchemaProperties[BigDecimal],
     val objectProperties: SchemaProperties[Map[String, JsonSchema[_]]],
@@ -31,6 +33,7 @@ final case class PropertySet(
     )
     PropertySet(
       arrayProperties.only(props),
+      booleanProperties.only(props),
       integerProperties.only(props),
       numberProperties.only(props),
       objectProperties.only(props),
@@ -45,6 +48,7 @@ object PropertySets {
   /** A property set with all supported properties. */
   implicit val AllProperties: PropertySet = PropertySet(
     ArraySchema.AllProperties,
+    BooleanSchema.AllProperties,
     IntegerSchema.AllProperties,
     NumberSchema.AllProperties,
     ObjectSchema.AllProperties,
@@ -56,6 +60,7 @@ object PropertySets {
     */
   val MinProperties: PropertySet = PropertySet(
     ArraySchema.MinProperties,
+    BooleanSchema.MinProperties,
     IntegerSchema.MinProperties,
     NumberSchema.MinProperties,
     ObjectSchema.MinProperties,
@@ -65,6 +70,7 @@ object PropertySets {
   /** A property set with all properties supported by JSON Schema.. */
   val SimpleProperties: PropertySet = PropertySet(
     ArraySchema.SimpleProperties,
+    BooleanSchema.SimpleProperties,
     IntegerSchema.SimpleProperties,
     NumberSchema.SimpleProperties,
     ObjectSchema.SimpleProperties,

@@ -91,7 +91,7 @@ object DiscoverSchema {
     value match {
       case JArray(items) =>
         ArraySchema(items.map(discoverFromValue(_, propSet)(p)))(propSet, p)
-      case JBool(bool)     => BooleanSchema(bool)(p)
+      case JBool(bool)     => BooleanSchema(bool)(propSet, p)
       case JDecimal(dec)   => NumberSchema(dec)(propSet, p)
       case JDouble(dbl)    => NumberSchema(dbl)(propSet, p)
       case JInt(int)       => IntegerSchema(int)(propSet, p)

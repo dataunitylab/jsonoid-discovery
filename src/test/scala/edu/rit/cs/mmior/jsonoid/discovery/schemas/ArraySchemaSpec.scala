@@ -15,7 +15,7 @@ class ArraySchemaSpec extends UnitSpec {
   private val arraySchema = ArraySchema(
     ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
   )
-  private val schemaList = List(IntegerSchema(0), BooleanSchema(true))
+  private val schemaList = List(IntegerSchema(0), BooleanSchema())
   private val tupleSchema = ArraySchema.tuple(schemaList)
 
   behavior of "MinItemsProperty"
@@ -95,7 +95,7 @@ class ArraySchemaSpec extends UnitSpec {
   }
 
   it should "track tuple schemas" in {
-    val tupleItemSchemas = List(NullSchema(), BooleanSchema(true))
+    val tupleItemSchemas = List(NullSchema(), BooleanSchema())
     val tupleSchema =
       ArraySchema(tupleItemSchemas).properties.mergeValue(tupleItemSchemas)
     tupleSchema should contain(ItemTypeProperty(Right(tupleItemSchemas)))
