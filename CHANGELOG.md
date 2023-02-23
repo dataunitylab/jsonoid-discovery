@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Allow reset of min/max length for strings with format
 
+## Fixed
+- Fix missing bash in Docker image
+
 ## [0.12.0]
 ### Added
 - Add equivalence relation which checks types

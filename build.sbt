@@ -1,4 +1,5 @@
 import Dependencies._
+import com.typesafe.sbt.packager.docker._
 
 ThisBuild / scalaVersion      := "2.11.12"
 ThisBuild / versionScheme     := Some("early-semver")
@@ -136,6 +137,10 @@ enablePlugins(SiteScaladocPlugin)
 
 dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
 dockerBaseImage := "openjdk:8-alpine"
+dockerCommands ++= Seq(
+  Cmd("USER", "root"),
+  ExecCmd("RUN", "apk", "add", "--no-cache", "bash"),
+)
 
 gitHubPagesOrgName := "michaelmior"
 gitHubPagesRepoName := "jsonoid-discovery"
