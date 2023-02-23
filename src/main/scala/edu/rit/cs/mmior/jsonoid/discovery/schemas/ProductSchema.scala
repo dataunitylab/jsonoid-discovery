@@ -244,7 +244,9 @@ final case class ProductSchemaTypesProperty(
     extends SchemaProperty[JsonSchema[_]] {
   override type S = ProductSchemaTypesProperty
 
-  override def newDefault: ProductSchemaTypesProperty =
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): ProductSchemaTypesProperty =
     ProductSchemaTypesProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =

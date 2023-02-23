@@ -92,7 +92,8 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String] {
   override type S = MinLengthProperty
 
-  override def newDefault: MinLengthProperty = MinLengthProperty()
+  override def newDefault()(implicit p: JsonoidParams): MinLengthProperty =
+    MinLengthProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("minLength" -> minLength)
@@ -162,7 +163,8 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String] {
   override type S = MaxLengthProperty
 
-  override def newDefault: MaxLengthProperty = MaxLengthProperty()
+  override def newDefault()(implicit p: JsonoidParams): MaxLengthProperty =
+    MaxLengthProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("maxLength" -> maxLength)
@@ -231,7 +233,9 @@ final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
     extends SchemaProperty[String] {
   override type S = StringHyperLogLogProperty
 
-  override def newDefault: StringHyperLogLogProperty =
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): StringHyperLogLogProperty =
     StringHyperLogLogProperty()
 
   override val isInformational = true
@@ -271,7 +275,9 @@ final case class StringBloomFilterProperty(
 ) extends SchemaProperty[String] {
   override type S = StringBloomFilterProperty
 
-  override def newDefault: StringBloomFilterProperty =
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): StringBloomFilterProperty =
     StringBloomFilterProperty()
 
   override val isInformational = true
@@ -326,7 +332,8 @@ final case class StringExamplesProperty(
 ) extends SchemaProperty[String] {
   override type S = StringExamplesProperty
 
-  override def newDefault: StringExamplesProperty = StringExamplesProperty()
+  override def newDefault()(implicit p: JsonoidParams): StringExamplesProperty =
+    StringExamplesProperty()
 
   override val isInformational = true
 
@@ -399,7 +406,8 @@ final case class FormatProperty(
 ) extends SchemaProperty[String] {
   override type S = FormatProperty
 
-  override def newDefault: FormatProperty = FormatProperty()
+  override def newDefault()(implicit p: JsonoidParams): FormatProperty =
+    FormatProperty()
 
   @SuppressWarnings(
     Array(
@@ -509,7 +517,8 @@ final case class PatternProperty(
 ) extends SchemaProperty[String] {
   override type S = PatternProperty
 
-  override def newDefault: PatternProperty = PatternProperty()
+  override def newDefault()(implicit p: JsonoidParams): PatternProperty =
+    PatternProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = if (
     examples >= PatternProperty.MinExamples
@@ -626,7 +635,8 @@ final case class StaticPatternProperty(regex: Regex)
     extends SchemaProperty[String] {
   override type S = StaticPatternProperty
 
-  override def newDefault: StaticPatternProperty = StaticPatternProperty(".*".r)
+  override def newDefault()(implicit p: JsonoidParams): StaticPatternProperty =
+    StaticPatternProperty(".*".r)
 
   override def mergeable: Boolean = false
 
@@ -683,7 +693,9 @@ final case class StringLengthHistogramProperty(
 ) extends SchemaProperty[String] {
   override type S = StringLengthHistogramProperty
 
-  override def newDefault: StringLengthHistogramProperty =
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): StringLengthHistogramProperty =
     StringLengthHistogramProperty()
 
   override val isInformational = true

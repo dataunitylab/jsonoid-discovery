@@ -8,7 +8,7 @@ import org.json4s._
 trait SchemaProperty[T] {
   type S <: SchemaProperty[T]
 
-  def newDefault: SchemaProperty[T]
+  def newDefault()(implicit p: JsonoidParams): SchemaProperty[T]
 
   def mergeable: Boolean = true
 

@@ -58,12 +58,12 @@ object PropertySets {
   /** A property set with the minimum set of properties to discover structural
     *  information..
     */
-  val MinProperties: PropertySet = PropertySet(
+  def MinProperties(implicit p: JsonoidParams): PropertySet = PropertySet(
     ArraySchema.MinProperties,
     BooleanSchema.MinProperties,
     IntegerSchema.MinProperties,
     NumberSchema.MinProperties,
-    ObjectSchema.MinProperties,
+    ObjectSchema.MinProperties(p),
     StringSchema.MinProperties
   )
 

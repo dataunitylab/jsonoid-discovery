@@ -131,7 +131,8 @@ final case class MinIntValueProperty(
 ) extends SchemaProperty[BigInt] {
   override type S = MinIntValueProperty
 
-  override def newDefault: MinIntValueProperty = MinIntValueProperty()
+  override def newDefault()(implicit p: JsonoidParams): MinIntValueProperty =
+    MinIntValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMinimum" }
@@ -239,7 +240,8 @@ final case class MaxIntValueProperty(
 ) extends SchemaProperty[BigInt] {
   override type S = MaxIntValueProperty
 
-  override def newDefault: MaxIntValueProperty = MaxIntValueProperty()
+  override def newDefault()(implicit p: JsonoidParams): MaxIntValueProperty =
+    MaxIntValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMaximum" }
@@ -345,7 +347,8 @@ final case class IntHyperLogLogProperty(
 ) extends SchemaProperty[BigInt] {
   override type S = IntHyperLogLogProperty
 
-  override def newDefault: IntHyperLogLogProperty = IntHyperLogLogProperty()
+  override def newDefault()(implicit p: JsonoidParams): IntHyperLogLogProperty =
+    IntHyperLogLogProperty()
 
   override val isInformational = true
 
@@ -383,7 +386,8 @@ final case class IntBloomFilterProperty(
 ) extends SchemaProperty[BigInt] {
   override type S = IntBloomFilterProperty
 
-  override def newDefault: IntBloomFilterProperty = IntBloomFilterProperty()
+  override def newDefault()(implicit p: JsonoidParams): IntBloomFilterProperty =
+    IntBloomFilterProperty()
 
   override val isInformational = true
 
@@ -437,7 +441,8 @@ final case class IntStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigInt] {
   override type S = IntStatsProperty
 
-  override def newDefault: IntStatsProperty = IntStatsProperty()
+  override def newDefault()(implicit p: JsonoidParams): IntStatsProperty =
+    IntStatsProperty()
 
   override val isInformational = true
 
@@ -467,7 +472,8 @@ final case class IntExamplesProperty(
 ) extends SchemaProperty[BigInt] {
   override type S = IntExamplesProperty
 
-  override def newDefault: IntExamplesProperty = IntExamplesProperty()
+  override def newDefault()(implicit p: JsonoidParams): IntExamplesProperty =
+    IntExamplesProperty()
 
   override val isInformational = true
 
@@ -496,7 +502,8 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
     extends SchemaProperty[BigInt] {
   override type S = IntMultipleOfProperty
 
-  override def newDefault: IntMultipleOfProperty = IntMultipleOfProperty()
+  override def newDefault()(implicit p: JsonoidParams): IntMultipleOfProperty =
+    IntMultipleOfProperty()
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
@@ -594,7 +601,8 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
     extends SchemaProperty[BigInt] {
   override type S = IntHistogramProperty
 
-  override def newDefault: IntHistogramProperty = IntHistogramProperty()
+  override def newDefault()(implicit p: JsonoidParams): IntHistogramProperty =
+    IntHistogramProperty()
 
   override val isInformational = true
 

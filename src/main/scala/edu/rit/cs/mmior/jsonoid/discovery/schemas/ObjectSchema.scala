@@ -20,6 +20,7 @@ object ObjectSchema {
 
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(AdditionalPropertiesProperty())
     props.add(ObjectTypesProperty())
     props.add(FieldPresenceProperty())
     props.add(RequiredProperty())
@@ -28,8 +29,11 @@ object ObjectSchema {
     props
   }
 
-  val MinProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+  def MinProperties(implicit
+      p: JsonoidParams
+  ): SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(AdditionalPropertiesProperty(p))
     props.add(ObjectTypesProperty())
 
     props
@@ -37,6 +41,7 @@ object ObjectSchema {
 
   val SimpleProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(AdditionalPropertiesProperty())
     props.add(ObjectTypesProperty())
     props.add(RequiredProperty())
     props.add(DependenciesProperty())
@@ -55,9 +60,6 @@ final case class ObjectSchema(
   override val schemaType = "object"
 
   override val validTypes: Set[Class[_]] = Set(classOf[JObject])
-
-  override val staticProperties: JObject = ("additionalProperties" ->
-    p.additionalProperties)
 
   override def mergeSameType(mergeType: MergeType)(implicit
       p: JsonoidParams
@@ -156,7 +158,8 @@ final case class ObjectTypesProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = ObjectTypesProperty
 
-  override def newDefault: ObjectTypesProperty = ObjectTypesProperty()
+  override def newDefault()(implicit p: JsonoidParams): ObjectTypesProperty =
+    ObjectTypesProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("properties" -> objectTypes.map { case (propType, schema) =>
@@ -299,7 +302,8 @@ final case class PatternTypesProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = PatternTypesProperty
 
-  override def newDefault: PatternTypesProperty = PatternTypesProperty()
+  override def newDefault()(implicit p: JsonoidParams): PatternTypesProperty =
+    PatternTypesProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("patternProperties" -> patternTypes.map { case (pattern, schema) =>
@@ -396,7 +400,8 @@ final case class FieldPresenceProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = FieldPresenceProperty
 
-  override def newDefault: FieldPresenceProperty = FieldPresenceProperty()
+  override def newDefault()(implicit p: JsonoidParams): FieldPresenceProperty =
+    FieldPresenceProperty()
 
   override val isInformational = true
 
@@ -449,7 +454,8 @@ final case class RequiredProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = RequiredProperty
 
-  override def newDefault: RequiredProperty = RequiredProperty()
+  override def newDefault()(implicit p: JsonoidParams): RequiredProperty =
+    RequiredProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = required match {
     case Some(requiredKeys) => ("required" -> requiredKeys)
@@ -537,7 +543,8 @@ final case class DependenciesProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = DependenciesProperty
 
-  override def newDefault: DependenciesProperty = DependenciesProperty()
+  override def newDefault()(implicit p: JsonoidParams): DependenciesProperty =
+    DependenciesProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
@@ -687,7 +694,9 @@ final case class StaticDependenciesProperty(
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = StaticDependenciesProperty
 
-  override def newDefault: StaticDependenciesProperty =
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): StaticDependenciesProperty =
     StaticDependenciesProperty()
 
   override def mergeable: Boolean = false
@@ -741,5 +750,64 @@ final case class StaticDependenciesProperty(
     // Compatibility checking is possible, but we really need to compare
     // with DependenciesProperty too which the current API does not permit
     false
+  }
+}
+
+object AdditionalPropertiesProperty {
+  def apply(implicit p: JsonoidParams): AdditionalPropertiesProperty = {
+    AdditionalPropertiesProperty(p.additionalProperties)
+  }
+}
+
+final case class AdditionalPropertiesProperty(
+    additionalProperties: Boolean =
+      JsonoidParams.defaultJsonoidParams.additionalProperties
+)(implicit p: JsonoidParams)
+    extends SchemaProperty[Map[String, JsonSchema[_]]] {
+  override type S = AdditionalPropertiesProperty
+
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): AdditionalPropertiesProperty = AdditionalPropertiesProperty(
+    p.additionalProperties
+  )
+
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("additionalProperties" -> additionalProperties)
+
+  override def intersectMerge(
+      otherProp: AdditionalPropertiesProperty
+  )(implicit p: JsonoidParams): AdditionalPropertiesProperty = {
+    AdditionalPropertiesProperty(
+      additionalProperties && otherProp.additionalProperties
+    )
+  }
+
+  override def unionMerge(
+      otherProp: AdditionalPropertiesProperty
+  )(implicit p: JsonoidParams): AdditionalPropertiesProperty = {
+    AdditionalPropertiesProperty(
+      additionalProperties || otherProp.additionalProperties
+    )
+  }
+
+  override def mergeValue(value: Map[String, JsonSchema[_]])(implicit
+      p: JsonoidParams
+  ): AdditionalPropertiesProperty = this
+
+  override def isCompatibleWith(
+      other: AdditionalPropertiesProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    additionalProperties || !other.additionalProperties
+  }
+
+  override def expandTo(
+      other: Option[AdditionalPropertiesProperty]
+  ): AdditionalPropertiesProperty = {
+    other match {
+      case None => AdditionalPropertiesProperty(true)
+      case _    => this
+    }
   }
 }

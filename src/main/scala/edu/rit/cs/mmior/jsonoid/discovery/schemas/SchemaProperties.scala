@@ -54,11 +54,13 @@ final case class SchemaProperties[T](
   }
 
   def replacePropertyWithDefault[S <: SchemaProperty[T]]()(implicit
-      tag: ClassTag[S]
+      tag: ClassTag[S],
+      p: JsonoidParams
   ): SchemaProperties[T] = {
     properties.get(tag) match {
-      case Some(prop) => SchemaProperties(properties + (tag -> prop.newDefault))
-      case None       => SchemaProperties(properties)
+      case Some(prop) =>
+        SchemaProperties(properties + (tag -> prop.newDefault()(p)))
+      case None => SchemaProperties(properties)
     }
   }
 
@@ -197,9 +199,9 @@ final case class SchemaProperties[T](
     )
   }
 
-  def copyWithReset(): SchemaProperties[T] = {
+  def copyWithReset()(implicit p: JsonoidParams): SchemaProperties[T] = {
     SchemaProperties(properties.transform { case (tag, prop) =>
-      prop.newDefault
+      prop.newDefault()(p)
     })
   }
 }

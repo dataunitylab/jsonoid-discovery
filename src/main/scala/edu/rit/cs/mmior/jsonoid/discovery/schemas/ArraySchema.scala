@@ -195,7 +195,8 @@ final case class ItemTypeProperty(
 ) extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = ItemTypeProperty
 
-  override def newDefault: ItemTypeProperty = ItemTypeProperty()
+  override def newDefault()(implicit p: JsonoidParams): ItemTypeProperty =
+    ItemTypeProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = itemType match {
     case Left(schema) => ("items" -> schema.toJson)
@@ -386,7 +387,8 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = MinItemsProperty
 
-  override def newDefault: MinItemsProperty = MinItemsProperty()
+  override def newDefault()(implicit p: JsonoidParams): MinItemsProperty =
+    MinItemsProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("minItems" -> minItems)
@@ -467,7 +469,8 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = MaxItemsProperty
 
-  override def newDefault: MaxItemsProperty = MaxItemsProperty()
+  override def newDefault()(implicit p: JsonoidParams): MaxItemsProperty =
+    MaxItemsProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("maxItems" -> maxItems)
@@ -549,7 +552,8 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = UniqueProperty
 
-  override def newDefault: UniqueProperty = UniqueProperty()
+  override def newDefault()(implicit p: JsonoidParams): UniqueProperty =
+    UniqueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = if (
     unique && !unary
@@ -658,7 +662,9 @@ final case class ArrayLengthHistogramProperty(
 ) extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = ArrayLengthHistogramProperty
 
-  override def newDefault: ArrayLengthHistogramProperty =
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): ArrayLengthHistogramProperty =
     ArrayLengthHistogramProperty()
 
   override val isInformational = true

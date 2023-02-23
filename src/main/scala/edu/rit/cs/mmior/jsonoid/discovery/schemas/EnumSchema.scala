@@ -73,7 +73,8 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     extends SchemaProperty[Set[JValue]] {
   override type S = EnumValuesProperty
 
-  override def newDefault: EnumValuesProperty = EnumValuesProperty()
+  override def newDefault()(implicit p: JsonoidParams): EnumValuesProperty =
+    EnumValuesProperty()
 
   @SuppressWarnings(
     Array(

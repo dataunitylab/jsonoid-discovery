@@ -441,7 +441,7 @@ trait JsonSchema[T] {
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def toJson()(implicit p: JsonoidParams): JObject = {
     val propertyJson =
-      properties.map(_.toJson()(p)).foldLeft(staticProperties)(_.merge(_))
+      properties.map(_.toJson()(p)).foldLeft(JObject())(_.merge(_))
     val typedPropertyJson = if (hasType) {
       ("type" -> schemaType) ~ propertyJson
     } else {
@@ -483,11 +483,6 @@ trait JsonSchema[T] {
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def addDefinition(definition: JsonSchema[_], name: String): Unit =
     definitions += (name -> definition)
-
-  /** A set of properties which do not change based on specific properties which
-    *  are tracked in the schema.
-    */
-  def staticProperties: JObject = Nil
 
   /** A set of properties wh */
   def properties: SchemaProperties[T]
@@ -571,8 +566,8 @@ trait JsonSchema[T] {
   /** Create a copy of this schema with the same set of properties, but with each
     * property set to their default value.
     */
-  def copyWithReset(): JsonSchema[T] = {
-    copy(properties.copyWithReset)
+  def copyWithReset()(implicit p: JsonoidParams): JsonSchema[T] = {
+    copy(properties.copyWithReset()(p))
   }
 
   /** Transform all the properties in this schema and any nested schemas
@@ -778,7 +773,7 @@ trait JsonSchema[T] {
     Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
   )
   def expandTo[S](other: Option[JsonSchema[S]]): JsonSchema[_] = {
-    if (schemaType == other.map(_.schemaType).getOrElse("")) {
+    if (other.isEmpty || schemaType == other.map(_.schemaType).getOrElse("")) {
       copy(
         properties.expandTo(other.map(_.asInstanceOf[JsonSchema[T]].properties))
       )

@@ -28,7 +28,7 @@ class JsonoidRDDSpec extends UnitSpec {
     val cp = new Checkpoint()
 
     cp { schema shouldBe a[ObjectSchema] }
-    cp { schema.properties should have size 1 }
+    cp { schema.properties should have size 2 }
     cp { jsonoidRdd.count should be(2) }
 
     cp.reportAll()

@@ -77,7 +77,8 @@ final case class BooleanPercentProperty(
 ) extends SchemaProperty[Boolean] {
   override type S = BooleanPercentProperty
 
-  override def newDefault: BooleanPercentProperty = BooleanPercentProperty()
+  override def newDefault()(implicit p: JsonoidParams): BooleanPercentProperty =
+    BooleanPercentProperty()
 
   override val isInformational = true
 

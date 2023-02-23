@@ -113,7 +113,8 @@ final case class MinNumValueProperty(
 ) extends SchemaProperty[BigDecimal] {
   override type S = MinNumValueProperty
 
-  override def newDefault: MinNumValueProperty = MinNumValueProperty()
+  override def newDefault()(implicit p: JsonoidParams): MinNumValueProperty =
+    MinNumValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMinimum" }
@@ -227,7 +228,8 @@ final case class MaxNumValueProperty(
 ) extends SchemaProperty[BigDecimal] {
   override type S = MaxNumValueProperty
 
-  override def newDefault: MaxNumValueProperty = MaxNumValueProperty()
+  override def newDefault()(implicit p: JsonoidParams): MaxNumValueProperty =
+    MaxNumValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ((if (exclusive) { "exclusiveMaximum" }
@@ -338,7 +340,8 @@ final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
     extends SchemaProperty[BigDecimal] {
   override type S = NumHyperLogLogProperty
 
-  override def newDefault: NumHyperLogLogProperty = NumHyperLogLogProperty()
+  override def newDefault()(implicit p: JsonoidParams): NumHyperLogLogProperty =
+    NumHyperLogLogProperty()
 
   override val isInformational = true
 
@@ -385,7 +388,8 @@ final case class NumBloomFilterProperty(
 ) extends SchemaProperty[BigDecimal] {
   override type S = NumBloomFilterProperty
 
-  override def newDefault: NumBloomFilterProperty = NumBloomFilterProperty()
+  override def newDefault()(implicit p: JsonoidParams): NumBloomFilterProperty =
+    NumBloomFilterProperty()
 
   override val isInformational = true
 
@@ -457,7 +461,8 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigDecimal] {
   override type S = NumStatsProperty
 
-  override def newDefault: NumStatsProperty = NumStatsProperty()
+  override def newDefault()(implicit p: JsonoidParams): NumStatsProperty =
+    NumStatsProperty()
 
   override val isInformational = true
 
@@ -487,7 +492,8 @@ final case class NumExamplesProperty(
 ) extends SchemaProperty[BigDecimal] {
   override type S = NumExamplesProperty
 
-  override def newDefault: NumExamplesProperty = NumExamplesProperty()
+  override def newDefault()(implicit p: JsonoidParams): NumExamplesProperty =
+    NumExamplesProperty()
 
   override val isInformational = true
 
@@ -511,7 +517,8 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
     extends SchemaProperty[BigDecimal] {
   override type S = NumMultipleOfProperty
 
-  override def newDefault: NumMultipleOfProperty = NumMultipleOfProperty()
+  override def newDefault()(implicit p: JsonoidParams): NumMultipleOfProperty =
+    NumMultipleOfProperty()
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
@@ -601,7 +608,8 @@ final case class NumHistogramProperty(
 ) extends SchemaProperty[BigDecimal] {
   override type S = NumHistogramProperty
 
-  override def newDefault: NumHistogramProperty = NumHistogramProperty()
+  override def newDefault()(implicit p: JsonoidParams): NumHistogramProperty =
+    NumHistogramProperty()
 
   override val isInformational = true
 

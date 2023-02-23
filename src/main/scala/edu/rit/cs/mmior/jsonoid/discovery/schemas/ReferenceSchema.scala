@@ -71,7 +71,8 @@ final case class ReferencePathProperty(path: String)
     extends SchemaProperty[String] {
   override type S = ReferencePathProperty
 
-  override def newDefault: ReferencePathProperty = ReferencePathProperty("")
+  override def newDefault()(implicit p: JsonoidParams): ReferencePathProperty =
+    ReferencePathProperty("")
 
   override def toJson()(implicit p: JsonoidParams): JObject = ("$ref" -> path)
 
@@ -97,7 +98,9 @@ final case class ReferenceObjectProperty(schema: JsonSchema[_])
     extends SchemaProperty[String] {
   override type S = ReferenceObjectProperty
 
-  override def newDefault: ReferenceObjectProperty = ReferenceObjectProperty(
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): ReferenceObjectProperty = ReferenceObjectProperty(
     ZeroSchema()
   )
 

@@ -93,7 +93,8 @@ class ObjectSchemaSpec extends UnitSpec {
       JsonoidParams()
     ).properties
 
-    cp { objectProperties should have size 1 }
+    cp { objectProperties should have size 2 }
+    cp { objectProperties.get[AdditionalPropertiesProperty] }
     cp { objectProperties.get[ObjectTypesProperty] }
 
     cp.reportAll()
@@ -159,7 +160,7 @@ class ObjectSchemaSpec extends UnitSpec {
     val params =
       JsonoidParams().withAdditionalProperties(true)
     val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))(
-      PropertySets.MinProperties,
+      PropertySets.MinProperties(params),
       params
     )
     (objectSchema.toJson \ "additionalProperties")
@@ -196,5 +197,17 @@ class ObjectSchemaSpec extends UnitSpec {
     val schema1 = ObjectSchema(Map("foo" -> IntegerSchema(1)))
     val schema2 = ObjectSchema(Map("foo" -> IntegerSchema(2)))
     schema1.expandTo(Some(schema2)).isCompatibleWith(schema2) shouldBe true
+  }
+
+  it should "expand to add additionalProperties" in {
+    objectSchema.properties
+      .get[AdditionalPropertiesProperty]
+      .additionalProperties shouldBe false
+    objectSchema
+      .expandTo(None)
+      .asInstanceOf[ObjectSchema]
+      .properties
+      .get[AdditionalPropertiesProperty]
+      .additionalProperties shouldBe true
   }
 }
