@@ -94,13 +94,13 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "not expand for compatible formats" in {
     FormatProperty(Map("url" -> 100))
-      .expandTo(FormatProperty(Map("url" -> 10)))
+      .expandTo(Some(FormatProperty(Map("url" -> 10))))
       .maxFormat() shouldBe Some("url")
   }
 
   it should "expand to remove formats if needed" in {
     FormatProperty(Map("url" -> 100))
-      .expandTo(FormatProperty(Map("email" -> 10)))
+      .expandTo(Some(FormatProperty(Map("email" -> 10))))
       .maxFormat() shouldBe None
   }
 
@@ -144,7 +144,9 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "expand to remove patterns if needed" in {
     val newPattern =
-      PatternProperty(Some("foo"), Some("bar")).expandTo(PatternProperty())
+      PatternProperty(Some("foo"), Some("bar")).expandTo(
+        Some(PatternProperty())
+      )
     newPattern.prefix shouldBe None
     newPattern.suffix shouldBe None
   }
@@ -152,7 +154,7 @@ class StringSchemaSpec extends UnitSpec {
   it should "not expand to remove patterns if not needed" in {
     val newPattern =
       PatternProperty(Some("fo"), Some("ar")).expandTo(
-        PatternProperty(Some("foo"), Some("bar"))
+        Some(PatternProperty(Some("foo"), Some("bar")))
       )
     newPattern.prefix shouldBe Some("fo")
     newPattern.suffix shouldBe Some("ar")
@@ -265,6 +267,8 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "expand to be compatible with a similar schema" in {
     val schema = StringSchema("a")
-    StringSchema("foo").expandTo(schema).isCompatibleWith(schema) shouldBe true
+    StringSchema("foo")
+      .expandTo(Some(schema))
+      .isCompatibleWith(schema) shouldBe true
   }
 }

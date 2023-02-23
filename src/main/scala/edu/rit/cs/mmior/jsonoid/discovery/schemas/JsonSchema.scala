@@ -774,10 +774,14 @@ trait JsonSchema[T] {
     *
     * @return a possibly expanded schema to be compatible with the other
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def expandTo[S](other: JsonSchema[S]): JsonSchema[_] = {
-    if (schemaType == other.schemaType) {
-      copy(properties.expandTo(other.asInstanceOf[JsonSchema[T]].properties))
+  @SuppressWarnings(
+    Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
+  )
+  def expandTo[S](other: Option[JsonSchema[S]]): JsonSchema[_] = {
+    if (schemaType == other.map(_.schemaType).getOrElse("")) {
+      copy(
+        properties.expandTo(other.map(_.asInstanceOf[JsonSchema[T]].properties))
+      )
     } else {
       // Convert to a product schema if we need to add a new type
       JsonSchema

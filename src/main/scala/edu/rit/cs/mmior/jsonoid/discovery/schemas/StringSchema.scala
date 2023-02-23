@@ -142,8 +142,13 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
     Helpers.isMinCompatibleWith(minLength, false, other.minLength, false)
   }
 
-  override def expandTo(other: MinLengthProperty): MinLengthProperty = {
-    val newMin = maybeContractInt(minLength, other.minLength, false)._1
+  override def expandTo(other: Option[MinLengthProperty]): MinLengthProperty = {
+    val newMin = maybeContractInt(
+      minLength,
+      other.map(_.minLength).getOrElse(None),
+      false,
+      other.isEmpty
+    )._1
     MinLengthProperty(newMin)
   }
 }
@@ -206,8 +211,13 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
     Helpers.isMaxCompatibleWith(maxLength, false, other.maxLength, false)
   }
 
-  override def expandTo(other: MaxLengthProperty): MaxLengthProperty = {
-    val newMax = maybeExpandInt(maxLength, other.maxLength, false)._1
+  override def expandTo(other: Option[MaxLengthProperty]): MaxLengthProperty = {
+    val newMax = maybeExpandInt(
+      maxLength,
+      other.map(_.maxLength).getOrElse(None),
+      false,
+      other.isEmpty
+    )._1
     MaxLengthProperty(newMax)
   }
 }
@@ -467,8 +477,8 @@ final case class FormatProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def expandTo(other: FormatProperty): FormatProperty = {
-    if (maxFormat() == other.maxFormat(false)) {
+  override def expandTo(other: Option[FormatProperty]): FormatProperty = {
+    if (maxFormat() == other.map(_.maxFormat(false)).getOrElse("none")) {
       this
     } else {
       // Reset to empty formats
@@ -593,12 +603,16 @@ final case class PatternProperty(
     other.suffix.getOrElse("").endsWith(suffix.getOrElse(""))
   }
 
-  override def expandTo(other: PatternProperty): PatternProperty = {
-    if (isCompatibleWith(other)) {
-      this
-    } else {
-      // TODO Work on heuristics for expansion
-      PatternProperty()
+  override def expandTo(other: Option[PatternProperty]): PatternProperty = {
+    other match {
+      case Some(otherProp) =>
+        if (isCompatibleWith(otherProp)) {
+          this
+        } else {
+          // TODO Work on heuristics for expansion
+          PatternProperty()
+        }
+      case None => PatternProperty()
     }
   }
 }

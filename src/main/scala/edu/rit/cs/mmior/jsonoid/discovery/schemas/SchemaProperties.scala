@@ -185,13 +185,13 @@ final case class SchemaProperties[T](
     }.toSeq
   }
 
-  def expandTo(other: SchemaProperties[T]): SchemaProperties[T] = {
+  def expandTo(other: Option[SchemaProperties[T]]): SchemaProperties[T] = {
     SchemaProperties(
       properties.transform { case (tag, prop) =>
         prop.expandTo(
-          other
-            .properties(tag.asInstanceOf[PropertyTag[T]])
-            .asInstanceOf[prop.S]
+          other.map(
+            _.properties(tag.asInstanceOf[PropertyTag[T]]).asInstanceOf[prop.S]
+          )
         )
       }
     )

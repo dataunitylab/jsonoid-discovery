@@ -266,17 +266,24 @@ final case class ObjectTypesProperty(
     overlapCompatible && newPropsCompatible
   }
 
-  override def expandTo(other: ObjectTypesProperty): ObjectTypesProperty = {
+  override def expandTo(
+      other: Option[ObjectTypesProperty]
+  ): ObjectTypesProperty = {
     val newTypes =
-      objectTypes.keySet.union(other.objectTypes.keySet).map { key =>
-        (objectTypes.get(key), other.objectTypes.get(key)) match {
-          case (Some(schema), Some(otherSchema)) =>
-            key -> schema.expandTo(otherSchema)
-          case (Some(schema), None)      => key -> schema
-          case (None, Some(otherSchema)) => key -> otherSchema
-          case (None, None)              => key -> AnySchema()
+      objectTypes.keySet
+        .union(other.map(_.objectTypes.keySet).getOrElse(Set.empty))
+        .map { key =>
+          (
+            objectTypes.get(key),
+            other.map(_.objectTypes.get(key)).getOrElse(None)
+          ) match {
+            case (Some(schema), Some(otherSchema)) =>
+              key -> schema.expandTo(Some(otherSchema))
+            case (Some(schema), None)      => key -> schema
+            case (None, Some(otherSchema)) => key -> otherSchema
+            case (None, None)              => key -> AnySchema()
+          }
         }
-      }
 
     ObjectTypesProperty(newTypes.toMap)
   }
@@ -444,8 +451,10 @@ final case class RequiredProperty(
 
   override def newDefault: RequiredProperty = RequiredProperty()
 
-  override def toJson()(implicit p: JsonoidParams): JObject =
-    ("required" -> required)
+  override def toJson()(implicit p: JsonoidParams): JObject = required match {
+    case Some(requiredKeys) => ("required" -> requiredKeys)
+    case None               => Nil
+  }
 
   override def intersectMerge(
       otherProp: RequiredProperty
@@ -497,9 +506,12 @@ final case class RequiredProperty(
     other.required.getOrElse(Set()).subsetOf(required.getOrElse(Set()))
   }
 
-  override def expandTo(other: RequiredProperty): RequiredProperty = {
-    // TODO This depends specifically on the other set of required properties
-    intersectMerge(other)
+  override def expandTo(other: Option[RequiredProperty]): RequiredProperty = {
+    other match {
+      // TODO This depends specifically on the other set of required properties
+      case Some(otherRequired) => intersectMerge(otherRequired)
+      case None                => RequiredProperty()
+    }
   }
 }
 
@@ -653,9 +665,14 @@ final case class DependenciesProperty(
     }
   }
 
-  override def expandTo(other: DependenciesProperty): DependenciesProperty = {
-    // TODO This depends specifically on the other set of dependencies
-    intersectMerge(other)
+  override def expandTo(
+      other: Option[DependenciesProperty]
+  ): DependenciesProperty = {
+    other match {
+      // TODO This depends specifically on the other set of dependencies
+      case Some(otherDeps) => intersectMerge(otherDeps)
+      case None            => DependenciesProperty()
+    }
   }
 }
 

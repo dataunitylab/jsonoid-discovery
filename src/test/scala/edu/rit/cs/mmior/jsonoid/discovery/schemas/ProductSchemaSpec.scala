@@ -170,7 +170,7 @@ class ProductSchemaSpec extends UnitSpec {
 
   it should "can expand to cover a new type" in {
     productSchema1
-      .expandTo(StringSchema())
+      .expandTo(Some(StringSchema()))
       .asInstanceOf[ProductSchema]
       .properties
       .get[ProductSchemaTypesProperty]
@@ -180,7 +180,7 @@ class ProductSchemaSpec extends UnitSpec {
 
   it should "can expand to cover object types" in {
     productSchema1
-      .expandTo(ObjectSchema(Map("foo" -> BooleanSchema())))
+      .expandTo(Some(ObjectSchema(Map("foo" -> BooleanSchema()))))
       .asInstanceOf[ProductSchema]
       .properties
       .get[ProductSchemaTypesProperty]
@@ -210,7 +210,7 @@ class ProductSchemaSpec extends UnitSpec {
       ProductSchema(schema1).merge(oldSchema).asInstanceOf[ProductSchema]
 
     productSchema1
-      .expandTo(newSchema)
+      .expandTo(Some(newSchema))
       .asInstanceOf[ProductSchema]
       .properties
       .get[ProductSchemaTypesProperty]

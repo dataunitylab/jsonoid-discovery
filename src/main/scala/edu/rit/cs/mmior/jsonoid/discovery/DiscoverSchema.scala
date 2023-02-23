@@ -29,6 +29,7 @@ private final case class Config(
     additionalProperties: Boolean = false,
     formatThreshold: Option[Float] = None,
     splitPercentage: Option[Double] = None,
+    obliviousExpansion: Boolean = false,
     resetFormatLength: Boolean = false
 )
 
@@ -259,6 +260,18 @@ object DiscoverSchema {
       opt[Unit]("reset-format-length")
         .action((x, c) => c.copy(resetFormatLength = true))
         .text("reset the max/min length of strings with a format")
+
+      opt[Unit]("oblivious-expansion")
+        .action((x, c) => c.copy(obliviousExpansion = true))
+        .text("expand the generated schema without using split discovery")
+
+      checkConfig(c =>
+        if (c.splitPercentage.isDefined && c.obliviousExpansion) {
+          failure("cannot use both split discovery and oblivious expansion")
+        } else {
+          success
+        }
+      )
     }
 
     parser.parse(args, Config()) match {
@@ -291,7 +304,7 @@ object DiscoverSchema {
               val schemas = splitDiscover(jsons, propSet, pct)(p)
               val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
               val testSchema = schemas._2.asInstanceOf[ObjectSchema]
-              val finalSchema = trainSchema.expandTo(testSchema)
+              val finalSchema = trainSchema.expandTo(Some(testSchema))
               if (!finalSchema.isCompatibleWith(testSchema)) {
                 val incompats = IncompatibilityCollector.findIncompatibilities(
                   finalSchema,
@@ -304,7 +317,12 @@ object DiscoverSchema {
               }
 
               (finalSchema, Some(testSchema))
-            case None => (discover(jsons, propSet)(p), None)
+            case None =>
+              if (config.obliviousExpansion) {
+                (discover(jsons, propSet)(p).expandTo(None), None)
+              } else {
+                (discover(jsons, propSet)(p), None)
+              }
           }
 
         // Check if transformations are valid

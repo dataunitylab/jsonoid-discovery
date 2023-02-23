@@ -335,34 +335,44 @@ final case class ItemTypeProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def expandTo(other: ItemTypeProperty): ItemTypeProperty = {
-    (itemType, other.itemType) match {
-      case (Left(schema1), Left(schema2)) =>
+  override def expandTo(other: Option[ItemTypeProperty]): ItemTypeProperty = {
+    (itemType, other.map(_.itemType)) match {
+      case (Left(schema1), Some(Left(schema2))) =>
         // Expand the single item schema to match
-        ItemTypeProperty(Left(schema1.expandTo(schema2)))
+        ItemTypeProperty(Left(schema1.expandTo(Some(schema2))))
 
-      case (Right(schemas), Left(schema)) =>
+      case (Left(schema1), None) =>
+        ItemTypeProperty(Left(schema1.expandTo(None)))
+
+      case (Right(schemas), Some(Left(schema))) =>
         // Collapse down to a single schema and expand
         val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
-        ItemTypeProperty(Left(oneSchema.expandTo(schema)))
+        ItemTypeProperty(Left(oneSchema.expandTo(Some(schema))))
 
-      case (Right(schemas1), Right(schemas2)) =>
+      case (Right(schemas), None) =>
+        // Collapse down to a single schema and expand
+        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+        ItemTypeProperty(Left(oneSchema.expandTo(None)))
+
+      case (Right(schemas1), Some(Right(schemas2))) =>
         if (schemas1.length == schemas2.length) {
           // Combine corresponding tuple schemas
           val schemas =
-            schemas1.zip(schemas2).map { case (s1, s2) => s1.expandTo(s2) }
+            schemas1.zip(schemas2).map { case (s1, s2) =>
+              s1.expandTo(Some(s2))
+            }
           ItemTypeProperty(Right(schemas))
         } else {
           // Collapse both to a single schema and expand
           val oneSchema1 = schemas1.fold(ZeroSchema())(_.merge(_, Union))
           val oneSchema2 = schemas2.fold(ZeroSchema())(_.merge(_, Union))
-          ItemTypeProperty(Left(oneSchema1.expandTo(oneSchema2)))
+          ItemTypeProperty(Left(oneSchema1.expandTo(Some(oneSchema2))))
         }
 
-      case (Left(schema), Right(schemas)) =>
+      case (Left(schema), Some(Right(schemas))) =>
         // Collapse the other side to a single schema and expand
         val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
-        ItemTypeProperty(Left(schema.expandTo(oneSchema)))
+        ItemTypeProperty(Left(schema.expandTo(Some(oneSchema))))
     }
   }
 }
@@ -436,8 +446,13 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
     Helpers.isMinCompatibleWith(minItems, false, other.minItems, false)
   }
 
-  override def expandTo(other: MinItemsProperty): MinItemsProperty = {
-    val newMin = maybeContractInt(minItems, other.minItems, false)._1
+  override def expandTo(other: Option[MinItemsProperty]): MinItemsProperty = {
+    val newMin = maybeContractInt(
+      minItems,
+      other.map(_.minItems).getOrElse(None),
+      false,
+      other.isEmpty
+    )._1
     MinItemsProperty(newMin)
   }
 }
@@ -512,8 +527,13 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
     Helpers.isMaxCompatibleWith(maxItems, false, other.maxItems, false)
   }
 
-  override def expandTo(other: MaxItemsProperty): MaxItemsProperty = {
-    val newMax = maybeExpandInt(maxItems, other.maxItems, false)._1
+  override def expandTo(other: Option[MaxItemsProperty]): MaxItemsProperty = {
+    val newMax = maybeExpandInt(
+      maxItems,
+      other.map(_.maxItems).getOrElse(None),
+      false,
+      other.isEmpty
+    )._1
     MaxItemsProperty(newMax)
   }
 }
@@ -604,8 +624,14 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     (unique && !unary) >= (other.unique && !other.unary)
   }
 
-  override def expandTo(other: UniqueProperty): UniqueProperty = {
-    (unique, unary, other.unique, other.unary) match {
+  override def expandTo(other: Option[UniqueProperty]): UniqueProperty = {
+    // If no other property is specified, assume uniqueness
+    (
+      unique,
+      unary,
+      other.map(_.unique).getOrElse(false),
+      other.map(_.unary).getOrElse(false)
+    ) match {
       // If we are unary, stay that way, since we haven't confirmed uniqueness
       case (_, true, _, _) => this
 

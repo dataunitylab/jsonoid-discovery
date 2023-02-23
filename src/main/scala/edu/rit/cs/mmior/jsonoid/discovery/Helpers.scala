@@ -17,24 +17,31 @@ object Helpers {
   val MaxExpandRounds: Int = 10
 
   /** A wrapper for [[expandInt]] that works with [[scala.Option]] values. */
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def maybeExpandInt(
       current: Option[Int],
       limit: Option[Int],
       exclusive: Boolean,
+      force: Boolean = false,
       round: Int = 1
   ): (Option[Int], Boolean) = {
     if (round > MaxExpandRounds) {
       (None, false)
     } else {
-      (current, limit) match {
-        case (Some(currentInt), Some(otherInt)) =>
-          expandInt(currentInt, otherInt, exclusive, round)
+      if (force && current.isDefined) {
+        // The current limit doesn't matter here since we're forcing
+        expandInt(current.get, 0, exclusive, true, round)
+      } else {
+        (current, limit) match {
+          case (Some(currentInt), Some(otherInt)) =>
+            expandInt(currentInt, otherInt, exclusive, force, round)
 
-        // We have no limit, keep it that way
-        case (None, _) => (None, false)
+          // We have no limit, keep it that way
+          case (None, _) => (None, false)
 
-        // There is no limit on the other schema, so we can't have one here
-        case (_, None) => (None, false)
+          // There is no limit on the other schema, so we can't have one here
+          case (_, None) => (None, false)
+        }
       }
     }
   }
@@ -52,19 +59,26 @@ object Helpers {
       current: Int,
       limit: Int,
       exclusive: Boolean,
+      force: Boolean = false,
       round: Int
   ): (Option[Int], Boolean) = {
     if (current < 0) {
       // TODO We can probably make better choices for negative values
-      maybeExpandInt(Some(0), Some(limit), exclusive, round + 1)
-    } else if (exclusive && current < limit) {
-      maybeExpandInt(Some(current), Some(limit), false, round + 1)
+      maybeExpandInt(Some(0), Some(limit), exclusive, force, round + 1)
+    } else if (exclusive && (current < limit || force)) {
+      maybeExpandInt(Some(current), Some(limit), false, force, round + 1)
     } else if (
-      (exclusive && current > limit) || (!exclusive && current >= limit)
+      !force && ((exclusive && current > limit) || (!exclusive && current >= limit))
     ) {
       (Some(current), exclusive)
     } else if (current < 10) {
-      maybeExpandInt(Some(current + 1), Some(limit), exclusive, round + 1)
+      maybeExpandInt(
+        Some(current + 1),
+        Some(limit),
+        exclusive,
+        force,
+        round + 1
+      )
     } else {
       // Since 2 is a common power, consider the next closest power
       // but first consider one less since this occurs frequently
@@ -86,33 +100,40 @@ object Helpers {
       val pow10 = Math.pow(10, Math.log10(current).floor - 1).toInt
       val next10 = current + pow10 - (current % pow10)
       if (next2 < next10 && next2 > current) {
-        maybeExpandInt(Some(next2), Some(limit), exclusive, round + 1)
+        maybeExpandInt(Some(next2), Some(limit), exclusive, force, round + 1)
       } else {
-        maybeExpandInt(Some(next10), Some(limit), exclusive, round + 1)
+        maybeExpandInt(Some(next10), Some(limit), exclusive, force, round + 1)
       }
     }
   }
 
   /** A wrapper for [[contractInt]] that works with [[scala.Option]] values.
     */
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def maybeContractInt(
       current: Option[Int],
       limit: Option[Int],
       exclusive: Boolean,
+      force: Boolean = false,
       round: Int = 1
   ): (Option[Int], Boolean) = {
     if (round > MaxExpandRounds) {
       (None, false)
     } else {
-      (current, limit) match {
-        case (Some(currentInt), Some(otherInt)) =>
-          contractInt(currentInt, otherInt, exclusive, round)
+      if (force && current.isDefined) {
+        // The current limit doesn't matter here since we're forcing
+        contractInt(current.get, 0, exclusive, true, round)
+      } else {
+        (current, limit) match {
+          case (Some(currentInt), Some(otherInt)) =>
+            contractInt(currentInt, otherInt, exclusive, force, round)
 
-        // We have no limit, keep it that way
-        case (None, _) => (None, false)
+          // We have no limit, keep it that way
+          case (None, _) => (None, false)
 
-        // There is no limit on the other schema, so we can't have one here
-        case (_, None) => (None, false)
+          // There is no limit on the other schema, so we can't have one here
+          case (_, None) => (None, false)
+        }
       }
     }
   }
@@ -131,19 +152,26 @@ object Helpers {
       current: Int,
       limit: Int,
       exclusive: Boolean,
+      force: Boolean,
       round: Int
   ): (Option[Int], Boolean) = {
     if (current < 0) {
       // TODO We can probably make better choices for negative values
-      maybeContractInt(Some(0), Some(limit), exclusive, round + 1)
-    } else if (exclusive && current < limit) {
-      maybeContractInt(Some(current), Some(limit), false, round + 1)
+      maybeContractInt(Some(0), Some(limit), exclusive, force, round + 1)
+    } else if (exclusive && (current < limit || force)) {
+      maybeContractInt(Some(current), Some(limit), false, force, round + 1)
     } else if (
-      (exclusive && current < limit) || (!exclusive && current <= limit)
+      !force && ((exclusive && current < limit) || (!exclusive && current <= limit))
     ) {
       (Some(current), exclusive)
     } else if (current < 10) {
-      maybeContractInt(Some(current - 1), Some(limit), exclusive, round + 1)
+      maybeContractInt(
+        Some(current - 1),
+        Some(limit),
+        exclusive,
+        force,
+        round + 1
+      )
     } else {
       // Since 2 is a common power, consider the next smallest power
       // but first consider just one less since this occurs frequently
@@ -170,9 +198,9 @@ object Helpers {
         current - (current % pow10)
       }
       if (next2 > next10) {
-        maybeContractInt(Some(next2), Some(limit), exclusive, round + 1)
+        maybeContractInt(Some(next2), Some(limit), exclusive, force, round + 1)
       } else {
-        maybeContractInt(Some(next10), Some(limit), exclusive, round + 1)
+        maybeContractInt(Some(next10), Some(limit), exclusive, force, round + 1)
       }
     }
   }

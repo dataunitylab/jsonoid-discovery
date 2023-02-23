@@ -63,5 +63,5 @@ trait SchemaProperty[T] {
       p: JsonoidParams
   ): Boolean = isInformational
 
-  def expandTo(other: S): S = this.asInstanceOf[S]
+  def expandTo(other: Option[S]): S = this.asInstanceOf[S]
 }

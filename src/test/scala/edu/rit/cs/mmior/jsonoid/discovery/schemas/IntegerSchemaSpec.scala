@@ -31,7 +31,7 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "expand by incrementing values" in {
     MaxIntValueProperty(Some(10))
-      .expandTo(MaxIntValueProperty((Some(11))))
+      .expandTo(Some(MaxIntValueProperty((Some(11)))))
       .maxIntValue shouldBe Some(11)
   }
 
@@ -49,7 +49,7 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "expand by decrementing values" in {
     MinIntValueProperty(Some(14))
-      .expandTo(MinIntValueProperty((Some(13))))
+      .expandTo(Some(MinIntValueProperty((Some(13)))))
       .minIntValue shouldBe Some(13)
   }
 
@@ -127,19 +127,19 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "expand to remove a prime factor" in {
     IntMultipleOfProperty(Some(2 * 3 * 5 * 7))
-      .expandTo(IntMultipleOfProperty((Some(5 * 7))))
+      .expandTo(Some(IntMultipleOfProperty((Some(5 * 7)))))
       .multiple shouldBe Some(5 * 7)
   }
 
   it should "stop expanding after MaxExpandRounds" in {
     IntMultipleOfProperty(Some(1048576))
-      .expandTo(IntMultipleOfProperty((Some(2))))
+      .expandTo(Some(IntMultipleOfProperty((Some(2)))))
       .multiple shouldBe None
   }
 
   it should "not expand if already covered" in {
     IntMultipleOfProperty(Some(14))
-      .expandTo(IntMultipleOfProperty((Some(28))))
+      .expandTo(Some(IntMultipleOfProperty((Some(28)))))
       .multiple shouldBe Some(14)
   }
 
@@ -219,6 +219,8 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "expand to be compatible with a similar schema" in {
     val schema = IntegerSchema(0)
-    IntegerSchema(1).expandTo(schema).isCompatibleWith(schema) shouldBe true
+    IntegerSchema(1)
+      .expandTo(Some(schema))
+      .isCompatibleWith(schema) shouldBe true
   }
 }

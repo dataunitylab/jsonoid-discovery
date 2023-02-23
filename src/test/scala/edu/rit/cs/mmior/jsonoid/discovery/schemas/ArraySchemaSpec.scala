@@ -27,7 +27,7 @@ class ArraySchemaSpec extends UnitSpec {
   it should "expand by decrementing" in {
     MinItemsProperty(Some(3))
       .expandTo(
-        MinItemsProperty(Some(2))
+        Some(MinItemsProperty(Some(2)))
       )
       .minItems shouldBe Some(2)
   }
@@ -41,7 +41,7 @@ class ArraySchemaSpec extends UnitSpec {
   it should "expand by incrementing" in {
     MaxItemsProperty(Some(2))
       .expandTo(
-        MaxItemsProperty(Some(3))
+        Some(MaxItemsProperty(Some(3)))
       )
       .maxItems shouldBe Some(3)
   }
@@ -78,13 +78,13 @@ class ArraySchemaSpec extends UnitSpec {
 
   it should "not expand if both are unique" in {
     UniqueProperty(true, false).expandTo(
-      UniqueProperty(true, false)
+      Some(UniqueProperty(true, false))
     ) shouldBe UniqueProperty(true, false)
   }
 
   it should "expand to remove uniqueness" in {
     UniqueProperty(true, false).expandTo(
-      UniqueProperty(false, false)
+      Some(UniqueProperty(false, false))
     ) shouldBe UniqueProperty(false, false)
   }
 
@@ -324,7 +324,7 @@ class ArraySchemaSpec extends UnitSpec {
     val schema = ArraySchema.array(IntegerSchema(0))
     ArraySchema
       .array(IntegerSchema(1))
-      .expandTo(schema)
+      .expandTo(Some(schema))
       .isCompatibleWith(schema) shouldBe true
   }
 
@@ -332,7 +332,7 @@ class ArraySchemaSpec extends UnitSpec {
     val schema = ArraySchema.array(IntegerSchema(0))
     ArraySchema
       .tuple(List(IntegerSchema(0), IntegerSchema(1)))
-      .expandTo(schema)
+      .expandTo(Some(schema))
       .isCompatibleWith(schema) shouldBe true
   }
 
@@ -340,7 +340,7 @@ class ArraySchemaSpec extends UnitSpec {
     val schema = ArraySchema.tuple(List(IntegerSchema(1), IntegerSchema(2)))
     ArraySchema
       .tuple(List(IntegerSchema(3), IntegerSchema(4)))
-      .expandTo(schema)
+      .expandTo(Some(schema))
       .isCompatibleWith(schema) shouldBe true
   }
 
@@ -350,7 +350,7 @@ class ArraySchemaSpec extends UnitSpec {
     )
     ArraySchema
       .tuple(List(IntegerSchema(3), IntegerSchema(4)))
-      .expandTo(schema)
+      .expandTo(Some(schema))
       .isCompatibleWith(schema) shouldBe true
   }
 }

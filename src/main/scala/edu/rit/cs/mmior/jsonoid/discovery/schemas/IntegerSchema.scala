@@ -212,11 +212,16 @@ final case class MinIntValueProperty(
     )
   }
 
-  override def expandTo(other: MinIntValueProperty): MinIntValueProperty = {
+  override def expandTo(
+      other: Option[MinIntValueProperty]
+  ): MinIntValueProperty = {
     val (newMin, newExclusive) = maybeContractInt(
       minIntValue.map(_.toInt),
-      other.minIntValue.map(_.toInt + (if (other.exclusive) 1 else 0)),
-      exclusive
+      other
+        .map(o => o.minIntValue.map(i => i.toInt + (if (o.exclusive) 1 else 0)))
+        .getOrElse(None),
+      exclusive,
+      other.isEmpty
     )
     MinIntValueProperty(newMin.map(BigInt(_)), newExclusive)
   }
@@ -315,11 +320,16 @@ final case class MaxIntValueProperty(
     )
   }
 
-  override def expandTo(other: MaxIntValueProperty): MaxIntValueProperty = {
+  override def expandTo(
+      other: Option[MaxIntValueProperty]
+  ): MaxIntValueProperty = {
     val (newMax, newExclusive) = maybeExpandInt(
       maxIntValue.map(_.toInt),
-      other.maxIntValue.map(_.toInt - (if (other.exclusive) 1 else 0)),
-      exclusive
+      other
+        .map(o => o.maxIntValue.map(i => i.toInt - (if (o.exclusive) 1 else 0)))
+        .getOrElse(None),
+      exclusive,
+      other.isEmpty
     )
     MaxIntValueProperty(newMax.map(BigInt(_)), newExclusive)
   }
@@ -547,8 +557,11 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def expandTo(other: IntMultipleOfProperty): IntMultipleOfProperty = {
-    (multiple, other.multiple) match {
+  override def expandTo(
+      other: Option[IntMultipleOfProperty]
+  ): IntMultipleOfProperty = {
+    // Assume we have no multiple if the other prop is not specified
+    (multiple, other.map(_.multiple).getOrElse(None)) match {
       case (Some(mult), Some(otherMult)) =>
         // Try removing the smallest prime factor
         val newMult = (1 to MaxExpandRounds)

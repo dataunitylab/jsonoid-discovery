@@ -200,11 +200,16 @@ final case class MinNumValueProperty(
     )
   }
 
-  override def expandTo(other: MinNumValueProperty): MinNumValueProperty = {
+  override def expandTo(
+      other: Option[MinNumValueProperty]
+  ): MinNumValueProperty = {
     val (newMin, newExclusive) = maybeContractInt(
       minNumValue.map(_.toInt),
-      other.minNumValue.map(_.toInt + (if (other.exclusive) 1 else 0)),
-      exclusive
+      other
+        .map(o => o.minNumValue.map(i => i.toInt + (if (o.exclusive) 1 else 0)))
+        .getOrElse(None),
+      exclusive,
+      other.isEmpty
     )
     MinNumValueProperty(newMin.map(BigDecimal(_)), newExclusive)
   }
@@ -305,13 +310,20 @@ final case class MaxNumValueProperty(
       other.exclusive
     )
   }
-  override def expandTo(other: MaxNumValueProperty): MaxNumValueProperty = {
+  override def expandTo(
+      other: Option[MaxNumValueProperty]
+  ): MaxNumValueProperty = {
     val (newMax, newExclusive) = maybeExpandInt(
       maxNumValue.map(_.setScale(0, BigDecimal.RoundingMode.FLOOR).toInt),
-      other.maxNumValue.map(
-        _.setScale(0, BigDecimal.RoundingMode.CEILING).toInt
-      ),
-      exclusive
+      other
+        .map(o =>
+          o.maxNumValue.map(n =>
+            n.setScale(0, BigDecimal.RoundingMode.CEILING).toInt
+          )
+        )
+        .getOrElse(None),
+      exclusive,
+      other.isEmpty
     )
     MaxNumValueProperty(newMax.map(BigDecimal(_)), newExclusive)
   }
@@ -559,8 +571,11 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def expandTo(other: NumMultipleOfProperty): NumMultipleOfProperty = {
-    (multiple, other.multiple) match {
+  override def expandTo(
+      other: Option[NumMultipleOfProperty]
+  ): NumMultipleOfProperty = {
+    // Assume we have no multiple if the other prop is not specified
+    (multiple, other.map(_.multiple).getOrElse(None)) match {
       case (Some(mult), Some(otherMult)) =>
         // Try halving the multiple
         val newMult = (1 to MaxExpandRounds)
