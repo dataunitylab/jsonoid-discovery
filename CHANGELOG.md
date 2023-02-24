@@ -5,14 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.12.1]
-
 ## [Unreleased]
+### Added
+- Allow specifying random number seed for reproducible discovery
+
+## [0.12.1]
 ### Added
 - Add a property to track the percentage of true Boolean values
 - Allow for oblivious expansion without another schema
 - Add additionalProperties during oblivious expansion
-- Allow specifying random number seed for reproducible discovery
 
 ### Changed
 - Allow reset of min/max length for strings with format
