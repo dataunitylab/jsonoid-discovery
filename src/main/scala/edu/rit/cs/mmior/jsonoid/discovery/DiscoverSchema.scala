@@ -269,14 +269,6 @@ object DiscoverSchema {
       opt[Long]("random-seed")
         .action((x, c) => c.copy(randomSeed = Some(x)))
         .text("random seed to use for sampling")
-
-      checkConfig(c =>
-        if (c.splitPercentage.isDefined && c.obliviousExpansion) {
-          failure("cannot use both split discovery and oblivious expansion")
-        } else {
-          success
-        }
-      )
     }
 
     parser.parse(args, Config()) match {
@@ -313,7 +305,12 @@ object DiscoverSchema {
               val schemas = splitDiscover(jsons, propSet, pct)(p)
               val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
               val testSchema = schemas._2.asInstanceOf[ObjectSchema]
-              val finalSchema = trainSchema.expandTo(Some(testSchema))
+              val expandSchema = if (config.obliviousExpansion) {
+                None
+              } else {
+                Some(testSchema)
+              }
+              val finalSchema = trainSchema.expandTo(expandSchema)
               if (!finalSchema.isCompatibleWith(testSchema)) {
                 val incompats = IncompatibilityCollector.findIncompatibilities(
                   finalSchema,

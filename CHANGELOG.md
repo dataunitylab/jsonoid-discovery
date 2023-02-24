@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Exit with non-zero status for invalid arguments
+- Allow oblivious expansion with split discovery
 
 ## [0.12.2]
 ### Added
