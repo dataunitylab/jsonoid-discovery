@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a property to track the percentage of true Boolean values
 - Allow for oblivious expansion without another schema
 - Add additionalProperties during oblivious expansion
+- Allow specifying random number seed for reproducible discovery
 
 ### Changed
 - Allow reset of min/max length for strings with format

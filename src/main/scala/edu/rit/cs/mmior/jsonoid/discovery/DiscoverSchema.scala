@@ -30,7 +30,8 @@ private final case class Config(
     formatThreshold: Option[Float] = None,
     splitPercentage: Option[Double] = None,
     obliviousExpansion: Boolean = false,
-    resetFormatLength: Boolean = false
+    resetFormatLength: Boolean = false,
+    randomSeed: Option[Long] = None
 )
 
 object DiscoverSchema {
@@ -265,6 +266,10 @@ object DiscoverSchema {
         .action((x, c) => c.copy(obliviousExpansion = true))
         .text("expand the generated schema without using split discovery")
 
+      opt[Long]("random-seed")
+        .action((x, c) => c.copy(randomSeed = Some(x)))
+        .text("random seed to use for sampling")
+
       checkConfig(c =>
         if (c.splitPercentage.isDefined && c.obliviousExpansion) {
           failure("cannot use both split discovery and oblivious expansion")
@@ -276,6 +281,10 @@ object DiscoverSchema {
 
     parser.parse(args, Config()) match {
       case Some(config) =>
+        if (config.randomSeed.isDefined) {
+          scala.util.Random.setSeed(config.randomSeed.get)
+        }
+
         val source = config.input match {
           case Some(file) => Source.fromFile(file)
           case None       => Source.stdin
