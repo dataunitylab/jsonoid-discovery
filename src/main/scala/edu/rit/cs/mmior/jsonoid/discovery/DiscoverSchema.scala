@@ -363,7 +363,7 @@ object DiscoverSchema {
             )
           case None => println(schemaStr)
         }
-      case None =>
+      case None => System.exit(1)
     }
   }
   // $COVERAGE-ON$
