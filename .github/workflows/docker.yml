@@ -40,7 +40,18 @@ jobs:
           # set latest tag for default branch
           type=raw,value=latest,enable={{is_default_branch}}
     - name: Build and push image
-      uses: docker/build-push-action@v3.2.0
+      uses: docker/build-push-action@v4
+      with:
+        context: ./target/docker/stage
+        load: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+    - name: Test image
+      env:
+        DOCKER_TAG: ${{ steps.meta.outputs.tags }}
+      run: (echo '{}' | docker run --rm -i "$DOCKER_TAG" > /dev/null) && echo "OK"
+    - name: Build and push image
+      uses: docker/build-push-action@v4
       with:
         context: ./target/docker/stage
         push: true
