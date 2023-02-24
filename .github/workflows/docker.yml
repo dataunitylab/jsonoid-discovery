@@ -5,6 +5,9 @@ on:
       - main
     tags:
       - 'v*'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
