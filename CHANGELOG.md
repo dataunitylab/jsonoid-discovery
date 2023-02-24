@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Allow disabling expansion entirely
+
 ### Changed
 - Exit with non-zero status for invalid arguments
 - Allow oblivious expansion with split discovery

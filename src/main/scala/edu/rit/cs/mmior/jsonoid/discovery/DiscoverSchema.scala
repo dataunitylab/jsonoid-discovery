@@ -31,7 +31,8 @@ private final case class Config(
     splitPercentage: Option[Double] = None,
     obliviousExpansion: Boolean = false,
     resetFormatLength: Boolean = false,
-    randomSeed: Option[Long] = None
+    randomSeed: Option[Long] = None,
+    neverExpand: Boolean = false
 )
 
 object DiscoverSchema {
@@ -269,6 +270,10 @@ object DiscoverSchema {
       opt[Long]("random-seed")
         .action((x, c) => c.copy(randomSeed = Some(x)))
         .text("random seed to use for sampling")
+
+      opt[Unit]("never-expand")
+        .action((x, c) => c.copy(neverExpand = true))
+        .text("never expand the generated schema")
     }
 
     parser.parse(args, Config()) match {
@@ -310,7 +315,12 @@ object DiscoverSchema {
               } else {
                 Some(testSchema)
               }
-              val finalSchema = trainSchema.expandTo(expandSchema)
+              val finalSchema = if (config.neverExpand) {
+                trainSchema
+              } else {
+                trainSchema.expandTo(expandSchema)
+              }
+
               if (!finalSchema.isCompatibleWith(testSchema)) {
                 val incompats = IncompatibilityCollector.findIncompatibilities(
                   finalSchema,
@@ -324,7 +334,7 @@ object DiscoverSchema {
 
               (finalSchema, Some(testSchema))
             case None =>
-              if (config.obliviousExpansion) {
+              if (config.obliviousExpansion && !config.neverExpand) {
                 (discover(jsons, propSet)(p).expandTo(None), None)
               } else {
                 (discover(jsons, propSet)(p), None)
