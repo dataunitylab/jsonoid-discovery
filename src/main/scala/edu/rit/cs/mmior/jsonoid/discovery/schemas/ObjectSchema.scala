@@ -690,7 +690,7 @@ final case class DependenciesProperty(
   * @param dependencies a map from keys to dependent keys
   */
 final case class StaticDependenciesProperty(
-    dependencies: Map[String, List[String]] = Map.empty
+    dependencies: Map[String, Set[String]] = Map.empty
 ) extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = StaticDependenciesProperty
 
@@ -747,9 +747,15 @@ final case class StaticDependenciesProperty(
       other: StaticDependenciesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    // Compatibility checking is possible, but we really need to compare
+    // Further compatibility checking is possible, but we really need to compare
     // with DependenciesProperty too which the current API does not permit
-    false
+
+    // We must have a subset of dependencies to be compatible
+    dependencies.keySet.forall { key =>
+      // XXX We really should check if the other schema contains
+      //     the relevant property as we do for DependenciesProperty
+      dependencies(key).subsetOf(other.dependencies.getOrElse(key, Set()))
+    }
   }
 }
 

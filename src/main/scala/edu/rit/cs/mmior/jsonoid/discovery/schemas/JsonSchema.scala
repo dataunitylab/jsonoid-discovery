@@ -352,7 +352,7 @@ object JsonSchema {
       throw new UnsupportedOperationException("dependencies not supported")
     }
     if ((obj \ "dependentRequired") != JNothing) {
-      val deps = (obj \ "dependentRequired").extract[Map[String, List[String]]]
+      val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
       props.add(StaticDependenciesProperty(deps))
     }
     if ((obj \ "dependentSchemas") != JNothing) {

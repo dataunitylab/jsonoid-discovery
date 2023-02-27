@@ -125,7 +125,7 @@ class JsonSchemaSpec extends UnitSpec {
       JsonSchema.fromJson(objSchema).asInstanceOf[ObjectSchema]
 
     convertedSchema.properties should contain(
-      StaticDependenciesProperty(Map("foo" -> List("bar")))
+      StaticDependenciesProperty(Map("foo" -> Set("bar")))
     )
   }
 
