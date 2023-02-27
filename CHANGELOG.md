@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Avoid crash during expansion if a property is missing
+- Fix regex compatibility checking for `StaticPatternProperty`
 
 ### Changed
 - Exit with non-zero status for invalid arguments

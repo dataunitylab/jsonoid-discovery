@@ -673,13 +673,14 @@ final case class StaticPatternProperty(regex: Regex)
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isCompatibleWith(
       other: StaticPatternProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Regexes do not necessarily need to be equal to be
     // compatible, but this is the best that we attempt to do for now
-    regex === other.regex
+    regex.regex == other.regex.regex
   }
 }
 
