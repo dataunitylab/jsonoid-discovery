@@ -3,7 +3,7 @@ package edu.rit.cs.mmior.jsonoid.discovery
 import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
+import java.nio.file.{Files, Paths}
 import scala.io.Source
 import scala.language.existentials
 
@@ -32,7 +32,8 @@ private final case class Config(
     obliviousExpansion: Boolean = false,
     resetFormatLength: Boolean = false,
     randomSeed: Option[Long] = None,
-    neverExpand: Boolean = false
+    neverExpand: Boolean = false,
+    debug: Boolean = false
 )
 
 object DiscoverSchema {
@@ -195,6 +196,22 @@ object DiscoverSchema {
       }
     )
 
+  @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
+  private def outputSchema(
+      schema: JsonSchema[_],
+      maybeFile: Option[File] = None
+  )(implicit p: JsonoidParams): Unit = {
+    val schemaStr = pretty(render(schema.toJsonSchema()(p)))
+    maybeFile match {
+      case Some(file) =>
+        Files.write(
+          file.toPath(),
+          schemaStr.getBytes(StandardCharsets.UTF_8)
+        )
+      case None => println(schemaStr)
+    }
+  }
+
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
@@ -274,10 +291,23 @@ object DiscoverSchema {
       opt[Unit]("never-expand")
         .action((x, c) => c.copy(neverExpand = true))
         .text("never expand the generated schema")
+
+      opt[Unit]("debug")
+        .action((x, c) => c.copy(debug = true))
+        .text("enable debugging features")
     }
 
     parser.parse(args, Config()) match {
       case Some(config) =>
+        val tmpDir = if (config.debug) {
+          val dir = Files.createTempDirectory("jsonoid")
+          System.err.println(s"tmpDir: $dir")
+
+          dir
+        } else {
+          Paths.get(System.getProperty("java.io.tmpdir"))
+        }
+
         if (config.randomSeed.isDefined) {
           scala.util.Random.setSeed(config.randomSeed.get)
         }
@@ -310,6 +340,7 @@ object DiscoverSchema {
               val schemas = splitDiscover(jsons, propSet, pct)(p)
               val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
               val testSchema = schemas._2.asInstanceOf[ObjectSchema]
+
               val expandSchema = if (config.obliviousExpansion) {
                 None
               } else {
@@ -319,6 +350,22 @@ object DiscoverSchema {
                 trainSchema
               } else {
                 trainSchema.expandTo(expandSchema)
+              }
+
+              // If debugging is enabled, save the training and test schemas
+              if (config.debug) {
+                outputSchema(
+                  trainSchema,
+                  Some(tmpDir.resolve("train.json").toFile)
+                )
+                outputSchema(
+                  testSchema,
+                  Some(tmpDir.resolve("test.json").toFile)
+                )
+                outputSchema(
+                  finalSchema,
+                  Some(tmpDir.resolve("final.json").toFile)
+                )
               }
 
               if (!finalSchema.isCompatibleWith(testSchema)) {
@@ -335,7 +382,15 @@ object DiscoverSchema {
               (finalSchema, Some(testSchema))
             case None =>
               if (config.obliviousExpansion && !config.neverExpand) {
-                (discover(jsons, propSet)(p).expandTo(None), None)
+                val unexpandedSchema = discover(jsons, propSet)(p)
+                // If debugging is enabled, save the schema before expansion
+                if (config.debug) {
+                  outputSchema(
+                    unexpandedSchema,
+                    Some(tmpDir.resolve("train.json").toFile)
+                  )
+                }
+                (unexpandedSchema.expandTo(None), None)
               } else {
                 (discover(jsons, propSet)(p), None)
               }
@@ -353,6 +408,14 @@ object DiscoverSchema {
         var transformedSchema: JsonSchema[_] =
           transformSchema(schema, testSchema, config.addDefinitions)(p)
 
+        // If debugging is enabled, save the schema before expansion
+        if (config.debug) {
+          outputSchema(
+            transformedSchema,
+            Some(tmpDir.resolve("transformed.json").toFile)
+          )
+        }
+
         if (config.writeValues.isDefined) {
           val outputStream = new FileOutputStream(config.writeValues.get)
           ValueTableGenerator.writeValueTable(
@@ -361,15 +424,7 @@ object DiscoverSchema {
           )
         }
 
-        val schemaStr = pretty(render(transformedSchema.toJsonSchema()(p)))
-        config.writeOutput match {
-          case Some(file) =>
-            Files.write(
-              file.toPath(),
-              schemaStr.getBytes(StandardCharsets.UTF_8)
-            )
-          case None => println(schemaStr)
-        }
+        outputSchema(transformedSchema, config.writeOutput)
       case None => System.exit(1)
     }
   }

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - Allow disabling expansion entirely
+- Add possible debug output to CLI
 
 ### Changed
 - Exit with non-zero status for invalid arguments
