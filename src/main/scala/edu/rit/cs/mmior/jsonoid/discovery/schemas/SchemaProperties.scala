@@ -191,8 +191,10 @@ final case class SchemaProperties[T](
     SchemaProperties(
       properties.transform { case (tag, prop) =>
         prop.expandTo(
-          other.map(
-            _.properties(tag.asInstanceOf[PropertyTag[T]]).asInstanceOf[prop.S]
+          other.flatMap(
+            _.properties
+              .get(tag.asInstanceOf[PropertyTag[T]])
+              .map(_.asInstanceOf[prop.S])
           )
         )
       }
