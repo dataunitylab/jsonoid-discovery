@@ -520,16 +520,23 @@ final case class PatternProperty(
   override def newDefault()(implicit p: JsonoidParams): PatternProperty =
     PatternProperty()
 
+  private def isValidPattern: Boolean = {
+    val prefixLength = prefix.map(_.length).getOrElse(0)
+    val suffixLength = suffix.map(_.length).getOrElse(0)
+
+    // The length checks below ensures we don't end up with
+    // prefixes and suffixes which overlap since these can't
+    // be converted into a meaningful regex with this approach
+    examples >= PatternProperty.MinExamples &&
+    (prefixLength > 0 || suffixLength > 0) &&
+    (prefixLength + suffixLength) < minLength.getOrElse(0)
+  }
+
   override def toJson()(implicit p: JsonoidParams): JObject = if (
-    examples >= PatternProperty.MinExamples
+    isValidPattern
   ) {
     (prefix.getOrElse(""), suffix.getOrElse("")) match {
-      case (str1, str2)
-          if str1.length > 0 && str2.length > 0 &&
-            // The length checks below ensures we don't end up with
-            // prefixes and suffixes which overlap since these can't
-            // be converted into a meaningful regex with this approach
-            (str1.length + str2.length) < minLength.getOrElse(0) =>
+      case (str1, str2) if str1.length > 0 && str2.length > 0 =>
         ("pattern" ->
           ("^" +
             PatternProperty.ReplaceRegex.replaceAllIn(str1, "\\\\$0") +
@@ -608,8 +615,12 @@ final case class PatternProperty(
       other: PatternProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    other.prefix.getOrElse("").startsWith(prefix.getOrElse("")) &&
-    other.suffix.getOrElse("").endsWith(suffix.getOrElse(""))
+    if (isValidPattern) {
+      other.prefix.getOrElse("").startsWith(prefix.getOrElse("")) &&
+      other.suffix.getOrElse("").endsWith(suffix.getOrElse(""))
+    } else {
+      true
+    }
   }
 
   override def expandTo(other: Option[PatternProperty]): PatternProperty = {

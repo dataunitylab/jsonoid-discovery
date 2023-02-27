@@ -144,7 +144,7 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "expand to remove patterns if needed" in {
     val newPattern =
-      PatternProperty(Some("foo"), Some("bar")).expandTo(
+      PatternProperty(Some("foo"), Some("bar"), 100, Some(20)).expandTo(
         Some(PatternProperty())
       )
     newPattern.prefix shouldBe None
