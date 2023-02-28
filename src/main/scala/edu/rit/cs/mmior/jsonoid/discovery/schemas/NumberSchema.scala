@@ -631,7 +631,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
       // Otherwise, the multiple must be a multiple
       // of our multiple with the same sign
       (other.multiple.get / multiple.get).isValidInt &&
-      multiple.get.signum == other.multiple.get.signum
+      (multiple.get.signum == other.multiple.get.signum || other.multiple.get == 0)
     }
   }
 

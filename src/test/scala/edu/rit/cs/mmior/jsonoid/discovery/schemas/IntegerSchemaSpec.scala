@@ -125,6 +125,12 @@ class IntegerSchemaSpec extends UnitSpec {
     ) shouldBe true
   }
 
+  it should "be compatible with a zero multiple" in {
+    IntMultipleOfProperty(Some(14)).isCompatibleWith(
+      IntMultipleOfProperty(Some(0))
+    ) shouldBe true
+  }
+
   it should "expand to remove a prime factor" in {
     IntMultipleOfProperty(Some(2 * 3 * 5 * 7))
       .expandTo(Some(IntMultipleOfProperty((Some(5 * 7)))))

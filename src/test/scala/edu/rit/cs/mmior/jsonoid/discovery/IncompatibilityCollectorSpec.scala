@@ -24,7 +24,6 @@ class IncompatibilityCollectorSpec extends UnitSpec {
       schema1,
       schema2
     ) should contain theSameElementsAs List(
-      Incompatibility("$", ClassTag(classOf[IntMultipleOfProperty])),
       Incompatibility("$", ClassTag(classOf[MinIntValueProperty]))
     )
   }

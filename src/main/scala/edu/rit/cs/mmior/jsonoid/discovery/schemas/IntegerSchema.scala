@@ -610,10 +610,13 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
       false
     } else {
       // Otherwise, the multiple must be a multiple
-      // of our multiple with the same sign
-      (other.multiple.get == 0 && multiple.get == 0) ||
-      (multiple.get != 0 && other.multiple.get % multiple.get == 0 &&
-        multiple.get.signum == other.multiple.get.signum)
+      // of our multiple with the compatible signs
+      val bothZero = other.multiple.get == 0 && multiple.get == 0
+      val compatibleSigns =
+        multiple.get.signum == other.multiple.get.signum || other.multiple.get == 0
+      val multipleOf =
+        multiple.get != 0 && other.multiple.get % multiple.get == 0
+      bothZero || (multipleOf && compatibleSigns)
     }
   }
 

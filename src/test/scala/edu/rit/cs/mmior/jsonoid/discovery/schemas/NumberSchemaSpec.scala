@@ -133,6 +133,12 @@ class NumberSchemaSpec extends UnitSpec {
     ) shouldBe true
   }
 
+  it should "be compatible with a zero multiple" in {
+    NumMultipleOfProperty(Some(14.0)).isCompatibleWith(
+      NumMultipleOfProperty(Some(0.0))
+    ) shouldBe true
+  }
+
   it should "expand by division by 2s" in {
     NumMultipleOfProperty(Some(4.0))
       .expandTo(Some(NumMultipleOfProperty((Some(2.0)))))
