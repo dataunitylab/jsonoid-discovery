@@ -380,14 +380,14 @@ final case class MaxIntValueProperty(
       other: Option[MaxIntValueProperty]
   ): MaxIntValueProperty = {
     val (newMax, newExclusive) = maybeExpandInt(
-      maxIntValue.map(_.toInt),
+      maxIntValue,
       other
-        .map(o => o.maxIntValue.map(i => i.toInt - (if (o.exclusive) 1 else 0)))
+        .map(o => o.maxIntValue.map(i => i - (if (o.exclusive) 1 else 0)))
         .getOrElse(None),
       exclusive,
       other.isEmpty
     )
-    MaxIntValueProperty(newMax.map(BigInt(_)), newExclusive)
+    MaxIntValueProperty(newMax, newExclusive)
   }
 }
 

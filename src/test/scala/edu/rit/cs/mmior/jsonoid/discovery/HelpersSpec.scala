@@ -132,6 +132,14 @@ class HelpersSpec extends UnitSpec {
     maybeExpandInt(Some(14), Some(12), false) shouldBe (Some(14), false)
   }
 
+  it should "correctly expand very large numbers" in {
+    maybeExpandInt(
+      Some(BigInt("1196296863810379800")),
+      Some(BigInt("1196296863810379801")),
+      false
+    ) shouldBe (Some(BigInt("1200000000000000000")), false)
+  }
+
   behavior of "maybeContractInt"
 
   it should "expand to decrement values by tens" in {

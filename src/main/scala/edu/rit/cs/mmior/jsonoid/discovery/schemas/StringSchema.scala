@@ -254,12 +254,12 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 
   override def expandTo(other: Option[MaxLengthProperty]): MaxLengthProperty = {
     val newMax = maybeExpandInt(
-      maxLength,
-      other.map(_.maxLength).getOrElse(None),
+      maxLength.map(BigInt(_)),
+      other.flatMap(_.maxLength.map(BigInt(_))),
       false,
       other.isEmpty
     )._1
-    MaxLengthProperty(newMax)
+    MaxLengthProperty(newMax.map(_.toInt))
   }
 }
 

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix regex compatibility checking for `StaticPatternProperty`
 - Properly report compatibility for `PatternProperty`
 - Add missing `NumMultipleOfProperty` when converting `IntegerSchema`
+- Make expansion actually work with large numbers
 
 ### Changed
 - Exit with non-zero status for invalid arguments

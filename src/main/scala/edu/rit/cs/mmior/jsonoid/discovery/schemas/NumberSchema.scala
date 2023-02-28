@@ -374,11 +374,11 @@ final case class MaxNumValueProperty(
       other: Option[MaxNumValueProperty]
   ): MaxNumValueProperty = {
     val (newMax, newExclusive) = maybeExpandInt(
-      maxNumValue.map(_.setScale(0, BigDecimal.RoundingMode.FLOOR).toInt),
+      maxNumValue.map(_.setScale(0, BigDecimal.RoundingMode.FLOOR).toBigInt),
       other
         .map(o =>
           o.maxNumValue.map(n =>
-            n.setScale(0, BigDecimal.RoundingMode.CEILING).toInt
+            n.setScale(0, BigDecimal.RoundingMode.CEILING).toBigInt
           )
         )
         .getOrElse(None),

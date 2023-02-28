@@ -19,12 +19,12 @@ object Helpers {
   /** A wrapper for [[expandInt]] that works with [[scala.Option]] values. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def maybeExpandInt(
-      current: Option[Int],
-      limit: Option[Int],
+      current: Option[BigInt],
+      limit: Option[BigInt],
       exclusive: Boolean,
       force: Boolean = false,
       round: Int = 1
-  ): (Option[Int], Boolean) = {
+  ): (Option[BigInt], Boolean) = {
     if (round > MaxExpandRounds) {
       (None, false)
     } else {
@@ -56,12 +56,12 @@ object Helpers {
     * @return the new minimum value and whether it is exclusive
     */
   def expandInt(
-      current: Int,
-      limit: Int,
+      current: BigInt,
+      limit: BigInt,
       exclusive: Boolean,
       force: Boolean = false,
       round: Int
-  ): (Option[Int], Boolean) = {
+  ): (Option[BigInt], Boolean) = {
     if (current < 0) {
       // TODO We can probably make better choices for negative values
       maybeExpandInt(Some(0), Some(limit), exclusive, force, round + 1)
@@ -83,8 +83,8 @@ object Helpers {
       // Since 2 is a common power, consider the next closest power
       // but first consider one less since this occurs frequently
       // (e.g. 255, 65535)
-      val closestPow2 =
-        Math.pow(2, (Math.log(current) / Math.log(2)).ceil).toInt
+      // The next closest power of two is just 2^(number of binary digits)
+      val closestPow2 = BigInt(2).pow(current.toString(2).length)
       val next2 = if ((closestPow2 - 1) > current) {
         closestPow2 - 1
       } else {
@@ -97,8 +97,10 @@ object Helpers {
       // 99 => 100
       // 110 => 200
       // 217 => 300
-      val pow10 = Math.pow(10, Math.log10(current).floor - 1).toInt
-      val next10 = current + pow10 - (current % pow10)
+      // The floor of the base 10 logarithm is the number
+      // of decimal digits in the number minus 1
+      val pow10 = BigInt(10).pow(current.toString.length - 1 - 1)
+      val next10 = current + pow10 - current.mod(pow10)
       if (next2 < next10 && next2 > current) {
         maybeExpandInt(Some(next2), Some(limit), exclusive, force, round + 1)
       } else {

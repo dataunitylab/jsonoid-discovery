@@ -586,12 +586,12 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
 
   override def expandTo(other: Option[MaxItemsProperty]): MaxItemsProperty = {
     val newMax = maybeExpandInt(
-      maxItems,
-      other.map(_.maxItems).getOrElse(None),
+      maxItems.map(BigInt(_)),
+      other.flatMap(_.maxItems.map(BigInt(_))),
       false,
       other.isEmpty
     )._1
-    MaxItemsProperty(newMax)
+    MaxItemsProperty(newMax.map(_.toInt))
   }
 }
 
