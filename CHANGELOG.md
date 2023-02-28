@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Avoid crash during expansion if a property is missing
 - Fix regex compatibility checking for `StaticPatternProperty`
 - Properly report compatibility for `PatternProperty`
+- Add missing `NumMultipleOfProperty` when converting `IntegerSchema`
 
 ### Changed
 - Exit with non-zero status for invalid arguments

@@ -111,7 +111,7 @@ final case class IntegerSchema(
         case IntHistogramProperty(histogram) =>
           props.add(NumHistogramProperty(histogram))
         case IntMultipleOfProperty(multiple) =>
-          NumMultipleOfProperty(multiple.map(_.toDouble))
+          props.add(NumMultipleOfProperty(multiple.map(_.toDouble)))
       }
     }
 
