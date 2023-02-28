@@ -18,6 +18,68 @@ object ObjectSchema {
     )(p)
   }
 
+  /** Convert a serialized JSON value to an object schema object. */
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.Equals",
+      "org.wartremover.warts.OptionPartial",
+      "org.wartremover.warts.Recursion"
+    )
+  )
+  def fromJson(
+      obj: JObject
+  )(implicit p: JsonoidParams): ObjectSchema = {
+    implicit val formats: Formats = DefaultFormats
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+
+    if ((obj \ "not") != JNothing) {
+      throw new UnsupportedOperationException("not isn't supported")
+    }
+
+    // TODO Add support for dependencies
+    if ((obj \ "dependencies") != JNothing) {
+      throw new UnsupportedOperationException("dependencies not supported")
+    }
+    if ((obj \ "dependentRequired") != JNothing) {
+      val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
+      props.add(StaticDependenciesProperty(deps))
+    }
+    if ((obj \ "dependentSchemas") != JNothing) {
+      throw new UnsupportedOperationException("dependentSchemas not supported")
+    }
+
+    val objProps = if ((obj \ "properties") != JNothing) {
+      (obj \ "properties").extract[Map[String, JObject]]
+    } else {
+      Map.empty
+    }
+    val objTypes: Map[String, JsonSchema[_]] = objProps.map {
+      case (prop, value) =>
+        (prop -> JsonSchema.fromJson(value))
+    }.toMap
+
+    val patternProps = if ((obj \ "patternProperties") != JNothing) {
+      (obj \ "patternProperties").extract[Map[String, JObject]]
+    } else {
+      Map.empty
+    }
+    val patternTypes: Map[Regex, JsonSchema[_]] = patternProps.map {
+      case (pattern, value) =>
+        (pattern.r -> JsonSchema.fromJson(value))
+    }.toMap
+
+    val required = (obj \ "required").extract[Set[String]]
+    val reqProp = RequiredProperty(Some(required))
+
+    props.add(ObjectTypesProperty(objTypes))
+    if (!patternTypes.isEmpty) {
+      props.add(PatternTypesProperty(patternTypes))
+    }
+    props.add(RequiredProperty(Some(required)))
+
+    ObjectSchema(props)(p)
+  }
+
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(AdditionalPropertiesProperty())

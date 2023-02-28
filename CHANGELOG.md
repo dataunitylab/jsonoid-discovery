@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add possible debug output to CLI
 - Add some compatibility checking for `StaticDependenciesProperty`
 
+### Changed
+- Refactor reading of JSON Schema from file
+
 ### Fixed
 - Avoid crash during expansion if a property is missing
 - Fix regex compatibility checking for `StaticPatternProperty`

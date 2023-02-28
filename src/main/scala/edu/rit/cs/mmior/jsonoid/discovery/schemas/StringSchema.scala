@@ -27,6 +27,45 @@ object StringSchema {
     )
   }
 
+  /** Convert a serialized JSON value to a string schema object. */
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def fromJson(str: JObject): StringSchema = {
+    implicit val formats: Formats = DefaultFormats
+    val props = SchemaProperties.empty[String]
+
+    if ((str \ "format") != JNothing) {
+      val format = (str \ "format").extract[String]
+      props.add(FormatProperty(Map(format -> 1)))
+    }
+
+    if ((str \ "pattern") != JNothing) {
+      props.add(StaticPatternProperty((str \ "pattern").extract[String].r))
+    }
+
+    if ((str \ "minLength") != JNothing) {
+      props.add(MinLengthProperty(Some((str \ "minLength").extract[Int])))
+    }
+
+    if ((str \ "maxLength") != JNothing) {
+      props.add(MaxLengthProperty(Some((str \ "maxLength").extract[Int])))
+    }
+
+    if (str.values.contains("examples")) {
+      val examples = (str \ "examples").extract[List[String]]
+      props.add(
+        StringExamplesProperty(ExamplesProperty(examples, examples.length))
+      )
+    }
+
+    if (str.values.contains("bloomFilter")) {
+      val bloomStr = (str \ "bloomFilter").extract[String]
+      val bloomFilter = BloomFilter.deserialize[String](bloomStr)
+      props.add(StringBloomFilterProperty(bloomFilter))
+    }
+
+    StringSchema(props)
+  }
+
   val AllProperties: SchemaProperties[String] = {
     val props = SchemaProperties.empty[String]
     props.add(MinLengthProperty())

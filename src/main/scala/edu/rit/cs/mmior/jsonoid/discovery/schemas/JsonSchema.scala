@@ -3,12 +3,9 @@ package schemas
 
 import scala.collection.mutable
 import scala.reflect._
-import scala.util.matching.Regex
 
 import org.json4s.JsonDSL._
 import org.json4s._
-
-import utils.BloomFilter
 
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
@@ -58,13 +55,13 @@ object JsonSchema {
 
       val schemas = schemaTypes.map { schemaType =>
         schemaType match {
-          case "array"   => fromJsonArray(schema)
+          case "array"   => ArraySchema.fromJson(schema)
           case "boolean" => BooleanSchema()
-          case "integer" => fromJsonInteger(schema)
-          case "number"  => fromJsonNumber(schema)
+          case "integer" => IntegerSchema.fromJson(schema)
+          case "number"  => NumberSchema.fromJson(schema)
           case "null"    => NullSchema()
-          case "object"  => fromJsonObject(schema)
-          case "string"  => fromJsonString(schema)
+          case "object"  => ObjectSchema.fromJson(schema)
+          case "string"  => StringSchema.fromJson(schema)
           case _ =>
             throw new UnsupportedOperationException("type not supported")
         }
@@ -161,274 +158,6 @@ object JsonSchema {
       case _ =>
         buildProductSchema(baseSchema, schemas.map(fromJson(_)), productType)
     }
-  }
-
-  /**  Helper from [[fromJsonObjectValue]] to build an array schema from a
-    *  serialized schema object.
-    */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  private def fromJsonArray(arr: JObject): ArraySchema = {
-    val props = SchemaProperties.empty[List[JsonSchema[_]]]
-
-    if ((arr \ "contains") != JNothing) {
-      throw new UnsupportedOperationException("contains not supported")
-    }
-
-    if ((arr \ "minItems") != JNothing) {
-      props.add(MinItemsProperty(Some((arr \ "minItems").extract[Int])))
-    }
-
-    if ((arr \ "maxItems") != JNothing) {
-      props.add(MaxItemsProperty(Some((arr \ "maxItems").extract[Int])))
-    }
-
-    if ((arr \ "uniqueItems") != JNothing) {
-      props.add(UniqueProperty((arr \ "uniqueItems").extract[Boolean], false))
-    }
-
-    val itemType: Either[JsonSchema[_], List[JsonSchema[_]]] =
-      if ((arr \ "prefixItems") != JNothing) {
-        if ((arr \ "items") != JNothing) {
-          throw new UnsupportedOperationException(
-            "Both items and prefixItems cannot be specified"
-          )
-        }
-
-        Right((arr \ "prefixItems").extract[List[JValue]].map(s => fromJson(s)))
-      } else if ((arr \ "items") != JNothing) {
-        (arr \ "items") match {
-          case a: JArray =>
-            Right(a.extract[List[JValue]].map(s => fromJson(s)))
-          case _ =>
-            Left(fromJson((arr \ "items").extract[JValue]))
-        }
-      } else if ((arr \ "additionalItems") != JNothing) {
-        Left(fromJson((arr \ "additionalItems").extract[JValue]))
-      } else {
-        // items and additionalItems not specified, accept anything
-        Left(AnySchema())
-      }
-
-    props.add(ItemTypeProperty(itemType))
-
-    ArraySchema(props)
-  }
-
-  /**  Helper from [[fromJsonObjectValue]] to build an integer schema from a
-    *  serialized schema object.
-    */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  private def fromJsonInteger(int: JObject): IntegerSchema = {
-    val props = SchemaProperties.empty[BigInt]
-
-    if (int.values.contains("multipleOf")) {
-      props.add(
-        IntMultipleOfProperty(Some((int \ "multipleOf").extract[BigInt]))
-      )
-    }
-
-    if (int.values.contains("minimum")) {
-      props.add(MinIntValueProperty(Some((int \ "minimum").extract[BigInt])))
-    }
-
-    if (int.values.contains("exclusiveMinimum")) {
-      props.add(
-        MinIntValueProperty(
-          Some((int \ "exclusiveMinimum").extract[BigInt]),
-          true
-        )
-      )
-    }
-
-    if (int.values.contains("maximum")) {
-      props.add(MaxIntValueProperty(Some((int \ "maximum").extract[BigInt])))
-    }
-
-    if (int.values.contains("exclusiveMaximum")) {
-      props.add(
-        MaxIntValueProperty(
-          Some((int \ "exclusiveMaximum").extract[BigInt]),
-          true
-        )
-      )
-    }
-
-    if (int.values.contains("examples")) {
-      val examples = (int \ "examples").extract[List[BigInt]]
-      props.add(
-        IntExamplesProperty(ExamplesProperty(examples, examples.length))
-      )
-    }
-
-    if (int.values.contains("bloomFilter")) {
-      val bloomStr = (int \ "bloomFilter").extract[String]
-      val bloomFilter = BloomFilter.deserialize[Integer](bloomStr)
-      props.add(IntBloomFilterProperty(bloomFilter))
-    }
-
-    IntegerSchema(props)
-  }
-
-  /**  Helper from [[fromJsonObjectValue]] to build an number schema from a
-    *  serialized schema object.
-    */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  private def fromJsonNumber(num: JObject): NumberSchema = {
-    val props = SchemaProperties.empty[BigDecimal]
-
-    if ((num \ "multipleOf") != JNothing) {
-      props.add(
-        NumMultipleOfProperty(Some((num \ "multipleOf").extract[BigDecimal]))
-      )
-    }
-
-    if ((num \ "minimum") != JNothing) {
-      props.add(
-        MinNumValueProperty(Some((num \ "minimum").extract[BigDecimal]))
-      )
-    }
-
-    if ((num \ "exclusiveMinimum") != JNothing) {
-      props.add(
-        MinNumValueProperty(
-          Some((num \ "exclusiveMinimum").extract[BigDecimal]),
-          true
-        )
-      )
-    }
-
-    if ((num \ "maximum") != JNothing) {
-      props.add(
-        MaxNumValueProperty(Some((num \ "maximum").extract[BigDecimal]))
-      )
-    }
-
-    if ((num \ "exclusiveMaximum") != JNothing) {
-      props.add(
-        MaxNumValueProperty(
-          Some((num \ "exclusiveMaximum").extract[BigDecimal]),
-          true
-        )
-      )
-    }
-
-    if (num.values.contains("examples")) {
-      val examples = (num \ "examples").extract[List[BigDecimal]]
-      props.add(
-        NumExamplesProperty(ExamplesProperty(examples, examples.length))
-      )
-    }
-
-    if (num.values.contains("bloomFilter")) {
-      val bloomStr = (num \ "bloomFilter").extract[String]
-      val bloomFilter = BloomFilter.deserialize[Double](bloomStr)
-      props.add(NumBloomFilterProperty(bloomFilter))
-    }
-
-    NumberSchema(props)
-  }
-
-  /**  Helper from [[fromJsonObjectValue]] to build an object schema from a
-    *  serialized schema object.
-    */
-  @SuppressWarnings(
-    Array(
-      "org.wartremover.warts.Equals",
-      "org.wartremover.warts.OptionPartial",
-      "org.wartremover.warts.Recursion"
-    )
-  )
-  private def fromJsonObject(
-      obj: JObject
-  )(implicit p: JsonoidParams): ObjectSchema = {
-    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
-
-    if ((obj \ "not") != JNothing) {
-      throw new UnsupportedOperationException("not isn't supported")
-    }
-
-    // TODO Add support for dependencies
-    if ((obj \ "dependencies") != JNothing) {
-      throw new UnsupportedOperationException("dependencies not supported")
-    }
-    if ((obj \ "dependentRequired") != JNothing) {
-      val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
-      props.add(StaticDependenciesProperty(deps))
-    }
-    if ((obj \ "dependentSchemas") != JNothing) {
-      throw new UnsupportedOperationException("dependentSchemas not supported")
-    }
-
-    val objProps = if ((obj \ "properties") != JNothing) {
-      (obj \ "properties").extract[Map[String, JObject]]
-    } else {
-      Map.empty
-    }
-    val objTypes: Map[String, JsonSchema[_]] = objProps.map {
-      case (prop, value) =>
-        (prop -> fromJson(value))
-    }.toMap
-
-    val patternProps = if ((obj \ "patternProperties") != JNothing) {
-      (obj \ "patternProperties").extract[Map[String, JObject]]
-    } else {
-      Map.empty
-    }
-    val patternTypes: Map[Regex, JsonSchema[_]] = patternProps.map {
-      case (pattern, value) =>
-        (pattern.r -> fromJson(value))
-    }.toMap
-
-    val required = (obj \ "required").extract[Set[String]]
-    val reqProp = RequiredProperty(Some(required))
-
-    props.add(ObjectTypesProperty(objTypes))
-    if (!patternTypes.isEmpty) {
-      props.add(PatternTypesProperty(patternTypes))
-    }
-    props.add(RequiredProperty(Some(required)))
-
-    ObjectSchema(props)(p)
-  }
-
-  /**  Helper from [[fromJsonObjectValue]] to build a string schema from a
-    *  serialized schema object.
-    */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  private def fromJsonString(str: JObject): StringSchema = {
-    val props = SchemaProperties.empty[String]
-
-    if ((str \ "format") != JNothing) {
-      val format = (str \ "format").extract[String]
-      props.add(FormatProperty(Map(format -> 1)))
-    }
-
-    if ((str \ "pattern") != JNothing) {
-      props.add(StaticPatternProperty((str \ "pattern").extract[String].r))
-    }
-
-    if ((str \ "minLength") != JNothing) {
-      props.add(MinLengthProperty(Some((str \ "minLength").extract[Int])))
-    }
-
-    if ((str \ "maxLength") != JNothing) {
-      props.add(MaxLengthProperty(Some((str \ "maxLength").extract[Int])))
-    }
-
-    if (str.values.contains("examples")) {
-      val examples = (str \ "examples").extract[List[String]]
-      props.add(
-        StringExamplesProperty(ExamplesProperty(examples, examples.length))
-      )
-    }
-
-    if (str.values.contains("bloomFilter")) {
-      val bloomStr = (str \ "bloomFilter").extract[String]
-      val bloomFilter = BloomFilter.deserialize[String](bloomStr)
-      props.add(StringBloomFilterProperty(bloomFilter))
-    }
-
-    StringSchema(props)
   }
 }
 

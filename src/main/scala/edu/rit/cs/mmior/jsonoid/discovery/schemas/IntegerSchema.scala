@@ -20,6 +20,60 @@ object IntegerSchema {
     )
   }
 
+  /** Convert a serialized JSON value to an integer schema object. */
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def fromJson(int: JObject): IntegerSchema = {
+    implicit val formats: Formats = DefaultFormats
+    val props = SchemaProperties.empty[BigInt]
+
+    if (int.values.contains("multipleOf")) {
+      props.add(
+        IntMultipleOfProperty(Some((int \ "multipleOf").extract[BigInt]))
+      )
+    }
+
+    if (int.values.contains("minimum")) {
+      props.add(MinIntValueProperty(Some((int \ "minimum").extract[BigInt])))
+    }
+
+    if (int.values.contains("exclusiveMinimum")) {
+      props.add(
+        MinIntValueProperty(
+          Some((int \ "exclusiveMinimum").extract[BigInt]),
+          true
+        )
+      )
+    }
+
+    if (int.values.contains("maximum")) {
+      props.add(MaxIntValueProperty(Some((int \ "maximum").extract[BigInt])))
+    }
+
+    if (int.values.contains("exclusiveMaximum")) {
+      props.add(
+        MaxIntValueProperty(
+          Some((int \ "exclusiveMaximum").extract[BigInt]),
+          true
+        )
+      )
+    }
+
+    if (int.values.contains("examples")) {
+      val examples = (int \ "examples").extract[List[BigInt]]
+      props.add(
+        IntExamplesProperty(ExamplesProperty(examples, examples.length))
+      )
+    }
+
+    if (int.values.contains("bloomFilter")) {
+      val bloomStr = (int \ "bloomFilter").extract[String]
+      val bloomFilter = BloomFilter.deserialize[Integer](bloomStr)
+      props.add(IntBloomFilterProperty(bloomFilter))
+    }
+
+    IntegerSchema(props)
+  }
+
   val AllProperties: SchemaProperties[BigInt] = {
     val props = SchemaProperties.empty[BigInt]
     props.add(MinIntValueProperty())

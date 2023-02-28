@@ -40,6 +40,60 @@ object ArraySchema {
     ArraySchema(newProps)
   }
 
+  /** Convert a serialized JSON value to an array schema object. */
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  def fromJson(arr: JObject): ArraySchema = {
+    implicit val formats: Formats = DefaultFormats
+    val props = SchemaProperties.empty[List[JsonSchema[_]]]
+
+    if ((arr \ "contains") != JNothing) {
+      throw new UnsupportedOperationException("contains not supported")
+    }
+
+    if ((arr \ "minItems") != JNothing) {
+      props.add(MinItemsProperty(Some((arr \ "minItems").extract[Int])))
+    }
+
+    if ((arr \ "maxItems") != JNothing) {
+      props.add(MaxItemsProperty(Some((arr \ "maxItems").extract[Int])))
+    }
+
+    if ((arr \ "uniqueItems") != JNothing) {
+      props.add(UniqueProperty((arr \ "uniqueItems").extract[Boolean], false))
+    }
+
+    val itemType: Either[JsonSchema[_], List[JsonSchema[_]]] =
+      if ((arr \ "prefixItems") != JNothing) {
+        if ((arr \ "items") != JNothing) {
+          throw new UnsupportedOperationException(
+            "Both items and prefixItems cannot be specified"
+          )
+        }
+
+        Right(
+          (arr \ "prefixItems")
+            .extract[List[JValue]]
+            .map(s => JsonSchema.fromJson(s))
+        )
+      } else if ((arr \ "items") != JNothing) {
+        (arr \ "items") match {
+          case a: JArray =>
+            Right(a.extract[List[JValue]].map(s => JsonSchema.fromJson(s)))
+          case _ =>
+            Left(JsonSchema.fromJson((arr \ "items").extract[JValue]))
+        }
+      } else if ((arr \ "additionalItems") != JNothing) {
+        Left(JsonSchema.fromJson((arr \ "additionalItems").extract[JValue]))
+      } else {
+        // items and additionalItems not specified, accept anything
+        Left(AnySchema())
+      }
+
+    props.add(ItemTypeProperty(itemType))
+
+    ArraySchema(props)
+  }
+
   val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
