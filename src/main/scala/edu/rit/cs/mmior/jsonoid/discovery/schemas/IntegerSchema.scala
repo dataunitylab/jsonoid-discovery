@@ -609,14 +609,11 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
       // If we have a multiple and the other schema doesn't, not compatible
       false
     } else {
-      // Otherwise, the multiple must be a multiple
-      // of our multiple with the compatible signs
+      // Otherwise, the multiple must be a multiple of our multiple
       val bothZero = other.multiple.get == 0 && multiple.get == 0
-      val compatibleSigns =
-        multiple.get.signum == other.multiple.get.signum || other.multiple.get == 0
       val multipleOf =
         multiple.get != 0 && other.multiple.get % multiple.get == 0
-      bothZero || (multipleOf && compatibleSigns)
+      bothZero || multipleOf
     }
   }
 

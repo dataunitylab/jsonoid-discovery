@@ -580,7 +580,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
-    case Some(numVal) if numVal > 1 => ("multipleOf" -> numVal)
+    case Some(numVal) if numVal > 0 => ("multipleOf" -> numVal)
     case _                          => Nil
   }
 
@@ -628,10 +628,8 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
       // If we have a multiple and the other schema doesn't, not compatible
       false
     } else {
-      // Otherwise, the multiple must be a multiple
-      // of our multiple with the same sign
-      (other.multiple.get / multiple.get).isValidInt &&
-      (multiple.get.signum == other.multiple.get.signum || other.multiple.get == 0)
+      // Otherwise, the multiple must be a multiple of our multiple
+      (other.multiple.get / multiple.get).isValidInt
     }
   }
 
