@@ -1,11 +1,11 @@
 # JSONoid Discovery
 
-[![CI](https://github.com/michaelmior/jsonoid-discovery/actions/workflows/ci.yml/badge.svg)](https://github.com/michaelmior/jsonoid-discovery/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/michaelmior/jsonoid-discovery/branch/main/graph/badge.svg?token=VhcWABnQhU)](https://codecov.io/gh/michaelmior/jsonoid-discovery)
+[![CI](https://github.com/dataunitylab/jsonoid-discovery/actions/workflows/ci.yml/badge.svg)](https://github.com/dataunitylab/jsonoid-discovery/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/dataunitylab/jsonoid-discovery/branch/main/graph/badge.svg?token=VhcWABnQhU)](https://codecov.io/gh/dataunitylab/jsonoid-discovery)
 
 Schema discovery for JSON Schema draft 2019-09 using monoids.
 The goal of JSONoid is to produce a useful JSON Schema from a collection of JSON documents.
-For an idea of what JSONoid does, you can view [example schemas with their corresponding datasets](https://michaelmior.github.io/jsonoid-discovery/schemas/).
+For an idea of what JSONoid does, you can view [example schemas with their corresponding datasets](https://dataunitylab.github.io/jsonoid-discovery/schemas/).
 
 Currently this package uses unreleased code via GitHub Packages.
 Although all the code is public, you must [create a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).

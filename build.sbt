@@ -5,7 +5,7 @@ ThisBuild / scalaVersion      := "2.11.12"
 ThisBuild / versionScheme     := Some("early-semver")
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
-ThisBuild / githubOwner       := "michaelmior"
+ThisBuild / githubOwner       := "dataunitylab"
 ThisBuild / githubRepository  := "jsonoid-discovery"
 
 inThisBuild(
@@ -71,6 +71,7 @@ generateSchemas := {
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
+    resolvers += Resolver.githubPackages("dataunitylab"),
     resolvers += Resolver.githubPackages("michaelmior"),
     resolvers += "jitpack" at "https://jitpack.io",
     libraryDependencies ++= Seq(
@@ -142,11 +143,11 @@ dockerCommands ++= Seq(
   ExecCmd("RUN", "apk", "add", "--no-cache", "bash"),
 )
 
-gitHubPagesOrgName := "michaelmior"
+gitHubPagesOrgName := "dataunitylab"
 gitHubPagesRepoName := "jsonoid-discovery"
 gitHubPagesSiteDir := baseDirectory.value / "target/site"
 
-git.remoteRepo := "git@github.com:michaelmior/jsonoid-discovery.git"
+git.remoteRepo := "git@github.com:dataunitylab/jsonoid-discovery.git"
 git.useGitDescribe := true
 
 Test / fork := true
