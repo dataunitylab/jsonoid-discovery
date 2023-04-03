@@ -1,9 +1,13 @@
+.bloop/
 .bsp/
 .metals/
 dumps/
 target/
 bowtie-report.html
 .env
+
+project/project
+project/metals.sbt
 
 node_modules/
 .pnp.*
