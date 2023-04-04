@@ -21,7 +21,6 @@ object ObjectSchema {
   /** Convert a serialized JSON value to an object schema object. */
   @SuppressWarnings(
     Array(
-      "org.wartremover.warts.Equals",
       "org.wartremover.warts.OptionPartial",
       "org.wartremover.warts.Recursion"
     )
@@ -32,23 +31,23 @@ object ObjectSchema {
     implicit val formats: Formats = DefaultFormats
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
 
-    if ((obj \ "not") != JNothing) {
+    if ((obj \ "not") =/= JNothing) {
       throw new UnsupportedOperationException("not isn't supported")
     }
 
     // TODO Add support for dependencies
-    if ((obj \ "dependencies") != JNothing) {
+    if ((obj \ "dependencies") =/= JNothing) {
       throw new UnsupportedOperationException("dependencies not supported")
     }
-    if ((obj \ "dependentRequired") != JNothing) {
+    if ((obj \ "dependentRequired") =/= JNothing) {
       val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
       props.add(StaticDependenciesProperty(deps))
     }
-    if ((obj \ "dependentSchemas") != JNothing) {
+    if ((obj \ "dependentSchemas") =/= JNothing) {
       throw new UnsupportedOperationException("dependentSchemas not supported")
     }
 
-    val objProps = if ((obj \ "properties") != JNothing) {
+    val objProps = if ((obj \ "properties") =/= JNothing) {
       (obj \ "properties").extract[Map[String, JObject]]
     } else {
       Map.empty
@@ -58,7 +57,7 @@ object ObjectSchema {
         (prop -> JsonSchema.fromJson(value))
     }.toMap
 
-    val patternProps = if ((obj \ "patternProperties") != JNothing) {
+    val patternProps = if ((obj \ "patternProperties") =/= JNothing) {
       (obj \ "patternProperties").extract[Map[String, JObject]]
     } else {
       Map.empty
@@ -619,22 +618,21 @@ final case class DependenciesProperty(
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def dependencyMap(): Map[String, Set[String]] = {
     cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
         (if (
-           counts(key1) == count && count != totalCount && counts(
+           counts(key1) === count && count =/= totalCount && counts(
              key2
-           ) != totalCount
+           ) =/= totalCount
          ) {
            List((key1, key2))
          } else {
            List()
          }) ++ (if (
-                  counts(key2) == count && count != totalCount && counts(
+                  counts(key2) === count && count =/= totalCount && counts(
                     key1
-                  ) != totalCount
+                  ) =/= totalCount
                 ) {
                   List((key2, key1))
                 } else {
@@ -763,7 +761,6 @@ final case class StaticDependenciesProperty(
 
   override def mergeable: Boolean = false
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("dependentRequired" -> dependencies)
 

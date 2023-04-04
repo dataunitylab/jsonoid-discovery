@@ -7,6 +7,8 @@ import scala.reflect._
 import org.json4s.JsonDSL._
 import org.json4s._
 
+import Helpers._
+
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
 
@@ -25,7 +27,6 @@ object JsonSchema {
   /** Produce an object schema from a serialized JSON Schema object. */
   @SuppressWarnings(
     Array(
-      "org.wartremover.warts.Equals",
       "org.wartremover.warts.OptionPartial",
       "org.wartremover.warts.Recursion"
     )
@@ -33,16 +34,16 @@ object JsonSchema {
   private def fromJsonObjectValue(schema: JObject): JsonSchema[_] = {
     val baseSchema = if (schema.obj.isEmpty) {
       AnySchema()
-    } else if ((schema \ "$ref") != JNothing) {
+    } else if ((schema \ "$ref") =/= JNothing) {
       ReferenceSchema((schema \ "$ref").extract[String])
-    } else if ((schema \ "enum") != JNothing) {
+    } else if ((schema \ "enum") =/= JNothing) {
       val values = (schema \ "enum").extract[Set[JValue]]
       EnumSchema(values)
-    } else if ((schema \ "const") != JNothing) {
+    } else if ((schema \ "const") =/= JNothing) {
       val value = (schema \ "const").extract[JValue]
       EnumSchema(Set(value))
     } else {
-      val schemaTypes = if ((schema \ "type") != JNothing) {
+      val schemaTypes = if ((schema \ "type") =/= JNothing) {
         (schema \ "type") match {
           case s: JString => List(s.extract[String])
           case a: JArray  => a.extract[List[String]]
@@ -74,7 +75,7 @@ object JsonSchema {
       }
     }
 
-    val convertedSchema = if ((schema \ "allOf") != JNothing) {
+    val convertedSchema = if ((schema \ "allOf") =/= JNothing) {
       val schemas = (schema \ "allOf").extract[List[JObject]]
       schemas.length match {
         case 1 =>
@@ -85,13 +86,13 @@ object JsonSchema {
         case _ =>
           buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
       }
-    } else if ((schema \ "oneOf") != JNothing) {
+    } else if ((schema \ "oneOf") =/= JNothing) {
       productFromJsons(
         baseSchema,
         (schema \ "oneOf").extract[List[JObject]],
         OneOf
       )
-    } else if ((schema \ "anyOf") != JNothing) {
+    } else if ((schema \ "anyOf") =/= JNothing) {
       // XXX This technically isn't correct since we change anyOf to oneOf
       productFromJsons(
         baseSchema,
@@ -102,9 +103,9 @@ object JsonSchema {
       baseSchema
     }
 
-    val definitionsKey = if ((schema \ "definitions") != JNothing) {
+    val definitionsKey = if ((schema \ "definitions") =/= JNothing) {
       Some("definitions")
-    } else if ((schema \ "$defs") != JNothing) {
+    } else if ((schema \ "$defs") =/= JNothing) {
       Some("$defs")
     } else {
       None
@@ -228,7 +229,6 @@ trait JsonSchema[T] {
 
   /**
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def isValidType[S <: JValue](value: S): Boolean = {
     validTypes.contains(value.getClass)
   }

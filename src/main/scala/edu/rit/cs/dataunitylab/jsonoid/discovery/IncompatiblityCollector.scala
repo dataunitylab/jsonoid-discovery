@@ -2,6 +2,7 @@ package edu.rit.cs.dataunitylab.jsonoid.discovery
 
 import scala.reflect.ClassTag
 
+import Helpers._
 import schemas._
 
 final case class Incompatibility[T](path: String, property: ClassTag[T])
@@ -18,16 +19,15 @@ object IncompatibilityCollector {
     *
     * @return an sequence of a single incompatibility if one exists
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def typeIncompat(
       path: String,
       s1: JsonSchema[_],
       s2: JsonSchema[_],
       tag: ClassTag[_]
   ): Seq[Incompatibility[_]] = if (
-    s1.schemaType == s2.schemaType ||
-    s1.schemaType == "any" ||
-    s2.schemaType == "any"
+    s1.schemaType === s2.schemaType ||
+    s1.schemaType === "any" ||
+    s2.schemaType === "any"
   ) {
     Seq()
   } else {
@@ -85,7 +85,7 @@ object IncompatibilityCollector {
         // Show incompatibilities from the closest compatible schemas
         t2.flatMap { s2 =>
           val compatTypes = t1.filter(s1 =>
-            s1.schemaType == "any" || s1.schemaType == s2.schemaType
+            s1.schemaType === "any" || s1.schemaType === s2.schemaType
           )
           if (compatTypes.nonEmpty) {
             compatTypes
@@ -102,7 +102,7 @@ object IncompatibilityCollector {
           .get[ProductSchemaTypesProperty]
           .schemas
           .filter(s =>
-            s.schemaType == "any" || s.schemaType == other.schemaType
+            s.schemaType === "any" || s.schemaType === other.schemaType
           )
         if (types.isEmpty) {
           Seq(

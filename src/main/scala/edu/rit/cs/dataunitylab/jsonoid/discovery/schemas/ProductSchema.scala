@@ -195,9 +195,7 @@ final case class ProductSchema(
     }
   }
 
-  @SuppressWarnings(
-    Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
-  )
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   override def expandTo[S](other: Option[JsonSchema[S]]): JsonSchema[_] = {
     other match {
       case Some(ps: ProductSchema) =>

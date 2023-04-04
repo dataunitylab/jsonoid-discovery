@@ -59,7 +59,6 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
   /** Helper for [[getFeatures]] to construct a [[PrimaryKeyFeatures]] object
     * from information extracted from the schema.
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   private def extractFeatures(
       hll: HyperLogLog,
       path: String,
@@ -73,7 +72,7 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
       prefixOrSuffix.exists(lastKeyPart.startsWith(_)) || prefixOrSuffix.exists(
         lastKeyPart.endsWith(_)
       ),
-      path.count(_ == '.') - 1,
+      path.count(_ === '.') - 1,
       idType,
       maxLength
     )

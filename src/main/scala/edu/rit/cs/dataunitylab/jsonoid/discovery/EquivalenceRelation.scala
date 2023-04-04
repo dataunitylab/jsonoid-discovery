@@ -10,7 +10,6 @@ object EquivalenceRelations {
   /** An equivalence relation which considers objects equal if they have the same
     * set of keys.
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object LabelEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
       (kind1, kind2) match {
@@ -18,7 +17,7 @@ object EquivalenceRelations {
           val types1 = obj1.properties.get[ObjectTypesProperty].objectTypes
           val types2 = obj2.properties.get[ObjectTypesProperty].objectTypes
 
-          types1.keySet == types2.keySet
+          types1.keySet === types2.keySet
         }
         case _ => kind1.schemaType === kind1.schemaType
       }
@@ -46,7 +45,6 @@ object EquivalenceRelations {
   /** An equivalence relation which considers objects equal if all keys which are
     * in common between the objects have the same type.
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object TypeMatchEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
       (kind1, kind2) match {
@@ -56,7 +54,7 @@ object EquivalenceRelations {
 
           val intersectingKeys = types1.keySet & types2.keySet
           intersectingKeys.forall { key =>
-            types1(key).schemaType == types2(key).schemaType
+            types1(key).schemaType === types2(key).schemaType
           }
         }
         case _ => kind1.schemaType === kind1.schemaType
@@ -67,7 +65,6 @@ object EquivalenceRelations {
   /** An equivalence relation which considers schemas equal if they have the same
     * type.
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object KindEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
       kind1.schemaType === kind1.schemaType
@@ -76,7 +73,6 @@ object EquivalenceRelations {
 
   /** An equivalence relation which *always* considers schemas equal.
     */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit object AlwaysEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = true
   }

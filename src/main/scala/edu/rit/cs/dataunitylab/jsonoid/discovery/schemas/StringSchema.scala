@@ -28,25 +28,24 @@ object StringSchema {
   }
 
   /** Convert a serialized JSON value to a string schema object. */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def fromJson(str: JObject): StringSchema = {
     implicit val formats: Formats = DefaultFormats
     val props = SchemaProperties.empty[String]
 
-    if ((str \ "format") != JNothing) {
+    if ((str \ "format") =/= JNothing) {
       val format = (str \ "format").extract[String]
       props.add(FormatProperty(Map(format -> 1)))
     }
 
-    if ((str \ "pattern") != JNothing) {
+    if ((str \ "pattern") =/= JNothing) {
       props.add(StaticPatternProperty((str \ "pattern").extract[String].r))
     }
 
-    if ((str \ "minLength") != JNothing) {
+    if ((str \ "minLength") =/= JNothing) {
       props.add(MinLengthProperty(Some((str \ "minLength").extract[Int])))
     }
 
-    if ((str \ "maxLength") != JNothing) {
+    if ((str \ "maxLength") =/= JNothing) {
       props.add(MaxLengthProperty(Some((str \ "maxLength").extract[Int])))
     }
 
@@ -448,12 +447,7 @@ final case class FormatProperty(
   override def newDefault()(implicit p: JsonoidParams): FormatProperty =
     FormatProperty()
 
-  @SuppressWarnings(
-    Array(
-      "org.wartremover.warts.Equals",
-      "org.wartremover.warts.TraversableOps"
-    )
-  )
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def maxFormat(
       useLimit: Boolean = true
   )(implicit p: JsonoidParams): Option[String] = {
@@ -463,7 +457,7 @@ final case class FormatProperty(
       if (
         BigDecimal(maxFormat._2.toDouble) / BigDecimal(
           total
-        ) >= p.formatThreshold && maxFormat._1 != "none"
+        ) >= p.formatThreshold && maxFormat._1 =/= "none"
       ) {
         Some(maxFormat._1)
       } else {
@@ -511,7 +505,6 @@ final case class FormatProperty(
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isCompatibleWith(
       other: FormatProperty,
       recursive: Boolean = true
@@ -520,12 +513,11 @@ final case class FormatProperty(
     // not received enough evidence yet to pick the correct format,
     // but these schemas should still be considered compatible
     val thisFormat = maxFormat()
-    thisFormat.isEmpty || thisFormat == other.maxFormat(false)
+    thisFormat.isEmpty || thisFormat === other.maxFormat(false)
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def expandTo(other: Option[FormatProperty]): FormatProperty = {
-    if (maxFormat() == other.map(_.maxFormat(false)).getOrElse("none")) {
+    if (maxFormat() === other.flatMap(_.maxFormat(false))) {
       this
     } else {
       // Reset to empty formats
@@ -723,14 +715,13 @@ final case class StaticPatternProperty(regex: Regex)
     }
   }
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def isCompatibleWith(
       other: StaticPatternProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Regexes do not necessarily need to be equal to be
     // compatible, but this is the best that we attempt to do for now
-    regex.regex == other.regex.regex
+    regex.regex === other.regex.regex
   }
 }
 

@@ -360,8 +360,24 @@ object Helpers {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  implicit final class StringOps(self: String) {
+    def ===(other: String): Boolean = self == other
+
+    def =/=(other: String): Boolean = self != other
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  implicit final class StringOptionOps(self: Option[String]) {
+    def ===(other: Option[String]): Boolean = self == other
+
+    def =/=(other: Option[String]): Boolean = self != other
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit final class BigIntOps(self: BigInt) {
     def ===(other: BigInt): Boolean = self == other
+
+    def =/=(other: BigInt): Boolean = self != other
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))

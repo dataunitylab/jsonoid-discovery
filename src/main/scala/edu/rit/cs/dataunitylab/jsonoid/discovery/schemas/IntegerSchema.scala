@@ -21,7 +21,6 @@ object IntegerSchema {
   }
 
   /** Convert a serialized JSON value to an integer schema object. */
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def fromJson(int: JObject): IntegerSchema = {
     implicit val formats: Formats = DefaultFormats
     val props = SchemaProperties.empty[BigInt]
@@ -559,7 +558,6 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
   override def newDefault()(implicit p: JsonoidParams): IntMultipleOfProperty =
     IntMultipleOfProperty()
 
-  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def toJson()(implicit p: JsonoidParams): JObject = multiple match {
     case Some(intVal) if intVal > 1 => ("multipleOf" -> intVal)
     case _                          => Nil
@@ -596,7 +594,7 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
   }
 
   @SuppressWarnings(
-    Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
+    Array("org.wartremover.warts.OptionPartial")
   )
   override def isCompatibleWith(
       other: IntMultipleOfProperty,
@@ -610,9 +608,9 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
       false
     } else {
       // Otherwise, the multiple must be a multiple of our multiple
-      val bothZero = other.multiple.get == 0 && multiple.get == 0
+      val bothZero = other.multiple.get === 0 && multiple.get === 0
       val multipleOf =
-        multiple.get != 0 && other.multiple.get % multiple.get == 0
+        multiple.get =/= 0 && other.multiple.get % multiple.get === 0
       bothZero || multipleOf
     }
   }
