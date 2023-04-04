@@ -18,7 +18,7 @@ inThisBuild(
 scalafixOnCompile := true
 ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "3.0.1"
 
-mainClass := Some("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema")
+mainClass := Some("edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchema")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -55,7 +55,7 @@ generateSchemas := {
   )
 
   for (input <- inputs) {
-    r.run("edu.rit.cs.mmior.jsonoid.discovery.DiscoverSchema",
+    r.run("edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchema",
     data(cp),
     Seq(
       "src/test/resources/" + input,
@@ -99,7 +99,7 @@ lazy val root = (project in file("."))
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "edu.rit.cs.mmior.jsonoid.discovery"
+    buildInfoPackage := "edu.rit.cs.dataunitylab.jsonoid.discovery"
   )
 
 Compile / compile / wartremoverErrors ++= Seq(
