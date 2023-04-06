@@ -40,8 +40,14 @@ class HistogramSpec extends UnitSpec {
     hist.isAnomalous(5) shouldBe (true)
   }
 
+  it should "not count zero values inside the bounds as anomalous" in {
+    val hist = Histogram().merge(0).merge(2)
+
+    hist.isAnomalous(0) shouldBe (false)
+  }
+
   it should "not count positive values inside the bounds as anomalous" in {
-    val hist = Histogram().merge(1).merge(10)
+    val hist = Histogram().merge(0).merge(10)
 
     hist.isAnomalous(5) shouldBe (false)
   }

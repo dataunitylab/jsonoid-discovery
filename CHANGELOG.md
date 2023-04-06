@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add namespace to `AnomalyLevel`
 
+### Fixed
+- Properly handle zero values in histogram anomaly checking
+
 ## [0.14.0]
 ### Changed
 - Move to new package name

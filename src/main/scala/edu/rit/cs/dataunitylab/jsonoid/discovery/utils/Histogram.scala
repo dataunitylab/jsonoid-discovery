@@ -7,6 +7,8 @@ import scala.collection.mutable.ListBuffer
 import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
 import com.datadoghq.sketch.ddsketch.store.Bin
 
+import Helpers._
+
 object Histogram {
 
   /** Default error tolerance of the histogram. */
@@ -21,6 +23,11 @@ object Histogram {
 final case class Histogram(
     sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance)
 ) {
+
+  private def zeroCount: Int = {
+    (sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
+      sketch.getPositiveValueStore.getTotalCount)).toInt
+  }
 
   /** Produce bins for the histogram.
     *
@@ -44,11 +51,9 @@ final case class Histogram(
     }
 
     // Add any zero values
-    val zeroCount =
-      sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
-        sketch.getPositiveValueStore.getTotalCount)
-    if (zeroCount > 0) {
-      bins += ((0.0, zeroCount.toInt))
+    val zeroCountInt = zeroCount
+    if (zeroCountInt > 0) {
+      bins += ((0.0, zeroCountInt))
     }
 
     // Add positive values
@@ -101,7 +106,7 @@ final case class Histogram(
       mapping.lowerBound(
         sketch.getPositiveValueStore.getDescendingIterator.asScala.next.getIndex
       )
-    } else if (!sketch.getNegativeValueStore.isEmpty) {
+    } else if (!sketch.getNegativeValueStore.isEmpty && zeroCount === 0) {
       -mapping.lowerBound(
         sketch.getNegativeValueStore.getAscendingIterator.asScala.next.getIndex
       )
@@ -113,7 +118,7 @@ final case class Histogram(
       -mapping.lowerBound(
         sketch.getNegativeValueStore.getDescendingIterator.asScala.next.getIndex
       )
-    } else if (!sketch.getPositiveValueStore.isEmpty) {
+    } else if (!sketch.getPositiveValueStore.isEmpty && zeroCount === 0) {
       mapping.lowerBound(
         sketch.getPositiveValueStore.getAscendingIterator.asScala.next.getIndex
       )
