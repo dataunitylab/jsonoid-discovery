@@ -251,7 +251,7 @@ class ArraySchemaSpec extends UnitSpec {
     tupleSchema.properties
       .get[ItemTypeProperty]
       .collectAnomalies(JArray(List(JNull))) shouldBe Seq(
-      Anomaly("$", "wrong length for tuple schema", Fatal)
+      Anomaly("$", "wrong length for tuple schema", AnomalyLevel.Fatal)
     )
   }
 
@@ -263,7 +263,7 @@ class ArraySchemaSpec extends UnitSpec {
     arraySchema.properties
       .get[MinItemsProperty]
       .collectAnomalies(JArray(List())) shouldBe Seq(
-      Anomaly("$", "array smaller than minimum length", Warning)
+      Anomaly("$", "array smaller than minimum length", AnomalyLevel.Warning)
     )
   }
 
@@ -272,7 +272,9 @@ class ArraySchemaSpec extends UnitSpec {
       .get[MaxItemsProperty]
       .collectAnomalies(
         JArray(List(JBool(true), JBool(false), JBool(true)))
-      ) shouldBe Seq(Anomaly("$", "array larger than maximum length", Warning))
+      ) shouldBe Seq(
+      Anomaly("$", "array larger than maximum length", AnomalyLevel.Warning)
+    )
   }
 
   it should "detect anomalies when the array is too large via histogram" in {
@@ -281,7 +283,11 @@ class ArraySchemaSpec extends UnitSpec {
       .collectAnomalies(
         JArray(List(JBool(true), JBool(false), JBool(true), JBool(false)))
       ) shouldBe Seq(
-      Anomaly("$", "array length outside histogram bounds", Warning)
+      Anomaly(
+        "$",
+        "array length outside histogram bounds",
+        AnomalyLevel.Warning
+      )
     )
   }
 
@@ -293,7 +299,9 @@ class ArraySchemaSpec extends UnitSpec {
       .get[UniqueProperty]
       .collectAnomalies(
         JArray(List(JString("foo"), JString("foo")))
-      ) shouldBe Seq(Anomaly("$", "array items are not unique", Fatal))
+      ) shouldBe Seq(
+      Anomaly("$", "array items are not unique", AnomalyLevel.Fatal)
+    )
   }
 
   it should "be compatible with a matching schema" in {

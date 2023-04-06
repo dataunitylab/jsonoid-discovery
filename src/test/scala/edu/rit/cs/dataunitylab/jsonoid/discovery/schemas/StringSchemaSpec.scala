@@ -201,7 +201,7 @@ class StringSchemaSpec extends UnitSpec {
     stringSchema.properties
       .get[MinLengthProperty]
       .collectAnomalies(JString("a")) should contain(
-      Anomaly("$", "string shorter than minimum length", Warning)
+      Anomaly("$", "string shorter than minimum length", AnomalyLevel.Warning)
     )
   }
 
@@ -209,7 +209,7 @@ class StringSchemaSpec extends UnitSpec {
     stringSchema.properties
       .get[MaxLengthProperty]
       .collectAnomalies(JString("foobarbaz")) should contain(
-      Anomaly("$", "string longer than maximum length", Warning)
+      Anomaly("$", "string longer than maximum length", AnomalyLevel.Warning)
     )
   }
 
@@ -223,7 +223,7 @@ class StringSchemaSpec extends UnitSpec {
     stringSchema.properties
       .get[StringBloomFilterProperty]
       .collectAnomalies(JString("quux")) should contain(
-      Anomaly("$", "value not found in Bloom filter", Info)
+      Anomaly("$", "value not found in Bloom filter", AnomalyLevel.Info)
     )
   }
 
@@ -231,7 +231,11 @@ class StringSchemaSpec extends UnitSpec {
     stringSchema.properties
       .get[StringLengthHistogramProperty]
       .collectAnomalies(JString("foobarbazquux")) should contain(
-      Anomaly("$", "string length outside histogram range", Warning)
+      Anomaly(
+        "$",
+        "string length outside histogram range",
+        AnomalyLevel.Warning
+      )
     )
   }
 
@@ -240,7 +244,11 @@ class StringSchemaSpec extends UnitSpec {
       .get[PatternProperty]
       .collectAnomalies(JString("quuxr"))
     anomalies shouldBe List(
-      Anomaly("$", "value does not have the required prefix", Fatal)
+      Anomaly(
+        "$",
+        "value does not have the required prefix",
+        AnomalyLevel.Fatal
+      )
     )
   }
 
@@ -249,7 +257,11 @@ class StringSchemaSpec extends UnitSpec {
       .get[PatternProperty]
       .collectAnomalies(JString("foo"))
     anomalies shouldBe List(
-      Anomaly("$", "value does not have the required suffix", Fatal)
+      Anomaly(
+        "$",
+        "value does not have the required suffix",
+        AnomalyLevel.Fatal
+      )
     )
   }
 
@@ -257,7 +269,11 @@ class StringSchemaSpec extends UnitSpec {
     val anomalies = StaticPatternProperty("foo.*".r)
       .collectAnomalies(JString("bar"))
     anomalies shouldBe List(
-      Anomaly("$", "value does not match the required regex", Fatal)
+      Anomaly(
+        "$",
+        "value does not match the required regex",
+        AnomalyLevel.Fatal
+      )
     )
   }
 

@@ -139,7 +139,7 @@ class ObjectSchemaSpec extends UnitSpec {
     schemaProperties
       .get[RequiredProperty]
       .collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(
-      Anomaly("$.foo", "missing required field", Fatal)
+      Anomaly("$.foo", "missing required field", AnomalyLevel.Fatal)
     )
   }
 
@@ -147,7 +147,7 @@ class ObjectSchemaSpec extends UnitSpec {
     schemaProperties
       .get[DependenciesProperty]
       .collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(
-      Anomaly("$", "dependency $.baz not found for $.bar", Fatal)
+      Anomaly("$", "dependency $.baz not found for $.bar", AnomalyLevel.Fatal)
     )
   }
 

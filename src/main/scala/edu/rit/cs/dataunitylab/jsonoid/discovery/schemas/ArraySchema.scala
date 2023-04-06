@@ -347,7 +347,7 @@ final case class ItemTypeProperty(
                 Anomaly(
                   path,
                   "wrong length for tuple schema",
-                  Fatal
+                  AnomalyLevel.Fatal
                 )
               )
             } else {
@@ -483,7 +483,11 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
           case Some(items) =>
             if (arr.length < items) {
               Seq(
-                Anomaly(path, "array smaller than minimum length", Warning)
+                Anomaly(
+                  path,
+                  "array smaller than minimum length",
+                  AnomalyLevel.Warning
+                )
               )
             } else {
               Seq.empty
@@ -565,7 +569,11 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
           case Some(items) =>
             if (arr.length > items) {
               Seq(
-                Anomaly(path, "array larger than maximum length", Warning)
+                Anomaly(
+                  path,
+                  "array larger than maximum length",
+                  AnomalyLevel.Warning
+                )
               )
             } else {
               Seq.empty
@@ -663,7 +671,7 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     value match {
       case JArray(arr) =>
         if (unique && !unary && (arr.toSet.size != arr.length)) {
-          Seq(Anomaly(path, "array items are not unique", Fatal))
+          Seq(Anomaly(path, "array items are not unique", AnomalyLevel.Fatal))
         } else {
           Seq.empty
         }
@@ -770,7 +778,11 @@ final case class ArrayLengthHistogramProperty(
             (histogram.getMinValue() * 0.99)
         ) {
           Seq(
-            Anomaly(path, "array length outside histogram bounds", Warning)
+            Anomaly(
+              path,
+              "array length outside histogram bounds",
+              AnomalyLevel.Warning
+            )
           )
         } else {
           Seq.empty

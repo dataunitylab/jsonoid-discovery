@@ -351,7 +351,9 @@ final case class ProductSchemaTypesProperty(
     if (isValid) {
       Seq.empty
     } else {
-      Seq(Anomaly(path, f"no alternative found for ${value}", Fatal))
+      Seq(
+        Anomaly(path, f"no alternative found for ${value}", AnomalyLevel.Fatal)
+      )
     }
   }
 

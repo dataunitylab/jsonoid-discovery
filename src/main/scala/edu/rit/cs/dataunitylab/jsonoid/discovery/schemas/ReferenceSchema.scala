@@ -57,7 +57,7 @@ final case class ReferenceSchema(
       path: String
   )(implicit tag: ClassTag[S]) = {
     Seq(
-      Anomaly(path, "$ref cannot be checked for anomalies", Fatal)
+      Anomaly(path, "$ref cannot be checked for anomalies", AnomalyLevel.Fatal)
     )
   }
 }

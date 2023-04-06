@@ -119,7 +119,7 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
     if (values.contains(value)) {
       Seq.empty
     } else {
-      Seq(Anomaly(path, "enum value not found", Fatal))
+      Seq(Anomaly(path, "enum value not found", AnomalyLevel.Fatal))
     }
   }
 

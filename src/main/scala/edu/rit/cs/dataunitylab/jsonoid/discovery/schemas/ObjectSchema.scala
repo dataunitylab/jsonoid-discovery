@@ -300,7 +300,9 @@ final case class ObjectTypesProperty(
         val unknownFields = fieldMap.keySet -- objectTypes.keySet
         if (unknownFields.size > 0) {
           unknownFields
-            .map(f => Anomaly(f"$path.$f", "found unknown field", Fatal))
+            .map(f =>
+              Anomaly(f"$path.$f", "found unknown field", AnomalyLevel.Fatal)
+            )
             .toSeq
         } else {
           fieldMap.keySet
@@ -555,7 +557,7 @@ final case class RequiredProperty(
                 Anomaly(
                   f"$path.$f",
                   "missing required field",
-                  Fatal
+                  AnomalyLevel.Fatal
                 )
               )
               .toSeq
@@ -701,7 +703,7 @@ final case class DependenciesProperty(
               Anomaly(
                 path,
                 f"dependency $path.$d not found for $path.$f",
-                Fatal
+                AnomalyLevel.Fatal
               )
             )
         )
@@ -794,7 +796,7 @@ final case class StaticDependenciesProperty(
               Anomaly(
                 path,
                 f"dependency $path.$d not found for $path.$f",
-                Fatal
+                AnomalyLevel.Fatal
               )
             )
         )

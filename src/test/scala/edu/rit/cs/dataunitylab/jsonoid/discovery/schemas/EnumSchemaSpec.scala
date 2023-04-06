@@ -22,7 +22,7 @@ class EnumSchemaSpec extends UnitSpec {
 
   it should "detect anamolies for values not in the given set" in {
     enumSchema.collectAnomalies(JString("quux")) shouldBe List(
-      Anomaly("$", "enum value not found", Fatal)
+      Anomaly("$", "enum value not found", AnomalyLevel.Fatal)
     )
   }
 

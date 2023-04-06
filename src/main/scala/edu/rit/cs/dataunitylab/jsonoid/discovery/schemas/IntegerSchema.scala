@@ -242,9 +242,15 @@ final case class MinIntValueProperty(
         minIntValue match {
           case Some(min) =>
             if (num <= min && exclusive) {
-              Seq(Anomaly(path, "value is equal or below minimum", Warning))
+              Seq(
+                Anomaly(
+                  path,
+                  "value is equal or below minimum",
+                  AnomalyLevel.Warning
+                )
+              )
             } else if (num < min) {
-              Seq(Anomaly(path, "value is below minimum", Warning))
+              Seq(Anomaly(path, "value is below minimum", AnomalyLevel.Warning))
             } else {
               Seq.empty
             }
@@ -351,9 +357,15 @@ final case class MaxIntValueProperty(
         maxIntValue match {
           case Some(max) =>
             if (num >= max && exclusive) {
-              Seq(Anomaly(path, "value is equal or above maximum", Warning))
+              Seq(
+                Anomaly(
+                  path,
+                  "value is equal or above maximum",
+                  AnomalyLevel.Warning
+                )
+              )
             } else if (num > max) {
-              Seq(Anomaly(path, "value is above maximum", Warning))
+              Seq(Anomaly(path, "value is above maximum", AnomalyLevel.Warning))
             } else {
               Seq.empty
             }
@@ -479,7 +491,7 @@ final case class IntBloomFilterProperty(
 
     inFilter match {
       case Some(false) =>
-        Seq(Anomaly(path, "value not found in Bloom filter", Info))
+        Seq(Anomaly(path, "value not found in Bloom filter", AnomalyLevel.Info))
       case _ => Seq.empty
     }
   }
@@ -682,7 +694,13 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
     value match {
       case JInt(num) =>
         if (histogram.isAnomalous(num.doubleValue)) {
-          Seq(Anomaly(path, "value outside histogram bounds", Warning))
+          Seq(
+            Anomaly(
+              path,
+              "value outside histogram bounds",
+              AnomalyLevel.Warning
+            )
+          )
         } else {
           Seq.empty
         }

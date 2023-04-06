@@ -163,7 +163,11 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
           case Some(length) =>
             if (str.length < length) {
               Seq(
-                Anomaly(path, "string shorter than minimum length", Warning)
+                Anomaly(
+                  path,
+                  "string shorter than minimum length",
+                  AnomalyLevel.Warning
+                )
               )
             } else {
               Seq.empty
@@ -234,7 +238,11 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
           case Some(length) =>
             if (str.length > length) {
               Seq(
-                Anomaly(path, "string longer than maximum length", Warning)
+                Anomaly(
+                  path,
+                  "string longer than maximum length",
+                  AnomalyLevel.Warning
+                )
               )
             } else {
               Seq.empty
@@ -354,7 +362,7 @@ final case class StringBloomFilterProperty(
 
     inFilter match {
       case Some(false) =>
-        Seq(Anomaly(path, "value not found in Bloom filter", Info))
+        Seq(Anomaly(path, "value not found in Bloom filter", AnomalyLevel.Info))
       case _ => Seq.empty
     }
   }
@@ -624,7 +632,7 @@ final case class PatternProperty(
              Anomaly(
                path,
                "value does not have the required prefix",
-               Fatal
+               AnomalyLevel.Fatal
              )
            )
          }) ++ (if (suffixMatch) {
@@ -634,7 +642,7 @@ final case class PatternProperty(
                     Anomaly(
                       path,
                       "value does not have the required suffix",
-                      Fatal
+                      AnomalyLevel.Fatal
                     )
                   )
                 })
@@ -707,7 +715,13 @@ final case class StaticPatternProperty(regex: Regex)
     value match {
       case JString(str) =>
         if (regex.anchored.findFirstIn(str.trim).isEmpty) {
-          Seq(Anomaly(path, "value does not match the required regex", Fatal))
+          Seq(
+            Anomaly(
+              path,
+              "value does not match the required regex",
+              AnomalyLevel.Fatal
+            )
+          )
         } else {
           Seq.empty
         }
@@ -769,7 +783,11 @@ final case class StringLengthHistogramProperty(
       case JString(str) =>
         if (histogram.isAnomalous(str.length)) {
           Seq(
-            Anomaly(path, "string length outside histogram range", Warning)
+            Anomaly(
+              path,
+              "string length outside histogram range",
+              AnomalyLevel.Warning
+            )
           )
         } else {
           Seq.empty

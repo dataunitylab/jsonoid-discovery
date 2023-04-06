@@ -60,7 +60,7 @@ final case class BooleanSchema(
   )(implicit tag: ClassTag[S]) = {
     value match {
       case JBool(_) => Seq.empty
-      case _        => Seq(Anomaly(path, "expected boolean type", Fatal))
+      case _        => Seq(Anomaly(path, "expected boolean type", AnomalyLevel.Fatal))
     }
   }
 }

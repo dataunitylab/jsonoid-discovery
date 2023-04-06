@@ -425,7 +425,7 @@ trait JsonSchema[T] {
     if (isValidType(value)) {
       properties.flatMap(_.collectAnomalies(value, path)).toSeq
     } else {
-      Seq(Anomaly(path, f"${value} has wrong type", Fatal))
+      Seq(Anomaly(path, f"${value} has wrong type", AnomalyLevel.Fatal))
     }
   }
 

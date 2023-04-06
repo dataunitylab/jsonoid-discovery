@@ -261,7 +261,7 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchema.properties
       .get[MinNumValueProperty]
       .collectAnomalies(JInt(3)) shouldBe Seq(
-      Anomaly("$", "value is below minimum", Warning)
+      Anomaly("$", "value is below minimum", AnomalyLevel.Warning)
     )
   }
 
@@ -269,7 +269,7 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchema.properties
       .get[MaxNumValueProperty]
       .collectAnomalies(JInt(50)) shouldBe Seq(
-      Anomaly("$", "value is above maximum", Warning)
+      Anomaly("$", "value is above maximum", AnomalyLevel.Warning)
     )
   }
 
@@ -277,7 +277,7 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchema.properties
       .get[NumBloomFilterProperty]
       .collectAnomalies(JInt(4)) shouldBe Seq(
-      Anomaly("$", "value not found in Bloom filter", Info)
+      Anomaly("$", "value not found in Bloom filter", AnomalyLevel.Info)
     )
   }
 
@@ -285,7 +285,7 @@ class NumberSchemaSpec extends UnitSpec {
     numberSchema.properties
       .get[NumHistogramProperty]
       .collectAnomalies(JInt(30)) shouldBe Seq(
-      Anomaly("$", "value outside histogram bounds", Warning)
+      Anomaly("$", "value outside histogram bounds", AnomalyLevel.Warning)
     )
   }
 

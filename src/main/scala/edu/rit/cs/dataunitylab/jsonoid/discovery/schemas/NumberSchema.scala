@@ -238,9 +238,15 @@ final case class MinNumValueProperty(
 
         exceedsMin match {
           case Some(true) if exclusive =>
-            Seq(Anomaly(path, "value is equal or below minimum", Warning))
+            Seq(
+              Anomaly(
+                path,
+                "value is equal or below minimum",
+                AnomalyLevel.Warning
+              )
+            )
           case Some(true) if !exclusive =>
-            Seq(Anomaly(path, "value is below minimum", Warning))
+            Seq(Anomaly(path, "value is below minimum", AnomalyLevel.Warning))
           case _ => Seq.empty
         }
       case None => Seq.empty
@@ -350,9 +356,15 @@ final case class MaxNumValueProperty(
 
         exceedsMax match {
           case Some(true) if exclusive =>
-            Seq(Anomaly(path, "value is equal or above maximum", Warning))
+            Seq(
+              Anomaly(
+                path,
+                "value is equal or above maximum",
+                AnomalyLevel.Warning
+              )
+            )
           case Some(true) if !exclusive =>
-            Seq(Anomaly(path, "value is above maximum", Warning))
+            Seq(Anomaly(path, "value is above maximum", AnomalyLevel.Warning))
           case _ => Seq.empty
         }
       case None => Seq.empty
@@ -504,7 +516,7 @@ final case class NumBloomFilterProperty(
 
     inFilter match {
       case Some(false) =>
-        Seq(Anomaly(path, "value not found in Bloom filter", Info))
+        Seq(Anomaly(path, "value not found in Bloom filter", AnomalyLevel.Info))
       case _ => Seq.empty
     }
   }
@@ -698,7 +710,7 @@ final case class NumHistogramProperty(
     }
 
     if (histAnomaly) {
-      Seq(Anomaly(path, "value outside histogram bounds", Warning))
+      Seq(Anomaly(path, "value outside histogram bounds", AnomalyLevel.Warning))
     } else {
       Seq.empty
     }
