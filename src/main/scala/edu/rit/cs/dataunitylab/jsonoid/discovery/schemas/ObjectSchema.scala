@@ -292,13 +292,14 @@ final case class ObjectTypesProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JObject(fields) =>
         val fieldMap = fields.toMap
         val unknownFields = fieldMap.keySet -- objectTypes.keySet
-        if (unknownFields.size > 0) {
+        if (!p.additionalProperties && unknownFields.size > 0) {
           unknownFields
             .map(f =>
               Anomaly(f"$path.$f", "found unknown field", AnomalyLevel.Fatal)
@@ -306,6 +307,7 @@ final case class ObjectTypesProperty(
             .toSeq
         } else {
           fieldMap.keySet
+            .intersect(objectTypes.keySet)
             .flatMap(key =>
               objectTypes(key).collectAnomalies(fieldMap(key), f"$path.$key")
             )
@@ -439,8 +441,9 @@ final case class PatternTypesProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     if (patternTypes.isEmpty) {
       throw new UnsupportedOperationException(
         "anomaly collection not supported for patternProperties"
@@ -546,8 +549,9 @@ final case class RequiredProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JObject(fields) =>
         required match {
@@ -690,8 +694,9 @@ final case class DependenciesProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JObject(fields) =>
         val fieldMap = fields.toMap
@@ -783,8 +788,9 @@ final case class StaticDependenciesProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JObject(fields) =>
         val fieldMap = fields.toMap

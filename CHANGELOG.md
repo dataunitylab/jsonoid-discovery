@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Add namespace to `AnomalyLevel`
+- Unknown properties are not anomalous if `additionalProperties` is true
 
 ### Fixed
 - Properly handle zero values in histogram anomaly checking

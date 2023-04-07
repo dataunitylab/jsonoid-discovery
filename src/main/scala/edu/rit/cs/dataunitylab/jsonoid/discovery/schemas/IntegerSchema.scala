@@ -235,8 +235,9 @@ final case class MinIntValueProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JInt(num) =>
         minIntValue match {
@@ -350,8 +351,9 @@ final case class MaxIntValueProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JInt(num) =>
         maxIntValue match {
@@ -482,8 +484,9 @@ final case class IntBloomFilterProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     val inFilter = value match {
       case JInt(num) => Some(bloomFilter.contains(num.toByteArray))
       case _         => None
@@ -689,8 +692,9 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JInt(num) =>
         if (histogram.isAnomalous(num.doubleValue)) {

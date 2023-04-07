@@ -222,8 +222,9 @@ final case class MinNumValueProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     minNumValue match {
       case Some(min) =>
         val exceedsMin = value match {
@@ -340,8 +341,9 @@ final case class MaxNumValueProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     maxNumValue match {
       case Some(max) =>
         val exceedsMax = value match {
@@ -504,8 +506,9 @@ final case class NumBloomFilterProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     val inFilter = value match {
       case JDouble(num) =>
         Some(bloomFilter.contains(scaleValue(BigDecimal(num))))
@@ -700,8 +703,9 @@ final case class NumHistogramProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     val histAnomaly = value match {
       case JDouble(num)  => histogram.isAnomalous(num)
       case JDecimal(num) => histogram.isAnomalous(num.doubleValue)

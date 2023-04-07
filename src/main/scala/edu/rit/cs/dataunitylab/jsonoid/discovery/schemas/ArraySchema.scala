@@ -331,8 +331,9 @@ final case class ItemTypeProperty(
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
         itemType match {
@@ -475,8 +476,9 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
         minItems match {
@@ -561,8 +563,9 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
         maxItems match {
@@ -666,8 +669,9 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
         if (unique && !unary && (arr.toSet.size != arr.length)) {
@@ -769,8 +773,9 @@ final case class ArrayLengthHistogramProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
         if (

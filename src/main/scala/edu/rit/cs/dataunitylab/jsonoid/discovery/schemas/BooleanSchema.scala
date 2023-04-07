@@ -57,7 +57,7 @@ final case class BooleanSchema(
   override def collectAnomalies[S <: JValue](
       value: S,
       path: String
-  )(implicit tag: ClassTag[S]) = {
+  )(implicit p: JsonoidParams, t: ClassTag[S]): Seq[Anomaly] = {
     value match {
       case JBool(_) => Seq.empty
       case _        => Seq(Anomaly(path, "expected boolean type", AnomalyLevel.Fatal))

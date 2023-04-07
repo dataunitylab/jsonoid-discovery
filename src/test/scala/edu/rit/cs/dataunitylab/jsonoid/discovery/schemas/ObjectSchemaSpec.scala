@@ -6,7 +6,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 import PropertySets._
-import UnitSpec._
+import UnitSpec.containingNatureOfSchemaProperties
 
 class ObjectSchemaSpec extends UnitSpec {
   implicit val formats: Formats = DefaultFormats
@@ -143,12 +143,38 @@ class ObjectSchemaSpec extends UnitSpec {
     )
   }
 
-  it should "detect anomalies of missing required dependencies" in {
+  it should "detect anomalies of extra properties with additionalProperties=false" in {
     schemaProperties
-      .get[DependenciesProperty]
-      .collectAnomalies(JObject(List(("bar", JBool(true))))) shouldBe Seq(
-      Anomaly("$", "dependency $.baz not found for $.bar", AnomalyLevel.Fatal)
+      .get[ObjectTypesProperty]
+      .collectAnomalies(
+        JObject(List(("foo", JBool(false)), ("quux", JBool(true))))
+      ) shouldBe Seq(
+      Anomaly("$.quux", "found unknown field", AnomalyLevel.Fatal)
     )
+  }
+
+  it should "not detect anomalies of extra properties with additionalProperties=true" in {
+    schemaProperties
+      .get[ObjectTypesProperty]
+      .collectAnomalies(
+        JObject(List(("foo", JBool(false)), ("quux", JBool(true))))
+      ) shouldBe Seq(
+      Anomaly("$.quux", "found unknown field", AnomalyLevel.Fatal)
+    )
+  }
+
+  it should "detect anomalies of missing required dependencies" in {
+    implicit val params =
+      JsonoidParams().withAdditionalProperties(true)
+    val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))(
+      PropertySets.MinProperties(params),
+      params
+    )
+    objectSchema.properties
+      .get[ObjectTypesProperty]
+      .collectAnomalies(
+        JObject(List(("foo", JBool(false)), ("quux", JBool(true))))
+      ) shouldBe empty
   }
 
   it should "not allow additional properties by default" in {

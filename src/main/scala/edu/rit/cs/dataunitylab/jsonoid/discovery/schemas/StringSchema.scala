@@ -155,8 +155,9 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JString(str) =>
         minLength match {
@@ -230,8 +231,9 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JString(str) =>
         maxLength match {
@@ -353,8 +355,9 @@ final case class StringBloomFilterProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     val inFilter = value match {
       case JString(str) => Some(bloomFilter.contains(str))
       case _            => None
@@ -618,8 +621,9 @@ final case class PatternProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JString(str) =>
         val prefixMatch = str.startsWith(prefix.getOrElse(""))
@@ -710,8 +714,9 @@ final case class StaticPatternProperty(regex: Regex)
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JString(str) =>
         if (regex.anchored.findFirstIn(str.trim).isEmpty) {
@@ -777,8 +782,9 @@ final case class StringLengthHistogramProperty(
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     value match {
       case JString(str) =>
         if (histogram.isAnomalous(str.length)) {

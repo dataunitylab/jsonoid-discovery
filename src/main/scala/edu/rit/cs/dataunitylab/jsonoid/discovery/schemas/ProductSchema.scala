@@ -338,11 +338,12 @@ final case class ProductSchemaTypesProperty(
       .toSeq
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     // Check that there is some type that matches this value
     // TODO: Check frequency for outliers
-    val notAnomalous = schemas.map(!_.isAnomalous(value, path)(tag))
+    val notAnomalous = schemas.map(!_.isAnomalous(value, path)(tag, p))
     val isValid = productType match {
       case AllOf => notAnomalous.forall(identity)
       case AnyOf => notAnomalous.exists(identity)

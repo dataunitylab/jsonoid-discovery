@@ -101,9 +101,10 @@ trait SchemaProperty[T] {
     * @param tag a captured `ClassTag` used to collect anomalies
     */
   def isAnomalous[S <: JValue](value: S, path: String = "$")(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
   ): Boolean = {
-    !collectAnomalies(value, path)(tag).isEmpty
+    !collectAnomalies(value, path)(p, tag).isEmpty
   }
 
   /** Find all possible anomalies for a value according to the current property
@@ -114,6 +115,7 @@ trait SchemaProperty[T] {
     * @return a list of collected anomalies
     */
   def collectAnomalies[S <: JValue](value: S, path: String = "$")(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
   ): Seq[Anomaly] =
     Seq.empty

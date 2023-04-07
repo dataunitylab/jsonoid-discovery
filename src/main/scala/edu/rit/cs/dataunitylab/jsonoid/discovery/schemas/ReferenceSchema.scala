@@ -55,7 +55,7 @@ final case class ReferenceSchema(
   override def collectAnomalies[S <: JValue](
       value: S,
       path: String
-  )(implicit tag: ClassTag[S]) = {
+  )(implicit p: JsonoidParams, t: ClassTag[S]): Seq[Anomaly] = {
     Seq(
       Anomaly(path, "$ref cannot be checked for anomalies", AnomalyLevel.Fatal)
     )

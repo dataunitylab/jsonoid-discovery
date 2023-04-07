@@ -114,8 +114,9 @@ final case class EnumValuesProperty(values: Set[JValue] = Set.empty)
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
       tag: ClassTag[S]
-  ) = {
+  ): Seq[Anomaly] = {
     if (values.contains(value)) {
       Seq.empty
     } else {

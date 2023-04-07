@@ -404,11 +404,11 @@ trait JsonSchema[T] {
     *
     * @return true if the value is anomalous, false otherwise
     */
-  def isAnomalous[S <: JValue: ClassTag](
+  def isAnomalous[S <: JValue](
       value: S,
       path: String = "$"
-  ): Boolean = {
-    collectAnomalies(value, path).nonEmpty
+  )(implicit tag: ClassTag[S], p: JsonoidParams): Boolean = {
+    collectAnomalies(value, path)(p, tag).nonEmpty
   }
 
   /** Produce a list of anomalies when validating a given value.
@@ -418,12 +418,12 @@ trait JsonSchema[T] {
     *
     * @return a sequence of anomalies observed for this value
     */
-  def collectAnomalies[S <: JValue: ClassTag](
+  def collectAnomalies[S <: JValue](
       value: S,
       path: String = "$"
-  ): Seq[Anomaly] = {
+  )(implicit p: JsonoidParams, tag: ClassTag[S]): Seq[Anomaly] = {
     if (isValidType(value)) {
-      properties.flatMap(_.collectAnomalies(value, path)).toSeq
+      properties.flatMap(_.collectAnomalies(value, path)(p, tag)).toSeq
     } else {
       Seq(Anomaly(path, f"${value} has wrong type", AnomalyLevel.Fatal))
     }
