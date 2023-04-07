@@ -786,7 +786,7 @@ final case class ArrayLengthHistogramProperty(
             Anomaly(
               path,
               "array length outside histogram bounds",
-              AnomalyLevel.Warning
+              AnomalyLevel.Info
             )
           )
         } else {

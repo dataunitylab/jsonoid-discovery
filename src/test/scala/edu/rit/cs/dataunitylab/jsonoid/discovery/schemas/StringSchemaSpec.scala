@@ -234,7 +234,7 @@ class StringSchemaSpec extends UnitSpec {
       Anomaly(
         "$",
         "string length outside histogram range",
-        AnomalyLevel.Warning
+        AnomalyLevel.Info
       )
     )
   }

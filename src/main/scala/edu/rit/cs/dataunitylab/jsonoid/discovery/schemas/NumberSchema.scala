@@ -714,7 +714,7 @@ final case class NumHistogramProperty(
     }
 
     if (histAnomaly) {
-      Seq(Anomaly(path, "value outside histogram bounds", AnomalyLevel.Warning))
+      Seq(Anomaly(path, "value outside histogram bounds", AnomalyLevel.Info))
     } else {
       Seq.empty
     }

@@ -792,7 +792,7 @@ final case class StringLengthHistogramProperty(
             Anomaly(
               path,
               "string length outside histogram range",
-              AnomalyLevel.Warning
+              AnomalyLevel.Info
             )
           )
         } else {

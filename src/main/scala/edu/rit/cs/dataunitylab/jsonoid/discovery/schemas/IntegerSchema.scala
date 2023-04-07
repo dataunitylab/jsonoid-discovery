@@ -702,7 +702,7 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
             Anomaly(
               path,
               "value outside histogram bounds",
-              AnomalyLevel.Warning
+              AnomalyLevel.Info
             )
           )
         } else {

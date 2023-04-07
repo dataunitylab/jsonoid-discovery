@@ -215,7 +215,7 @@ class IntegerSchemaSpec extends UnitSpec {
     integerSchema.properties
       .get[IntHistogramProperty]
       .collectAnomalies(JInt(30)) shouldBe Seq(
-      Anomaly("$", "value outside histogram bounds", AnomalyLevel.Warning)
+      Anomaly("$", "value outside histogram bounds", AnomalyLevel.Info)
     )
   }
 

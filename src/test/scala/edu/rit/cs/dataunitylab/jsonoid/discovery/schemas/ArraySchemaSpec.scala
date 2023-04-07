@@ -286,7 +286,7 @@ class ArraySchemaSpec extends UnitSpec {
       Anomaly(
         "$",
         "array length outside histogram bounds",
-        AnomalyLevel.Warning
+        AnomalyLevel.Info
       )
     )
   }
