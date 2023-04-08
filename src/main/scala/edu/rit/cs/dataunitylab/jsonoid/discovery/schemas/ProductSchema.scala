@@ -337,24 +337,64 @@ final case class ProductSchemaTypesProperty(
       )
       .toSeq
 
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.Option2Iterable",
+      "org.wartremover.warts.TraversableOps"
+    )
+  )
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
       p: JsonoidParams,
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
     // Check that there is some type that matches this value
     // TODO: Check frequency for outliers
-    val notAnomalous = schemas.map(!_.isAnomalous(value, path)(tag, p))
-    val isValid = productType match {
-      case AllOf => notAnomalous.forall(identity)
-      case AnyOf => notAnomalous.exists(identity)
-      case OneOf => notAnomalous.count(identity) === 1
-    }
-    if (isValid) {
-      Seq.empty
-    } else {
-      Seq(
-        Anomaly(path, f"no alternative found for ${value}", AnomalyLevel.Fatal)
-      )
+    val maxAnomalyLevels = schemas.map(_.maxAnomalyLevel(value, path))
+    productType match {
+      // All schemas must have no anomalies or only info level
+      case AllOf =>
+        if (
+          maxAnomalyLevels.forall(
+            _.map(_.order).getOrElse(-1) <= AnomalyLevel.Info.order
+          )
+        ) {
+          Seq.empty
+        } else {
+          val maxLevel = maxAnomalyLevels.flatten.max
+          Seq(Anomaly(path, f"failed match for ${value} in schema", maxLevel))
+        }
+
+      // At least one schema must have no anomalies or only info level
+      case AnyOf =>
+        if (
+          maxAnomalyLevels.exists(
+            _.map(_.order).getOrElse(-1) <= AnomalyLevel.Info.order
+          )
+        ) {
+          Seq.empty
+        } else {
+          val maxLevel = maxAnomalyLevels.flatten.max
+          Seq(Anomaly(path, f"failed match for ${value} in schema", maxLevel))
+        }
+
+      // Info anomalies are fine in multiple schemas
+      case OneOf =>
+        val matchingCount =
+          maxAnomalyLevels.count(_.map(_ <= AnomalyLevel.Info).getOrElse(true))
+        if (matchingCount === 1) {
+          Seq.empty
+        } else if (matchingCount === 0) {
+          val maxLevel = maxAnomalyLevels.flatten.max
+          Seq(Anomaly(path, f"no matches found for ${value}", maxLevel))
+        } else {
+          Seq(
+            Anomaly(
+              path,
+              f"multiple matches found for ${value}",
+              AnomalyLevel.Fatal
+            )
+          )
+        }
     }
   }
 

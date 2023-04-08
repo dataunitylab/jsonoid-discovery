@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Properly handle zero values in histogram anomaly checking
+- Correct anomaly detection in `ProductSchema`
 
 ## [0.14.0]
 ### Changed

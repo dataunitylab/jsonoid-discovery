@@ -406,9 +406,33 @@ trait JsonSchema[T] {
     */
   def isAnomalous[S <: JValue](
       value: S,
-      path: String = "$"
+      path: String = "$",
+      level: AnomalyLevel = AnomalyLevel.Info
   )(implicit tag: ClassTag[S], p: JsonoidParams): Boolean = {
-    collectAnomalies(value, path)(p, tag).nonEmpty
+    maxAnomalyLevel(value, path)(tag, p)
+      .map(_.order)
+      .getOrElse(-1) >= level.order
+  }
+
+  /** Whether a value at a particular path is anomalous.
+    *
+    * @param value the value to check for anomalies
+    * @param path the path where this anomaly is being checked
+    *
+    * @return true if the value is anomalous, false otherwise
+    */
+  @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
+  def maxAnomalyLevel[S <: JValue](
+      value: S,
+      path: String = "$"
+  )(implicit tag: ClassTag[S], p: JsonoidParams): Option[AnomalyLevel] = {
+    val anomalyLevels =
+      collectAnomalies(value, path)(p, tag).map(_.anomalyLevel)
+    if (anomalyLevels.isEmpty) {
+      None
+    } else {
+      Some(anomalyLevels.max)
+    }
   }
 
   /** Produce a list of anomalies when validating a given value.

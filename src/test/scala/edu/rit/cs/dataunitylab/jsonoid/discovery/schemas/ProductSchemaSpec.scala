@@ -121,6 +121,10 @@ class ProductSchemaSpec extends UnitSpec {
     val props = SchemaProperties.empty[String]
     props.add(MinLengthProperty(Some(minLength)))
 
+    // This is here to ensure Info level anomalies do not result
+    // in the product schema failing to find a match
+    props.add(StringBloomFilterProperty())
+
     StringSchema(props)
   }
 
