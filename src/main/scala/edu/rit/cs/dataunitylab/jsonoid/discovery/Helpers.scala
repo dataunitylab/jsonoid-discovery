@@ -367,10 +367,10 @@ object Helpers {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  implicit final class StringOptionOps(self: Option[String]) {
-    def ===(other: Option[String]): Boolean = self == other
+  implicit final class AnyOptionOps[A](self: Option[A]) {
+    def ===(other: Option[A]): Boolean = self == other
 
-    def =/=(other: Option[String]): Boolean = self != other
+    def =/=(other: Option[A]): Boolean = self != other
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
