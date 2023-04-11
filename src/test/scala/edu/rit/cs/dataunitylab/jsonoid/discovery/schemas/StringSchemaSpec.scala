@@ -160,6 +160,74 @@ class StringSchemaSpec extends UnitSpec {
     newPattern.suffix shouldBe Some("ar")
   }
 
+  it should "not report anomalies with valid strings" in {
+    val pattern = PatternProperty(Some("fo"), Some("ar"))
+    pattern.collectAnomalies(JString("foobar")) shouldBe empty
+  }
+
+  it should "detect anomalies when a string does not have the required prefix" in {
+    val pattern =
+      PatternProperty(Some("foo"), None, PatternProperty.MinExamples, Some(10))
+    pattern.collectAnomalies(JString("quux")) shouldBe List(
+      Anomaly(
+        "$",
+        "value does not have the required prefix",
+        AnomalyLevel.Fatal
+      )
+    )
+  }
+
+  it should "detect anomalies when a string does not have the required suffix" in {
+    val pattern =
+      PatternProperty(None, Some("foo"), PatternProperty.MinExamples, Some(10))
+    pattern.collectAnomalies(JString("quux")) shouldBe List(
+      Anomaly(
+        "$",
+        "value does not have the required suffix",
+        AnomalyLevel.Fatal
+      )
+    )
+  }
+
+  it should "report an anomaly for strings without a matching prefix" in {
+    val pattern =
+      PatternProperty(Some("foo"), None, PatternProperty.MinExamples, Some(10))
+    pattern
+      .collectAnomalies(JString("bar")) should contain theSameElementsAs (List(
+      Anomaly(
+        "$",
+        "value does not have the required prefix",
+        AnomalyLevel.Fatal
+      )
+    ))
+  }
+
+  it should "report an anomaly for strings without a matching suffix" in {
+    val pattern =
+      PatternProperty(None, Some("bar"), PatternProperty.MinExamples, Some(10))
+    pattern
+      .collectAnomalies(JString("foo")) should contain theSameElementsAs (List(
+      Anomaly(
+        "$",
+        "value does not have the required suffix",
+        AnomalyLevel.Fatal
+      )
+    ))
+  }
+
+  it should "report anomalies with Warning level for numeric strings" in {
+    var pattern = PatternProperty(
+      Some("12"),
+      Some("34"),
+      PatternProperty.MinExamples,
+      Some(10)
+    )
+    pattern
+      .collectAnomalies(JString("0"))
+      .map(_.anomalyLevel)
+      .max shouldBe AnomalyLevel.Warning
+  }
+
   behavior of "StringLengthHistogramProperty"
 
   it should "keep a running histogram of lengths" in {
@@ -235,32 +303,6 @@ class StringSchemaSpec extends UnitSpec {
         "$",
         "string length outside histogram range",
         AnomalyLevel.Info
-      )
-    )
-  }
-
-  it should "detect anomalies when a string does not have the required prefix" in {
-    val anomalies = stringSchema.properties
-      .get[PatternProperty]
-      .collectAnomalies(JString("quuxr"))
-    anomalies shouldBe List(
-      Anomaly(
-        "$",
-        "value does not have the required prefix",
-        AnomalyLevel.Fatal
-      )
-    )
-  }
-
-  it should "detect anomalies when a string does not have the required suffix" in {
-    val anomalies = stringSchema.properties
-      .get[PatternProperty]
-      .collectAnomalies(JString("foo"))
-    anomalies shouldBe List(
-      Anomaly(
-        "$",
-        "value does not have the required suffix",
-        AnomalyLevel.Fatal
       )
     )
   }

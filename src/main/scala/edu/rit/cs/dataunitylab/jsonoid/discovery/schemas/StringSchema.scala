@@ -620,12 +620,22 @@ final case class PatternProperty(
     unionMerge(PatternProperty(Some(value), Some(value), 1, Some(value.length)))
   }
 
+  private def patternAnomalyLevel(value: String): AnomalyLevel = {
+    // If the string consists of only digits, treat
+    // it as a warning like with numeric types
+    if (value.forall(_.isDigit)) {
+      AnomalyLevel.Warning
+    } else {
+      AnomalyLevel.Fatal
+    }
+  }
+
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
       p: JsonoidParams,
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
     value match {
-      case JString(str) =>
+      case JString(str) if isValidPattern =>
         val prefixMatch = str.startsWith(prefix.getOrElse(""))
         val suffixMatch = str.endsWith(suffix.getOrElse(""))
 
@@ -636,7 +646,7 @@ final case class PatternProperty(
              Anomaly(
                path,
                "value does not have the required prefix",
-               AnomalyLevel.Fatal
+               patternAnomalyLevel(str)
              )
            )
          }) ++ (if (suffixMatch) {
@@ -646,7 +656,7 @@ final case class PatternProperty(
                     Anomaly(
                       path,
                       "value does not have the required suffix",
-                      AnomalyLevel.Fatal
+                      patternAnomalyLevel(str)
                     )
                   )
                 })
