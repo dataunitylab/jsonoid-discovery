@@ -393,8 +393,10 @@ final case class ProductSchemaTypesProperty(
         if (matchingCount === 1) {
           Seq.empty
         } else if (matchingCount === 0) {
-          val maxLevel = maxAnomalyLevels.flatten.max
-          Seq(Anomaly(path, f"no matches found for ${value}", maxLevel))
+          // We take the lowest anomaly level from each schema
+          // since this is the schema with the closest match
+          val minAnomalyLevel = maxAnomalyLevels.flatten.min
+          Seq(Anomaly(path, f"no matches found for ${value}", minAnomalyLevel))
         } else {
           Seq(
             Anomaly(
