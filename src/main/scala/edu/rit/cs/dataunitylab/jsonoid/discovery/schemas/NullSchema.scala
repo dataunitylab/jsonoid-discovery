@@ -1,6 +1,8 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
+import scala.reflect.ClassTag
+
 import org.json4s._
 
 /** Represents `null` in JSON Schema. */
@@ -35,4 +37,20 @@ final case class NullSchema(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = other.schemaType == "null"
+
+  override def collectAnomalies[S <: JValue](
+      value: S,
+      path: String
+  )(implicit p: JsonoidParams, t: ClassTag[S]): Seq[Anomaly] = {
+    if (value.isInstanceOf[JNull.type]) {
+      Seq.empty
+    } else {
+      // We consider anomlies to be at the `Info` level since it's unlikely
+      // to be a problem if a value that we expected to be null is not
+      //
+      // Note that we override this behaviour in [[ProductSchema]] since
+      // there we are explicitly expecting some non-null value
+      Seq(Anomaly(path, f"${value} is not null", AnomalyLevel.Info))
+    }
+  }
 }

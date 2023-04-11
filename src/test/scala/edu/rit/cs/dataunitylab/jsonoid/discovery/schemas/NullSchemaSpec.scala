@@ -25,4 +25,12 @@ class NullSchemaSpec extends UnitSpec {
   it should "should be compatible with another null schema" in {
     nullSchema.isCompatibleWith(nullSchema) shouldBe true
   }
+
+  it should "should have only Info-level anomalies with non-null values" in {
+    nullSchema.maxAnomalyLevel(JString("foo")) shouldBe Some(AnomalyLevel.Info)
+  }
+
+  it should "should not show null values as anomalous" in {
+    nullSchema.collectAnomalies(JNull) shouldBe empty
+  }
 }

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add namespace to `AnomalyLevel`
 - Unknown properties are not anomalous if `additionalProperties` is true
 - Make histogram bounds violation `Info` level
+- Don't consider non-null values as anomalous with simple `NullSchema`
 
 ### Fixed
 - Properly handle zero values in histogram anomaly checking

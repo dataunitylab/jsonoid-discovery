@@ -349,7 +349,16 @@ final case class ProductSchemaTypesProperty(
   ): Seq[Anomaly] = {
     // Check that there is some type that matches this value
     // TODO: Check frequency for outliers
-    val maxAnomalyLevels = schemas.map(_.maxAnomalyLevel(value, path))
+    val maxAnomalyLevels = schemas.map { s =>
+      // Override the null anomaly handling behavior to consider any
+      // value as anomalous for an null schema since here we require
+      // that there is a compatible type somewhere
+      if (s.isInstanceOf[NullSchema] && !value.isInstanceOf[JNull.type]) {
+        Some(AnomalyLevel.Fatal)
+      } else {
+        s.maxAnomalyLevel(value, path)
+      }
+    }
     productType match {
       // All schemas must have no anomalies or only info level
       case AllOf =>

@@ -139,8 +139,23 @@ class ProductSchemaSpec extends UnitSpec {
     else "matches"}" in {
       val schemas =
         List(stringSchemaWithMinLength(1), stringSchemaWithMinLength(2))
+
+      // This is here to test the logic in `collectAnomalies`
+      // which considers non-null values as anomalous, but
+      // we need to exclude it for `AllOf`
+      val schemasWithNull = if (productType != AllOf) {
+        schemas ++ List(NullSchema())
+      } else {
+        schemas
+      }
+
       val typesProp =
-        ProductSchemaTypesProperty(AnySchema(), schemas, List(1), productType)
+        ProductSchemaTypesProperty(
+          AnySchema(),
+          schemasWithNull,
+          List(1),
+          productType
+        )
       val schema = ProductSchema(
         SchemaProperties
           .empty[JsonSchema[_]]
