@@ -14,7 +14,7 @@ final case class PrimaryKey(path: String)
 object PrimaryKeyFeatures {
 
   /** A penalty applied to long primary keys. */
-  val LengthPenalty: Int = 50
+  val LengthPenalty: Int = 10
 }
 
 /** A set of features used to score primary key candidates.
