@@ -1,7 +1,5 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 
-import scala.language.higherKinds
-
 import org.apache.log4j.{Level, Logger}
 import org.scalactic.Equality
 import org.scalatest.{BeforeAndAfter, Checkpoints, OptionValues}

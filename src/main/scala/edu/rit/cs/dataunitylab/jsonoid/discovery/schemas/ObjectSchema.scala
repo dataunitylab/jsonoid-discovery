@@ -53,8 +53,8 @@ object ObjectSchema {
       Map.empty
     }
     val objTypes: Map[String, JsonSchema[_]] = objProps.map {
-      case (prop, value) =>
-        (prop -> JsonSchema.fromJson(value))
+      op: Tuple2[String, JValue] =>
+        (op._1 -> JsonSchema.fromJson(op._2))
     }.toMap
 
     val patternProps = if ((obj \ "patternProperties") =/= JNothing) {
@@ -63,8 +63,8 @@ object ObjectSchema {
       Map.empty
     }
     val patternTypes: Map[Regex, JsonSchema[_]] = patternProps.map {
-      case (pattern, value) =>
-        (pattern.r -> JsonSchema.fromJson(value))
+      pp: Tuple2[String, JValue] =>
+        (pp._1.r -> JsonSchema.fromJson(pp._2))
     }.toMap
 
     val required = (obj \ "required").extract[Set[String]]
@@ -282,7 +282,7 @@ final case class ObjectTypesProperty(
     ObjectTypesProperty(
       // .map(identity) below is necessary to
       // produce a map which is serializable
-      grouped
+      grouped.view
         .mapValues(
           _.map(_._2).fold(baseSchema)((a, b) => a.merge(b, mergeType))
         )
@@ -431,7 +431,7 @@ final case class PatternTypesProperty(
     PatternTypesProperty(
       // .map(identity) below is necessary to
       // produce a map which is serializable
-      grouped
+      grouped.view
         .mapValues(
           _.map(_._2).fold(ZeroSchema())((a, b) => a.merge(b, mergeType))
         )
@@ -487,7 +487,7 @@ final case class FieldPresenceProperty(
       )
     val grouped = merged.groupBy(_._1)
     FieldPresenceProperty(
-      grouped.mapValues(_.map(_._2).min).map(identity).toMap,
+      grouped.view.mapValues(_.map(_._2).min).map(identity).toMap,
       totalCount.min(otherProp.totalCount)
     )
   }
@@ -498,7 +498,7 @@ final case class FieldPresenceProperty(
     val merged = fieldPresence.toSeq ++ otherProp.fieldPresence.toSeq
     val grouped = merged.groupBy(_._1)
     FieldPresenceProperty(
-      grouped.mapValues(_.map(_._2).sum).map(identity).toMap,
+      grouped.view.mapValues(_.map(_._2).sum).map(identity).toMap,
       totalCount + otherProp.totalCount
     )
   }
@@ -506,7 +506,9 @@ final case class FieldPresenceProperty(
   override def mergeValue(
       value: Map[String, JsonSchema[_]]
   )(implicit p: JsonoidParams): FieldPresenceProperty = {
-    unionMerge(FieldPresenceProperty(value.mapValues(s => 1), 1))
+    unionMerge(
+      FieldPresenceProperty(value.view.mapValues(s => BigInt(1)).toMap, 1)
+    )
   }
 }
 
@@ -616,7 +618,7 @@ final case class DependenciesProperty(
   override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
-    val dependencies = dependencyMap
+    val dependencies = dependencyMap()
     if (dependencies.isEmpty) {
       Nil
     } else {
@@ -646,8 +648,10 @@ final case class DependenciesProperty(
                 })
       }
       .groupBy(_._1)
+      .view
       .mapValues(_.map(_._2).toSet)
       .map(identity)
+      .toMap
   }
 
   override def unionMerge(
@@ -658,12 +662,14 @@ final case class DependenciesProperty(
     } else {
       val mergedCounts = (counts.toSeq ++ otherProp.counts.toSeq)
         .groupBy(_._1)
+        .view
         .mapValues(_.map(_._2).sum)
         .map(identity)
         .toMap
       val mergedCooccurrence =
         (cooccurrence.toSeq ++ otherProp.cooccurrence.toSeq)
           .groupBy(_._1)
+          .view
           .mapValues(_.map(_._2).sum)
           .map(identity)
           .toMap
@@ -701,7 +707,7 @@ final case class DependenciesProperty(
       case JObject(fields) =>
         val fieldMap = fields.toMap
         fieldMap.keySet.toSeq.flatMap(f =>
-          dependencyMap
+          dependencyMap()
             .getOrElse(f, List())
             .filter(!fieldMap.contains(_))
             .map(d =>

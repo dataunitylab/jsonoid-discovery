@@ -44,7 +44,7 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "keep examples" in {
     val examplesProp = stringSchema.properties.get[StringExamplesProperty]
-    (examplesProp.toJson \ "examples")
+    (examplesProp.toJson() \ "examples")
       .extract[List[String]] should contain theSameElementsAs List(
       "foor",
       "foobar"
@@ -66,7 +66,7 @@ class StringSchemaSpec extends UnitSpec {
       ) \ "format").extract[String] shouldBe format
 
       // With default threshold, no format
-      (formatProp.toJson \ "format") shouldBe JNothing
+      (formatProp.toJson() \ "format") shouldBe JNothing
     }
   }
 
@@ -84,12 +84,12 @@ class StringSchemaSpec extends UnitSpec {
     for (_ <- 1 to 10) { props = props.mergeValue("::1") }
     for (_ <- 1 to 500) { props = props.mergeValue("foo") }
     val formatProp = props.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JNothing
+    (formatProp.toJson() \ "format") shouldBe JNothing
   }
 
   it should "not assign a format to normal text" in {
     val formatProp = stringSchema.properties.get[FormatProperty]
-    (formatProp.toJson \ "format") shouldBe JNothing
+    (formatProp.toJson() \ "format") shouldBe JNothing
   }
 
   it should "not expand for compatible formats" in {
@@ -118,28 +118,28 @@ class StringSchemaSpec extends UnitSpec {
     var prefixSchema = StringSchema("foobar").properties
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("foobaz") }
     val prefixProp = prefixSchema.get[PatternProperty]
-    (prefixProp.toJson \ "pattern").extract[String] shouldBe "^fooba"
+    (prefixProp.toJson() \ "pattern").extract[String] shouldBe "^fooba"
   }
 
   it should "should find common prefixes with a newline" in {
     var prefixSchema = StringSchema("foo\r\nbar").properties
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("foo\r\nbaz") }
     val prefixProp = prefixSchema.get[PatternProperty]
-    (prefixProp.toJson \ "pattern").extract[String] shouldBe "^foo\r\nba"
+    (prefixProp.toJson() \ "pattern").extract[String] shouldBe "^foo\r\nba"
   }
 
   it should "should not generate a pattern with no prefixes" in {
     var randomSchema = StringSchema().properties
     for (c <- 'a' to 'z') { randomSchema = randomSchema.mergeValue(c.toString) }
     val prefixProp = randomSchema.get[PatternProperty]
-    (prefixProp.toJson \ "pattern").extractOpt[String] shouldBe None
+    (prefixProp.toJson() \ "pattern").extractOpt[String] shouldBe None
   }
 
   it should "should find prefixes and suffixes together" in {
     var prefixSchema = StringSchema("barfoo").properties
     for (_ <- 1 to 10) { prefixSchema = prefixSchema.mergeValue("bazfoo") }
     val prefixProp = prefixSchema.get[PatternProperty]
-    (prefixProp.toJson \ "pattern").extract[String] shouldBe "^ba.*foo$"
+    (prefixProp.toJson() \ "pattern").extract[String] shouldBe "^ba.*foo$"
   }
 
   it should "expand to remove patterns if needed" in {
@@ -232,7 +232,8 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "keep a running histogram of lengths" in {
     val histProp = stringSchema.properties.get[StringLengthHistogramProperty]
-    val bins = (histProp.toJson \ "lengthHistogram").extract[List[List[Double]]]
+    val bins =
+      (histProp.toJson() \ "lengthHistogram").extract[List[List[Double]]]
     bins(0)(0) should equal(4.0 +- 0.1)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(6.0 +- 0.1)

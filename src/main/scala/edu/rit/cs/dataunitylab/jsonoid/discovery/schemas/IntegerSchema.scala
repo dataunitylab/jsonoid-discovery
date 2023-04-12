@@ -420,7 +420,7 @@ final case class IntHyperLogLogProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
+    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64())
 
   override def unionMerge(
       otherProp: IntHyperLogLogProperty
@@ -459,7 +459,7 @@ final case class IntBloomFilterProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("bloomFilter" -> bloomFilter.toBase64)
+    ("bloomFilter" -> bloomFilter.toBase64())
   }
 
   override def unionMerge(
@@ -674,7 +674,7 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("histogram" -> histogram.bins.map { case (value, count) =>
+    ("histogram" -> histogram.bins().map { case (value, count) =>
       List(value, count)
     })
   }

@@ -1,7 +1,6 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
-import scala.language.existentials
 import scala.reflect.ClassTag
 
 import org.json4s.JsonDSL._

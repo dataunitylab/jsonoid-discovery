@@ -1,7 +1,7 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package utils
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ListBuffer
 
 import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
@@ -104,11 +104,15 @@ final case class Histogram(
 
     val maxValue = if (!sketch.getPositiveValueStore.isEmpty) {
       mapping.lowerBound(
-        sketch.getPositiveValueStore.getDescendingIterator.asScala.next.getIndex
+        sketch.getPositiveValueStore.getDescendingIterator.asScala
+          .next()
+          .getIndex
       )
     } else if (!sketch.getNegativeValueStore.isEmpty && zeroCount === 0) {
       -mapping.lowerBound(
-        sketch.getNegativeValueStore.getAscendingIterator.asScala.next.getIndex
+        sketch.getNegativeValueStore.getAscendingIterator.asScala
+          .next()
+          .getIndex
       )
     } else {
       0
@@ -116,11 +120,15 @@ final case class Histogram(
 
     val minValue = if (!sketch.getNegativeValueStore.isEmpty) {
       -mapping.lowerBound(
-        sketch.getNegativeValueStore.getDescendingIterator.asScala.next.getIndex
+        sketch.getNegativeValueStore.getDescendingIterator.asScala
+          .next()
+          .getIndex
       )
     } else if (!sketch.getPositiveValueStore.isEmpty && zeroCount === 0) {
       mapping.lowerBound(
-        sketch.getPositiveValueStore.getAscendingIterator.asScala.next.getIndex
+        sketch.getPositiveValueStore.getAscendingIterator.asScala
+          .next()
+          .getIndex
       )
     } else {
       0

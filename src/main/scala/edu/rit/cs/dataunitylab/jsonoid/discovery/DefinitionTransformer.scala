@@ -1,6 +1,6 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import com.github.dataunitylab.fuzzysets.FuzzySet
 import org.christopherfrantz.dbscan.{DBSCANClusterer, DistanceMetric}
@@ -92,7 +92,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
             ) {
               afterUnderscore.headOption.get
             } else {
-              s"defn${index}"
+              s"defn${index.toString}"
             }
           } else {
             lastParts.headOption.get

@@ -427,6 +427,7 @@ final case class ProductSchemaTypesProperty(
 
   @SuppressWarnings(
     Array(
+      "org.wartremover.warts.MutableDataStructures",
       "org.wartremover.warts.NonUnitStatements",
       "org.wartremover.warts.OptionPartial",
       "org.wartremover.warts.TraversableOps"
@@ -451,7 +452,7 @@ final case class ProductSchemaTypesProperty(
       }
 
     // Build a mutable copy of the new schema types
-    val newTypes = schemaTypes.to[ListBuffer]
+    val newTypes = schemaTypes.to(ListBuffer)
     val hasAny = types.contains("any")
 
     if (types.contains("any")) {
@@ -462,7 +463,7 @@ final case class ProductSchemaTypesProperty(
         val matchingTypes = types.getOrElse(s.schemaType, List())
         if (matchingTypes.isEmpty && !hasAny) {
           // We have no matching type, so add a new one
-          newTypes += s.copyWithReset.expandTo(Some(s))
+          newTypes += s.copyWithReset().expandTo(Some(s))
         } else {
           // Of the matching types, find the closest
           val (closestType, index) = matchingTypes.minBy(

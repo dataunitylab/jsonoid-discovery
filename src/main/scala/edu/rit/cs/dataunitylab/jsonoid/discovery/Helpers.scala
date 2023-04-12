@@ -334,8 +334,9 @@ object Helpers {
   /** Find a possible common prefix of two strings. */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def findCommonPrefix(str1: String, str2: String): String = {
-    (str1, str2).zipped
-      .takeWhile(Function.tupled(_ == _))
+    str1.toList
+      .zip(str2.toList)
+      .takeWhile((s: Tuple2[Char, Char]) => s._1 == s._2)
       .map(_._1)
       .mkString
   }

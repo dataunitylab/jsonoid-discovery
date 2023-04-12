@@ -49,7 +49,7 @@ class ObjectSchemaSpec extends UnitSpec {
     val expectedJson: JObject =
       ("fieldPresence" -> (("foo" -> JDouble(1)) ~ ("bar" -> JDouble(0.5)) ~
         ("baz" -> JDouble(0.5))))
-    fieldPresenceProp.toJson shouldEqual expectedJson
+    fieldPresenceProp.toJson() shouldEqual expectedJson
   }
 
   behavior of "DependenciesProperty"
@@ -70,7 +70,7 @@ class ObjectSchemaSpec extends UnitSpec {
       )
       .mergeValue(Map("foo" -> BooleanSchema()))
     val dependenciesProp = dependentSchema.get[DependenciesProperty]
-    (dependenciesProp.toJson \ "dependentRequired")
+    (dependenciesProp.toJson() \ "dependentRequired")
       .extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
 
@@ -105,13 +105,14 @@ class ObjectSchemaSpec extends UnitSpec {
     val objectSchema = ObjectSchema()
     objectSchema.addDefinition(definitionSchema, "foo")
 
-    (objectSchema.toJson \ "$defs" \ "foo") shouldEqual definitionSchema.toJson
+    (objectSchema.toJson() \ "$defs" \ "foo") shouldEqual definitionSchema
+      .toJson()
   }
 
   it should "allow replacement of a schema with a reference" in {
     val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))
       .replaceWithReference("/foo", "foo")
-    (objectSchema.toJson \ "properties" \ "foo")
+    (objectSchema.toJson() \ "properties" \ "foo")
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 
@@ -119,7 +120,7 @@ class ObjectSchemaSpec extends UnitSpec {
     val objectSchema = ObjectSchema(
       Map("foo" -> ObjectSchema(Map("bar" -> BooleanSchema())))
     ).replaceWithReference("/foo/bar", "bar")
-    (objectSchema.toJson \ "properties" \ "foo" \ "properties" \ "bar")
+    (objectSchema.toJson() \ "properties" \ "foo" \ "properties" \ "bar")
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "bar")
   }
 
@@ -178,7 +179,7 @@ class ObjectSchemaSpec extends UnitSpec {
   }
 
   it should "not allow additional properties by default" in {
-    (objectSchema.toJson \ "additionalProperties")
+    (objectSchema.toJson() \ "additionalProperties")
       .extract[Boolean] shouldBe false
   }
 
@@ -189,7 +190,7 @@ class ObjectSchemaSpec extends UnitSpec {
       PropertySets.MinProperties(params),
       params
     )
-    (objectSchema.toJson \ "additionalProperties")
+    (objectSchema.toJson() \ "additionalProperties")
       .extract[Boolean] shouldBe true
   }
 

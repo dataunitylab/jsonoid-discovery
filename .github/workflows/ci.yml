@@ -21,8 +21,6 @@ jobs:
         apps: sbt scala
     - name: Scalafmt
       run: sbt scalafmtCheck test:scalafmtCheck
-    - name: Scalastyle
-      run: sbt scalastyle
     - name: Test
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

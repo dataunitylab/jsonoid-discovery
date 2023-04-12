@@ -1,7 +1,7 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ListBuffer
 import scala.language.existentials
 import scala.reflect._
@@ -252,7 +252,7 @@ final case class ItemTypeProperty(
     ItemTypeProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = itemType match {
-    case Left(schema) => ("items" -> schema.toJson)
+    case Left(schema) => ("items" -> schema.toJson())
     case Right(schemas) =>
       if (schemas.nonEmpty) {
         ("items" -> JArray(schemas.map(_.toJson()(p))))

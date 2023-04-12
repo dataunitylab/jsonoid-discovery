@@ -30,7 +30,7 @@ To simplify, you may wish to add a shell alias so `jsonoid` can be run directly 
 To produce a JAR file which is suitable for running either locally or via Spark, run `sbt assembly`.
 This requires an installation of [sbt](https://www.scala-sbt.org/).
 Alternatively, you can use `./sbtx assembly` to attempt to automatically download install the appropriate sbt and Scala versions using [sbt-extras](https://github.com/dwijnand/sbt-extras).
-This will produce a JAR file under `target/scala-2.11/` which can either be run directly or passed to `spark-submit` to run via Spark.
+This will produce a JAR file under `target/scala-2.13/` which can either be run directly or passed to `spark-submit` to run via Spark.
 
 ## Schema monoids
 

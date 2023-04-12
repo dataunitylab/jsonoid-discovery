@@ -29,7 +29,7 @@ class JsonoidRDDSpec extends UnitSpec {
 
     cp { schema shouldBe a[ObjectSchema] }
     cp { schema.properties should have size 2 }
-    cp { jsonoidRdd.count should be(2) }
+    cp { jsonoidRdd.count() should be(2) }
 
     cp.reportAll()
   }

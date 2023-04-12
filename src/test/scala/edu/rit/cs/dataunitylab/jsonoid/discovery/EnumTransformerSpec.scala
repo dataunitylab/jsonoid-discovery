@@ -25,7 +25,7 @@ class EnumTransformerSpec extends UnitSpec {
       val transformedSchema =
         EnumTransformer.transformSchema(ObjectSchema(Map(("foo", valueSchema))))
 
-      (transformedSchema.toJson \ "properties" \ "foo")
+      (transformedSchema.toJson() \ "properties" \ "foo")
         .extract[Map[String, String]] shouldBe Map(("const", value.toString))
     }
   }
@@ -42,7 +42,7 @@ class EnumTransformerSpec extends UnitSpec {
       var valueSchema = repeatedMerge(schema)
       val transformedSchema = EnumTransformer.transformSchema(valueSchema)
 
-      transformedSchema.toJson.extract[Map[String, Set[String]]] shouldBe Map(
+      transformedSchema.toJson().extract[Map[String, Set[String]]] shouldBe Map(
         ("enum", values.map(_.toString))
       )
     }

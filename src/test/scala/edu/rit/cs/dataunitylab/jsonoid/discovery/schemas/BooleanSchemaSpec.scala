@@ -24,6 +24,6 @@ class BooleanSchemaSpec extends UnitSpec {
 
   it should "track the percentage of true values" in {
     val pctProp = BooleanPercentProperty().mergeValue(true).mergeValue(false)
-    (pctProp.toJson \ "pctTrue").extract[Double] shouldBe 0.5
+    (pctProp.toJson() \ "pctTrue").extract[Double] shouldBe 0.5
   }
 }

@@ -29,13 +29,13 @@ class DefinitionTransformerSpec extends UnitSpec {
     val transformedSchema = DefinitionTransformer.transformSchema(schema)
 
     // Check that the definition exists
-    val defs = transformedSchema.toJson \ "$defs"
+    val defs = transformedSchema.toJson() \ "$defs"
     val defNames =
       (defs \ "defn0" \ "properties").asInstanceOf[JObject].obj.map(_._1).toSet
     defNames shouldBe Set("bar", "baz")
 
     // Check that a reference was replaced
-    val props = transformedSchema.toJson \ "properties"
+    val props = transformedSchema.toJson() \ "properties"
     val ref = Map("$ref" -> "#/$defs/defn0")
     (props \ "foo").extract[Map[String, String]] shouldBe ref
     (props \ "quux").extract[Map[String, String]] shouldBe ref

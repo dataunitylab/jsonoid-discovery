@@ -15,7 +15,7 @@ class ZeroSchemaSpec extends UnitSpec {
 
   it should "produce an empty schema" in {
     val emptySchema: JObject = ("not" -> Nil)
-    zeroSchema.toJson shouldBe emptySchema
+    zeroSchema.toJson() shouldBe emptySchema
   }
 
   it should "have no valid types" in {

@@ -1,7 +1,7 @@
 import Dependencies._
 import com.typesafe.sbt.packager.docker._
 
-ThisBuild / scalaVersion      := "2.11.12"
+ThisBuild / scalaVersion      := "2.13.10"
 ThisBuild / versionScheme     := Some("early-semver")
 ThisBuild / organization      := "edu.rit.cs"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
@@ -25,9 +25,9 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 val nonConsoleCompilerOptions = Seq(
   "-feature",
   "-Xfatal-warnings",
-  "-Ywarn-unused-import",
+  "-Ywarn-unused:imports",
   "-deprecation",
-  "-target:jvm-1.8"
+  "-release:8"
 )
 
 val generateSchemas = taskKey[Unit]("Generate example schemas")
@@ -118,7 +118,6 @@ Compile / compile / wartremoverErrors ++= Seq(
   Wart.Recursion,
   Wart.Return,
   Wart.StringPlusAny,
-  Wart.TraversableOps,
   Wart.TryPartial,
   Wart.Var,
   Wart.While,
@@ -134,7 +133,7 @@ enablePlugins(DockerPlugin)
 enablePlugins(GitHubPagesPlugin)
 enablePlugins(GitVersioning)
 enablePlugins(JavaAppPackaging)
-enablePlugins(SiteScaladocPlugin)
+/* enablePlugins(SiteScaladocPlugin) */
 
 dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
 dockerBaseImage := "openjdk:8-alpine"
@@ -154,6 +153,7 @@ Test / fork := true
 
 assembly / assemblyMergeStrategy := {
   case "module-info.class" => MergeStrategy.discard
+  case "META-INF/versions/9/module-info.class" => MergeStrategy.discard
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)

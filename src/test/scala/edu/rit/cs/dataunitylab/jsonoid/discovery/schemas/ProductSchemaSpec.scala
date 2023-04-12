@@ -86,7 +86,7 @@ class ProductSchemaSpec extends UnitSpec {
   }
 
   it should "convert to JSON using oneOf" in {
-    val anyTypes = (productSchema1.toJson \ "oneOf").extract[JArray]
+    val anyTypes = (productSchema1.toJson() \ "oneOf").extract[JArray]
     (
       (anyTypes \ "type")(0).extract[String],
       (anyTypes \ "type")(1).extract[String]
@@ -97,7 +97,7 @@ class ProductSchemaSpec extends UnitSpec {
     val productSchema = ProductSchema(
       ObjectSchema(Map("foo" -> BooleanSchema()))
     ).merge(BooleanSchema()).replaceWithReference("/0/foo", "foo")
-    (((productSchema.toJson \ "oneOf")(0)) \ "properties" \ "foo")
+    (((productSchema.toJson() \ "oneOf")(0)) \ "properties" \ "foo")
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 

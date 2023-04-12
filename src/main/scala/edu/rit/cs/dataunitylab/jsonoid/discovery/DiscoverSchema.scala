@@ -60,7 +60,7 @@ object DiscoverSchema {
         val newSchema = discoverFromValue(json, propSet)
 
         // Merge the value into the appropriate schema
-        if (util.Random.nextDouble > splitFraction) {
+        if (util.Random.nextDouble() > splitFraction) {
           (schemas._1.merge(newSchema), schemas._2)
         } else {
           (schemas._1, schemas._2.merge(newSchema))
@@ -301,7 +301,7 @@ object DiscoverSchema {
       case Some(config) =>
         val tmpDir = if (config.debug) {
           val dir = Files.createTempDirectory("jsonoid")
-          System.err.println(s"tmpDir: $dir")
+          System.err.println(s"tmpDir: ${dir.toString}")
 
           dir
         } else {

@@ -68,7 +68,7 @@ final case class SchemaProperties[T](
       value: T
   )(implicit p: JsonoidParams): SchemaProperties[T] = {
     val mergedProperties =
-      properties.mapValues(_.mergeValue(value)).map(identity(_))
+      properties.view.mapValues(_.mergeValue(value)).map(identity(_)).toMap
     SchemaProperties(mergedProperties.asInstanceOf[PropertyMap[T]])
   }
 
@@ -107,7 +107,7 @@ final case class SchemaProperties[T](
       path: String
   ): SchemaProperties[T] = {
     SchemaProperties(
-      properties
+      properties.view
         .mapValues(
           _.transform(
             transformer.orElse { case x =>
@@ -116,18 +116,18 @@ final case class SchemaProperties[T](
             path
           )
         )
-        .asInstanceOf[PropertyMap[T]]
+        .toMap
     )
   }
 
   def only(props: Seq[Class[_]]): SchemaProperties[T] = {
     val tags = props.map(ClassTag(_))
-    SchemaProperties(properties.filterKeys(tags.toSet))
+    SchemaProperties(properties.view.filterKeys(tags.toSet).toMap)
   }
 
   def without(props: Seq[Class[_]]): SchemaProperties[T] = {
     val tags: Set[ClassTag[_]] = props.map(ClassTag(_)).toSet
-    SchemaProperties(properties.filterKeys(!tags.contains(_)))
+    SchemaProperties(properties.view.filterKeys(!tags.contains(_)).toMap)
   }
 
   def getIncompatibleProperties[S](

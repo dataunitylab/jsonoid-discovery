@@ -60,10 +60,12 @@ final case class ExamplesProperty[T](
       sampleValue :: examples
     } else if ((totalExamples + 1) <= nextSample) {
       // Use Algorithm L to determine the next sample to take
-      newNextSample += floor(log(Random.nextFloat) / log(1 - sampleW)).toInt + 1
-      newSampleW = exp(log(Random.nextFloat) / p.maxExamples)
+      newNextSample += floor(
+        log(Random.nextFloat()) / log(1 - sampleW)
+      ).toInt + 1
+      newSampleW = exp(log(Random.nextFloat()) / p.maxExamples)
 
-      val replaceIndex = floor(Random.nextFloat * p.maxExamples).toInt
+      val replaceIndex = floor(Random.nextFloat() * p.maxExamples).toInt
       examples.slice(0, replaceIndex) ++ List(sampleValue) ++ examples.drop(
         replaceIndex + 1
       )
@@ -88,6 +90,7 @@ final case class ExamplesProperty[T](
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.MutableDataStructures",
+      "org.wartremover.warts.NonUnitStatements",
       "org.wartremover.warts.Var",
       "org.wartremover.warts.While"
     )
@@ -108,7 +111,8 @@ final case class ExamplesProperty[T](
       newExamples.length < p.maxExamples && (aIndexes.nonEmpty || bIndexes.nonEmpty)
     ) {
       if (
-        aIndexes.nonEmpty && (bIndexes.length === 0 || Random.nextFloat <= sampleRatio)
+        aIndexes.nonEmpty && (bIndexes.length === 0 || Random
+          .nextFloat() <= sampleRatio)
       ) {
         newExamples.append(examples(aIndexes.remove(0) - 1))
       } else {

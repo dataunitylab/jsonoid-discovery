@@ -73,14 +73,24 @@ trait SchemaWalker[T] {
                 extractValues(singleSchema, extractor, prefix + "[*]", follow)
               case Right(multipleSchemas) =>
                 multipleSchemas.zipWithIndex.flatMap { case (schema, index) =>
-                  extractValues(schema, extractor, s"$prefix[$index]", follow)
+                  extractValues(
+                    schema,
+                    extractor,
+                    s"$prefix[${index.toString}]",
+                    follow
+                  )
                 }
             })
           case p: ProductSchema =>
             val types = p.properties.get[ProductSchemaTypesProperty].schemas
             extractSingle(p, extractor, prefix) ++ types.zipWithIndex.flatMap {
               case (schema, index) =>
-                extractValues(schema, extractor, s"$prefix[$index]", follow)
+                extractValues(
+                  schema,
+                  extractor,
+                  s"$prefix[${index.toString}]",
+                  follow
+                )
             }
           case r: ReferenceSchema =>
             extractSingle(r, extractor, prefix) ++

@@ -419,7 +419,7 @@ final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" ->
-      hll.toBase64)
+      hll.toBase64())
 
   override def unionMerge(
       otherProp: NumHyperLogLogProperty
@@ -685,7 +685,7 @@ final case class NumHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("histogram" -> histogram.bins.map { case (value, count) =>
+    ("histogram" -> histogram.bins().map { case (value, count) =>
       List(value, count)
     })
   }

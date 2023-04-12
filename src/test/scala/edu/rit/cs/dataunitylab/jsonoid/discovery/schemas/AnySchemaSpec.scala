@@ -15,7 +15,7 @@ class AnySchemaSpec extends UnitSpec {
   }
 
   it should "produce a schema accepting anything" in {
-    anySchema.toJson shouldBe JObject()
+    anySchema.toJson() shouldBe JObject()
   }
 
   it should "should all types as valid" in {

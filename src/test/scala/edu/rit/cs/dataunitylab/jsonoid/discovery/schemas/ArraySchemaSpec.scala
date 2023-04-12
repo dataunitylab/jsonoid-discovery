@@ -59,7 +59,8 @@ class ArraySchemaSpec extends UnitSpec {
       List(StringSchema("foo"), StringSchema("bar"))
     val uniqueArraySchema = ArraySchema(schemaList)
     uniqueArraySchema.properties should contain(UniqueProperty(true, false))
-    (uniqueArraySchema.toJson \ "uniqueItems").extract[Boolean] shouldBe (true)
+    (uniqueArraySchema.toJson() \ "uniqueItems")
+      .extract[Boolean] shouldBe (true)
   }
 
   it should "track whether integer elements are unique" in {
@@ -153,7 +154,7 @@ class ArraySchemaSpec extends UnitSpec {
 
   it should "allow replacement of a schema with a reference in a tuple schema" in {
     val refSchema = tupleSchema.replaceWithReference("/0", "foo")
-    (refSchema.toJson \ "items")
+    (refSchema.toJson() \ "items")
       .extract[List[Map[String, String]]] shouldEqual List(
       Map("$ref" -> "foo"),
       Map("type" -> "boolean")
@@ -164,7 +165,7 @@ class ArraySchemaSpec extends UnitSpec {
     val arraySchema = ArraySchema(List(NullSchema()))
       .merge(ArraySchema(List(NullSchema(), NullSchema())))
     val refSchema = arraySchema.replaceWithReference("/*", "foo")
-    (refSchema.toJson \ "items").extract[Map[String, String]] shouldEqual Map(
+    (refSchema.toJson() \ "items").extract[Map[String, String]] shouldEqual Map(
       "$ref" -> "foo"
     )
   }
@@ -174,7 +175,7 @@ class ArraySchemaSpec extends UnitSpec {
       ArraySchema(List(tupleSchema, tupleSchema))
     )
     val refSchema = arraySchema.replaceWithReference("/*/0", "foo")
-    (refSchema.toJson \ "items" \ "items")(0)
+    (refSchema.toJson() \ "items" \ "items")(0)
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 
@@ -182,7 +183,8 @@ class ArraySchemaSpec extends UnitSpec {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
     val histProp = arraySchema.properties.get[ArrayLengthHistogramProperty]
-    val bins = (histProp.toJson \ "lengthHistogram").extract[List[List[Double]]]
+    val bins =
+      (histProp.toJson() \ "lengthHistogram").extract[List[List[Double]]]
     bins(0)(0) should ===(1.0)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(2.0)

@@ -290,7 +290,7 @@ final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
 
   override def toJson()(implicit p: JsonoidParams): JObject =
     ("distinctValues" -> hll.count()) ~ ("hll" ->
-      hll.toBase64)
+      hll.toBase64())
 
   override def unionMerge(
       otherProp: StringHyperLogLogProperty
@@ -331,7 +331,7 @@ final case class StringBloomFilterProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("bloomFilter" -> bloomFilter.toBase64)
+    ("bloomFilter" -> bloomFilter.toBase64())
 
   override def unionMerge(
       otherProp: StringBloomFilterProperty
@@ -493,7 +493,11 @@ final case class FormatProperty(
     val merged = formats.toSeq ++ otherProp.formats.toSeq
     val grouped = merged.groupBy(_._1)
     FormatProperty(
-      grouped.mapValues(_.map(_._2).min).filter(_._2 > 0).map(identity).toMap
+      grouped.view
+        .mapValues(_.map(_._2).min)
+        .filter(_._2 > 0)
+        .map(identity)
+        .toMap
     )
   }
 
@@ -502,7 +506,7 @@ final case class FormatProperty(
   )(implicit p: JsonoidParams): FormatProperty = {
     val merged = formats.toSeq ++ otherProp.formats.toSeq
     val grouped = merged.groupBy(_._1)
-    FormatProperty(grouped.mapValues(_.map(_._2).sum).map(identity).toMap)
+    FormatProperty(grouped.view.mapValues(_.map(_._2).sum).map(identity).toMap)
   }
 
   override def mergeValue(
@@ -772,8 +776,8 @@ final case class StringLengthHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
-      List(value.doubleValue, count.longValue)
+    ("lengthHistogram" -> histogram.bins().map { case (value, count) =>
+      List(JDouble(value.doubleValue), JLong(count.longValue))
     })
   }
 

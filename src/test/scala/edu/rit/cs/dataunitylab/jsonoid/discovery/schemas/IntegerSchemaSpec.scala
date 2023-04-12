@@ -78,7 +78,7 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "keep examples" in {
     val examplesProp = integerSchema.properties.get[IntExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(List(4, 8))
+    (examplesProp.toJson() \ "examples") shouldEqual JArray(List(4, 8))
   }
 
   behavior of "IntMultipleOfProperty"
@@ -98,7 +98,7 @@ class IntegerSchemaSpec extends UnitSpec {
     val zeroIntSchema =
       IntegerSchema(0).merge(IntegerSchema(0)).asInstanceOf[IntegerSchema]
     val multipleProp = zeroIntSchema.properties.get[IntMultipleOfProperty]
-    multipleProp.toJson shouldBe JObject()
+    multipleProp.toJson() shouldBe JObject()
   }
 
   it should "be compatible with the same multiple" in {
@@ -153,7 +153,7 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "keep a running histogram" in {
     val histProp = integerSchema.properties.get[IntHistogramProperty]
-    val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
+    val bins = (histProp.toJson() \ "histogram").extract[List[List[Double]]]
     bins(0)(0) should equal(4.0 +- 0.1)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(8.0 +- 0.1)

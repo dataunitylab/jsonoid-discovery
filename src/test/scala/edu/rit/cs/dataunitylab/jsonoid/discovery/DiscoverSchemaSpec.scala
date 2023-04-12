@@ -95,7 +95,7 @@ class DiscoverSchemaSpec extends UnitSpec {
       //     Specifically, version 2020-12 of the spec is not yet supported
       val factory =
         JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
-      val jsonSchema = factory.getSchema(asJsonNode(schema.toJson))
+      val jsonSchema = factory.getSchema(asJsonNode(schema.toJson()))
       val errors = jsonSchema.validate(asJsonNode(firstDoc))
       errors shouldBe empty
     }

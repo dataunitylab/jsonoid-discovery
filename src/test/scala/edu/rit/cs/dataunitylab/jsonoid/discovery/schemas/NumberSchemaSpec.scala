@@ -84,7 +84,7 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "keep examples" in {
     val examplesProp = numberSchema.properties.get[NumExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(
+    (examplesProp.toJson() \ "examples") shouldEqual JArray(
       List(BigDecimal(3.14), BigDecimal(4.28))
     )
   }
@@ -106,7 +106,7 @@ class NumberSchemaSpec extends UnitSpec {
     val zeroNumSchema =
       NumberSchema(0).merge(NumberSchema(0)).asInstanceOf[NumberSchema]
     val multipleProp = zeroNumSchema.properties.get[NumMultipleOfProperty]
-    multipleProp.toJson shouldBe JObject()
+    multipleProp.toJson() shouldBe JObject()
   }
 
   it should "be compatible with the same multiple" in {
@@ -163,7 +163,7 @@ class NumberSchemaSpec extends UnitSpec {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
     val histProp = numberSchema.properties.get[NumHistogramProperty]
-    val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
+    val bins = (histProp.toJson() \ "histogram").extract[List[List[Double]]]
     bins(0)(0) should ===(3.14)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(4.28)
@@ -197,7 +197,7 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "keep examples when merged with an integer schema" in {
     val examplesProp = mixedSchema.properties.get[NumExamplesProperty]
-    (examplesProp.toJson \ "examples") shouldEqual JArray(
+    (examplesProp.toJson() \ "examples") shouldEqual JArray(
       List(BigDecimal(3.14), BigDecimal(4.28), BigDecimal(5))
     )
   }
@@ -206,7 +206,7 @@ class NumberSchemaSpec extends UnitSpec {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
     val histProp = mixedSchema.properties.get[NumHistogramProperty]
-    val bins = (histProp.toJson \ "histogram").extract[List[List[Double]]]
+    val bins = (histProp.toJson() \ "histogram").extract[List[List[Double]]]
     bins(0)(0) should ===(3.14)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(4.28)
