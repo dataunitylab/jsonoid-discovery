@@ -39,7 +39,8 @@ jobs:
         find $HOME/.sbt                              -name "*.lock"               -delete || true
     - uses: actions/setup-node@v3
       with:
-        node-version: '14'
+        node-version: '16'
+        cache: 'yarn'
     - name: Generate example schemas
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
