@@ -13,7 +13,8 @@ import org.json4s.jackson.JsonMethods._
 private final case class Config(
     input: String = "",
     propertySet: PropertySet = PropertySets.AllProperties,
-    addDefinitions: Boolean = false
+    addDefinitions: Boolean = false,
+    detectDynamic: Boolean = false
 )
 
 object JsonoidSpark {
@@ -50,6 +51,10 @@ object JsonoidSpark {
       opt[Unit]('d', "add-definitions")
         .action((x, c) => c.copy(addDefinitions = true))
         .text("extract similar objects to create definitions")
+
+      opt[Unit]('y', "detect-dynamic")
+        .action((x, c) => c.copy(detectDynamic = true))
+        .text("detect objects with dynamic keys")
     }
 
     parser.parse(args, Config()) match {
@@ -68,7 +73,12 @@ object JsonoidSpark {
         // Skip transformation if we know the required properties don't exist
         if (!(config.propertySet === PropertySets.MinProperties)) {
           schema = DiscoverSchema
-            .transformSchema(schema, None, config.addDefinitions)(p)
+            .transformSchema(
+              schema,
+              None,
+              config.addDefinitions,
+              config.detectDynamic
+            )(p)
             .asInstanceOf[ObjectSchema]
         }
 

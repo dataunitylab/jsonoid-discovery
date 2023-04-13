@@ -33,7 +33,8 @@ private final case class Config(
     resetFormatLength: Boolean = false,
     randomSeed: Option[Long] = None,
     neverExpand: Boolean = false,
-    debug: Boolean = false
+    debug: Boolean = false,
+    detectDynamic: Boolean = false
 )
 
 object DiscoverSchema {
@@ -141,9 +142,14 @@ object DiscoverSchema {
   def transformSchema(
       schema: JsonSchema[_],
       otherSchema: Option[JsonSchema[_]] = None,
-      addDefinitions: Boolean = false
+      addDefinitions: Boolean = false,
+      detectDynamic: Boolean = false
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     var transformedSchema = schema
+    if (detectDynamic) {
+      transformedSchema = DynamicObjectTransformer
+        .transformSchema(transformedSchema)(p)
+    }
     if (addDefinitions) {
       transformedSchema = DefinitionTransformer
         .transformSchema(transformedSchema)(p)
@@ -259,6 +265,10 @@ object DiscoverSchema {
       opt[Unit]('d', "add-definitions")
         .action((x, c) => c.copy(addDefinitions = true))
         .text("extract similar objects to create definitions")
+
+      opt[Unit]('y', "detect-dynamic")
+        .action((x, c) => c.copy(detectDynamic = true))
+        .text("detect objects with dynamic keys")
 
       opt[Int]("max-examples")
         .action((x, c) => c.copy(maxExamples = Some(x)))
@@ -406,7 +416,12 @@ object DiscoverSchema {
         }
 
         var transformedSchema: JsonSchema[_] =
-          transformSchema(schema, testSchema, config.addDefinitions)(p)
+          transformSchema(
+            schema,
+            testSchema,
+            config.addDefinitions,
+            config.detectDynamic
+          )(p)
 
         // If debugging is enabled, save the schema before expansion
         if (config.debug) {
