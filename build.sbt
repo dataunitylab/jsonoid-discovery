@@ -133,7 +133,7 @@ enablePlugins(DockerPlugin)
 enablePlugins(GitHubPagesPlugin)
 enablePlugins(GitVersioning)
 enablePlugins(JavaAppPackaging)
-/* enablePlugins(SiteScaladocPlugin) */
+enablePlugins(SiteScaladocPlugin)
 
 dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
 dockerBaseImage := "openjdk:8-alpine"
