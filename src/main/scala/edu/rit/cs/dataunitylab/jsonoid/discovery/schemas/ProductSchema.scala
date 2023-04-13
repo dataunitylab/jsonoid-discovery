@@ -13,14 +13,22 @@ import Helpers._
 object ProductSchema {
   def apply(
       value: JsonSchema[_]
+  )(implicit p: JsonoidParams): ProductSchema = product(List(value))(p)
+
+  def product(
+      schemas: List[JsonSchema[_]]
   )(implicit p: JsonoidParams): ProductSchema = {
     ProductSchema(
       SchemaProperties
         .empty[JsonSchema[_]]
         .replaceProperty(
-          ProductSchemaTypesProperty(AnySchema(), List(value), List(1))
+          ProductSchemaTypesProperty(
+            AnySchema(),
+            schemas,
+            List.fill(schemas.size)(1)
+          )
         )
-    )(p)
+    )
   }
 }
 

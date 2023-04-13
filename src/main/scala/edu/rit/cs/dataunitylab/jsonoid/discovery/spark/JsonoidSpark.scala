@@ -14,7 +14,8 @@ private final case class Config(
     input: String = "",
     propertySet: PropertySet = PropertySets.AllProperties,
     addDefinitions: Boolean = false,
-    detectDynamic: Boolean = false
+    detectDynamic: Boolean = false,
+    detectDisjoint: Boolean = false
 )
 
 object JsonoidSpark {
@@ -55,6 +56,10 @@ object JsonoidSpark {
       opt[Unit]('y', "detect-dynamic")
         .action((x, c) => c.copy(detectDynamic = true))
         .text("detect objects with dynamic keys")
+
+      opt[Unit]('j', "detect-disjoint")
+        .action((x, c) => c.copy(detectDisjoint = true))
+        .text("detect objects with disjoint keys")
     }
 
     parser.parse(args, Config()) match {
@@ -77,7 +82,8 @@ object JsonoidSpark {
               schema,
               None,
               config.addDefinitions,
-              config.detectDynamic
+              config.detectDynamic,
+              config.detectDisjoint
             )(p)
             .asInstanceOf[ObjectSchema]
         }

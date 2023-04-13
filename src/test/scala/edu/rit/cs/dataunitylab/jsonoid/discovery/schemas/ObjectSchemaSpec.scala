@@ -74,6 +74,25 @@ class ObjectSchemaSpec extends UnitSpec {
       .extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
 
+  it should "be able to find disjoint subsets" in {
+    val dependentSchema = ObjectSchema(
+      Map(
+        "foo" -> BooleanSchema(),
+        "bar" -> BooleanSchema()
+      )
+    ).properties
+      .mergeValue(
+        Map(
+          "baz" -> BooleanSchema(),
+          "quux" -> BooleanSchema()
+        )
+      )
+    val dependenciesProp = dependentSchema.get[DependenciesProperty]
+    (dependenciesProp.disjointSets) should contain theSameElementsAs (
+      Seq(Set("foo", "bar"), Set("baz", "quux"))
+    )
+  }
+
   behavior of "ObjectSchema"
 
   it should "be able to find subschemas by pointer" in {

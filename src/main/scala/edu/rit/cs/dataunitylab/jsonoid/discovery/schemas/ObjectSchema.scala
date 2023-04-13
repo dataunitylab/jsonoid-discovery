@@ -1,6 +1,7 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
+import scala.collection.mutable.HashMap
 import scala.reflect._
 import scala.util.matching.Regex
 
@@ -207,6 +208,30 @@ final case class ObjectSchema(
     newSchema.definitions ++= this.definitions
     newSchema
   }
+
+  /** Returns a new schema with only the specified keys.
+    *
+    * @param keys a set of keys to include
+    */
+  def onlyKeys(keys: Set[String]): ObjectSchema = {
+    val newProps = SchemaProperties(
+      properties.properties.view
+        .mapValues({ prop =>
+          prop match {
+            case p: DependenciesProperty       => p.onlyKeys(keys)
+            case p: FieldPresenceProperty      => p.onlyKeys(keys)
+            case p: ObjectTypesProperty        => p.onlyKeys(keys)
+            case p: RequiredProperty           => p.onlyKeys(keys)
+            case p: StaticDependenciesProperty => p.onlyKeys(keys)
+            case _                             => prop
+          }
+        })
+        .toMap
+        .asInstanceOf[SchemaProperties.PropertyMap[Map[String, JsonSchema[_]]]]
+    )
+
+    ObjectSchema(newProps)(p)
+  }
 }
 
 /** The types of all keys in an object schema.
@@ -226,6 +251,10 @@ final case class ObjectTypesProperty(
     ("properties" -> objectTypes.map { case (propType, schema) =>
       (propType -> schema.toJson()(p))
     })
+
+  def onlyKeys(keys: Set[String]): ObjectTypesProperty = {
+    ObjectTypesProperty(objectTypes.view.filterKeys(keys.contains(_)).toMap)
+  }
 
   override def transform(
       transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
@@ -476,6 +505,13 @@ final case class FieldPresenceProperty(
       (key -> BigDecimal(count) / BigDecimal(totalCount))
     })
 
+  def onlyKeys(keys: Set[String]): FieldPresenceProperty = {
+    FieldPresenceProperty(
+      fieldPresence.view.filterKeys(keys.contains(_)).toMap,
+      totalCount
+    )
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   override def intersectMerge(
       otherProp: FieldPresenceProperty
@@ -528,6 +564,10 @@ final case class RequiredProperty(
   override def toJson()(implicit p: JsonoidParams): JObject = required match {
     case Some(requiredKeys) => ("required" -> requiredKeys)
     case None               => Nil
+  }
+
+  def onlyKeys(keys: Set[String]): RequiredProperty = {
+    RequiredProperty(required.map(_.intersect(keys)))
   }
 
   override def intersectMerge(
@@ -615,6 +655,17 @@ final case class DependenciesProperty(
   override def newDefault()(implicit p: JsonoidParams): DependenciesProperty =
     DependenciesProperty()
 
+  def onlyKeys(keys: Set[String]): DependenciesProperty = {
+    DependenciesProperty(
+      totalCount,
+      counts.view.filterKeys(keys.contains(_)).toMap,
+      cooccurrence.view
+        .filterKeys(ks => keys.contains(ks._1) && keys.contains(ks._2))
+        .toMap,
+      overloaded
+    )
+  }
+
   override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
@@ -624,6 +675,33 @@ final case class DependenciesProperty(
     } else {
       ("dependentRequired" -> dependencies)
     }
+  }
+
+  @SuppressWarnings(
+    Array(
+      "org.wartremover.warts.NonUnitStatements",
+      "org.wartremover.warts.MutableDataStructures",
+      "org.wartremover.warts.Var"
+    )
+  )
+  def disjointSets: Seq[Set[String]] = {
+    val setMap = HashMap.empty[String, Int]
+    var totalSets = 0
+
+    // Add any keys which occur together to the group
+    // Note that this works because key pairs are sorted on insertion
+    cooccurrence.keySet.foreach { case (key1, key2) =>
+      if (!setMap.contains(key1)) {
+        // Track a new group of keys
+        totalSets += 1
+        setMap += (key1 -> totalSets)
+      }
+
+      setMap(key2) = setMap(key1)
+    }
+
+    // Group all keys based on the set index
+    setMap.keySet.groupBy(setMap(_)).map(_._2.toSet).toSeq
   }
 
   def dependencyMap(): Map[String, Set[String]] = {
@@ -771,6 +849,15 @@ final case class StaticDependenciesProperty(
       p: JsonoidParams
   ): StaticDependenciesProperty =
     StaticDependenciesProperty()
+
+  def onlyKeys(keys: Set[String]): StaticDependenciesProperty = {
+    StaticDependenciesProperty(
+      dependencies.view
+        .filterKeys(keys.contains(_))
+        .mapValues(_.intersect(keys))
+        .toMap
+    )
+  }
 
   override def mergeable: Boolean = false
 

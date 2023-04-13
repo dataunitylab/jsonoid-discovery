@@ -34,7 +34,8 @@ private final case class Config(
     randomSeed: Option[Long] = None,
     neverExpand: Boolean = false,
     debug: Boolean = false,
-    detectDynamic: Boolean = false
+    detectDynamic: Boolean = false,
+    detectDisjoint: Boolean = false
 )
 
 object DiscoverSchema {
@@ -143,11 +144,16 @@ object DiscoverSchema {
       schema: JsonSchema[_],
       otherSchema: Option[JsonSchema[_]] = None,
       addDefinitions: Boolean = false,
-      detectDynamic: Boolean = false
+      detectDynamic: Boolean = false,
+      detectDisjoint: Boolean = false
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     var transformedSchema = schema
     if (detectDynamic) {
       transformedSchema = DynamicObjectTransformer
+        .transformSchema(transformedSchema)(p)
+    }
+    if (detectDisjoint) {
+      transformedSchema = DisjointObjectTransformer
         .transformSchema(transformedSchema)(p)
     }
     if (addDefinitions) {
@@ -269,6 +275,10 @@ object DiscoverSchema {
       opt[Unit]('y', "detect-dynamic")
         .action((x, c) => c.copy(detectDynamic = true))
         .text("detect objects with dynamic keys")
+
+      opt[Unit]('j', "detect-disjoint")
+        .action((x, c) => c.copy(detectDisjoint = true))
+        .text("detect objects with disjoint keys")
 
       opt[Int]("max-examples")
         .action((x, c) => c.copy(maxExamples = Some(x)))
@@ -409,6 +419,13 @@ object DiscoverSchema {
         // Check if transformations are valid
         if (
           config.detectDynamic && config.propertySet =/= PropertySets.AllProperties
+        ) {
+          throw new IllegalArgumentException(
+            "All properties required to detect dynamic objects"
+          )
+        }
+        if (
+          config.detectDisjoint && config.propertySet =/= PropertySets.AllProperties
         ) {
           throw new IllegalArgumentException(
             "All properties required to detect dynamic objects"
