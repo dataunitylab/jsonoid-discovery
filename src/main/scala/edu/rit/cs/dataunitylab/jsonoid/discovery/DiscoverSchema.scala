@@ -408,6 +408,13 @@ object DiscoverSchema {
 
         // Check if transformations are valid
         if (
+          config.detectDynamic && config.propertySet =/= PropertySets.AllProperties
+        ) {
+          throw new IllegalArgumentException(
+            "All properties required to detect dynamic objects"
+          )
+        }
+        if (
           config.addDefinitions && config.propertySet =/= PropertySets.AllProperties
         ) {
           throw new IllegalArgumentException(
