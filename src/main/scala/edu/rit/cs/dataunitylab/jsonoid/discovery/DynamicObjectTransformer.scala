@@ -48,11 +48,7 @@ object DynamicObjectTransformer extends SchemaWalker[ObjectSchema] {
       props.add(DynamicObjectTypeProperty(valueType))
       val newSchema = DynamicObjectSchema(props)(p)
 
-      if (pointer.isEmpty) {
-        finalSchema = newSchema
-      } else {
-        finalSchema = finalSchema.replaceWithSchema(pointer, newSchema)
-      }
+      finalSchema = finalSchema.replaceWithSchema(pointer, newSchema)
     }
 
     finalSchema

@@ -26,11 +26,7 @@ object DisjointObjectTransformer
       val disjointSchemas = keySets.map(objSchema.onlyKeys(_))
       val newSchema = ProductSchema.product(disjointSchemas.toList)(p)
 
-      if (pointer.isEmpty) {
-        finalSchema = newSchema
-      } else {
-        finalSchema = finalSchema.replaceWithSchema(pointer, newSchema)
-      }
+      finalSchema = finalSchema.replaceWithSchema(pointer, newSchema)
     }
 
     finalSchema

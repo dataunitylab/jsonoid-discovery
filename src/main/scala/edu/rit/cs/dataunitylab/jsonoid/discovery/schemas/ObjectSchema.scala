@@ -174,7 +174,8 @@ final case class ObjectSchema(
   @SuppressWarnings(
     Array(
       "org.wartremover.warts.NonUnitStatements",
-      "org.wartremover.warts.Recursion"
+      "org.wartremover.warts.Recursion",
+      "org.wartremover.warts.Return"
     )
   )
   override def replaceWithSchema(
@@ -185,7 +186,7 @@ final case class ObjectSchema(
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
     val newTypes = pointer.split("/", 3) match {
       case Array(_) | Array(_, "") =>
-        throw new IllegalArgumentException("Invalid path for replacement")
+        return replaceSchema
       case Array(_, first) =>
         objectTypes + (first -> replaceSchema)
 

@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increase length penalty for primary key detection
 - Update to Scala 2.13
 
+### Fixed
+- Allow schema replacement to replace the entire schema
+
 ## [0.15.0]
 ### Changed
 - Add namespace to `AnomalyLevel`
