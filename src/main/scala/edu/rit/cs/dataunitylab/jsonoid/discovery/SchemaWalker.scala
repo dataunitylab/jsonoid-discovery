@@ -36,6 +36,15 @@ trait SchemaWalker[T] {
         .flatMap(extractValues(_, extractor, prefix, follow))
         .toSeq) ++
         (schema match {
+          case d: DynamicObjectSchema =>
+            val value = d.properties.get[DynamicObjectTypeProperty].valueType
+            extractSingle(d, extractor, prefix) ++ extractValues(
+              value,
+              extractor,
+              prefix + ".*",
+              follow
+            )
+
           case o: ObjectSchema =>
             val props = o.properties.get[ObjectTypesProperty].objectTypes
             val extractedProps =
