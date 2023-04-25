@@ -24,6 +24,7 @@ private final case class Config(
     onlyProperties: Option[Seq[String]] = None,
     equivalenceRelation: EquivalenceRelation =
       EquivalenceRelations.KindEquivalenceRelation,
+    extendedFormats: Boolean = false,
     addDefinitions: Boolean = false,
     maxExamples: Option[Int] = None,
     additionalProperties: Boolean = false,
@@ -260,6 +261,10 @@ object DiscoverSchema {
             " [Kind, Label, IntersectingLabel, TypeMatch]"
         )
 
+      opt[Unit]("extended-formats")
+        .action((x, c) => c.copy(extendedFormats = true))
+        .text("whether to include extended formats")
+
       opt[Unit]('d', "add-definitions")
         .action((x, c) => c.copy(addDefinitions = true))
         .text("extract similar objects to create definitions")
@@ -346,6 +351,7 @@ object DiscoverSchema {
         val jsons = jsonFromSource(source)
         var p = JsonoidParams()
           .withER(config.equivalenceRelation)
+          .withExtendedFormats(config.extendedFormats)
           .withAdditionalProperties(config.additionalProperties)
           .withPropertySet(propSet)
           .withResetFormatLength(config.resetFormatLength)

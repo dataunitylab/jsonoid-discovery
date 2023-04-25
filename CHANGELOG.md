@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow selecting a subset of properties by classes
 - Allow removing subsets of properties
 - Detect numeric strings and treat as numeric
+- Added extended format checkers
 
 ### Changed
 - Increase length penalty for primary key detection

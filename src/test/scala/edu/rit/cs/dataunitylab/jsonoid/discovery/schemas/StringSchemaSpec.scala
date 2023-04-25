@@ -54,8 +54,9 @@ class StringSchemaSpec extends UnitSpec {
 
   def schemaWithFormat(value: String, format: String): Unit = {
     it should s"detect the ${format} format" in {
-      var props = StringSchema().properties
-      for (_ <- 1 to 10) { props = props.mergeValue(value) }
+      val p = JsonoidParams().withExtendedFormats(true)
+      var props = StringSchema(value)(p).properties
+      for (_ <- 1 to 10) { props = props.mergeValue(value)(p) }
       props = props.mergeValue("foofoofoofoofoofoo")
       val formatProp = props.get[FormatProperty]
 
@@ -77,6 +78,9 @@ class StringSchemaSpec extends UnitSpec {
   schemaWithFormat("2018-11-13T20:20:39+00:00", "date-time")
   schemaWithFormat("20:20:39+00:00", "time")
   schemaWithFormat("01020304-0506-0708-090a-0b0c0d0e0f10", "uuid")
+  schemaWithFormat("1991ASSL..171...89H", "bibcode")
+  schemaWithFormat("1-56619-909-3", "isbn")
+  schemaWithFormat("10.1093/ajae/aaq063", "doi")
 
   it should "not detect a format if most values match no format" in {
     var props = StringSchema().properties

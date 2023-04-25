@@ -459,6 +459,27 @@ object FormatProperty {
       )
     )
   )
+
+  val ExtendedFormatCheckers: Map[String, Function1[String, Boolean]] = Map(
+    // https://www.wikidata.org/wiki/Property:P819
+    // "A" also seems to be a valid qualifier, so this was added
+    (
+      "bibcode",
+      regex("\\d{4}[A-Za-z\\.&]{5}[\\w\\.]{4}[AELPQ-Z\\.][\\d\\.]{4}[A-Z]".r)
+    ),
+    // https://github.com/citation-file-format/citation-file-format/blob/4fa1a91004b3600248bb3f751967e833e7afac63/schema.yaml
+    (
+      "doi",
+      regex("""10\.\d{4,9}(\.\d+)?/[A-Za-z0-9-\._;\(\)\[\]\\\\:/]+""".r)
+    ),
+    // https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s13.html
+    (
+      "isbn",
+      regex(
+        "(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]".r
+      )
+    )
+  )
 }
 
 /** Tracks the possible formats for string values.
@@ -528,7 +549,13 @@ final case class FormatProperty(
   override def mergeValue(
       value: String
   )(implicit p: JsonoidParams): FormatProperty = {
-    FormatProperty.FormatCheckers.toSeq.find { case (format, fn) =>
+    val checkers =
+      FormatProperty.FormatCheckers.toSeq ++ (if (p.extendedFormats) {
+                                                FormatProperty.ExtendedFormatCheckers.toSeq
+                                              } else {
+                                                Seq.empty
+                                              })
+    checkers.find { case (format, fn) =>
       fn(value)
     } match {
       case Some(format) => unionMerge(FormatProperty(Map((format._1, 1))))
