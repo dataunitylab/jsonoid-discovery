@@ -103,7 +103,7 @@ final case class Histogram(
     val mapping = sketch.getIndexMapping
 
     val maxValue = if (!sketch.getPositiveValueStore.isEmpty) {
-      mapping.lowerBound(
+      mapping.upperBound(
         sketch.getPositiveValueStore.getDescendingIterator.asScala
           .next()
           .getIndex
@@ -119,7 +119,7 @@ final case class Histogram(
     }
 
     val minValue = if (!sketch.getNegativeValueStore.isEmpty) {
-      -mapping.lowerBound(
+      -mapping.upperBound(
         sketch.getNegativeValueStore.getDescendingIterator.asScala
           .next()
           .getIndex
@@ -134,6 +134,6 @@ final case class Histogram(
       0
     }
 
-    value * (1 + Histogram.Tolerance) < minValue || value * (1 - Histogram.Tolerance) > maxValue
+    value < minValue || value > maxValue
   }
 }

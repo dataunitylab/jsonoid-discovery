@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Allow schema replacement to replace the entire schema
+- Correct histogram anomaly checking
 
 ## [0.15.0]
 ### Changed
