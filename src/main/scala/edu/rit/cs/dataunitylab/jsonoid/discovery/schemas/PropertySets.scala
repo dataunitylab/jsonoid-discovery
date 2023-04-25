@@ -21,7 +21,7 @@ final case class PropertySet(
 ) {
 
   /** Create a new property set without the
-   *  specific sequence of properties.
+    *  specific sequence of properties.
     *
     * @param propClasses the property classes to exclude
     *
@@ -39,7 +39,7 @@ final case class PropertySet(
   }
 
   /** Create a new property set without the
-   *  specific sequence of named properties.
+    *  specific sequence of named properties.
     *
     * @param propNames the property names to exclude
     *
@@ -53,7 +53,7 @@ final case class PropertySet(
   }
 
   /** Create a new property set with only the
-   *  specific sequence of properties.
+    *  specific sequence of properties.
     *
     * @param propClasses the property classes to include
     *
