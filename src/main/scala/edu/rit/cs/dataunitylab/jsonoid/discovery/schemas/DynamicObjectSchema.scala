@@ -110,7 +110,8 @@ final case class DynamicObjectTypeProperty(
       p: JsonoidParams
   ): DynamicObjectTypeProperty = DynamicObjectTypeProperty()
 
-  override def toJson()(implicit p: JsonoidParams): JObject = Nil
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    "additionalProperties" -> valueType.toJson()
 
   override def transform(
       transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
