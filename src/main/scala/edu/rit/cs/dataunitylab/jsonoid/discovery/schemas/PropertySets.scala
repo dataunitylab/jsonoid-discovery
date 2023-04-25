@@ -20,6 +20,38 @@ final case class PropertySet(
     val stringProperties: SchemaProperties[String]
 ) {
 
+  /** Create a new property set without the
+   *  specific sequence of properties.
+    *
+    * @param propClasses the property classes to exclude
+    *
+    * @return a new property set without the given properties
+    */
+  def without(propClasses: Seq[Class[_]]): PropertySet = {
+    PropertySet(
+      arrayProperties.without(propClasses),
+      booleanProperties.without(propClasses),
+      integerProperties.without(propClasses),
+      numberProperties.without(propClasses),
+      objectProperties.without(propClasses),
+      stringProperties.without(propClasses)
+    )
+  }
+
+  /** Create a new property set without the
+   *  specific sequence of named properties.
+    *
+    * @param propNames the property names to exclude
+    *
+    * @return a new property set without the given properties
+    */
+  def withoutNamed(propNames: Seq[String]): PropertySet = {
+    val propClasses = propNames.map(c =>
+      Class.forName("edu.rit.cs.dataunitylab.jsonoid.discovery.schemas." + c)
+    )
+    without(propClasses)
+  }
+
   /** Create a new property set with only the
    *  specific sequence of properties.
     *
