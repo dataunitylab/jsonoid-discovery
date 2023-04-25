@@ -74,6 +74,7 @@ trait SchemaProperty[T] {
     *
     * This must be implemented for any property which contain schema objects
     * Currently this is only these properties:
+    *  * DynamicObjectTypeProperty in DynamicObjectSchema
     *  * ObjectTypesProperty in ObjectSchema
     *  * PatternTypesProperty in ObjectSchema
     *  * ItemTypeProperty in ArraySchema
