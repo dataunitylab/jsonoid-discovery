@@ -31,14 +31,15 @@ class ProductSchemaSpec extends UnitSpec {
     )
   private val allProductSchema = ProductSchema(allProps)
 
-  it should "track required properties" in {
+  it should "track the different schema types properties" in {
     val typesProp = productSchema1
       .merge(schema2)
       .asInstanceOf[ProductSchema]
       .properties
       .get[ProductSchemaTypesProperty]
-    val types = typesProp.schemaTypes.zip(typesProp.schemaCounts)
-    types should contain theSameElementsAs List((schema1, 1), (schema2, 2))
+    val types =
+      typesProp.schemaTypes.map(_.schemaType).zip(typesProp.schemaCounts)
+    types should contain theSameElementsAs List(("boolean", 1), ("integer", 2))
   }
 
   it should "merge all types in multiple ProductSchemas" in {
@@ -218,12 +219,14 @@ class ProductSchemaSpec extends UnitSpec {
     // to ensure that there is something that will be in conflict
     // if the resulting types are not compatible
     val oldSchema = IntegerSchema(0)(
-      PropertySets.SimpleProperties,
-      JsonoidParams.defaultJsonoidParams
+      JsonoidParams.defaultJsonoidParams.withPropertySet(
+        PropertySets.SimpleProperties
+      )
     )
     val newSchema = IntegerSchema(3)(
-      PropertySets.SimpleProperties,
-      JsonoidParams.defaultJsonoidParams
+      JsonoidParams.defaultJsonoidParams.withPropertySet(
+        PropertySets.SimpleProperties
+      )
     )
     val productSchema1 =
       ProductSchema(schema1).merge(oldSchema).asInstanceOf[ProductSchema]

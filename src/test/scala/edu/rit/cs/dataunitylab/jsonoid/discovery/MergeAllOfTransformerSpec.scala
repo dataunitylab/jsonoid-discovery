@@ -1,7 +1,6 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 
 import schemas._
-import PropertySets._
 
 import UnitSpec._
 

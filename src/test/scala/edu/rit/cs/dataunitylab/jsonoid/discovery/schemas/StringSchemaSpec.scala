@@ -4,7 +4,6 @@ package schemas
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s._
 
-import PropertySets._
 import UnitSpec._
 
 class StringSchemaSpec extends UnitSpec {
@@ -266,8 +265,7 @@ class StringSchemaSpec extends UnitSpec {
 
   it should "have no properties in the minimal property set" in {
     StringSchema("foo")(
-      PropertySets.MinProperties,
-      JsonoidParams()
+      JsonoidParams().withPropertySet(PropertySets.MinProperties)
     ).properties shouldBe empty
   }
 
@@ -358,8 +356,7 @@ class StringSchemaSpec extends UnitSpec {
     propSet.stringProperties.add(StringNumericProperty())
 
     (StringSchema("3.2")(
-      propSet,
-      JsonoidParams()
+      JsonoidParams().withPropertySet(propSet)
     ).toJson() \ "type").extract[String] shouldBe "number"
   }
 }

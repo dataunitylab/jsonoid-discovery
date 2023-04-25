@@ -17,11 +17,10 @@ object JsonoidRDD {
     * @param propSet the set of properties which should be discovered
     */
   def fromStringRDD(
-      rdd: RDD[String],
-      propSet: PropertySet = PropertySets.AllProperties
+      rdd: RDD[String]
   )(implicit p: JsonoidParams): JsonoidRDD = {
     val discoverFromString = (jsonString: String) =>
-      DiscoverSchema.discoverFromValue(parse(jsonString), propSet)
+      DiscoverSchema.discoverFromValue(parse(jsonString))
     new JsonoidRDD(rdd.map(discoverFromString))(p)
   }
 

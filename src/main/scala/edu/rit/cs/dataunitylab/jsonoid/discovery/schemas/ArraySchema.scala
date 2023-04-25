@@ -1,32 +1,29 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
-import scala.jdk.CollectionConverters._
-import scala.collection.mutable.ListBuffer
 import scala.language.existentials
 import scala.reflect._
 
-import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
-import com.datadoghq.sketch.ddsketch.store.Bin
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
 import Scalaz._
 
 import Helpers._
+import utils.Histogram
 
 object ArraySchema {
   def apply(
       value: List[JsonSchema[_]]
-  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+  )(implicit p: JsonoidParams): ArraySchema = {
     ArraySchema(
-      propSet.arrayProperties.mergeValue(value)(p)
+      p.propSet.arrayProperties.mergeValue(value)(p)
     )
   }
 
   def array(
       value: JsonSchema[_]
-  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+  )(implicit p: JsonoidParams): ArraySchema = {
     val newProps = apply(List(value)).properties
       .replaceProperty(ItemTypeProperty(Left(value)))
     ArraySchema(newProps)
@@ -34,7 +31,7 @@ object ArraySchema {
 
   def tuple(
       value: List[JsonSchema[_]]
-  )(implicit propSet: PropertySet, p: JsonoidParams): ArraySchema = {
+  )(implicit p: JsonoidParams): ArraySchema = {
     val newProps =
       apply(value).properties.replaceProperty(ItemTypeProperty(Right(value)))
     ArraySchema(newProps)
@@ -720,7 +717,7 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
  * @param histogram the initial histogram of lengths
  */
 final case class ArrayLengthHistogramProperty(
-    histogram: DDSketch = DDSketches.unboundedDense(0.01)
+    histogram: Histogram = Histogram()
 ) extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = ArrayLengthHistogramProperty
 
@@ -731,44 +728,23 @@ final case class ArrayLengthHistogramProperty(
 
   override val isInformational = true
 
-  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    val indexMapping = histogram.getIndexMapping
-    val bins = ListBuffer.empty[(Double, Int)]
-
-    // Negative bins must have their values
-    // inverted and we go in descending order
-    histogram.getNegativeValueStore.getDescendingIterator.asScala.foreach {
-      bin: Bin =>
-        bins += ((-indexMapping.value(bin.getIndex), bin.getCount.toInt))
-    }
-    histogram.getPositiveValueStore.getAscendingIterator.asScala.foreach {
-      bin: Bin =>
-        bins += ((indexMapping.value(bin.getIndex), bin.getCount.toInt))
-    }
-
-    ("lengthHistogram" -> bins.map { case (value, count) =>
-      List(value, count)
+    ("lengthHistogram" -> histogram.bins().map { case (value, count) =>
+      List(JDouble(value.doubleValue), JLong(count.longValue))
     })
   }
 
   override def unionMerge(
       otherProp: ArrayLengthHistogramProperty
   )(implicit p: JsonoidParams): ArrayLengthHistogramProperty = {
-    val newHistogram = DDSketches.unboundedDense(0.01)
-    newHistogram.mergeWith(histogram)
-    newHistogram.mergeWith(otherProp.histogram)
-    ArrayLengthHistogramProperty(newHistogram)
+    ArrayLengthHistogramProperty(histogram.merge(otherProp.histogram))
   }
 
   override def mergeValue(
       value: List[JsonSchema[_]]
   )(implicit p: JsonoidParams): ArrayLengthHistogramProperty = {
-    val newHistogram = DDSketches.unboundedDense(0.01)
-    newHistogram.mergeWith(histogram)
-    newHistogram.accept(value.length)
     ArrayLengthHistogramProperty(
-      newHistogram
+      histogram.merge(value.length)
     )
   }
 
@@ -778,10 +754,7 @@ final case class ArrayLengthHistogramProperty(
   ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
-        if (
-          arr.length > (histogram.getMaxValue() * 1.01) || arr.length <
-            (histogram.getMinValue() * 0.99)
-        ) {
+        if (histogram.isAnomalous(arr.length)) {
           Seq(
             Anomaly(
               path,

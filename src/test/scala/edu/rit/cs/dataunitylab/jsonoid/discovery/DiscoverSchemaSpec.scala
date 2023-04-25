@@ -67,9 +67,8 @@ class DiscoverSchemaSpec extends UnitSpec {
 
   it should "produce minimal properties when requested" in {
     val stringSchema = DiscoverSchema.discover(
-      Seq(JString("foo")).iterator,
-      PropertySets.MinProperties
-    )
+      Seq(JString("foo")).iterator
+    )(JsonoidParams().withPropertySet(PropertySets.MinProperties))
     stringSchema.properties shouldBe empty
   }
 
@@ -89,7 +88,9 @@ class DiscoverSchemaSpec extends UnitSpec {
       val url = getClass.getResource("/" + filename)
       val input = DiscoverSchema.jsonFromSource(Source.fromURL(url)).buffered
       val firstDoc = input.head
-      val schema = DiscoverSchema.discover(input, PropertySets.SimpleProperties)
+      val schema = DiscoverSchema.discover(input)(
+        JsonoidParams().withPropertySet(PropertySets.SimpleProperties)
+      )
 
       // XXX This validation is not perfect, but we'll check later with AJV
       //     Specifically, version 2020-12 of the spec is not yet supported

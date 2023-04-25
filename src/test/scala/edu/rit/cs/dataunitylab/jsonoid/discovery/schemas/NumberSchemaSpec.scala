@@ -5,7 +5,6 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalactic.TolerantNumerics
 
-import PropertySets._
 import UnitSpec._
 
 class NumberSchemaSpec extends UnitSpec {
@@ -215,8 +214,7 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "have no properties in the minimal property set" in {
     NumberSchema(0.0)(
-      PropertySets.MinProperties,
-      JsonoidParams()
+      JsonoidParams().withPropertySet(PropertySets.MinProperties)
     ).properties shouldBe empty
   }
 

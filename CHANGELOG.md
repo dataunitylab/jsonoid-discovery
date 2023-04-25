@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Increase length penalty for primary key detection
 - Update to Scala 2.13
+- Move property set configuration to params object
 
 ### Fixed
 - Allow schema replacement to replace the entire schema

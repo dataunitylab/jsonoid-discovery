@@ -3,7 +3,6 @@ package edu.rit.cs.dataunitylab.jsonoid.discovery
 import org.json4s.{DefaultFormats, Formats}
 
 import schemas._
-import PropertySets._
 
 import UnitSpec._
 

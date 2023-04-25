@@ -4,7 +4,6 @@ package schemas
 import org.json4s.JsonDSL._
 import org.json4s._
 
-import PropertySets._
 import UnitSpec._
 
 class JsonSchemaSpec extends UnitSpec {

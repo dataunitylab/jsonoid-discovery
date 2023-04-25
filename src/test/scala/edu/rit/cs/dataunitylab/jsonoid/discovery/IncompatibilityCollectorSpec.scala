@@ -4,8 +4,6 @@ import scala.reflect.ClassTag
 
 import schemas._
 
-import PropertySets._
-
 class IncompatibilityCollectorSpec extends UnitSpec {
   behavior of "IncompatibilityCollector"
 

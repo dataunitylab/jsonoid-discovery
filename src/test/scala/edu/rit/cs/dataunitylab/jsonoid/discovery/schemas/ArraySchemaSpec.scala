@@ -1,7 +1,6 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
-import PropertySets._
 import UnitSpec._
 
 import org.json4s._
@@ -142,8 +141,7 @@ class ArraySchemaSpec extends UnitSpec {
 
     val arrayProperties =
       ArraySchema(List(BooleanSchema()))(
-        PropertySets.MinProperties,
-        JsonoidParams()
+        JsonoidParams().withPropertySet(PropertySets.MinProperties)
       ).properties
 
     cp { arrayProperties should have size 1 }

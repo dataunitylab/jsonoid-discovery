@@ -1,5 +1,7 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 
+import schemas.{PropertySet, PropertySets}
+
 /** Parameters used during the discovery process.
   *
   * @param additionalProperties whether `additionalProperties` is set to true in generated schemas
@@ -13,6 +15,7 @@ final case class JsonoidParams(
     val er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation,
     val formatThreshold: Float = 1.0f,
     val maxExamples: Int = 100,
+    val propSet: PropertySet = PropertySets.AllProperties,
     val resetFormatLength: Boolean = false
 ) {
   def withAdditionalProperties(
@@ -23,6 +26,7 @@ final case class JsonoidParams(
       er,
       formatThreshold,
       maxExamples,
+      propSet,
       resetFormatLength
     )
   }
@@ -33,6 +37,7 @@ final case class JsonoidParams(
       newER,
       formatThreshold,
       maxExamples,
+      propSet,
       resetFormatLength
     )
   }
@@ -43,6 +48,7 @@ final case class JsonoidParams(
       er,
       newFormatThreshold,
       maxExamples,
+      propSet,
       resetFormatLength
     )
   }
@@ -53,6 +59,18 @@ final case class JsonoidParams(
       er,
       formatThreshold,
       newMaxExamples,
+      propSet,
+      resetFormatLength
+    )
+  }
+
+  def withPropertySet(newPropSet: PropertySet): JsonoidParams = {
+    JsonoidParams(
+      additionalProperties,
+      er,
+      formatThreshold,
+      maxExamples,
+      newPropSet,
       resetFormatLength
     )
   }
@@ -63,6 +81,7 @@ final case class JsonoidParams(
       er,
       formatThreshold,
       maxExamples,
+      propSet,
       newResetFormatLength
     )
   }

@@ -52,7 +52,6 @@ object DiscoverSchema {
     */
   def splitDiscover(
       jsons: Iterator[JValue],
-      propSet: PropertySet = PropertySets.AllProperties,
       splitFraction: Double = 0.9f
   )(implicit p: JsonoidParams): (JsonSchema[_], JsonSchema[_]) = {
     val initialSchemas: (JsonSchema[_], JsonSchema[_]) =
@@ -60,7 +59,7 @@ object DiscoverSchema {
     jsons.foldLeft(initialSchemas) { (schemas, json) =>
       {
         // Discover the schema for this single value
-        val newSchema = discoverFromValue(json, propSet)
+        val newSchema = discoverFromValue(json)(p)
 
         // Merge the value into the appropriate schema
         if (util.Random.nextDouble() > splitFraction) {
@@ -79,10 +78,9 @@ object DiscoverSchema {
     * @return tthe discovered schema
     */
   def discover(
-      jsons: Iterator[JValue],
-      propSet: PropertySet = PropertySets.AllProperties
+      jsons: Iterator[JValue]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
-    jsons.map(discoverFromValue(_, propSet)).fold(ZeroSchema())(_.merge(_))
+    jsons.map(discoverFromValue(_)(p)).fold(ZeroSchema())(_.merge(_))
   }
 
   /** Discover a schema from a single JSON object.
@@ -92,26 +90,22 @@ object DiscoverSchema {
     */
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def discoverFromValue(
-      value: JValue,
-      propSet: PropertySet = PropertySets.AllProperties
+      value: JValue
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     value match {
       case JArray(items) =>
-        ArraySchema(items.map(discoverFromValue(_, propSet)(p)))(propSet, p)
-      case JBool(bool)     => BooleanSchema(bool)(propSet, p)
-      case JDecimal(dec)   => NumberSchema(dec)(propSet, p)
-      case JDouble(dbl)    => NumberSchema(dbl)(propSet, p)
-      case JInt(int)       => IntegerSchema(int)(propSet, p)
-      case JLong(long)     => IntegerSchema(long)(propSet, p)
+        ArraySchema(items.map(discoverFromValue(_)(p)))(p)
+      case JBool(bool)     => BooleanSchema(bool)(p)
+      case JDecimal(dec)   => NumberSchema(dec)(p)
+      case JDouble(dbl)    => NumberSchema(dbl)(p)
+      case JInt(int)       => IntegerSchema(int)(p)
+      case JLong(long)     => IntegerSchema(long)(p)
       case JNothing        => NullSchema()
       case JNull           => NullSchema()
-      case JObject(fields) => discoverObjectFields(fields, propSet)(p)
+      case JObject(fields) => discoverObjectFields(fields)(p)
       case JSet(items) =>
-        ArraySchema(items.map(discoverFromValue(_, propSet)(p)).toList)(
-          propSet,
-          p
-        )
-      case JString(str) => StringSchema(str)(propSet, p)
+        ArraySchema(items.map(discoverFromValue(_)(p)).toList)(p)
+      case JString(str) => StringSchema(str)(p)
     }
   }
 
@@ -121,17 +115,14 @@ object DiscoverSchema {
     * @param propSet the property set to use for schema discovery
     */
   private def discoverObjectFields(
-      fields: Seq[JField],
-      propSet: PropertySet
+      fields: Seq[JField]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     ObjectSchema(
       fields
-        .map { case (k, v) =>
-          (k, discoverFromValue(v, propSet))
-        }
+        .map { case (k, v) => (k, discoverFromValue(v)) }
         .asInstanceOf[Seq[(String, JsonSchema[_])]]
         .toMap
-    )(propSet, p)
+    )(p)
   }
 
   /** Produce an iterator of JSON objects from a source.
@@ -356,6 +347,7 @@ object DiscoverSchema {
         var p = JsonoidParams()
           .withER(config.equivalenceRelation)
           .withAdditionalProperties(config.additionalProperties)
+          .withPropertySet(propSet)
           .withResetFormatLength(config.resetFormatLength)
         if (config.maxExamples.isDefined) {
           p = p.withMaxExamples(config.maxExamples.get)
@@ -367,7 +359,7 @@ object DiscoverSchema {
         val (schema: ObjectSchema, testSchema: Option[ObjectSchema]) =
           config.splitPercentage match {
             case Some(pct) =>
-              val schemas = splitDiscover(jsons, propSet, pct)(p)
+              val schemas = splitDiscover(jsons, pct)(p)
               val trainSchema = schemas._1.asInstanceOf[ObjectSchema]
               val testSchema = schemas._2.asInstanceOf[ObjectSchema]
 
@@ -412,7 +404,7 @@ object DiscoverSchema {
               (finalSchema, Some(testSchema))
             case None =>
               if (config.obliviousExpansion && !config.neverExpand) {
-                val unexpandedSchema = discover(jsons, propSet)(p)
+                val unexpandedSchema = discover(jsons)(p)
                 // If debugging is enabled, save the schema before expansion
                 if (config.debug) {
                   outputSchema(
@@ -422,7 +414,7 @@ object DiscoverSchema {
                 }
                 (unexpandedSchema.expandTo(None), None)
               } else {
-                (discover(jsons, propSet)(p), None)
+                (discover(jsons)(p), None)
               }
           }
 

@@ -5,8 +5,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 import schemas.{ObjectSchema, PropertySets}
 
-import UnitSpec._
-
 class JsonoidRDDSpec extends UnitSpec {
   behavior of "JsonoidRDD"
 
@@ -22,7 +20,8 @@ class JsonoidRDDSpec extends UnitSpec {
     val sc = new SparkContext(conf)
     val rdd = sc.parallelize(jsons)
 
-    val jsonoidRdd = JsonoidRDD.fromStringRDD(rdd, PropertySets.MinProperties)
+    val params = JsonoidParams().withPropertySet(PropertySets.MinProperties)
+    val jsonoidRdd = JsonoidRDD.fromStringRDD(rdd)(params)
     val schema = jsonoidRdd.reduceSchemas()
 
     val cp = new Checkpoint()

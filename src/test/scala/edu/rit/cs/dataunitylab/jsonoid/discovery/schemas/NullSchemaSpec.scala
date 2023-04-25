@@ -3,8 +3,6 @@ package schemas
 
 import org.json4s._
 
-import PropertySets._
-
 class NullSchemaSpec extends UnitSpec {
   behavior of "NullSchema"
 

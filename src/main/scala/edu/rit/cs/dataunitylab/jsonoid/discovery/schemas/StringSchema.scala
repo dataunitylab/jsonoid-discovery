@@ -21,9 +21,9 @@ import utils.{BloomFilter, Histogram, HyperLogLog}
 object StringSchema {
   def apply(
       value: String
-  )(implicit propSet: PropertySet, p: JsonoidParams): StringSchema = {
+  )(implicit p: JsonoidParams): StringSchema = {
     StringSchema(
-      propSet.stringProperties.mergeValue(value)(p)
+      p.propSet.stringProperties.mergeValue(value)(p)
     )
   }
 
@@ -874,7 +874,7 @@ final case class StringNumericProperty(
   )(implicit p: JsonoidParams): StringNumericProperty = {
     Try(BigDecimal(value)) match {
       case Success(num) =>
-        val newSchema = Some(NumberSchema(num)(PropertySets.AllProperties, p))
+        val newSchema = Some(NumberSchema(num)(p))
         unionMerge(StringNumericProperty(newSchema, false))
       case Failure(_) => StringNumericProperty(None, true)
     }

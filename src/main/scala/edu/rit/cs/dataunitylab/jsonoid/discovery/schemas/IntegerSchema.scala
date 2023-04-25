@@ -14,9 +14,9 @@ import utils.{BloomFilter, Histogram, HyperLogLog}
 object IntegerSchema {
   def apply(
       value: BigInt
-  )(implicit propSet: PropertySet, p: JsonoidParams): IntegerSchema = {
+  )(implicit p: JsonoidParams): IntegerSchema = {
     IntegerSchema(
-      propSet.integerProperties.mergeValue(value)(p)
+      p.propSet.integerProperties.mergeValue(value)(p)
     )
   }
 

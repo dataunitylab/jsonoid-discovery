@@ -9,9 +9,9 @@ import org.json4s._
 object BooleanSchema {
   def apply(
       value: Boolean
-  )(implicit propSet: PropertySet, p: JsonoidParams): BooleanSchema = {
+  )(implicit p: JsonoidParams): BooleanSchema = {
     BooleanSchema(
-      propSet.booleanProperties.mergeValue(value)(p)
+      p.propSet.booleanProperties.mergeValue(value)(p)
     )
   }
 

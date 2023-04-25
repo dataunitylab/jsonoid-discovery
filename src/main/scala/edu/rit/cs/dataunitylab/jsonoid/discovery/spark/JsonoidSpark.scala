@@ -67,10 +67,9 @@ object JsonoidSpark {
         val conf = new SparkConf().setAppName("JSONoid")
         val sc = new SparkContext(conf)
         val er = EquivalenceRelations.KindEquivalenceRelation
-        val p = JsonoidParams().withER(er)
+        val p = JsonoidParams().withER(er).withPropertySet(config.propertySet)
         val jsonRdd = JsonoidRDD.fromStringRDD(
-          sc.textFile(config.input),
-          config.propertySet
+          sc.textFile(config.input)
         )(p)
         var schema: ObjectSchema =
           jsonRdd.reduceSchemas().asInstanceOf[ObjectSchema]

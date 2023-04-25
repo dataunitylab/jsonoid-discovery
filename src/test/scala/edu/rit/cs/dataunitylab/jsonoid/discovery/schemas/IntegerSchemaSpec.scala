@@ -4,7 +4,6 @@ package schemas
 import org.json4s.JsonDSL._
 import org.json4s._
 
-import PropertySets._
 import UnitSpec._
 
 class IntegerSchemaSpec extends UnitSpec {
@@ -164,8 +163,7 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "have no properties in the minimal property set" in {
     IntegerSchema(0)(
-      PropertySets.MinProperties,
-      JsonoidParams()
+      JsonoidParams().withPropertySet(PropertySets.MinProperties)
     ).properties shouldBe empty
   }
 

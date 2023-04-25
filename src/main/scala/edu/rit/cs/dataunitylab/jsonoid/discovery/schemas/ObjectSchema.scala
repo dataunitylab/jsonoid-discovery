@@ -13,9 +13,9 @@ import Helpers._
 object ObjectSchema {
   def apply(
       value: Map[String, JsonSchema[_]]
-  )(implicit propSet: PropertySet, p: JsonoidParams): ObjectSchema = {
+  )(implicit p: JsonoidParams): ObjectSchema = {
     ObjectSchema(
-      propSet.objectProperties.mergeValue(value)(p)
+      p.propSet.objectProperties.mergeValue(value)(p)
     )(p)
   }
 
@@ -91,11 +91,9 @@ object ObjectSchema {
     props
   }
 
-  def MinProperties(implicit
-      p: JsonoidParams
-  ): SchemaProperties[Map[String, JsonSchema[_]]] = {
+  val MinProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
-    props.add(AdditionalPropertiesProperty(p))
+    props.add(AdditionalPropertiesProperty())
     props.add(ObjectTypesProperty())
 
     props
@@ -920,61 +918,74 @@ final case class StaticDependenciesProperty(
   }
 }
 
-object AdditionalPropertiesProperty {
-  def apply(implicit p: JsonoidParams): AdditionalPropertiesProperty = {
-    AdditionalPropertiesProperty(p.additionalProperties)
-  }
-}
-
 final case class AdditionalPropertiesProperty(
-    additionalProperties: Boolean =
-      JsonoidParams.defaultJsonoidParams.additionalProperties
+    overriddenAdditionalProperties: Option[Boolean] = None
 )(implicit p: JsonoidParams)
     extends SchemaProperty[Map[String, JsonSchema[_]]] {
   override type S = AdditionalPropertiesProperty
 
   override def newDefault()(implicit
       p: JsonoidParams
-  ): AdditionalPropertiesProperty = AdditionalPropertiesProperty(
-    p.additionalProperties
-  )
+  ): AdditionalPropertiesProperty = AdditionalPropertiesProperty()(p)
+
+  def allowAdditional(): Boolean =
+    overriddenAdditionalProperties.getOrElse(p.additionalProperties)
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("additionalProperties" -> additionalProperties)
+    ("additionalProperties" ->
+      overriddenAdditionalProperties.getOrElse(p.additionalProperties))
 
   override def intersectMerge(
       otherProp: AdditionalPropertiesProperty
   )(implicit p: JsonoidParams): AdditionalPropertiesProperty = {
-    AdditionalPropertiesProperty(
-      additionalProperties && otherProp.additionalProperties
-    )
+    (
+      overriddenAdditionalProperties,
+      otherProp.overriddenAdditionalProperties
+    ) match {
+      case (None, None) =>
+        AdditionalPropertiesProperty(Some(p.additionalProperties))
+      case (None, Some(o))      => AdditionalPropertiesProperty(Some(o))
+      case (Some(o), None)      => AdditionalPropertiesProperty(Some(o))
+      case (Some(o1), Some(o2)) => AdditionalPropertiesProperty(Some(o1 && o2))
+    }
   }
 
   override def unionMerge(
       otherProp: AdditionalPropertiesProperty
   )(implicit p: JsonoidParams): AdditionalPropertiesProperty = {
-    AdditionalPropertiesProperty(
-      additionalProperties || otherProp.additionalProperties
-    )
+    (
+      overriddenAdditionalProperties,
+      otherProp.overriddenAdditionalProperties
+    ) match {
+      case (None, None) =>
+        AdditionalPropertiesProperty(Some(p.additionalProperties))
+      case (None, Some(o))      => AdditionalPropertiesProperty(Some(o))
+      case (Some(o), None)      => AdditionalPropertiesProperty(Some(o))
+      case (Some(o1), Some(o2)) => AdditionalPropertiesProperty(Some(o1 || o2))
+    }
   }
 
   override def mergeValue(value: Map[String, JsonSchema[_]])(implicit
       p: JsonoidParams
-  ): AdditionalPropertiesProperty = this
+  ): AdditionalPropertiesProperty =
+    AdditionalPropertiesProperty(
+      Some(overriddenAdditionalProperties.getOrElse(p.additionalProperties))
+    )
 
   override def isCompatibleWith(
       other: AdditionalPropertiesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    additionalProperties || !other.additionalProperties
+    allowAdditional() || !other.allowAdditional()
   }
 
   override def expandTo(
       other: Option[AdditionalPropertiesProperty]
   ): AdditionalPropertiesProperty = {
-    other match {
-      case None => AdditionalPropertiesProperty(true)
-      case _    => this
-    }
+    this
+    // other match {
+    //   case None => AdditionalPropertiesProperty(true)
+    //   case _    => this
+    // }
   }
 }
