@@ -7,7 +7,7 @@ import java.net.URI
 import java.time.{LocalDate, OffsetDateTime, OffsetTime}
 import java.util.UUID
 import scala.util.matching.Regex
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 import scalaz._
 import org.apache.commons.validator.routines.EmailValidator
@@ -110,6 +110,22 @@ final case class StringSchema(
   ): PartialFunction[JsonSchema[_], JsonSchema[_]] = {
     case other @ StringSchema(otherProperties) =>
       StringSchema(properties.merge(otherProperties, mergeType))
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  override def toJson()(implicit p: JsonoidParams): JObject = {
+    // If all strings are numbers and we have the numeric property,
+    // then use the numeric schema instead of the string schema.
+    val maybeNumericProp = properties.getOrNone[StringNumericProperty]
+    maybeNumericProp match {
+      case Some(numericProp) =>
+        if (!numericProp.failed && numericProp.numericSchema.isDefined) {
+          numericProp.numericSchema.get.toJson()(p)
+        } else {
+          super.toJson()(p)
+        }
+      case None => super.toJson()(p)
+    }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
@@ -813,6 +829,75 @@ final case class StringLengthHistogramProperty(
           Seq.empty
         }
       case _ => Seq.empty
+    }
+  }
+}
+
+/** Tracks a possible numeric schema.
+  *
+  * @constructor Create a new numeric string schema property
+  * @param numericSchema a possible numeric schema
+  */
+final case class StringNumericProperty(
+    numericSchema: Option[NumberSchema] = None,
+    failed: Boolean = false
+) extends SchemaProperty[String] {
+  override type S = StringNumericProperty
+
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): StringNumericProperty =
+    StringNumericProperty()
+
+  override val isInformational = false
+
+  override def toJson()(implicit p: JsonoidParams): JObject = Nil
+
+  override def unionMerge(
+      otherProp: StringNumericProperty
+  )(implicit p: JsonoidParams): StringNumericProperty = {
+    if (failed || otherProp.failed) {
+      StringNumericProperty(None, true)
+    } else {
+      (numericSchema, otherProp.numericSchema) match {
+        case (Some(n1), Some(n2)) =>
+          StringNumericProperty(Some(n1.merge(n2).asInstanceOf[NumberSchema]))
+        case (Some(n1), None) => StringNumericProperty(Some(n1))
+        case (None, Some(n2)) => StringNumericProperty(Some(n2))
+        case (None, None)     => this
+      }
+    }
+  }
+
+  override def mergeValue(
+      value: String
+  )(implicit p: JsonoidParams): StringNumericProperty = {
+    Try(BigDecimal(value)) match {
+      case Success(num) =>
+        val newSchema = Some(NumberSchema(num)(PropertySets.AllProperties, p))
+        unionMerge(StringNumericProperty(newSchema, false))
+      case Failure(_) => StringNumericProperty(None, true)
+    }
+  }
+
+  override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
+      p: JsonoidParams,
+      tag: ClassTag[S]
+  ): Seq[Anomaly] = {
+    numericSchema match {
+      case None => Seq.empty
+      case Some(schema) =>
+        value match {
+          case JString(str) => {
+            Try(BigDecimal(str)) match {
+              case Success(num) =>
+                schema.collectAnomalies(JDecimal(num), path)
+              case Failure(_) =>
+                Seq(Anomaly(path, "value is not a number", AnomalyLevel.Fatal))
+            }
+          }
+          case _ => Seq.empty
+        }
     }
   }
 }

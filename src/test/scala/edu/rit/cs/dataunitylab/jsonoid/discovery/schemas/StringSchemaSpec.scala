@@ -240,6 +240,28 @@ class StringSchemaSpec extends UnitSpec {
     bins(1)(1) should ===(1.0)
   }
 
+  behavior of "StringNumericProperty"
+
+  it should "produce numeric schemas for valid strings" in {
+    val numProp = StringNumericProperty().mergeValue("3.2")
+    numProp.numericSchema shouldNot be(empty)
+  }
+
+  it should "not produce numeric schemas when an invalid value is observed" in {
+    val numProp = StringNumericProperty().mergeValue("3.2").mergeValue("foo")
+    numProp.numericSchema shouldBe empty
+  }
+
+  it should "show non-numeric strings as anomalous" in {
+    val numProp = StringNumericProperty().mergeValue("3.2")
+    numProp.isAnomalous(JString("foo")) shouldBe true
+  }
+
+  it should "show not show numeric strings as anomalous" in {
+    val numProp = StringNumericProperty().mergeValue("3.2")
+    numProp.collectAnomalies(JString("3.2")) shouldBe empty
+  }
+
   behavior of "StringSchema"
 
   it should "have no properties in the minimal property set" in {
@@ -329,5 +351,15 @@ class StringSchemaSpec extends UnitSpec {
     StringSchema("foo")
       .expandTo(Some(schema))
       .isCompatibleWith(schema) shouldBe true
+  }
+
+  it should "convert numeric string schemas to numbers" in {
+    val propSet = PropertySets.MinProperties
+    propSet.stringProperties.add(StringNumericProperty())
+
+    (StringSchema("3.2")(
+      propSet,
+      JsonoidParams()
+    ).toJson() \ "type").extract[String] shouldBe "number"
   }
 }

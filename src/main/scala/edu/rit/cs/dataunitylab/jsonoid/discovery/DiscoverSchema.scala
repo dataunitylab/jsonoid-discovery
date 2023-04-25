@@ -35,7 +35,8 @@ private final case class Config(
     neverExpand: Boolean = false,
     debug: Boolean = false,
     detectDynamic: Boolean = false,
-    detectDisjoint: Boolean = false
+    detectDisjoint: Boolean = false,
+    numericStrings: Boolean = false
 )
 
 object DiscoverSchema {
@@ -280,6 +281,10 @@ object DiscoverSchema {
         .action((x, c) => c.copy(detectDisjoint = true))
         .text("detect objects with disjoint keys")
 
+      opt[Unit]("numeric-strings")
+        .action((x, c) => c.copy(numericStrings = true))
+        .text("detect numbers represented as strings")
+
       opt[Int]("max-examples")
         .action((x, c) => c.copy(maxExamples = Some(x)))
         .text("maximum number of examples to extract")
@@ -340,6 +345,11 @@ object DiscoverSchema {
         val propSet = config.onlyProperties match {
           case Some(propNames) => config.propertySet.onlyNamed(propNames)
           case None            => config.propertySet
+        }
+
+        // Enable numeric string detection
+        if (config.numericStrings) {
+          propSet.stringProperties.add(StringNumericProperty())
         }
 
         val jsons = jsonFromSource(source)

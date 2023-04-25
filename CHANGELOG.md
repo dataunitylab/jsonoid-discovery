@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add disjoint key transformer
 - Allow selecting a subset of properties by classes
 - Allow removing subsets of properties
+- Detect numeric strings and treat as numeric
 
 ### Changed
 - Increase length penalty for primary key detection
