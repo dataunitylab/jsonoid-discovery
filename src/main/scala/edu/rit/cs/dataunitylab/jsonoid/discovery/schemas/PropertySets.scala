@@ -20,6 +20,24 @@ final case class PropertySet(
     val stringProperties: SchemaProperties[String]
 ) {
 
+  /** Create a new property set with only the
+   *  specific sequence of properties.
+    *
+    * @param propClasses the property classes to include
+    *
+    * @return a new property set with only the given properties
+    */
+  def only(propClasses: Seq[Class[_]]): PropertySet = {
+    PropertySet(
+      arrayProperties.only(propClasses),
+      booleanProperties.only(propClasses),
+      integerProperties.only(propClasses),
+      numberProperties.only(propClasses),
+      objectProperties.only(propClasses),
+      stringProperties.only(propClasses)
+    )
+  }
+
   /** Create a new property set with only the specific sequence of named
     * properties.
     *
@@ -28,17 +46,10 @@ final case class PropertySet(
     * @return a new property set with only the named properties
     */
   def onlyNamed(propNames: Seq[String]): PropertySet = {
-    val props = propNames.map(c =>
+    val propClasses = propNames.map(c =>
       Class.forName("edu.rit.cs.dataunitylab.jsonoid.discovery.schemas." + c)
     )
-    PropertySet(
-      arrayProperties.only(props),
-      booleanProperties.only(props),
-      integerProperties.only(props),
-      numberProperties.only(props),
-      objectProperties.only(props),
-      stringProperties.only(props)
-    )
+    only(propClasses)
   }
 }
 

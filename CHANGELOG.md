@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Add dynamic object transformer
 - Add disjoint key transformer
+- Allow selecting a subset of properties by classes
 
 ### Changed
 - Increase length penalty for primary key detection
