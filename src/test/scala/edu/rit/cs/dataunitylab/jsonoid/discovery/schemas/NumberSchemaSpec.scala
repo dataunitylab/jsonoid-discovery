@@ -108,6 +108,13 @@ class NumberSchemaSpec extends UnitSpec {
     multipleProp.toJson() shouldBe JObject()
   }
 
+  it should "not track multiples of very small values" in {
+    val zeroNumSchema =
+      NumberSchema(1E-11).merge(NumberSchema(2E-11)).asInstanceOf[NumberSchema]
+    val multipleProp = zeroNumSchema.properties.get[NumMultipleOfProperty]
+    multipleProp.toJson() shouldBe JObject()
+  }
+
   it should "be compatible with the same multiple" in {
     NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
       NumMultipleOfProperty(Some(BigDecimal(3.0)))

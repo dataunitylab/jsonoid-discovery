@@ -617,7 +617,13 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
     val newMultiple = (multiple, otherProp.multiple) match {
       case (Some(m), None)    => Some(m)
       case (None, Some(n))    => Some(n)
-      case (Some(m), Some(n)) => Some(gcd(m, n))
+      case (Some(m), Some(n)) => if (m.abs < 1E-10 || n.abs < 1E-10) {
+        // This avoids divide by zero errors when calculating the GCD.
+        // Any multiple of values this small is unlikely to be useful anyway.
+        None
+      } else {
+        Some(gcd(m, n))
+      }
       case (None, None)       => None
     }
     NumMultipleOfProperty(newMultiple)
