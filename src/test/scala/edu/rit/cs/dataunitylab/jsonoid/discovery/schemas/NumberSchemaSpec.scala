@@ -110,7 +110,7 @@ class NumberSchemaSpec extends UnitSpec {
 
   it should "not track multiples of very small values" in {
     val zeroNumSchema =
-      NumberSchema(1E-11).merge(NumberSchema(2E-11)).asInstanceOf[NumberSchema]
+      NumberSchema(1e-11).merge(NumberSchema(2e-11)).asInstanceOf[NumberSchema]
     val multipleProp = zeroNumSchema.properties.get[NumMultipleOfProperty]
     multipleProp.toJson() shouldBe JObject()
   }

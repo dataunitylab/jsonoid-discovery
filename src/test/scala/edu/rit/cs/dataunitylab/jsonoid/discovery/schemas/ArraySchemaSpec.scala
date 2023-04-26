@@ -15,7 +15,13 @@ class ArraySchemaSpec extends UnitSpec {
     ArraySchema(List(itemType)).properties.mergeValue(List(itemType, itemType))
   )
   private val schemaList = List(IntegerSchema(0), BooleanSchema())
-  private val tupleSchema = ArraySchema.tuple(schemaList)
+  private val tupleSchema = {
+    // This is necessary to ensure we show an observed
+    // count of greater than one and actually generate
+    // a tuple schema.
+    val schema = ArraySchema.tuple(schemaList)
+    schema.merge(schema).asInstanceOf[ArraySchema]
+  }
 
   behavior of "MinItemsProperty"
 
@@ -91,14 +97,14 @@ class ArraySchemaSpec extends UnitSpec {
   behavior of "ArraySchema"
 
   it should "track item schemas" in {
-    arraySchema.properties should contain(ItemTypeProperty(Left(itemType)))
+    arraySchema.properties should contain(ItemTypeProperty(Left(itemType), 2))
   }
 
   it should "track tuple schemas" in {
     val tupleItemSchemas = List(NullSchema(), BooleanSchema())
     val tupleSchema =
       ArraySchema(tupleItemSchemas).properties.mergeValue(tupleItemSchemas)
-    tupleSchema should contain(ItemTypeProperty(Right(tupleItemSchemas)))
+    tupleSchema should contain(ItemTypeProperty(Right(tupleItemSchemas), 2))
   }
 
   it should "be able to find subschemas by pointer" in {
@@ -172,8 +178,8 @@ class ArraySchemaSpec extends UnitSpec {
     val arraySchema = ArraySchema(List(tupleSchema)).merge(
       ArraySchema(List(tupleSchema, tupleSchema))
     )
-    val refSchema = arraySchema.replaceWithReference("/*/0", "foo")
-    (refSchema.toJson() \ "items" \ "items")(0)
+    val refSchema = arraySchema.replaceWithReference("/*", "foo")
+    (refSchema.toJson() \ "items")
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 

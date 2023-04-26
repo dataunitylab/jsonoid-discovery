@@ -25,7 +25,7 @@ object ArraySchema {
       value: JsonSchema[_]
   )(implicit p: JsonoidParams): ArraySchema = {
     val newProps = apply(List(value)).properties
-      .replaceProperty(ItemTypeProperty(Left(value)))
+      .replaceProperty(ItemTypeProperty(Left(value), 1))
     ArraySchema(newProps)
   }
 
@@ -33,7 +33,7 @@ object ArraySchema {
       value: List[JsonSchema[_]]
   )(implicit p: JsonoidParams): ArraySchema = {
     val newProps =
-      apply(value).properties.replaceProperty(ItemTypeProperty(Right(value)))
+      apply(value).properties.replaceProperty(ItemTypeProperty(Right(value), 1))
     ArraySchema(newProps)
   }
 
@@ -193,8 +193,8 @@ final case class ArraySchema(
       pointer: String,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
-    val itemTypes = properties.get[ItemTypeProperty].itemType
-    itemTypes match {
+    val itemTypeProp = properties.get[ItemTypeProperty]
+    itemTypeProp.itemType match {
       case Left(schema) =>
         // XXX The * is not real JSON Pointer syntax
         //     but allows us to work with array schemas
@@ -204,7 +204,8 @@ final case class ArraySchema(
             ItemTypeProperty(Left(replaceSchema))
           case Array(_, "*", rest) =>
             ItemTypeProperty(
-              Left(schema.replaceWithSchema("/" + rest, replaceSchema))
+              Left(schema.replaceWithSchema("/" + rest, replaceSchema)),
+              itemTypeProp.count
             )
           case _ =>
             throw new IllegalArgumentException("Invalid path for reference")
@@ -227,7 +228,7 @@ final case class ArraySchema(
             )
         }
 
-        val typeProp = ItemTypeProperty(Right(newSchemas))
+        val typeProp = ItemTypeProperty(Right(newSchemas), itemTypeProp.count)
         val newSchema = ArraySchema(this.properties.replaceProperty(typeProp))
         newSchema.definitions ++= this.definitions
         newSchema
@@ -241,7 +242,8 @@ final case class ArraySchema(
   * @param itemType either `Left` for a single item type or `Right` for a tuple schema with multiple types
   */
 final case class ItemTypeProperty(
-    itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema())
+    itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema()),
+    count: Int = 0
 ) extends SchemaProperty[List[JsonSchema[_]]] {
   override type S = ItemTypeProperty
 
@@ -252,7 +254,12 @@ final case class ItemTypeProperty(
     case Left(schema) => ("items" -> schema.toJson())
     case Right(schemas) =>
       if (schemas.nonEmpty) {
-        ("items" -> JArray(schemas.map(_.toJson()(p))))
+        if (count > 0) {
+          ("items" -> JArray(schemas.map(_.toJson()(p))))
+        } else {
+          val combinedSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+          ("items" -> combinedSchema.toJson())
+        }
       } else {
         Nil
       }
@@ -317,13 +324,13 @@ final case class ItemTypeProperty(
       case (Right(schema1), Left(schema2)) =>
         Left((schema2 :: schema1).fold(ZeroSchema())(_.merge(_, mergeType)))
     }
-    ItemTypeProperty(newType)
+    ItemTypeProperty(newType, count + otherProp.count)
   }
 
   override def mergeValue(
       value: List[JsonSchema[_]]
   )(implicit p: JsonoidParams): ItemTypeProperty = {
-    unionMerge(ItemTypeProperty(Right(value)))
+    unionMerge(ItemTypeProperty(Right(value), 1))
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
