@@ -103,17 +103,16 @@ trait SchemaWalker[T] {
             }
           case r: ReferenceSchema =>
             extractSingle(r, extractor, prefix) ++
-              (if (r.properties.has[ReferenceObjectProperty]) {
-                 val obj = r.properties.get[ReferenceObjectProperty].schema
-                 extractValues(
-                   schema,
-                   extractor,
-                   prefix,
-                   follow
-                 )
-               } else {
-                 Seq.empty
-               })
+              (r.properties.getOrNone[ReferenceObjectProperty] match {
+                case Some(objProp) =>
+                  extractValues(
+                    objProp.schema,
+                    extractor,
+                    prefix,
+                    follow
+                  )
+                case None => Seq.empty
+              })
           case x =>
             extractSingle(x, extractor, prefix)
         })
