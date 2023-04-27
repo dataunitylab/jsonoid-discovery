@@ -82,9 +82,9 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           // (reverse the values and find a prefix)
           // We also only take the part of the name after the last slash
           val lastParts =
-            cluster.map(_.split("/").reverse.dropWhile { x =>
+            cluster.flatMap(_.split("/").reverse.dropWhile { x =>
               x === "*" || (x forall Character.isDigit)
-            }.head)
+            }.headOption)
           var definition = if (lastParts.size > 1) {
             val afterUnderscore = lastParts.map(_.split("_").last)
             if (
@@ -95,7 +95,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
               s"defn${index.toString}"
             }
           } else {
-            lastParts.headOption.get
+            lastParts.headOption.getOrElse(s"defn${index.toString}")
           }
           //
           // Handle possible name collisions
