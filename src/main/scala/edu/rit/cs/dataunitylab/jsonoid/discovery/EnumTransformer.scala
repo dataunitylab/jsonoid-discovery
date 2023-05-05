@@ -3,6 +3,7 @@ package edu.rit.cs.dataunitylab.jsonoid.discovery
 import org.json4s._
 
 import schemas._
+import Helpers._
 
 object EnumTransformer {
   val EnumRatio: Int = 10
@@ -23,6 +24,23 @@ object EnumTransformer {
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     schema.transformPropertiesWithInexactPath(
       {
+        case (path, b: BooleanSchema)
+            if b.properties.has[BooleanPercentProperty] =>
+          val pctProp = b.properties.get[BooleanPercentProperty]
+          val totalCount = pctProp.totalTrue + pctProp.totalFalse
+          if (totalCount >= EnumTransformer.EnumRatio) {
+            if (pctProp.totalTrue === 0) {
+              val falseVal: JValue = JBool(false)
+              EnumSchema(Set(falseVal))
+            } else if (pctProp.totalFalse === 0) {
+              val trueVal: JValue = JBool(true)
+              EnumSchema(Set(trueVal))
+            } else {
+              b
+            }
+          } else {
+            b
+          }
         case (path, i: IntegerSchema)
             if i.properties.has[IntExamplesProperty] =>
           val examples = i.properties.get[IntExamplesProperty].examples

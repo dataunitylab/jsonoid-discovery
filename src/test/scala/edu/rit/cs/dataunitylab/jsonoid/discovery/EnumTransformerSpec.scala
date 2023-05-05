@@ -19,19 +19,21 @@ class EnumTransformerSpec extends UnitSpec {
   }
 
   def schemaWithOneValue[T](schema: JsonSchema[T], value: T): Unit = {
-    it should s"convert single examples to constants for ${schema.getClass.getSimpleName}" in {
+    it should s"convert single examples to constants for ${schema.getClass.getSimpleName} ${value}" in {
       var valueSchema = repeatedMerge(schema)
       val transformedSchema =
         EnumTransformer.transformSchema(ObjectSchema(Map(("foo", valueSchema))))
 
       (transformedSchema.toJson() \ "properties" \ "foo")
-        .extract[Map[String, String]] shouldBe Map(("const", value.toString))
+        .extract[Map[String, Any]] shouldBe Map(("const", value))
     }
   }
 
   schemaWithOneValue(IntegerSchema(1337), BigInt(1337))
   schemaWithOneValue(NumberSchema(3.14), BigDecimal(3.14))
   schemaWithOneValue(StringSchema("foo"), "foo")
+  schemaWithOneValue(BooleanSchema(true), true)
+  schemaWithOneValue(BooleanSchema(false), false)
 
   def schemaWithMultipleValues[T](
       schema: JsonSchema[T],
