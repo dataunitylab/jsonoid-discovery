@@ -13,6 +13,7 @@ import org.json4s.jackson.JsonMethods._
 
 import Helpers._
 import schemas._
+import transformers._
 
 /** Internal configuration object for the command line interface.
   */

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update to Scala 2.13
 - Move property set configuration to params object
 - Only generate tuple schemas on multiple observations
+- Move transformers to separate package
 
 ### Fixed
 - Allow schema replacement to replace the entire schema

@@ -1,4 +1,5 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
+package transformers
 
 import Helpers._
 import schemas._
