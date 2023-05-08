@@ -83,6 +83,7 @@ lazy val root = (project in file("."))
         fuzzySets,
         hyperLogLog,
         jsonSchemaValidator,
+        openLocationCode,
         scopt,
         scalaCsv,
         validator,

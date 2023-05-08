@@ -81,6 +81,7 @@ class StringSchemaSpec extends UnitSpec {
   schemaWithFormat("1991ASSL..171...89H", "bibcode")
   schemaWithFormat("1-56619-909-3", "isbn")
   schemaWithFormat("10.1093/ajae/aaq063", "doi")
+  schemaWithFormat("8FWC2345+G6", "plus-code")
 
   it should "not detect a format if most values match no format" in {
     var props = StringSchema().properties
