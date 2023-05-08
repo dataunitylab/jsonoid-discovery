@@ -480,7 +480,13 @@ object FormatProperty {
         "(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]".r
       )
     ),
-    ("plus-code", OpenLocationCode.isValidCode)
+    ("plus-code", OpenLocationCode.isValidCode),
+    (
+      "geo-uri",
+      regex(
+        "(?i)^geo:(-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?)(,(-?\\d+(\\.\\d+)?))?(;(.*))?$".r
+      )
+    )
   )
 }
 
@@ -551,12 +557,16 @@ final case class FormatProperty(
   override def mergeValue(
       value: String
   )(implicit p: JsonoidParams): FormatProperty = {
+    // Select which checkers to use. If chosen, we start with the
+    // extended checkers since some of them are more specific
+    // (e.g. "geo-uri" is a more specific format for "uri").
     val checkers =
-      FormatProperty.FormatCheckers.toSeq ++ (if (p.extendedFormats) {
-                                                FormatProperty.ExtendedFormatCheckers.toSeq
-                                              } else {
-                                                Seq.empty
-                                              })
+      (if (p.extendedFormats) {
+         FormatProperty.ExtendedFormatCheckers.toSeq
+       } else {
+         Seq.empty
+       }) ++ FormatProperty.FormatCheckers
+
     checkers.find { case (format, fn) =>
       fn(value)
     } match {
