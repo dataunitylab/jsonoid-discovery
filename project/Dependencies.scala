@@ -15,8 +15,8 @@ object Dependencies {
   lazy val openLocationCode    = "com.google.openlocationcode" % "openlocationcode"      % "1.0.4"
   lazy val scopt               = "com.github.scopt"           %% "scopt"                 % "4.1.0"
   lazy val scalaCsv            = "com.github.tototoshi"       %% "scala-csv"             % "1.3.10"
-  lazy val spark               = "org.apache.spark"           %% "spark-core"            % "3.3.2"
-  lazy val sparkSql            = "org.apache.spark"           %% "spark-sql"             % "3.3.2"
+  lazy val spark               = "org.apache.spark"           %% "spark-core"            % "3.4.0"
+  lazy val sparkSql            = "org.apache.spark"           %% "spark-sql"             % "3.4.0"
   lazy val validator           = "commons-validator"           % "commons-validator"     % "1.7"
 
   // Test
@@ -25,5 +25,5 @@ object Dependencies {
 
   // Overrides
   // XXX This is necessary for Spark version consistency
-  lazy val jacksonDatabind     = "com.fasterxml.jackson.core" %  "jackson-databind"       % "2.13.4.2"
+  lazy val jacksonDatabind     = "com.fasterxml.jackson.core" %  "jackson-databind"       % "2.14.3"
 }
