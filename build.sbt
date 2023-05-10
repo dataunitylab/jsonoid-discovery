@@ -96,6 +96,7 @@ lazy val root = (project in file("."))
     ),
     dependencyOverrides ++= Seq(
       jacksonDatabind,
+      protobuf,
     ),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions ++= nonConsoleCompilerOptions,
