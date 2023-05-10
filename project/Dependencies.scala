@@ -24,6 +24,8 @@ object Dependencies {
   lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.15"
 
   // Overrides
+  // XXX Bundled version is vulnerable to CVE-2018-10237
+  lazy val guava               = "com.google.guava"             % "guava"                 % "31.1-jre"
   // XXX This is necessary for Spark version consistency
   lazy val jacksonDatabind     = "com.fasterxml.jackson.core" %  "jackson-databind"       % "2.14.3"
   // XXX Version bundled with Spark is vulnerable to CVE-2022-3171
