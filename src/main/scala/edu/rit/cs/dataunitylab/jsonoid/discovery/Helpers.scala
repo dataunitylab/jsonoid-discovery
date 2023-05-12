@@ -352,7 +352,6 @@ object Helpers {
     }
   }
 
-  // scalastyle:off method.name
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit final class AnyOps[A](self: A) {
     def ===(other: A): Boolean = self == other
@@ -385,7 +384,6 @@ object Helpers {
   implicit final class BigDecimalOps(self: BigDecimal) {
     def ===(other: BigDecimal): Boolean = self == other
   }
-  // scalastyle:on method.name
 
   /** Find the greatest common divisor of two integers. */
   @tailrec
