@@ -88,6 +88,11 @@ JSONoid currently supports four equivalence relations (which can be specified us
 
 4. **TypeMatch** equivalence will combine object schemas if any keys that they have in common have the same type. Note that this equivalence is *shallow*, meaning that two values are considered the same type if they are both objects or arrays, without considering the contained types (similar to **kind** equivalence).
 
+## Reporting issues
+
+If you encounter any issues, please open an issue on the [GitHub repository](https://github.com/michaelmior/jsonoid-discovery).
+Any potential security vulnerabilities should be [reported privately](https://github.com/dataunitylab/jsonoid-discovery/security/advisories/new).
+
 ## Datasets
 
 * [GDP](http://api.worldbank.org/countries/USA/indicators/NY.GDP.MKTP.CD?per_page=5000&format=json)
