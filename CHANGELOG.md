@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Move property set configuration to params object
 - Only generate tuple schemas on multiple observations
 - Move transformers to separate package
+- Allow top-level schemas that aren't objects
 
 ### Fixed
 - Allow schema replacement to replace the entire schema

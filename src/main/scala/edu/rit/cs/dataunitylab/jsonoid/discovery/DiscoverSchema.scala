@@ -363,7 +363,7 @@ object DiscoverSchema {
           p = p.withFormatThreshold(config.formatThreshold.get)
         }
 
-        val (schema: ObjectSchema, testSchema: Option[ObjectSchema]) =
+        val (schema: JsonSchema[_], testSchema: Option[ObjectSchema]) =
           config.splitPercentage match {
             case Some(pct) =>
               val schemas = splitDiscover(jsons, pct)(p)
