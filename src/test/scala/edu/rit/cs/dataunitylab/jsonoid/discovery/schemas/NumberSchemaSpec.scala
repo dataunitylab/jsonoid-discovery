@@ -115,6 +115,12 @@ class NumberSchemaSpec extends UnitSpec {
     multipleProp.toJson() shouldBe JObject()
   }
 
+  it should "not crash with numbers of very different scales" in {
+    val p1 = NumMultipleOfProperty(Some(2.42E+244))
+    val p2 = NumMultipleOfProperty(Some(44221.0))
+    p1.unionMerge(p2).toJson() shouldBe JObject()
+  }
+
   it should "be compatible with the same multiple" in {
     NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
       NumMultipleOfProperty(Some(BigDecimal(3.0)))

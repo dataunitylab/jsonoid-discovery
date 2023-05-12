@@ -5,6 +5,7 @@ import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import java.util.Base64
 
 import scala.reflect._
+import scala.util.Try
 
 import scalaz._
 import org.json4s.JsonDSL._
@@ -623,7 +624,7 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
           // Any multiple of values this small is unlikely to be useful anyway.
           None
         } else {
-          Some(gcd(m, n))
+          Try(gcd(m, n)).toOption
         }
       case (None, None) => None
     }
