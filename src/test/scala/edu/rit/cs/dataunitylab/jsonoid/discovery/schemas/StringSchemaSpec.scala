@@ -117,6 +117,22 @@ class StringSchemaSpec extends UnitSpec {
       regexProp.unionMerge(regexProp)
   }
 
+  it should "should not consider matching values anomalous" in {
+    val regexProp = StaticPatternProperty("foo.*".r)
+    regexProp.isAnomalous(JString("barfoobaz")) shouldBe false
+  }
+
+  it should "should find an anomaly for a non-matching string" in {
+    val regexProp = StaticPatternProperty("foo.*".r)
+    regexProp.collectAnomalies(JString("bar")) shouldBe List(
+      Anomaly(
+        "$",
+        "value does not match the required regex",
+        AnomalyLevel.Fatal
+      )
+    )
+  }
+
   behavior of "PatternProperty"
 
   it should "should find common prefixes" in {

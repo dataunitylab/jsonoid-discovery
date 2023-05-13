@@ -788,7 +788,7 @@ final case class StaticPatternProperty(regex: Regex)
   ): Seq[Anomaly] = {
     value match {
       case JString(str) =>
-        if (regex.anchored.findFirstIn(str.trim).isEmpty) {
+        if (regex.findFirstIn(str.trim).isEmpty) {
           Seq(
             Anomaly(
               path,
