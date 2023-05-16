@@ -33,23 +33,26 @@ object StringSchema {
     implicit val formats: Formats = DefaultFormats
     val props = SchemaProperties.empty[String]
 
+    // Create a format property with the given format
     if ((str \ "format") =/= JNothing) {
       val format = (str \ "format").extract[String]
       props.add(FormatProperty(Map(format -> 1)))
     }
 
+    // Use a StaticPatternProperty to represent the pattern
     if ((str \ "pattern") =/= JNothing) {
       props.add(StaticPatternProperty((str \ "pattern").extract[String].r))
     }
 
+    // Handle minimum and maximum string length
     if ((str \ "minLength") =/= JNothing) {
       props.add(MinLengthProperty(Some((str \ "minLength").extract[Int])))
     }
-
     if ((str \ "maxLength") =/= JNothing) {
       props.add(MaxLengthProperty(Some((str \ "maxLength").extract[Int])))
     }
 
+    // Add string examples
     if (str.values.contains("examples")) {
       val examples = (str \ "examples").extract[List[String]]
       props.add(
@@ -57,6 +60,7 @@ object StringSchema {
       )
     }
 
+    // Deserialize the provided Bloom filter
     if (str.values.contains("bloomFilter")) {
       val bloomStr = (str \ "bloomFilter").extract[String]
       val bloomFilter = BloomFilter.deserialize[String](bloomStr)
@@ -150,8 +154,12 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
   override def newDefault()(implicit p: JsonoidParams): MinLengthProperty =
     MinLengthProperty()
 
-  override def toJson()(implicit p: JsonoidParams): JObject =
+  override def toJson()(implicit p: JsonoidParams): JObject = {
+    // Minimum length must be non-negative
+    assert(minLength.getOrElse(0) >= 0)
+
     ("minLength" -> minLength)
+  }
 
   override def intersectMerge(
       otherProp: MinLengthProperty
@@ -210,6 +218,10 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
       false,
       other.isEmpty
     )._1
+
+    // Expanded minimum cannot be larger
+    assert(newMin.getOrElse(0) <= minLength.getOrElse(0))
+
     MinLengthProperty(newMin)
   }
 }
@@ -285,8 +297,12 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
       other.flatMap(_.maxLength.map(BigInt(_))),
       false,
       other.isEmpty
-    )._1
-    MaxLengthProperty(newMax.map(_.toInt))
+    )._1.map(_.toInt)
+
+    // Expanded maximum cannot be smaller
+    assert(newMax.getOrElse(0) >= maxLength.getOrElse(0))
+
+    MaxLengthProperty(newMax)
   }
 }
 
@@ -516,6 +532,12 @@ final case class FormatProperty(
           total
         ) >= p.formatThreshold && maxFormat._1 =/= "none"
       ) {
+        // Format must be one of those listed in a checker
+        assert(
+          FormatProperty.FormatCheckers.contains(maxFormat._1) ||
+            FormatProperty.ExtendedFormatCheckers.contains(maxFormat._1)
+        )
+
         Some(maxFormat._1)
       } else {
         None
@@ -552,7 +574,17 @@ final case class FormatProperty(
   )(implicit p: JsonoidParams): FormatProperty = {
     val merged = formats.toSeq ++ otherProp.formats.toSeq
     val grouped = merged.groupBy(_._1)
-    FormatProperty(grouped.view.mapValues(_.map(_._2).sum).map(identity).toMap)
+    val newFormat = FormatProperty(
+      grouped.view.mapValues(_.map(_._2).sum).map(identity).toMap
+    )
+
+    // If we have a format, it must be one of the two
+    assert(
+      maxFormat().isEmpty || List(maxFormat(), otherProp.maxFormat())
+        .contains(newFormat.maxFormat())
+    )
+
+    newFormat
   }
 
   override def mergeValue(
@@ -757,6 +789,9 @@ final case class PatternProperty(
   */
 final case class StaticPatternProperty(regex: Regex)
     extends SchemaProperty[String] {
+  // Regexes must be non-empty
+  assert(regex.toString.nonEmpty)
+
   override type S = StaticPatternProperty
 
   override def newDefault()(implicit p: JsonoidParams): StaticPatternProperty =

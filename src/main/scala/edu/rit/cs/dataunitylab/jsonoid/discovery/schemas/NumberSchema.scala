@@ -278,7 +278,14 @@ final case class MinNumValueProperty(
       exclusive,
       other.isEmpty
     )
-    MinNumValueProperty(newMin.map(BigDecimal(_)), newExclusive)
+    val newMinNum = newMin.map(BigDecimal(_))
+
+    // Expanded minimum cannot be larger
+    assert(
+      newMinNum.getOrElse(BigDecimal(0)) <= minNumValue.getOrElse(BigDecimal(0))
+    )
+
+    MinNumValueProperty(newMinNum, newExclusive)
   }
 }
 
@@ -378,7 +385,7 @@ final case class MaxNumValueProperty(
       other: MaxNumValueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMinCoveredBy(
+    Helpers.isMaxCoveredBy(
       maxNumValue,
       exclusive,
       other.maxNumValue,
@@ -401,7 +408,14 @@ final case class MaxNumValueProperty(
       exclusive,
       other.isEmpty
     )
-    MaxNumValueProperty(newMax.map(BigDecimal(_)), newExclusive)
+    val newMaxNum = newMax.map(BigDecimal(_))
+
+    // Expanded maximum cannot be smaller
+    assert(
+      newMaxNum.getOrElse(BigDecimal(0)) >= maxNumValue.getOrElse(BigDecimal(0))
+    )
+
+    MaxNumValueProperty(newMaxNum, newExclusive)
   }
 }
 
@@ -588,9 +602,14 @@ final case class NumExamplesProperty(
   }
 }
 
-final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
-    extends SchemaProperty[BigDecimal] {
+final case class NumMultipleOfProperty(
+    multiple: Option[BigDecimal] = None,
+    tiny: Boolean = false
+) extends SchemaProperty[BigDecimal] {
   override type S = NumMultipleOfProperty
+
+  // If there is a multiple defined, we can't have the tiny flag set
+  assert(!(multiple.isDefined && tiny))
 
   override def newDefault()(implicit p: JsonoidParams): NumMultipleOfProperty =
     NumMultipleOfProperty()
@@ -604,38 +623,41 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
   override def intersectMerge(
       otherProp: NumMultipleOfProperty
   )(implicit p: JsonoidParams): NumMultipleOfProperty = {
-    val newMultiple = (multiple, otherProp.multiple) match {
-      case (Some(m), None)    => Some(m)
-      case (None, Some(n))    => Some(n)
-      case (Some(m), Some(n)) => Some(lcm(m, n))
-      case (None, None)       => None
+    val (newMultiple, newTiny) = (multiple, otherProp.multiple) match {
+      case (Some(m), None) if !otherProp.tiny => (Some(m), false)
+      case (None, Some(n)) if !tiny           => (Some(n), false)
+      case (Some(m), Some(n))                 => (Some(lcm(m, n)), false)
+      case (_, _)                             => (None, tiny || otherProp.tiny)
     }
-    NumMultipleOfProperty(newMultiple)
+    NumMultipleOfProperty(newMultiple, newTiny)
   }
 
   override def unionMerge(
       otherProp: NumMultipleOfProperty
   )(implicit p: JsonoidParams): NumMultipleOfProperty = {
-    val newMultiple = (multiple, otherProp.multiple) match {
-      case (Some(m), None) => Some(m)
-      case (None, Some(n)) => Some(n)
+    val (newMultiple, newTiny) = (multiple, otherProp.multiple) match {
+      case (Some(m), None) if !otherProp.tiny => (Some(m), false)
+      case (None, Some(n)) if !tiny           => (Some(n), false)
       case (Some(m), Some(n)) =>
-        if (m.abs < 1e-10 || n.abs < 1e-10) {
-          // This avoids divide by zero errors when calculating the GCD.
-          // Any multiple of values this small is unlikely to be useful anyway.
-          None
-        } else {
-          Try(gcd(m, n)).toOption
+        Try(gcd(m, n)).toOption match {
+          // Avoid tracking very small multiples
+          case Some(value) if value < 1e-10 => (None, true)
+          case _ @other                     => (other, false)
         }
-      case (None, None) => None
+      case (_, _) => (None, tiny || otherProp.tiny)
     }
-    NumMultipleOfProperty(newMultiple)
+
+    NumMultipleOfProperty(newMultiple, newTiny)
   }
 
   override def mergeValue(
       value: BigDecimal
   )(implicit p: JsonoidParams): NumMultipleOfProperty = {
-    unionMerge(NumMultipleOfProperty(Some(value)))
+    if (value.abs < 1e-10) {
+      NumMultipleOfProperty(None, true)
+    } else {
+      unionMerge(NumMultipleOfProperty(Some(value)))
+    }
   }
 
   @SuppressWarnings(
@@ -645,8 +667,9 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
       other: NumMultipleOfProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    if (other.multiple.isEmpty) {
-      // If the other schema has no multiple, then compatible
+    if (other.multiple.isEmpty || tiny) {
+      // If the other schema has no multiple, or the tiny flag
+      // is set, then we consider these to be compatible
       true
     } else if (multiple.isEmpty) {
       // If the other schema has a multiple and we don't, not compatible
@@ -674,6 +697,9 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
             oldMult / 2
           }
           .find(otherMult % _ == 0)
+
+        // New multiple must not be larger if it exists
+        assert(newMult.getOrElse(BigDecimal(0)) <= mult)
 
         NumMultipleOfProperty(newMult)
       case (_, None) => NumMultipleOfProperty(None)

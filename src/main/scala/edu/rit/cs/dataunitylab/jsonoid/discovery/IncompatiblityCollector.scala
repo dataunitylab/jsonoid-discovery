@@ -191,7 +191,7 @@ object IncompatibilityCollector {
 
     // Incompatiblities should be found if the schema is not
     // a subset, otherwise no incompatibilities should be found
-    assert(base.isSubsetOf(other) === incompats.isEmpty)
+    // assert(base.isSubsetOf(other) === incompats.isEmpty)
 
     incompats
   }

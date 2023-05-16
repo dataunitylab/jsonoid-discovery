@@ -19,6 +19,6 @@ class TypeDetectorSpec extends UnitSpec {
   }
 
   it should "detect a string type" in {
-    TypeDetector.detectType(Map("format" -> "url")) shouldBe Some("string")
+    TypeDetector.detectType(Map("format" -> "uri")) shouldBe Some("string")
   }
 }

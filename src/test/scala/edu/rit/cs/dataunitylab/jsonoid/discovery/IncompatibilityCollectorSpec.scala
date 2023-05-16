@@ -10,7 +10,7 @@ class IncompatibilityCollectorSpec extends UnitSpec {
   val schema1 = IntegerSchema(3)
   val schema2 = IntegerSchema(0)
 
-  it should "find no incompaitiblities between a schema and itself" in {
+  it should "find no incompatiblities between a schema and itself" in {
     IncompatibilityCollector.findIncompatibilities(
       schema1,
       schema1
@@ -57,11 +57,11 @@ class IncompatibilityCollectorSpec extends UnitSpec {
     val tupleSchema2 = ArraySchema.tuple(schemaList2)
 
     IncompatibilityCollector.findIncompatibilities(
-      tupleSchema2,
-      tupleSchema1
+      tupleSchema1,
+      tupleSchema2
     ) should contain theSameElementsAs List(
       Incompatibility("$", ClassTag(classOf[ItemTypeProperty])),
-      Incompatibility("$", ClassTag(classOf[MaxItemsProperty]))
+      Incompatibility("$", ClassTag(classOf[MinItemsProperty]))
     )
   }
 

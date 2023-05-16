@@ -24,7 +24,12 @@ final case class SimilarityMetric(val fuzzySets: Map[String, FuzzySet[String]])
     */
   def calculateDistance(path1: String, path2: String): Double = {
     // Look up the set based on path, calculate similarity, and invert it
-    1.0 - fuzzySets(path1).similarity(fuzzySets(path2))
+    val dist = 1.0 - fuzzySets(path1).similarity(fuzzySets(path2))
+
+    // Distance must be non-negative
+    assert(dist >= 0)
+
+    dist
   }
 }
 
@@ -39,6 +44,9 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     * @return the JSON Pointer
     */
   def pathToPointer(path: String): String = {
+    // Path must not be empty
+    assert(path.nonEmpty)
+
     path.substring(1).replace(".", "/").replaceAll("""\[(.+?)\]""", "/$1")
   }
 
@@ -98,7 +106,10 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           } else {
             lastParts.headOption.getOrElse(s"defn${index.toString}")
           }
-          //
+
+          // The definition name must not be empty
+          assert(definition.nonEmpty)
+
           // Handle possible name collisions
           while (definitions.contains(definition)) {
             definition += "_"

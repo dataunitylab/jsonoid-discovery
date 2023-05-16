@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Detect numeric strings and treat as numeric
 - Added extended format checkers
 - Apply `EnumTransformer` to constant Booleans
+- Add test time assertions
 
 ### Changed
 - Increase length penalty for primary key detection

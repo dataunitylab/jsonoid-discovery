@@ -170,6 +170,18 @@ final case class IntegerSchema(
 
     NumberSchema(props)
   }
+
+  override def isSubsetOf(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    // Number schemas may be compatible with number schemas so try conversion
+    if (other.isInstanceOf[NumberSchema]) {
+      this.asNumberSchema.isSubsetOf(other, recursive)(p)
+    } else {
+      super.isSubsetOf(other, recursive)(p)
+    }
+  }
 }
 
 /** Tracks the minimum value of all integers.
@@ -649,6 +661,9 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
             }
           }
           .find(m => m == 0 || (m != 1 && otherMult % m === 0))
+
+        // New multiple must not be larger if it exists
+        assert(BigInt(newMult.getOrElse(0)) <= mult)
 
         newMult match {
           case Some(0) => IntMultipleOfProperty(None)

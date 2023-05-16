@@ -25,8 +25,13 @@ final case class Histogram(
 ) {
 
   private def zeroCount: Int = {
-    (sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
+    val zeros = (sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
       sketch.getPositiveValueStore.getTotalCount)).toInt
+
+    // There must be a non-negative number of zero values
+    assert(zeros >= 0)
+
+    zeros
   }
 
   /** Produce bins for the histogram.
@@ -61,6 +66,9 @@ final case class Histogram(
       bin: Bin =>
         bins += ((indexMapping.value(bin.getIndex), bin.getCount.toInt))
     }
+
+    // The bins must be in ascending order
+    assert(bins.map(_._1).sorted === bins.map(_._1))
 
     bins.toList
   }
@@ -133,6 +141,9 @@ final case class Histogram(
     } else {
       0
     }
+
+    // Maximum value must not be less than the minimum
+    assert(maxValue >= minValue)
 
     value < minValue || value > maxValue
   }

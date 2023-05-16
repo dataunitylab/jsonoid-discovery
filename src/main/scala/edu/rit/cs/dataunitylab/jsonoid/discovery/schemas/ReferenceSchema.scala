@@ -11,6 +11,9 @@ object ReferenceSchema {
       reference: String,
       obj: Option[JsonSchema[_]] = None
   ): ReferenceSchema = {
+    // Reference must not be empty
+    assert(reference.nonEmpty)
+
     val props = SchemaProperties.empty[String]
     props.add(ReferencePathProperty(reference))
 
@@ -68,6 +71,9 @@ final case class ReferenceSchema(
   */
 final case class ReferencePathProperty(path: String)
     extends SchemaProperty[String] {
+  // Path must not be empty
+  assert(path.nonEmpty)
+
   override type S = ReferencePathProperty
 
   override def newDefault()(implicit p: JsonoidParams): ReferencePathProperty =

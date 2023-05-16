@@ -89,6 +89,9 @@ final case class StatsProperty(
 
     val newm2 = m2 + other.m2 + delta2 * totalND * otherTotalND / newTotalND
 
+    // Second moment must be non-negative
+    assert(newm2 >= 0)
+
     val newm3 =
       m3 + other.m3 + delta3 * totalND * otherTotalND * (totalND - otherTotalND) /
         (newTotalND * newTotalND) + 3.0 * delta *

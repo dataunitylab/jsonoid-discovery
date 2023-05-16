@@ -98,13 +98,13 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "not expand for compatible formats" in {
-    FormatProperty(Map("url" -> 100))
-      .expandTo(Some(FormatProperty(Map("url" -> 10))))
-      .maxFormat() shouldBe Some("url")
+    FormatProperty(Map("uri" -> 100))
+      .expandTo(Some(FormatProperty(Map("uri" -> 10))))
+      .maxFormat() shouldBe Some("uri")
   }
 
   it should "expand to remove formats if needed" in {
-    FormatProperty(Map("url" -> 100))
+    FormatProperty(Map("uri" -> 100))
       .expandTo(Some(FormatProperty(Map("email" -> 10))))
       .maxFormat() shouldBe None
   }

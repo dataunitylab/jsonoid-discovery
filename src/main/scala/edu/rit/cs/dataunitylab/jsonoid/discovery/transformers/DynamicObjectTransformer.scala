@@ -32,6 +32,9 @@ object DynamicObjectTransformer extends SchemaWalker[ObjectSchema] {
           -prob * scala.math.log(prob)
         }.sum
 
+        // Entropy must be non-negative
+        assert(entropy >= 0.0)
+
         // Keep all objects with the same type and key entropy > 1
         sameType && entropy > 1.0
     }

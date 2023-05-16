@@ -304,7 +304,14 @@ final case class ItemTypeProperty(
       case (Right(schema1), Right(schema2)) =>
         if (schema1.length == schema2.length) {
           // Merge tuple schemas that are the same length
-          Right((schema1 zip schema2).map(_.fold(_.merge(_, mergeType))))
+          val newSchemas =
+            (schema1 zip schema2).map(_.fold(_.merge(_, mergeType)))
+
+          // Check that the new schemas are compatible with the old
+          assert((schema1 zip newSchemas).forall(s => s._1.isSubsetOf(s._2)))
+          assert((schema2 zip newSchemas).forall(s => s._1.isSubsetOf(s._2)))
+
+          Right(newSchemas)
         } else {
           // Tuple schemas are different length, so convert to list
           Left((schema1 ++ schema2).fold(ZeroSchema())(_.merge(_, mergeType)))
@@ -312,6 +319,12 @@ final case class ItemTypeProperty(
 
       // Merge two list schemas
       case (Left(schema1), Left(schema2)) =>
+        val newSchema = schema1.merge(schema2, mergeType)
+
+        // The new schema must be compatible with the originals
+        assert(schema1.isSubsetOf(newSchema))
+        assert(schema2.isSubsetOf(newSchema))
+
         Left(schema1.merge(schema2, mergeType))
 
       // When merging with ZeroSchema, stay as a tuple
@@ -320,9 +333,23 @@ final case class ItemTypeProperty(
 
       // Otherwise, when merging a list and tuple schema, convert to list
       case (Left(schema1), Right(schema2)) =>
-        Left((schema1 :: schema2).fold(ZeroSchema())(_.merge(_, mergeType)))
+        val newSchema =
+          (schema1 :: schema2).fold(ZeroSchema())(_.merge(_, mergeType))
+
+        // The new schema must be compatible with the originals
+        assert(schema1.isSubsetOf(newSchema))
+        assert(schema2.forall(_.isSubsetOf(newSchema)))
+
+        Left(newSchema)
       case (Right(schema1), Left(schema2)) =>
-        Left((schema2 :: schema1).fold(ZeroSchema())(_.merge(_, mergeType)))
+        val newSchema =
+          (schema2 :: schema1).fold(ZeroSchema())(_.merge(_, mergeType))
+
+        // The new schema must be compatible with the originals
+        assert(schema1.forall(_.isSubsetOf(newSchema)))
+        assert(schema2.isSubsetOf(newSchema))
+
+        Left(newSchema)
     }
     ItemTypeProperty(newType, count + otherProp.count)
   }

@@ -9,6 +9,9 @@ import Scalaz._
   */
 object Helpers {
   def pathToInexactPointer(path: String): String = {
+    // Path must not be empty
+    assert(path.nonEmpty)
+
     // Change dots to slashses and remove any array accesses
     path.substring(1).replace(".", "/").replaceAll("\\[[^]+]\\]", "")
   }
@@ -62,6 +65,9 @@ object Helpers {
       force: Boolean = false,
       round: Int
   ): (Option[BigInt], Boolean) = {
+    // If we got here, we must not have exceeded the max number of rounds
+    assert(round <= MaxExpandRounds)
+
     if (current < 0) {
       // TODO We can probably make better choices for negative values
       maybeExpandInt(Some(0), Some(limit), exclusive, force, round + 1)
@@ -157,6 +163,9 @@ object Helpers {
       force: Boolean,
       round: Int
   ): (Option[Int], Boolean) = {
+    // If we got here, we must not have exceeded the max number of rounds
+    assert(round <= MaxExpandRounds)
+
     if (current < 0) {
       // TODO We can probably make better choices for negative values
       maybeContractInt(Some(0), Some(limit), exclusive, force, round + 1)
@@ -334,11 +343,16 @@ object Helpers {
   /** Find a possible common prefix of two strings. */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def findCommonPrefix(str1: String, str2: String): String = {
-    str1.toList
+    val prefix = str1.toList
       .zip(str2.toList)
       .takeWhile((s: Tuple2[Char, Char]) => s._1 == s._2)
       .map(_._1)
       .mkString
+
+    // Each string must start with the prefix
+    assert(str1.startsWith(prefix) && str2.startsWith(prefix))
+
+    prefix
   }
 
   def findCommonPrefix(

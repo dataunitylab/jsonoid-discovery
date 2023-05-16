@@ -212,25 +212,23 @@ class ObjectSchemaSpec extends UnitSpec {
   }
 
   it should "show an object with a subset of optional properties as compatible" in {
-    objectSchema.isSubsetOf(ObjectSchema(singleType)) shouldBe true
+    ObjectSchema(singleType).isSubsetOf(objectSchema) shouldBe true
   }
 
   it should "show an object with a superset of properties as compatible if additionalProperties is true" in {
     val p: JsonoidParams =
       JsonoidParams.defaultJsonoidParams.withAdditionalProperties(true)
-    ObjectSchema(singleType)(p).isSubsetOf(
-      objectSchema
-    )(p) shouldBe true
+    objectSchema.isSubsetOf(ObjectSchema(singleType)(p))(p) shouldBe true
   }
 
   it should "show an object with a superset of properties as compatible if additionalProperties is false" in {
-    ObjectSchema(singleType).isSubsetOf(objectSchema) shouldBe false
+    objectSchema.isSubsetOf(ObjectSchema(singleType)) shouldBe false
   }
 
   it should "expand to add new keys" in {
     val schema =
       ObjectSchema(Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema()))
-    objectSchema.expandTo(Some(schema)).isSubsetOf(schema) shouldBe true
+    schema.isSubsetOf(objectSchema.expandTo(Some(schema))) shouldBe true
   }
 
   it should "expand to combine types in the same key" in {

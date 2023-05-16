@@ -356,8 +356,8 @@ final case class ObjectTypesProperty(
         case None => true
       }
     )
-    val newPropsCompatible = p.additionalProperties || other.objectTypes.keySet
-      .subsetOf(objectTypes.keySet)
+    val newPropsCompatible = p.additionalProperties || objectTypes.keySet
+      .subsetOf(other.objectTypes.keySet)
 
     overlapCompatible && newPropsCompatible
   }
@@ -616,8 +616,8 @@ final case class RequiredProperty(
       other: RequiredProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    // Compatible if we have the same or fewer required properties
-    required.getOrElse(Set()).subsetOf(other.required.getOrElse(Set()))
+    // Compatible if the other has the same or fewer required properties
+    other.required.getOrElse(Set()).subsetOf(required.getOrElse(Set()))
   }
 
   override def expandTo(other: Option[RequiredProperty]): RequiredProperty = {
@@ -976,7 +976,7 @@ final case class AdditionalPropertiesProperty(
       other: AdditionalPropertiesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    allowAdditional() || !other.allowAdditional()
+    other.allowAdditional() || !allowAdditional()
   }
 
   override def expandTo(

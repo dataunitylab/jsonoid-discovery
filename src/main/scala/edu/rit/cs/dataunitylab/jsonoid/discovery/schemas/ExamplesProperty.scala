@@ -73,6 +73,9 @@ final case class ExamplesProperty[T](
       examples
     }
 
+    // We must not have fewer examples
+    assert(newExamples.length >= examples.length)
+
     ExamplesProperty[T](
       newExamples,
       totalExamples + 1,
@@ -119,6 +122,9 @@ final case class ExamplesProperty[T](
         newExamples.append(other.examples(bIndexes.remove(0) - 1))
       }
     }
+
+    // We cannot have more examples than both combined
+    assert(newExamples.length <= (examples.length + other.examples.length))
 
     ExamplesProperty(
       newExamples.toList.distinct,

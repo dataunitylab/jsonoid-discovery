@@ -2,6 +2,7 @@ package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
 import scala.collection.mutable
+import scala.language.existentials
 import scala.reflect._
 
 import org.json4s.JsonDSL._
@@ -227,14 +228,12 @@ trait JsonSchema[T] {
   /** The set of valid types that can be contained in this schema. */
   def validTypes: Set[Class[_]]
 
-  /**
-    */
+  /** Whether a given value is a valid type for this schema. */
   def isValidType[S <: JValue](value: S): Boolean = {
     validTypes.contains(value.getClass)
   }
 
-  /**
-    */
+  /** Merge two schemas which are of the same basic type. */
   def mergeSameType(mergeType: MergeType = Union)(implicit
       p: JsonoidParams
   ): PartialFunction[JsonSchema[_], JsonSchema[_]]
@@ -256,7 +255,7 @@ trait JsonSchema[T] {
     * @param other the schema to merge with
     * @param mergeType the type of merge to perform
     *
-    * @return the merged schema:w
+    * @return the merged schema
     */
   @SuppressWarnings(
     Array(
@@ -283,6 +282,13 @@ trait JsonSchema[T] {
 
       newSchema.definitions ++= this.definitions
       newSchema.definitions ++= other.definitions
+
+      // We must be one of the original types or a ProductSchema
+      assert(
+        List(schemaType, other.schemaType).contains(
+          newSchema.schemaType
+        ) || newSchema.isInstanceOf[ProductSchema]
+      )
 
       newSchema
     }
@@ -512,9 +518,15 @@ trait JsonSchema[T] {
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    other.isInstanceOf[AnySchema] ||
-    (schemaType == other.schemaType &&
-      properties.isSubsetOf(other.properties, recursive)(p))
+    val (schema1, schema2) = (this, other) match {
+      case (s1: NumberSchema, s2: IntegerSchema) => (s1, s2.asNumberSchema)
+      case (s1: IntegerSchema, s2: NumberSchema) => (s1.asNumberSchema, s2)
+      case (s1, s2)                              => (s1, s2)
+    }
+
+    schema2.isInstanceOf[AnySchema] ||
+    (schema1.schemaType == schema2.schemaType &&
+      schema1.properties.isSubsetOf(schema2.properties, recursive)(p))
   }
 
   /** Expand this schema to be compatible with another schema if possible.
