@@ -26,11 +26,11 @@ class EnumSchemaSpec extends UnitSpec {
     )
   }
 
-  it should "be compatible with a smaller enum" in {
-    enumSchema.isCompatibleWith(smallEnumSchema) shouldBe true
+  it should "not be compatible with a smaller enum" in {
+    enumSchema.isSubsetOf(smallEnumSchema) shouldBe false
   }
 
-  it should "not be compatible with a larger enum" in {
-    enumSchema.isCompatibleWith(bigEnumSchema) shouldBe false
+  it should "be compatible with a larger enum" in {
+    enumSchema.isSubsetOf(bigEnumSchema) shouldBe true
   }
 }

@@ -397,7 +397,7 @@ object DiscoverSchema {
                 )
               }
 
-              if (!finalSchema.isCompatibleWith(testSchema)) {
+              if (!finalSchema.isSubsetOf(testSchema)) {
                 val incompats = IncompatibilityCollector.findIncompatibilities(
                   finalSchema,
                   testSchema

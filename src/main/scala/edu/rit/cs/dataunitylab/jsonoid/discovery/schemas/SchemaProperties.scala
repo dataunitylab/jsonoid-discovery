@@ -140,7 +140,7 @@ final case class SchemaProperties[T](
         val prop = properties(tag)
         if (other.properties.contains(otherTag)) {
           !prop
-            .isCompatibleWith(
+            .isSubsetOf(
               other.properties(otherTag).asInstanceOf[prop.S],
               recursive
             )(p)
@@ -151,14 +151,14 @@ final case class SchemaProperties[T](
       .toSeq
   }
 
-  def isCompatibleWith[S](
+  def isSubsetOf[S](
       other: SchemaProperties[S],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     properties.forall { case (tag, prop) =>
       val otherTag = tag.asInstanceOf[PropertyTag[S]]
       if (other.properties.contains(otherTag)) {
-        prop.isCompatibleWith(
+        prop.isSubsetOf(
           other.properties(otherTag).asInstanceOf[prop.S],
           recursive
         )(p)
@@ -176,7 +176,7 @@ final case class SchemaProperties[T](
       val prop = properties(tag)
       val otherTag = tag.asInstanceOf[PropertyTag[S]]
       if (other.properties.contains(otherTag)) {
-        !prop.isCompatibleWith(
+        !prop.isSubsetOf(
           other.properties(otherTag).asInstanceOf[prop.S],
           recursive
         )(p)

@@ -35,8 +35,8 @@ final case class AnySchema(
     newSchema
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
-  )(implicit p: JsonoidParams): Boolean = true
+  )(implicit p: JsonoidParams): Boolean = false
 }

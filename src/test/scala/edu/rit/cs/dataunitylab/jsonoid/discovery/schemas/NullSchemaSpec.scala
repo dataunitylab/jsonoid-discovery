@@ -17,11 +17,11 @@ class NullSchemaSpec extends UnitSpec {
   }
 
   it should "not be compatible with other schemas" in {
-    nullSchema.isCompatibleWith(StringSchema("foo")) shouldBe false
+    nullSchema.isSubsetOf(StringSchema("foo")) shouldBe false
   }
 
   it should "should be compatible with another null schema" in {
-    nullSchema.isCompatibleWith(nullSchema) shouldBe true
+    nullSchema.isSubsetOf(nullSchema) shouldBe true
   }
 
   it should "should have only Info-level anomalies with non-null values" in {

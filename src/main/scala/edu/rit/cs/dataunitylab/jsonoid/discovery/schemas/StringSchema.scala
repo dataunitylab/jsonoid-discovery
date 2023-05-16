@@ -66,7 +66,7 @@ object StringSchema {
     StringSchema(props)
   }
 
-  val AllProperties: SchemaProperties[String] = {
+  lazy val AllProperties: SchemaProperties[String] = {
     val props = SchemaProperties.empty[String]
     props.add(MinLengthProperty())
     props.add(MaxLengthProperty())
@@ -80,11 +80,11 @@ object StringSchema {
     props
   }
 
-  val MinProperties: SchemaProperties[String] = {
+  lazy val MinProperties: SchemaProperties[String] = {
     SchemaProperties.empty[String]
   }
 
-  val SimpleProperties: SchemaProperties[String] = {
+  lazy val SimpleProperties: SchemaProperties[String] = {
     val props = SchemaProperties.empty[String]
     props.add(MinLengthProperty())
     props.add(MaxLengthProperty())
@@ -196,11 +196,11 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MinLengthProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMinCompatibleWith(minLength, false, other.minLength, false)
+    Helpers.isMinCoveredBy(minLength, false, other.minLength, false)
   }
 
   override def expandTo(other: Option[MinLengthProperty]): MinLengthProperty = {
@@ -271,11 +271,12 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
       case _ => Seq.empty
     }
   }
-  override def isCompatibleWith(
+
+  override def isSubsetOf(
       other: MaxLengthProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMaxCompatibleWith(maxLength, false, other.maxLength, false)
+    Helpers.isMaxCoveredBy(maxLength, false, other.maxLength, false)
   }
 
   override def expandTo(other: Option[MaxLengthProperty]): MaxLengthProperty = {
@@ -575,15 +576,15 @@ final case class FormatProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: FormatProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    // Ignore minimum examples for the other schema since we have
-    // not received enough evidence yet to pick the correct format,
+    // Ignore minimum examples for this schema since we may not have
+    // received enough evidence yet to pick the correct format,
     // but these schemas should still be considered compatible
-    val thisFormat = maxFormat()
-    thisFormat.isEmpty || thisFormat === other.maxFormat(false)
+    val otherFormat = other.maxFormat()
+    otherFormat.isEmpty || maxFormat(false) === otherFormat
   }
 
   override def expandTo(other: Option[FormatProperty]): FormatProperty = {
@@ -723,13 +724,13 @@ final case class PatternProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: PatternProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    if (isValidPattern) {
-      other.prefix.getOrElse("").startsWith(prefix.getOrElse("")) &&
-      other.suffix.getOrElse("").endsWith(suffix.getOrElse(""))
+    if (other.isValidPattern) {
+      prefix.getOrElse("").startsWith(other.prefix.getOrElse("")) &&
+      suffix.getOrElse("").endsWith(other.suffix.getOrElse(""))
     } else {
       true
     }
@@ -738,7 +739,7 @@ final case class PatternProperty(
   override def expandTo(other: Option[PatternProperty]): PatternProperty = {
     other match {
       case Some(otherProp) =>
-        if (isCompatibleWith(otherProp)) {
+        if (otherProp.isSubsetOf(this)) {
           this
         } else {
           // TODO Work on heuristics for expansion
@@ -803,7 +804,7 @@ final case class StaticPatternProperty(regex: Regex)
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: StaticPatternProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {

@@ -116,39 +116,39 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "not crash with numbers of very different scales" in {
-    val p1 = NumMultipleOfProperty(Some(2.42E+244))
+    val p1 = NumMultipleOfProperty(Some(2.42e+244))
     val p2 = NumMultipleOfProperty(Some(44221.0))
     p1.unionMerge(p2).toJson() shouldBe JObject()
   }
 
   it should "be compatible with the same multiple" in {
-    NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
+    NumMultipleOfProperty(Some(BigDecimal(3.0))).isSubsetOf(
       NumMultipleOfProperty(Some(BigDecimal(3.0)))
     ) shouldBe true
   }
 
-  it should "be compatible with a larger multiple" in {
-    NumMultipleOfProperty(Some(BigDecimal(3.0))).isCompatibleWith(
+  it should "not be compatible with a larger multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(3.0))).isSubsetOf(
       NumMultipleOfProperty(Some(BigDecimal(6.0)))
-    ) shouldBe true
-  }
-
-  it should "not be compatible with a smaller multiple" in {
-    NumMultipleOfProperty(Some(BigDecimal(4.0))).isCompatibleWith(
-      NumMultipleOfProperty(Some(BigDecimal(2.0)))
     ) shouldBe false
   }
 
-  it should "be compatible if no multiple" in {
-    NumMultipleOfProperty(None).isCompatibleWith(
+  it should "be compatible with a smaller multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(4.0))).isSubsetOf(
       NumMultipleOfProperty(Some(BigDecimal(2.0)))
     ) shouldBe true
   }
 
-  it should "be compatible with a zero multiple" in {
-    NumMultipleOfProperty(Some(14.0)).isCompatibleWith(
-      NumMultipleOfProperty(Some(0.0))
+  it should "be compatible if no multiple" in {
+    NumMultipleOfProperty(Some(BigDecimal(2.0))).isSubsetOf(
+      NumMultipleOfProperty(None)
     ) shouldBe true
+  }
+
+  it should "not be compatible with a zero multiple" in {
+    NumMultipleOfProperty(Some(14.0)).isSubsetOf(
+      NumMultipleOfProperty(Some(0.0))
+    ) shouldBe false
   }
 
   it should "expand by division by 2s" in {
@@ -301,17 +301,15 @@ class NumberSchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with a similar integer schema" in {
-    NumberSchema(1.0).isCompatibleWith(IntegerSchema(1)) shouldBe true
+    NumberSchema(1.0).isSubsetOf(IntegerSchema(1)) shouldBe true
   }
 
   it should "be compatible with a matching schema" in {
-    NumberSchema(1.0).isCompatibleWith(NumberSchema(1.0)) shouldBe true
+    NumberSchema(1.0).isSubsetOf(NumberSchema(1.0)) shouldBe true
   }
 
   it should "expand to be compatible with a similar schema" in {
     val schema = NumberSchema(2)
-    NumberSchema(1)
-      .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+    schema.isSubsetOf(NumberSchema(1).expandTo(Some(schema))) shouldBe true
   }
 }

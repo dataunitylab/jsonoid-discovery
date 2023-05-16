@@ -30,6 +30,6 @@ class AnySchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with other schemas" in {
-    anySchema.isCompatibleWith(StringSchema("foo")) shouldBe true
+    StringSchema("foo").isSubsetOf(anySchema) shouldBe true
   }
 }

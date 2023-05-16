@@ -184,22 +184,22 @@ final case class ProductSchema(
     newSchema
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Check if this type is compatible with anything in the product schema
     val types = properties.get[ProductSchemaTypesProperty].schemaTypes
     other match {
+      case AnySchema(_) => true
+
       // For two product schemas, find any compatible pair
       case ProductSchema(ps) =>
         val otherTypes = ps.get[ProductSchemaTypesProperty].schemaTypes
-        otherTypes.forall(s =>
-          types.exists(_.isCompatibleWith(s, recursive)(p))
-        )
+        types.forall(s => otherTypes.exists(s.isSubsetOf(_, recursive)(p)))
 
       // Otherwise check if the single type is compatible
-      case _ => types.exists(_.isCompatibleWith(other, recursive)(p))
+      case _ => types.exists(_.isSubsetOf(other, recursive)(p))
     }
   }
 
@@ -417,17 +417,17 @@ final case class ProductSchemaTypesProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: ProductSchemaTypesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // The base schema and type of product must match
-    val baseMatches = baseSchema.schemaType === other.baseSchema.schemaType
+    val baseMatches = baseSchema.isSubsetOf(other.baseSchema, recursive)
     val typeMatches = productType === other.productType
 
     // And there must be a compatible type for each alternative
-    val allTypesCompatible = other.schemaTypes.forall(schema =>
-      schemaTypes.exists(_.isCompatibleWith(schema, recursive))
+    val allTypesCompatible = schemaTypes.forall(schema =>
+      other.schemaTypes.exists(schema.isSubsetOf(_, recursive))
     )
 
     baseMatches && typeMatches && allTypesCompatible
@@ -449,9 +449,7 @@ final case class ProductSchemaTypesProperty(
 
     // Expand the base schema if needed
     val newBase =
-      if (
-        other.isDefined && baseSchema.isCompatibleWith(other.get.baseSchema)
-      ) {
+      if (other.isDefined && baseSchema.isSubsetOf(other.get.baseSchema)) {
         baseSchema
       } else if (other.isDefined) {
         baseSchema.expandTo(Some(other.get.baseSchema))

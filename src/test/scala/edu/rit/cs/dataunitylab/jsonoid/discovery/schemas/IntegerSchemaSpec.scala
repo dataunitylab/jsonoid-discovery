@@ -101,33 +101,33 @@ class IntegerSchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with the same multiple" in {
-    IntMultipleOfProperty(Some(3)).isCompatibleWith(
+    IntMultipleOfProperty(Some(3)).isSubsetOf(
       IntMultipleOfProperty(Some(3))
     ) shouldBe true
   }
 
   it should "be compatible with a larger multiple" in {
-    IntMultipleOfProperty(Some(3)).isCompatibleWith(
-      IntMultipleOfProperty(Some(6))
+    IntMultipleOfProperty(Some(6)).isSubsetOf(
+      IntMultipleOfProperty(Some(3))
     ) shouldBe true
   }
 
   it should "not be compatible with a smaller multiple" in {
-    IntMultipleOfProperty(Some(4)).isCompatibleWith(
-      IntMultipleOfProperty(Some(2))
+    IntMultipleOfProperty(Some(2)).isSubsetOf(
+      IntMultipleOfProperty(Some(4))
     ) shouldBe false
   }
 
   it should "be compatible if no multiple" in {
-    IntMultipleOfProperty(None).isCompatibleWith(
-      IntMultipleOfProperty(Some(2))
+    IntMultipleOfProperty(Some(2)).isSubsetOf(
+      IntMultipleOfProperty(None)
     ) shouldBe true
   }
 
-  it should "be compatible with a zero multiple" in {
-    IntMultipleOfProperty(Some(14)).isCompatibleWith(
+  it should "not be compatible with a zero multiple" in {
+    IntMultipleOfProperty(Some(14)).isSubsetOf(
       IntMultipleOfProperty(Some(0))
-    ) shouldBe true
+    ) shouldBe false
   }
 
   it should "expand to remove a prime factor" in {
@@ -218,13 +218,11 @@ class IntegerSchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with a matching schema" in {
-    IntegerSchema(1).isCompatibleWith(IntegerSchema(1)) shouldBe true
+    IntegerSchema(1).isSubsetOf(IntegerSchema(1)) shouldBe true
   }
 
   it should "expand to be compatible with a similar schema" in {
     val schema = IntegerSchema(0)
-    IntegerSchema(1)
-      .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+    schema.isSubsetOf(IntegerSchema(1).expandTo(Some(schema))) shouldBe true
   }
 }

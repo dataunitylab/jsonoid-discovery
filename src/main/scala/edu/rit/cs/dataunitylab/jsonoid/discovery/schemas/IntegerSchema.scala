@@ -73,7 +73,7 @@ object IntegerSchema {
     IntegerSchema(props)
   }
 
-  val AllProperties: SchemaProperties[BigInt] = {
+  lazy val AllProperties: SchemaProperties[BigInt] = {
     val props = SchemaProperties.empty[BigInt]
     props.add(MinIntValueProperty())
     props.add(MaxIntValueProperty())
@@ -87,11 +87,11 @@ object IntegerSchema {
     props
   }
 
-  val MinProperties: SchemaProperties[BigInt] = {
+  lazy val MinProperties: SchemaProperties[BigInt] = {
     SchemaProperties.empty[BigInt]
   }
 
-  val SimpleProperties: SchemaProperties[BigInt] = {
+  lazy val SimpleProperties: SchemaProperties[BigInt] = {
     val props = SchemaProperties.empty[BigInt]
     props.add(MinIntValueProperty())
     props.add(MaxIntValueProperty())
@@ -261,11 +261,11 @@ final case class MinIntValueProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MinIntValueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMinCompatibleWith(
+    Helpers.isMinCoveredBy(
       minIntValue,
       exclusive,
       other.minIntValue,
@@ -377,11 +377,11 @@ final case class MaxIntValueProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MaxIntValueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMaxCompatibleWith(
+    Helpers.isMaxCoveredBy(
       maxIntValue,
       exclusive,
       other.maxIntValue,
@@ -611,22 +611,23 @@ final case class IntMultipleOfProperty(multiple: Option[BigInt] = None)
   @SuppressWarnings(
     Array("org.wartremover.warts.OptionPartial")
   )
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: IntMultipleOfProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    if (multiple.isEmpty) {
-      // If we have no multiple, then compatible
+    if (other.multiple.isEmpty) {
+      // If the other schema has no multiple, then compatible
       true
-    } else if (other.multiple.isEmpty) {
-      // If we have a multiple and the other schema doesn't, not compatible
+    } else if (multiple.isEmpty) {
+      // If the other schema has a multiple and we don't, not compatible
       false
     } else {
-      // Otherwise, the multiple must be a multiple of our multiple
-      val bothZero = other.multiple.get === 0 && multiple.get === 0
-      val multipleOf =
-        multiple.get =/= 0 && other.multiple.get % multiple.get === 0
-      bothZero || multipleOf
+      // Otherwise, our multiple must be a multiple of the other multiple
+      if (other.multiple.get === 0) {
+        multiple.get === 0
+      } else {
+        multiple.get % other.multiple.get === 0
+      }
     }
   }
 

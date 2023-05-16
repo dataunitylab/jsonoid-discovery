@@ -33,7 +33,7 @@ final case class ZeroSchema(
   }
 
   // Compatibility doesn't really even make sense here, so go with false
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = false

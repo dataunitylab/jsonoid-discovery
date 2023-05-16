@@ -15,13 +15,13 @@ object BooleanSchema {
     )
   }
 
-  val MinProperties: SchemaProperties[Boolean] =
+  lazy val MinProperties: SchemaProperties[Boolean] =
     SchemaProperties.empty[Boolean]
 
-  val SimpleProperties: SchemaProperties[Boolean] =
+  lazy val SimpleProperties: SchemaProperties[Boolean] =
     SchemaProperties.empty[Boolean]
 
-  val AllProperties: SchemaProperties[Boolean] = {
+  lazy val AllProperties: SchemaProperties[Boolean] = {
     val props = SchemaProperties.empty[Boolean]
     props.add(BooleanPercentProperty())
 

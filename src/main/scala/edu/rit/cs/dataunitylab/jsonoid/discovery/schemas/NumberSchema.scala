@@ -82,7 +82,7 @@ object NumberSchema {
     NumberSchema(props)
   }
 
-  val AllProperties: SchemaProperties[BigDecimal] = {
+  lazy val AllProperties: SchemaProperties[BigDecimal] = {
     val props = SchemaProperties.empty[BigDecimal]
     props.add(MinNumValueProperty())
     props.add(MaxNumValueProperty())
@@ -96,11 +96,11 @@ object NumberSchema {
     props
   }
 
-  val MinProperties: SchemaProperties[BigDecimal] = {
+  lazy val MinProperties: SchemaProperties[BigDecimal] = {
     SchemaProperties.empty[BigDecimal]
   }
 
-  val SimpleProperties: SchemaProperties[BigDecimal] = {
+  lazy val SimpleProperties: SchemaProperties[BigDecimal] = {
     val props = SchemaProperties.empty[BigDecimal]
     props.add(MinNumValueProperty())
     props.add(MaxNumValueProperty())
@@ -144,18 +144,18 @@ final case class NumberSchema(
     newSchema
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Integer schemas may be compatible with number schemas so try conversion
     if (other.isInstanceOf[IntegerSchema]) {
-      super.isCompatibleWith(
+      super.isSubsetOf(
         other.asInstanceOf[IntegerSchema].asNumberSchema,
         recursive
       )(p)
     } else {
-      super.isCompatibleWith(other, recursive)(p)
+      super.isSubsetOf(other, recursive)(p)
     }
   }
 }
@@ -255,11 +255,11 @@ final case class MinNumValueProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MinNumValueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMinCompatibleWith(
+    Helpers.isMinCoveredBy(
       minNumValue,
       exclusive,
       other.minNumValue,
@@ -374,17 +374,18 @@ final case class MaxNumValueProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MaxNumValueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMaxCompatibleWith(
+    Helpers.isMinCoveredBy(
       maxNumValue,
       exclusive,
       other.maxNumValue,
       other.exclusive
     )
   }
+
   override def expandTo(
       other: Option[MaxNumValueProperty]
   ): MaxNumValueProperty = {
@@ -640,19 +641,23 @@ final case class NumMultipleOfProperty(multiple: Option[BigDecimal] = None)
   @SuppressWarnings(
     Array("org.wartremover.warts.Equals", "org.wartremover.warts.OptionPartial")
   )
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: NumMultipleOfProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    if (multiple.isEmpty) {
-      // If we have no multiple, then compatible
+    if (other.multiple.isEmpty) {
+      // If the other schema has no multiple, then compatible
       true
-    } else if (other.multiple.isEmpty) {
-      // If we have a multiple and the other schema doesn't, not compatible
+    } else if (multiple.isEmpty) {
+      // If the other schema has a multiple and we don't, not compatible
       false
     } else {
-      // Otherwise, the multiple must be a multiple of our multiple
-      (other.multiple.get / multiple.get).isValidInt
+      // Otherwise, our multiple must be a multiple of the other multiple
+      if (other.multiple.get === 0) {
+        multiple.get === 0
+      } else {
+        (multiple.get / other.multiple.get).isValidInt
+      }
     }
   }
 

@@ -363,14 +363,12 @@ class StringSchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with a matching schema" in {
-    StringSchema("foo").isCompatibleWith(StringSchema("foo")) shouldBe true
+    StringSchema("foo").isSubsetOf(StringSchema("foo")) shouldBe true
   }
 
   it should "expand to be compatible with a similar schema" in {
     val schema = StringSchema("a")
-    StringSchema("foo")
-      .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+    schema.isSubsetOf(StringSchema("foo").expandTo(Some(schema))) shouldBe true
   }
 
   it should "convert numeric string schemas to numbers" in {

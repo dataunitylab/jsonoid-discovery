@@ -19,8 +19,8 @@ class IncompatibilityCollectorSpec extends UnitSpec {
 
   it should "should find incompatibilities in different integer schemas" in {
     IncompatibilityCollector.findIncompatibilities(
-      schema1,
-      schema2
+      schema2,
+      schema1
     ) should contain theSameElementsAs List(
       Incompatibility("$", ClassTag(classOf[MinIntValueProperty]))
     )
@@ -57,8 +57,8 @@ class IncompatibilityCollectorSpec extends UnitSpec {
     val tupleSchema2 = ArraySchema.tuple(schemaList2)
 
     IncompatibilityCollector.findIncompatibilities(
-      tupleSchema1,
-      tupleSchema2
+      tupleSchema2,
+      tupleSchema1
     ) should contain theSameElementsAs List(
       Incompatibility("$", ClassTag(classOf[ItemTypeProperty])),
       Incompatibility("$", ClassTag(classOf[MaxItemsProperty]))
@@ -96,9 +96,11 @@ class IncompatibilityCollectorSpec extends UnitSpec {
     val arraySchema = ArraySchema.array(BooleanSchema())
     val tupleSchema = ArraySchema.tuple(List(BooleanSchema()))
 
+    tupleSchema.isSubsetOf(arraySchema) shouldBe true
+    arraySchema.isSubsetOf(tupleSchema) shouldBe false
     IncompatibilityCollector.findIncompatibilities(
-      arraySchema,
-      tupleSchema
+      tupleSchema,
+      arraySchema
     ) shouldBe empty
   }
 }

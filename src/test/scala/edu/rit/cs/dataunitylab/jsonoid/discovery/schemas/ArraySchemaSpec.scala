@@ -312,15 +312,15 @@ class ArraySchemaSpec extends UnitSpec {
 
   it should "be compatible with a matching schema" in {
     ArraySchema(List(BooleanSchema()))
-      .isCompatibleWith(ArraySchema(List(BooleanSchema()))) shouldBe true
+      .isSubsetOf(ArraySchema(List(BooleanSchema()))) shouldBe true
   }
 
   it should "show tuple schemas with matching types as compatible" in {
-    tupleSchema.isCompatibleWith(tupleSchema) shouldBe true
+    tupleSchema.isSubsetOf(tupleSchema) shouldBe true
   }
 
   it should "show tuple schemas with mismatched types as not compatible with array schemas" in {
-    arraySchema.isCompatibleWith(tupleSchema) shouldBe false
+    arraySchema.isSubsetOf(tupleSchema) shouldBe false
   }
 
   it should "show tuple schemas with matching types as compatible with array schemas" in {
@@ -331,40 +331,44 @@ class ArraySchemaSpec extends UnitSpec {
       ArraySchema(List(productSchema)).properties
         .mergeValue(List(productSchema, productSchema))
     )
-    arraySchema.isCompatibleWith(tupleSchema) shouldBe true
+    tupleSchema.isSubsetOf(arraySchema) shouldBe true
   }
 
   it should "expand to be compatible with a similar array schema" in {
     val schema = ArraySchema.array(IntegerSchema(0))
-    ArraySchema
-      .array(IntegerSchema(1))
-      .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+    schema.isSubsetOf(
+      ArraySchema
+        .array(IntegerSchema(1))
+        .expandTo(Some(schema))
+    ) shouldBe true
   }
 
   it should "expand a tuple schema to be compatible with an array" in {
     val schema = ArraySchema.array(IntegerSchema(0))
-    ArraySchema
+    val expanded = ArraySchema
       .tuple(List(IntegerSchema(0), IntegerSchema(1)))
       .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+      .asInstanceOf[ArraySchema]
+    schema.isSubsetOf(expanded) shouldBe true
   }
 
   it should "expand a tuple schema to be compatible with another tuple" in {
     val schema = ArraySchema.tuple(List(IntegerSchema(1), IntegerSchema(2)))
-    ArraySchema
-      .tuple(List(IntegerSchema(3), IntegerSchema(4)))
-      .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+    schema.isSubsetOf(
+      ArraySchema
+        .tuple(List(IntegerSchema(3), IntegerSchema(4)))
+        .expandTo(Some(schema))
+    ) shouldBe true
   }
 
   it should "expand tuple schemas of different sizes to an array" in {
     val schema = ArraySchema.tuple(
       List(IntegerSchema(0), IntegerSchema(1), IntegerSchema(2))
     )
-    ArraySchema
-      .tuple(List(IntegerSchema(3), IntegerSchema(4)))
-      .expandTo(Some(schema))
-      .isCompatibleWith(schema) shouldBe true
+    schema.isSubsetOf(
+      ArraySchema
+        .tuple(List(IntegerSchema(3), IntegerSchema(4)))
+        .expandTo(Some(schema))
+    ) shouldBe true
   }
 }

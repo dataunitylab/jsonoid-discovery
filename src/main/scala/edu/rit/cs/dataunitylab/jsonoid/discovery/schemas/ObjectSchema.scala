@@ -80,7 +80,7 @@ object ObjectSchema {
     ObjectSchema(props)(p)
   }
 
-  val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+  lazy val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(AdditionalPropertiesProperty())
     props.add(ObjectTypesProperty())
@@ -91,7 +91,7 @@ object ObjectSchema {
     props
   }
 
-  val MinProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+  lazy val MinProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(AdditionalPropertiesProperty())
     props.add(ObjectTypesProperty())
@@ -99,7 +99,7 @@ object ObjectSchema {
     props
   }
 
-  val SimpleProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
+  lazy val SimpleProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(AdditionalPropertiesProperty())
     props.add(ObjectTypesProperty())
@@ -345,14 +345,14 @@ final case class ObjectTypesProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: ObjectTypesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     val overlapCompatible = objectTypes.keySet.forall(key =>
       other.objectTypes.get(key) match {
         case Some(schema) =>
-          !recursive || objectTypes(key).isCompatibleWith(schema)
+          !recursive || objectTypes(key).isSubsetOf(schema)
         case None => true
       }
     )
@@ -612,12 +612,12 @@ final case class RequiredProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: RequiredProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Compatible if we have the same or fewer required properties
-    other.required.getOrElse(Set()).subsetOf(required.getOrElse(Set()))
+    required.getOrElse(Set()).subsetOf(other.required.getOrElse(Set()))
   }
 
   override def expandTo(other: Option[RequiredProperty]): RequiredProperty = {
@@ -799,7 +799,7 @@ final case class DependenciesProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: DependenciesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
@@ -812,7 +812,7 @@ final case class DependenciesProperty(
         val containedDeps = dependencies(key).filter(other.counts.contains(_))
 
         // If this key does exist in the other schema, make sure
-        // we have at least the same depen
+        // we have at least the same dependencies
         containedDeps.subsetOf(otherDependencies.getOrElse(key, Set()))
       } else {
         // If this key does not exist in the other schema,
@@ -902,7 +902,7 @@ final case class StaticDependenciesProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: StaticDependenciesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
@@ -972,7 +972,7 @@ final case class AdditionalPropertiesProperty(
       Some(overriddenAdditionalProperties.getOrElse(p.additionalProperties))
     )
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: AdditionalPropertiesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {

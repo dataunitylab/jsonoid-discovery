@@ -508,12 +508,13 @@ trait JsonSchema[T] {
     * @return true if this schema is compatible with the other, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def isCompatibleWith(
+  def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    schemaType == other.schemaType &&
-    properties.isCompatibleWith(other.properties, recursive)(p)
+    other.isInstanceOf[AnySchema] ||
+    (schemaType == other.schemaType &&
+      properties.isSubsetOf(other.properties, recursive)(p))
   }
 
   /** Expand this schema to be compatible with another schema if possible.

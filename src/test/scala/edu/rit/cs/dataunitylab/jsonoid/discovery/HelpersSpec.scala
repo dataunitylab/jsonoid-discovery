@@ -8,64 +8,74 @@ import Helpers._
 class HelpersSpec extends UnitSpec {
   val none: Option[String] = None
 
-  behavior of "isMinCompatibleWith"
+  behavior of "isMinCoveredBy"
 
-  it should "be compatible for an equal minimum" in {
-    isMinCompatibleWith(Some(3.5), false, Some(3.5), false) shouldBe true
+  it should "be covered for an equal minimum" in {
+    isMinCoveredBy(Some(3.5), false, Some(3.5), false) shouldBe true
   }
 
-  it should "not be compatible for an equal minimum if one is exclusive" in {
-    isMinCompatibleWith(Some(3.5), true, Some(3.5), false) shouldBe false
+  it should "not be covered for an equal minimum if the other is exclusive" in {
+    isMinCoveredBy(Some(3.5), false, Some(3.5), true) shouldBe false
   }
 
-  it should "be compatible for an equal minimum if both are exclusive" in {
-    isMinCompatibleWith(Some(3.5), true, Some(3.5), true) shouldBe true
+  it should "be covered for an equal minimum if both are exclusive" in {
+    isMinCoveredBy(Some(3.5), true, Some(3.5), true) shouldBe true
   }
 
-  it should "be compatible for a smaller minimum" in {
-    isMinCompatibleWith(Some(3.0), false, Some(3.5), false) shouldBe true
+  it should "be covered for a smaller minimum" in {
+    isMinCoveredBy(Some(3.5), false, Some(3.0), false) shouldBe true
   }
 
-  it should "not be compatible for a larger minimum" in {
-    isMinCompatibleWith(Some(4.0), false, Some(3.5), false) shouldBe false
+  it should "not be covered for a larger minimum" in {
+    isMinCoveredBy(Some(3.5), false, Some(4.0), false) shouldBe false
   }
 
-  it should "not be compatible no other minimum" in {
-    isMinCompatibleWith(Some(3.5), false, None, false) shouldBe false
+  it should "no minimum cannot be covered with a fixed minimum" in {
+    isMinCoveredBy(None, false, Some(3.5), false) shouldBe false
   }
 
-  it should "be compatible if no minimum" in {
-    isMinCompatibleWith(None, false, Some(3.5), false) shouldBe true
+  it should "be covered if no other minimum" in {
+    isMinCoveredBy(Some(3.5), false, None, false) shouldBe true
   }
 
-  behavior of "isMaxCompatibleWith"
-
-  it should "be compatible for an equal maximum" in {
-    isMaxCompatibleWith(Some(3.5), false, Some(3.5), false) shouldBe true
+  it should "no minimum can covered if there is no other minimum" in {
+    val noNum: Option[Double] = None
+    isMinCoveredBy(noNum, false, noNum, false) shouldBe true
   }
 
-  it should "not be compatible for an equal maximum if one is exclusive" in {
-    isMaxCompatibleWith(Some(3.5), true, Some(3.5), false) shouldBe false
+  behavior of "isMaxCoveredBy"
+
+  it should "be covered for an equal maximum" in {
+    isMaxCoveredBy(Some(3.5), false, Some(3.5), false) shouldBe true
+  }
+
+  it should "not be covered for an equal maximum if the other is exclusive" in {
+    isMaxCoveredBy(Some(3.5), false, Some(3.5), true) shouldBe false
   }
 
   it should "be compatible for an equal maximum if both are exclusive" in {
-    isMaxCompatibleWith(Some(3.5), true, Some(3.5), true) shouldBe true
+    isMaxCoveredBy(Some(3.5), true, Some(3.5), true) shouldBe true
   }
 
-  it should "be compatible for a smaller maximum" in {
-    isMaxCompatibleWith(Some(3.5), false, Some(3.0), false) shouldBe true
+  it should "be covered by a larger maximum" in {
+    isMaxCoveredBy(Some(3.0), false, Some(3.5), false) shouldBe true
   }
 
-  it should "not be compatible for a larger maximum" in {
-    isMaxCompatibleWith(Some(3.5), false, Some(4.0), false) shouldBe false
+  it should "not be covered for a smaller maximum" in {
+    isMaxCoveredBy(Some(4.0), false, Some(3.5), false) shouldBe false
   }
 
-  it should "not be compatible no other maximum" in {
-    isMaxCompatibleWith(Some(3.5), false, None, false) shouldBe false
+  it should "no maximum cannot be covered with a fixed maximum" in {
+    isMaxCoveredBy(None, false, Some(3.5), false) shouldBe false
   }
 
-  it should "be compatible if no maximum" in {
-    isMaxCompatibleWith(None, false, Some(3.5), false) shouldBe true
+  it should "be covered if no other maximum" in {
+    isMinCoveredBy(Some(3.5), false, None, false) shouldBe true
+  }
+
+  it should "no maximum can covered if there is no other maximum" in {
+    val noNum: Option[Double] = None
+    isMaxCoveredBy(noNum, false, noNum, false) shouldBe true
   }
 
   behavior of "maxOrNone"

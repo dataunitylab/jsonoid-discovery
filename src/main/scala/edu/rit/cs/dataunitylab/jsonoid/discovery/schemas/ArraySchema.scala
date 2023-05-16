@@ -90,7 +90,7 @@ object ArraySchema {
     ArraySchema(props)
   }
 
-  val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
+  lazy val AllProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
     props.add(MinItemsProperty())
@@ -101,14 +101,14 @@ object ArraySchema {
     props
   }
 
-  val MinProperties: SchemaProperties[List[JsonSchema[_]]] = {
+  lazy val MinProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
 
     props
   }
 
-  val SimpleProperties: SchemaProperties[List[JsonSchema[_]]] = {
+  lazy val SimpleProperties: SchemaProperties[List[JsonSchema[_]]] = {
     val props = SchemaProperties.empty[List[JsonSchema[_]]]
     props.add(ItemTypeProperty())
     props.add(MinItemsProperty())
@@ -367,21 +367,21 @@ final case class ItemTypeProperty(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: ItemTypeProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     (itemType, other.itemType) match {
       // Single types must match
       case (Left(schema1), Left(schema2)) =>
-        !recursive || schema1.isCompatibleWith(schema2)
+        !recursive || schema1.isSubsetOf(schema2)
 
       // Tuple schemas cannot be compatible with item schemas
-      case (Right(_), Left(_)) => false
+      case (Left(_), Right(_)) => false
 
-      case (Left(schema), Right(schemas)) => {
+      case (Right(schemas), Left(schema)) => {
         val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
-        !recursive || schema.isCompatibleWith(oneSchema)
+        !recursive || oneSchema.isSubsetOf(schema)
       }
 
       // Corresponding types must match
@@ -389,7 +389,7 @@ final case class ItemTypeProperty(
         schemas1.length == schemas2.length &&
           (!recursive || schemas1
             .zip(schemas2)
-            .forall({ case (s1, s2) => s1.isCompatibleWith(s2) }))
+            .forall({ case (s1, s2) => s1.isSubsetOf(s2) }))
     }
   }
 
@@ -504,11 +504,11 @@ final case class MinItemsProperty(minItems: Option[Int] = None)
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MinItemsProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMinCompatibleWith(minItems, false, other.minItems, false)
+    Helpers.isMinCoveredBy(minItems, false, other.minItems, false)
   }
 
   override def expandTo(other: Option[MinItemsProperty]): MinItemsProperty = {
@@ -591,11 +591,11 @@ final case class MaxItemsProperty(maxItems: Option[Int] = None)
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: MaxItemsProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    Helpers.isMaxCompatibleWith(maxItems, false, other.maxItems, false)
+    Helpers.isMaxCoveredBy(maxItems, false, other.maxItems, false)
   }
 
   override def expandTo(other: Option[MaxItemsProperty]): MaxItemsProperty = {
@@ -687,11 +687,12 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: UniqueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    (unique && !unary) >= (other.unique && !other.unary)
+    // It's ok if the other schema is unique as long as we are not
+    (other.unique && !other.unary) >= (unique && !unary)
   }
 
   override def expandTo(other: Option[UniqueProperty]): UniqueProperty = {

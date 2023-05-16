@@ -162,11 +162,11 @@ final case class DynamicObjectTypeProperty(
     }
   }
 
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: DynamicObjectTypeProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    valueType.isCompatibleWith(other.valueType, recursive)
+    valueType.isSubsetOf(other.valueType, recursive)
   }
 
   override def expandTo(

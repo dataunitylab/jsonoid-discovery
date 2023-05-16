@@ -220,68 +220,68 @@ object Helpers {
     foo(x, 2).sorted
   }
 
-  /** Determine if two minimum values are compatible with each other, considering
-    * whether each minimum is exclusive or not.
+  /** Determine if one minimum values the values of another,
+    * considering whether each minimum is exclusive or not.
     *
     * @param value1 the first minimum value
     * @param exclusive1 whether the first minimum value is exclusive
     * @param value2 the second minimum value
     * @param exclusive2 whether the second minimum value is exclusive
     *
-    * @return true if the two minimum values are compatible, false otherwise
+    * @return true if the second value covers the first, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  def isMinCompatibleWith[A: Order](
+  def isMinCoveredBy[A: Order](
       value1: Option[A],
       exclusive1: Boolean,
       value2: Option[A],
       exclusive2: Boolean
   ): Boolean = {
-    if (value1.isEmpty) {
-      // If we have no minimum, then compatible
+    if (value2.isEmpty) {
+      // If the other has no minimum, then it covers the first
       true
-    } else if (value2.isEmpty) {
-      // If we have a minimum and the other schema doesn't, not compatible
+    } else if (value1.isEmpty) {
+      // If the other has a minimum and we don't, not covered
       false
-    } else if (!exclusive2 && exclusive1) {
-      // If we are exclusive and the other schema is not,
-      // then the other minmum value must be greater
-      value2.get > value1.get
+    } else if (!exclusive1 && exclusive2) {
+      // If the other is exclusive and we are not,
+      // then the other minmum value must be smaller
+      value2.get < value1.get
     } else {
-      // Otherwise, minimum value can be greater than or equal
-      value2.get >= value1.get
+      // Otherwise, minimum value can be less than or equal
+      value2.get <= value1.get
     }
   }
 
-  /** Determine if two maximum values are compatible with each other, considering
-    * whether each maximum is exclusive or not.
+  /** Determine if one maximum value covers the values of another,
+    *  considering whether each maximum is exclusive or not.
     *
     * @param value1 the first maximum value
     * @param exclusive1 whether the first maximum value is exclusive
     * @param value2 the second maximum value
     * @param exclusive2 whether the second maximum value is exclusive
-    * @return true if the two maximum values are compatible, false otherwise
+    * @return true if the second value covers the first, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  def isMaxCompatibleWith[A: Order](
+  def isMaxCoveredBy[A: Order](
       value1: Option[A],
       exclusive1: Boolean,
       value2: Option[A],
       exclusive2: Boolean
   ): Boolean = {
-    if (value1.isEmpty) {
-      // If we have no maximum, then compatible
+    if (value2.isEmpty) {
+      // If the other has no maximum, then it covers the first
       true
-    } else if (value2.isEmpty) {
-      // If we have a maximum and the other schema doesn't, not compatible
+    } else if (value1.isEmpty) {
+      // If the other has a maximum and we don't, not covered
       false
-    } else if (!exclusive2 && exclusive1) {
-      // If we are exclusive and the other schema is not,
-      // then the other maxmum value must be greater
-      value2.get < value1.get
+    } else if (!exclusive1 && exclusive2) {
+      // If the other is exclusive and we are not,
+      // then the other maximum value must be larger
+      value2.get > value1.get
     } else {
       // Otherwise, maximum value can be greater than or equal
-      value2.get <= value1.get
+      value2.get >= value1.get
     }
   }
 
@@ -357,6 +357,13 @@ object Helpers {
     def ===(other: A): Boolean = self == other
 
     def =/=(other: A): Boolean = self != other
+  }
+
+  @SuppressWarnings(Array("org.wartremover.warts.Equals"))
+  implicit final class BooleanOps(self: Boolean) {
+    def ===(other: Boolean): Boolean = self == other
+
+    def =/=(other: Boolean): Boolean = self != other
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))

@@ -181,11 +181,11 @@ class ProductSchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with one of the contained schemas" in {
-    productSchema1.isCompatibleWith(schema1) shouldBe true
+    productSchema1.isSubsetOf(schema1) shouldBe true
   }
 
   it should "not be compatible with a schema not contained inside" in {
-    productSchema1.isCompatibleWith(NumberSchema(3.0)) shouldBe false
+    productSchema1.isSubsetOf(NumberSchema(3.0)) shouldBe false
   }
 
   it should "can expand to cover a new type" in {
@@ -231,14 +231,15 @@ class ProductSchemaSpec extends UnitSpec {
     val productSchema1 =
       ProductSchema(schema1).merge(oldSchema).asInstanceOf[ProductSchema]
 
-    productSchema1
-      .expandTo(Some(newSchema))
-      .asInstanceOf[ProductSchema]
-      .properties
-      .get[ProductSchemaTypesProperty]
-      .schemaTypes
-      .find(_.schemaType == "integer")
-      .get
-      .isCompatibleWith(newSchema) shouldBe true
+    newSchema.isSubsetOf(
+      productSchema1
+        .expandTo(Some(newSchema))
+        .asInstanceOf[ProductSchema]
+        .properties
+        .get[ProductSchemaTypesProperty]
+        .schemaTypes
+        .find(_.schemaType == "integer")
+        .get
+    ) shouldBe true
   }
 }

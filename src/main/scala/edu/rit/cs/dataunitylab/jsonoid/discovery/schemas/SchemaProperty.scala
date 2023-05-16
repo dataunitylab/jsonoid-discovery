@@ -131,7 +131,7 @@ trait SchemaProperty[T] {
     * @param recursive
     * @param p
     */
-  def isCompatibleWith(other: S, recursive: Boolean = true)(implicit
+  def isSubsetOf(other: S, recursive: Boolean = true)(implicit
       p: JsonoidParams
   ): Boolean = isInformational
 

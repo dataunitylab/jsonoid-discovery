@@ -5,6 +5,8 @@ import scala.reflect.ClassTag
 
 import org.json4s._
 
+import Helpers._
+
 /** Represents `null` in JSON Schema. */
 final case class NullSchema(
     override val properties: SchemaProperties[Nothing] =
@@ -33,10 +35,19 @@ final case class NullSchema(
   override def isValidType[S <: JValue](value: S): Boolean = value == JNull
 
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  override def isCompatibleWith(
+  override def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
-  )(implicit p: JsonoidParams): Boolean = other.schemaType == "null"
+  )(implicit p: JsonoidParams): Boolean = {
+    other match {
+      case _: NullSchema => true
+      case ps: ProductSchema =>
+        val schemaTypes =
+          ps.properties.get[ProductSchemaTypesProperty].schemaTypes
+        schemaTypes.map(_.schemaType).exists(_ === "null")
+      case _ => false
+    }
+  }
 
   override def collectAnomalies[S <: JValue](
       value: S,

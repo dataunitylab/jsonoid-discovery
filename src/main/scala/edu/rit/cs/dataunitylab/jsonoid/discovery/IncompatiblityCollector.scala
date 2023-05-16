@@ -55,7 +55,7 @@ object IncompatibilityCollector {
       path: String
   ): Seq[Incompatibility[_]] = {
     (base, other) match {
-      case (_, _) if (base.isCompatibleWith(other)) =>
+      case (_, _) if (base.isSubsetOf(other)) =>
         Seq()
 
       case (o1: ObjectSchema, o2: ObjectSchema) =>
@@ -187,6 +187,12 @@ object IncompatibilityCollector {
       base: JsonSchema[_],
       other: JsonSchema[_]
   ): Seq[Incompatibility[_]] = {
-    findIncompatibilitiesAtPath(base, other, "$")
+    val incompats = findIncompatibilitiesAtPath(base, other, "$")
+
+    // Incompatiblities should be found if the schema is not
+    // a subset, otherwise no incompatibilities should be found
+    assert(base.isSubsetOf(other) === incompats.isEmpty)
+
+    incompats
   }
 }
