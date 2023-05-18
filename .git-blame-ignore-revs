@@ -1,0 +1,19 @@
+# .git-blame-ignore-revs
+# Update code style
+ede1cc58290781e51345cd38d7859d78e1696f4b
+# Fix scalafmt errors
+bd8958f2c34000195a45119fc1eb879b4d22dfa3
+# Fix scalafmt issue
+78fd270493f60d19fbeac5cd3b28a12a79e5e236
+# Fix formatting
+c131b14d926cb0b7b48c92497755b7901e1e00dfa
+# Fix formatting
+d4d48a8f3827ada32311014506693ed8126d1b9e
+# Fix minor formatting issues
+3e1810a085814b90a9270c7ef64f13a9b3602fd6
+# Fix formatting
+5d9c4328e0a6b34b122455be7d2084f2aafe81aa
+# Fix minor Scalafmt issue
+5f16ce58fde7f55cd09d5860efefa93fdb362728
+# Apply Scalafmt
+004af8a5ff841a8479440bed9ea6c07de8a1cd04
