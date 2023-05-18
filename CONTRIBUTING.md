@@ -14,3 +14,5 @@ Most style rules can be applied using `sbt 'scalafmt; Test / scalafmt'`.
 
 Any new code should aim to include tests which cover as much of the code as possible.
 Any bug fixes should include test case which demonstrates that the bug is fixed.
+Any contributors must agree to the [Developer Certificate of Origin](https://developercertificate.org/).
+This sign-off will happen automatically for commits created on GitHub or can be added via the `git` command line using the `-s` or `--signoff` option.
