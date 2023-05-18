@@ -12,6 +12,12 @@ Although all the code is public, you must [create a personal access token](https
 This token should be stored in a file named `.env` in the root of the repository with a line `GITHUB_TOKEN=YOUR_TOKEN_HERE`.
 Only the `read:packages` permission should be required.
 
+## Input/Output Format
+
+JSONoid accepts [newline-delimited JSON](http://ndjson.org/) either from standard input or a file.
+The generated schema will be printed [JSON Schema](https://json-schema.org/) as output.
+Note that depending on the configuration, JSONoid will add additional properties which are not part of the JSON Schema standard.
+
 ## Running
 
 To quickly run jsonoid, you can use the Docker image which is built from the latest commit on the `main` branch.
