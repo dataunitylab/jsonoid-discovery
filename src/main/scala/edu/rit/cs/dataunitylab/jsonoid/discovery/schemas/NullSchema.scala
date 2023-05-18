@@ -53,15 +53,14 @@ final case class NullSchema(
       value: S,
       path: String
   )(implicit p: JsonoidParams, t: ClassTag[S]): Seq[Anomaly] = {
-    if (value.isInstanceOf[JNull.type]) {
+    if (value.isInstanceOf[JNull.type])
       Seq.empty
-    } else {
+    else
       // We consider anomlies to be at the `Info` level since it's unlikely
       // to be a problem if a value that we expected to be null is not
       //
       // Note that we override this behaviour in [[ProductSchema]] since
       // there we are explicitly expecting some non-null value
       Seq(Anomaly(path, f"${value} is not null", AnomalyLevel.Info))
-    }
   }
 }

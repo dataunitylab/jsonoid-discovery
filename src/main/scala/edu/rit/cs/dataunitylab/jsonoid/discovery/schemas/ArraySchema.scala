@@ -705,11 +705,10 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
   ): Seq[Anomaly] = {
     value match {
       case JArray(arr) =>
-        if (unique && !unary && (arr.toSet.size != arr.length)) {
+        if (unique && !unary && (arr.toSet.size != arr.length))
           Seq(Anomaly(path, "array items are not unique", AnomalyLevel.Fatal))
-        } else {
+        else
           Seq.empty
-        }
       case _ => Seq.empty
     }
   }
@@ -764,7 +763,7 @@ final case class ArrayLengthHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("lengthHistogram" -> histogram.bins().map { case (value, count) =>
+    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
       List(JDouble(value.doubleValue), JLong(count.longValue))
     })
   }

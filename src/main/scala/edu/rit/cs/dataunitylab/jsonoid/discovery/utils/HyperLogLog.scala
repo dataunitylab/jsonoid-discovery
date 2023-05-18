@@ -32,7 +32,7 @@ class HyperLogLog extends Serializable {
   override def toString(): String = hll.toString()
 
   /** Serialize the HLL to a base-64 encoded string. */
-  def toBase64(): String = {
+  def toBase64: String = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)
     oos.writeObject(this)

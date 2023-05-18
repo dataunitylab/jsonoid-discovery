@@ -36,11 +36,10 @@ class DynamicObjectTransformerSpec extends UnitSpec {
   it should "not replace objects with different types" in {
     var props = ObjectSchema().properties
     for (i <- 1 to 11) {
-      if (i % 2 === 0) {
+      if (i % 2 === 0)
         props = props.mergeValue(Map("a" * i -> StringSchema()))
-      } else {
+      else
         props = props.mergeValue(Map("a" * i -> BooleanSchema()))
-      }
     }
 
     val transformedSchema =

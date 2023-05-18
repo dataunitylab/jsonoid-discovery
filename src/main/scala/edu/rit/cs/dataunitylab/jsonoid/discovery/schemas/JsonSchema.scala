@@ -104,13 +104,14 @@ object JsonSchema {
       baseSchema
     }
 
-    val definitionsKey = if ((schema \ "definitions") =/= JNothing) {
-      Some("definitions")
-    } else if ((schema \ "$defs") =/= JNothing) {
-      Some("$defs")
-    } else {
-      None
-    }
+    val definitionsKey =
+      if ((schema \ "definitions") =/= JNothing)
+        Some("definitions")
+      else if ((schema \ "$defs") =/= JNothing)
+        Some("$defs")
+      else
+        None
+
     if (definitionsKey.isDefined) {
       val defs = (schema \ definitionsKey.get)
         .extract[Map[String, JObject]]
@@ -173,11 +174,11 @@ trait JsonSchema[T] {
   def toJson()(implicit p: JsonoidParams): JObject = {
     val propertyJson =
       properties.map(_.toJson()(p)).foldLeft(JObject())(_.merge(_))
-    val typedPropertyJson = if (hasType) {
-      ("type" -> schemaType) ~ propertyJson
-    } else {
-      propertyJson
-    }
+    val typedPropertyJson =
+      if (hasType)
+        ("type" -> schemaType) ~ propertyJson
+      else
+        propertyJson
 
     val definitionJson: JObject = if (definitions.isEmpty) {
       Nil
@@ -274,11 +275,10 @@ trait JsonSchema[T] {
     } else {
       val sameType = mergeSameType(mergeType)(p)
       val newSchema =
-        if (sameType.isDefinedAt(other) && p.er.fuse(this, other)) {
+        if (sameType.isDefinedAt(other) && p.er.fuse(this, other))
           sameType(other)
-        } else {
+        else
           createProduct()(p)(other)
-        }
 
       newSchema.definitions ++= this.definitions
       newSchema.definitions ++= other.definitions
@@ -434,11 +434,10 @@ trait JsonSchema[T] {
   )(implicit tag: ClassTag[S], p: JsonoidParams): Option[AnomalyLevel] = {
     val anomalyLevels =
       collectAnomalies(value, path)(p, tag).map(_.anomalyLevel)
-    if (anomalyLevels.isEmpty) {
+    if (anomalyLevels.isEmpty)
       None
-    } else {
+    else
       Some(anomalyLevels.max)
-    }
   }
 
   /** Produce a list of anomalies when validating a given value.
@@ -452,11 +451,10 @@ trait JsonSchema[T] {
       value: S,
       path: String = "$"
   )(implicit p: JsonoidParams, tag: ClassTag[S]): Seq[Anomaly] = {
-    if (isValidType(value)) {
+    if (isValidType(value))
       properties.flatMap(_.collectAnomalies(value, path)(p, tag)).toSeq
-    } else {
+    else
       Seq(Anomaly(path, f"${value} has wrong type", AnomalyLevel.Fatal))
-    }
   }
 
   /** Update a schema to only include a specific set of properties.

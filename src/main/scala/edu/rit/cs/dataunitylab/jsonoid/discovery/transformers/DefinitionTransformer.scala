@@ -124,8 +124,7 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
             definitionSchema = definitionSchema.replaceWithReference(
               pointer,
               s"#/$$defs/${definition}",
-              if (addObject) { Some(clusterSchema) }
-              else { None }
+              if (addObject) Some(clusterSchema) else None
             )
           }
         }

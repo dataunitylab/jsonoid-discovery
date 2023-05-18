@@ -44,7 +44,7 @@ final case class Histogram(
       "org.wartremover.warts.NonUnitStatements"
     )
   )
-  def bins(): List[(Double, Int)] = {
+  def bins: List[(Double, Int)] = {
     val indexMapping = sketch.getIndexMapping
     val bins = ListBuffer.empty[(Double, Int)]
 

@@ -15,11 +15,10 @@ trait SchemaWalker[T] {
       extractor: PartialFunction[(String, JsonSchema[_]), T],
       path: String
   ): Seq[(String, T)] = {
-    if (extractor.isDefinedAt((path, schema))) {
+    if (extractor.isDefinedAt((path, schema)))
       Seq((path, extractor(path, schema)))
-    } else {
+    else
       Seq.empty[(String, T)]
-    }
   }
 
   /** Helper for [[walk]] that recursively extracts values from a schema.

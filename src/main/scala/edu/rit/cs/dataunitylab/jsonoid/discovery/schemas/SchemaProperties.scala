@@ -36,11 +36,10 @@ final case class SchemaProperties[T](
   def getOrNone[S <: SchemaProperty[T]](implicit
       tag: ClassTag[S]
   ): Option[S] = {
-    if (properties.contains(tag)) {
+    if (properties.contains(tag))
       Some(properties(tag).asInstanceOf[S])
-    } else {
+    else
       None
-    }
   }
 
   def has[S <: SchemaProperty[T]](implicit tag: ClassTag[S]): Boolean = {

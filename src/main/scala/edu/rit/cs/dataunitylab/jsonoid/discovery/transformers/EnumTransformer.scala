@@ -106,11 +106,10 @@ object EnumTransformer {
     ) {
       val otherExampleSet =
         otherExamples.map(_.examples.toSet).getOrElse(Set.empty)
-      if (otherExampleSet.subsetOf(distinctExamples)) {
+      if (otherExampleSet.subsetOf(distinctExamples))
         Some(EnumSchema(distinctExamples.map(exampleTransformer)))
-      } else {
+      else
         None
-      }
     } else {
       None
     }

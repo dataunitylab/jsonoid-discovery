@@ -28,11 +28,11 @@ val nonConsoleCompilerOptions = Seq(
   "-Ywarn-unused:imports",
   "-deprecation",
   "-release:8"
-) ++ {if (sys.env.get("DISABLE_ASSERTIONS").isDefined) {
+) ++ {if (sys.env.get("DISABLE_ASSERTIONS").isDefined)
   Seq("-Xdisable-assertions")
-} else {
+else
   Nil
-}}
+}
 
 val generateSchemas = taskKey[Unit]("Generate example schemas")
 

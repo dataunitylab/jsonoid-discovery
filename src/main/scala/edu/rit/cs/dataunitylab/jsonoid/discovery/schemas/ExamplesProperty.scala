@@ -16,11 +16,10 @@ object ExamplesProperty {
 
   def sampleValue[T](value: T): T = value match {
     case strVal: String =>
-      if (strVal.length > ExamplesProperty.MaxStringLength) {
+      if (strVal.length > ExamplesProperty.MaxStringLength)
         (strVal.take(ExamplesProperty.MaxStringLength) + "…").asInstanceOf[T]
-      } else {
+      else
         strVal.asInstanceOf[T]
-      }
     case _ => value
   }
 }

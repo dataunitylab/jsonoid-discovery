@@ -361,11 +361,10 @@ final case class ProductSchemaTypesProperty(
       // Override the null anomaly handling behavior to consider any
       // value as anomalous for an null schema since here we require
       // that there is a compatible type somewhere
-      if (s.isInstanceOf[NullSchema] && !value.isInstanceOf[JNull.type]) {
+      if (s.isInstanceOf[NullSchema] && !value.isInstanceOf[JNull.type])
         Some(AnomalyLevel.Fatal)
-      } else {
+      else
         s.maxAnomalyLevel(value, path)
-      }
     }
     productType match {
       // All schemas must have no anomalies or only info level
@@ -449,13 +448,12 @@ final case class ProductSchemaTypesProperty(
 
     // Expand the base schema if needed
     val newBase =
-      if (other.isDefined && baseSchema.isSubsetOf(other.get.baseSchema)) {
+      if (other.isDefined && baseSchema.isSubsetOf(other.get.baseSchema))
         baseSchema
-      } else if (other.isDefined) {
+      else if (other.isDefined)
         baseSchema.expandTo(Some(other.get.baseSchema))
-      } else {
+      else
         baseSchema.expandTo(None)
-      }
 
     // Build a mutable copy of the new schema types
     val newTypes = schemaTypes.to(ListBuffer)

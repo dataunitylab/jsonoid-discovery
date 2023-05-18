@@ -5,24 +5,24 @@ class HistogramSpec extends UnitSpec {
   behavior of "Histogram"
 
   it should "count only negative bins" in {
-    val bins = Histogram().merge(-1.0).bins()
+    val bins = Histogram().merge(-1.0).bins
     bins(0)._1 should equal(-1.0 +- Histogram.Tolerance)
     bins(0)._2 should equal(1)
   }
 
   it should "count only zero bins" in {
     val hist = Histogram().merge(0)
-    hist.bins() shouldBe (List((0.0, 1)))
+    hist.bins shouldBe (List((0.0, 1)))
   }
 
   it should "count only positive bins" in {
-    val bins = Histogram().merge(1.0).bins()
+    val bins = Histogram().merge(1.0).bins
     bins(0)._1 should equal(1.0 +- Histogram.Tolerance)
     bins(0)._2 should equal(1)
   }
 
   it should "count bins with mixed sign" in {
-    val bins = Histogram().merge(-1).merge(0).merge(1).bins()
+    val bins = Histogram().merge(-1).merge(0).merge(1).bins
 
     bins(0)._1 should equal(-1.0 +- Histogram.Tolerance)
     bins(0)._2 should equal(1)

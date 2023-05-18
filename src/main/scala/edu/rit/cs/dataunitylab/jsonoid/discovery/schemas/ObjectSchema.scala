@@ -668,12 +668,11 @@ final case class DependenciesProperty(
   override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
-    val dependencies = dependencyMap()
-    if (dependencies.isEmpty) {
+    val dependencies = dependencyMap
+    if (dependencies.isEmpty)
       Nil
-    } else {
+    else
       ("dependentRequired" -> dependencies)
-    }
   }
 
   @SuppressWarnings(
@@ -703,7 +702,7 @@ final case class DependenciesProperty(
     setMap.keySet.groupBy(setMap(_)).map(_._2.toSet).toSeq
   }
 
-  def dependencyMap(): Map[String, Set[String]] = {
+  def dependencyMap: Map[String, Set[String]] = {
     cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
         (if (
@@ -784,7 +783,7 @@ final case class DependenciesProperty(
       case JObject(fields) =>
         val fieldMap = fields.toMap
         fieldMap.keySet.toSeq.flatMap(f =>
-          dependencyMap()
+          dependencyMap
             .getOrElse(f, List())
             .filter(!fieldMap.contains(_))
             .map(d =>
@@ -804,8 +803,8 @@ final case class DependenciesProperty(
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // We must have a subset of dependencies to be compatible
-    val dependencies = dependencyMap()
-    val otherDependencies = other.dependencyMap()
+    val dependencies = dependencyMap
+    val otherDependencies = other.dependencyMap
     dependencies.keySet.forall { key =>
       if (other.counts.contains(key)) {
         // Only consider dependent properties which exist in the other schema
@@ -928,7 +927,7 @@ final case class AdditionalPropertiesProperty(
       p: JsonoidParams
   ): AdditionalPropertiesProperty = AdditionalPropertiesProperty()(p)
 
-  def allowAdditional(): Boolean =
+  def allowAdditional: Boolean =
     overriddenAdditionalProperties.getOrElse(p.additionalProperties)
 
   override def toJson()(implicit p: JsonoidParams): JObject =
@@ -976,7 +975,7 @@ final case class AdditionalPropertiesProperty(
       other: AdditionalPropertiesProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    other.allowAdditional() || !allowAdditional()
+    other.allowAdditional || !allowAdditional
   }
 
   override def expandTo(

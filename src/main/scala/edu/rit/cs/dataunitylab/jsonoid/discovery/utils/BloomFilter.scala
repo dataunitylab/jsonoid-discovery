@@ -55,7 +55,7 @@ final case class BloomFilter[T](
     filter.maybeSubsetOf(other.filter)
 
   /** Serialize this Bloom filter to a base64-encoded string. */
-  def toBase64(): String = {
+  def toBase64: String = {
     val baos = new ByteArrayOutputStream()
     val oos = new ObjectOutputStream(baos)
     oos.writeObject(this)

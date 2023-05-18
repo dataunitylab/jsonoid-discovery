@@ -55,11 +55,11 @@ object ReferenceResolver extends SchemaWalker[Unit] {
       path: String,
       rootSchema: JsonSchema[_]
   ): JsonSchema[_] = {
-    val strippedPath = if (path.startsWith("#")) {
-      path.substring(1)
-    } else {
-      path
-    }
+    val strippedPath =
+      if (path.startsWith("#"))
+        path.substring(1)
+      else
+        path
 
     val defs = rootSchema.definitions
     strippedPath.split("/") match {

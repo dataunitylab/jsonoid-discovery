@@ -37,36 +37,32 @@ final case class StatsProperty(
   def mean: BigDecimal = m1
 
   /** The variance of the observed values. */
-  def variance: Option[BigDecimal] = if (totalN > 1) {
+  def variance: Option[BigDecimal] = if (totalN > 1)
     Some(m2 / (BigDecimal(totalN) - 1))
-  } else {
+  else
     None
-  }
 
   /** The standard deviation of the observed values. */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  def stdev: Option[BigDecimal] = if (totalN > 1) {
+  def stdev: Option[BigDecimal] = if (totalN > 1)
     // XXX This should really be using BigDecimal.sqrt, but we don't have it yet
     Some(BigDecimal(sqrt(variance.get.toDouble)))
-  } else {
+  else
     None
-  }
 
   /** The skewness of the observed values. */
-  def skewness: Option[BigDecimal] = if (m2 > 0) {
+  def skewness: Option[BigDecimal] = if (m2 > 0)
     // XXX This should really be using BigDecimal.{pow, sqrt},
     //     but we don't have it yet
     Some(sqrt(totalN.toDouble) * m3 / pow(m2.toDouble, 1.5))
-  } else {
+  else
     None
-  }
 
   /** The kurtosis of the observed values. */
-  def kurtosis: Option[BigDecimal] = if (m2 > 0) {
+  def kurtosis: Option[BigDecimal] = if (m2 > 0)
     Some(BigDecimal(totalN) * m4 / (m2 * m2) - 3.0)
-  } else {
+  else
     None
-  }
 
   /** Merge these statistical values together.
     *

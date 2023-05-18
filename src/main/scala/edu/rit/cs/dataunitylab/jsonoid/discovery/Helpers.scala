@@ -107,11 +107,10 @@ object Helpers {
       // of decimal digits in the number minus 1
       val pow10 = BigInt(10).pow(current.toString.length - 1 - 1)
       val next10 = current + pow10 - current.mod(pow10)
-      if (next2 < next10 && next2 > current) {
+      if (next2 < next10 && next2 > current)
         maybeExpandInt(Some(next2), Some(limit), exclusive, force, round + 1)
-      } else {
+      else
         maybeExpandInt(Some(next10), Some(limit), exclusive, force, round + 1)
-      }
     }
   }
 
@@ -203,16 +202,16 @@ object Helpers {
       // 200 => 190
       // 307 => 300
       val pow10 = Math.pow(10, Math.log10(current).floor - 1).toInt
-      val next10 = if (current % pow10 == 0) {
-        current - pow10
-      } else {
-        current - (current % pow10)
-      }
-      if (next2 > next10) {
+      val next10 =
+        if (current % pow10 == 0)
+          current - pow10
+        else
+          current - (current % pow10)
+
+      if (next2 > next10)
         maybeContractInt(Some(next2), Some(limit), exclusive, force, round + 1)
-      } else {
+      else
         maybeContractInt(Some(next10), Some(limit), exclusive, force, round + 1)
-      }
     }
   }
 
@@ -246,20 +245,19 @@ object Helpers {
       value2: Option[A],
       exclusive2: Boolean
   ): Boolean = {
-    if (value2.isEmpty) {
+    if (value2.isEmpty)
       // If the other has no minimum, then it covers the first
       true
-    } else if (value1.isEmpty) {
+    else if (value1.isEmpty)
       // If the other has a minimum and we don't, not covered
       false
-    } else if (!exclusive1 && exclusive2) {
+    else if (!exclusive1 && exclusive2)
       // If the other is exclusive and we are not,
       // then the other minmum value must be smaller
       value2.get < value1.get
-    } else {
+    else
       // Otherwise, minimum value can be less than or equal
       value2.get <= value1.get
-    }
   }
 
   /** Determine if one maximum value covers the values of another,
@@ -278,20 +276,19 @@ object Helpers {
       value2: Option[A],
       exclusive2: Boolean
   ): Boolean = {
-    if (value2.isEmpty) {
+    if (value2.isEmpty)
       // If the other has no maximum, then it covers the first
       true
-    } else if (value1.isEmpty) {
+    else if (value1.isEmpty)
       // If the other has a maximum and we don't, not covered
       false
-    } else if (!exclusive1 && exclusive2) {
+    else if (!exclusive1 && exclusive2)
       // If the other is exclusive and we are not,
       // then the other maximum value must be larger
       value2.get > value1.get
-    } else {
+    else
       // Otherwise, maximum value can be greater than or equal
       value2.get >= value1.get
-    }
   }
 
   /** Find the maximum of two values or None if neither is specified. */
@@ -300,8 +297,7 @@ object Helpers {
       case (Some(a), None) => first
       case (None, Some(b)) => second
       case (Some(a), Some(b)) =>
-        if (b > a) { second }
-        else { first }
+        if (b > a) second else first
       case (None, None) => None
     }
 
@@ -311,8 +307,7 @@ object Helpers {
       case (Some(a), None) => first
       case (None, Some(b)) => second
       case (Some(a), Some(b)) =>
-        if (b < a) { second }
-        else { first }
+        if (b < a) second else first
       case (None, None) => None
     }
 

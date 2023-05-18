@@ -176,11 +176,10 @@ final case class IntegerSchema(
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // Number schemas may be compatible with number schemas so try conversion
-    if (other.isInstanceOf[NumberSchema]) {
+    if (other.isInstanceOf[NumberSchema])
       this.asNumberSchema.isSubsetOf(other, recursive)(p)
-    } else {
+    else
       super.isSubsetOf(other, recursive)(p)
-    }
   }
 }
 
@@ -200,8 +199,7 @@ final case class MinIntValueProperty(
     MinIntValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ((if (exclusive) { "exclusiveMinimum" }
-      else { "minimum" }) -> minIntValue)
+    ((if (exclusive) "exclusiveMinimum" else "minimum") -> minIntValue)
 
   override def intersectMerge(
       otherProp: MinIntValueProperty
@@ -316,8 +314,7 @@ final case class MaxIntValueProperty(
     MaxIntValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ((if (exclusive) { "exclusiveMaximum" }
-      else { "maximum" }) -> maxIntValue)
+    ((if (exclusive) "exclusiveMaximum" else "maximum") -> maxIntValue)
 
   override def intersectMerge(
       otherProp: MaxIntValueProperty
@@ -432,7 +429,7 @@ final case class IntHyperLogLogProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64())
+    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
 
   override def unionMerge(
       otherProp: IntHyperLogLogProperty
@@ -471,7 +468,7 @@ final case class IntBloomFilterProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("bloomFilter" -> bloomFilter.toBase64())
+    ("bloomFilter" -> bloomFilter.toBase64)
   }
 
   override def unionMerge(
@@ -690,7 +687,7 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("histogram" -> histogram.bins().map { case (value, count) =>
+    ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)
     })
   }

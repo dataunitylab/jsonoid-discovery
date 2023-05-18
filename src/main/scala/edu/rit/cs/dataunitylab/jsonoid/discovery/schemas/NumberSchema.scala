@@ -176,8 +176,7 @@ final case class MinNumValueProperty(
     MinNumValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ((if (exclusive) { "exclusiveMinimum" }
-      else { "minimum" }) -> minNumValue)
+    ((if (exclusive) "exclusiveMinimum" else "minimum") -> minNumValue)
 
   override def intersectMerge(
       otherProp: MinNumValueProperty
@@ -305,8 +304,7 @@ final case class MaxNumValueProperty(
     MaxNumValueProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ((if (exclusive) { "exclusiveMaximum" }
-      else { "maximum" }) -> maxNumValue)
+    ((if (exclusive) "exclusiveMaximum" else "maximum") -> maxNumValue)
 
   override def intersectMerge(
       otherProp: MaxNumValueProperty
@@ -434,8 +432,7 @@ final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("distinctValues" -> hll.count()) ~ ("hll" ->
-      hll.toBase64())
+    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
 
   override def unionMerge(
       otherProp: NumHyperLogLogProperty
@@ -452,14 +449,15 @@ final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
   )(implicit p: JsonoidParams): NumHyperLogLogProperty = {
     val prop = NumHyperLogLogProperty()
     prop.hll.merge(this.hll)
-    val longVal = if (value.isValidLong) {
-      value.toLong
-    } else {
-      // XXX Use first five decimal places
-      //     This could later conflict with a larger integer value
-      //     i.e. 3.14159 will match 314159
-      (value * 100000).toLong
-    }
+    val longVal =
+      if (value.isValidLong)
+        value.toLong
+      else
+        // XXX Use first five decimal places
+        //     This could later conflict with a larger integer value
+        //     i.e. 3.14159 will match 314159
+        (value * 100000).toLong
+
     prop.hll.add(longVal)
 
     prop
@@ -653,11 +651,10 @@ final case class NumMultipleOfProperty(
   override def mergeValue(
       value: BigDecimal
   )(implicit p: JsonoidParams): NumMultipleOfProperty = {
-    if (value.abs < 1e-10) {
+    if (value.abs < 1e-10)
       NumMultipleOfProperty(None, true)
-    } else {
+    else
       unionMerge(NumMultipleOfProperty(Some(value)))
-    }
   }
 
   @SuppressWarnings(
@@ -676,11 +673,10 @@ final case class NumMultipleOfProperty(
       false
     } else {
       // Otherwise, our multiple must be a multiple of the other multiple
-      if (other.multiple.get === 0) {
+      if (other.multiple.get === 0)
         multiple.get === 0
-      } else {
+      else
         (multiple.get / other.multiple.get).isValidInt
-      }
     }
   }
 
@@ -724,7 +720,7 @@ final case class NumHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("histogram" -> histogram.bins().map { case (value, count) =>
+    ("histogram" -> histogram.bins.map { case (value, count) =>
       List(value, count)
     })
   }
@@ -752,10 +748,9 @@ final case class NumHistogramProperty(
       case _             => false
     }
 
-    if (histAnomaly) {
+    if (histAnomaly)
       Seq(Anomaly(path, "value outside histogram bounds", AnomalyLevel.Info))
-    } else {
+    else
       Seq.empty
-    }
   }
 }

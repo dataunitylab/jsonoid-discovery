@@ -124,11 +124,10 @@ final case class StringSchema(
     val maybeNumericProp = properties.getOrNone[StringNumericProperty]
     maybeNumericProp match {
       case Some(numericProp) =>
-        if (!numericProp.failed && numericProp.numericSchema.isDefined) {
+        if (!numericProp.failed && numericProp.numericSchema.isDefined)
           numericProp.numericSchema.get.toJson()(p)
-        } else {
+        else
           super.toJson()(p)
-        }
       case None => super.toJson()(p)
     }
   }
@@ -323,8 +322,7 @@ final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("distinctValues" -> hll.count()) ~ ("hll" ->
-      hll.toBase64())
+    ("distinctValues" -> hll.count()) ~ ("hll" -> hll.toBase64)
 
   override def unionMerge(
       otherProp: StringHyperLogLogProperty
@@ -365,7 +363,7 @@ final case class StringBloomFilterProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject =
-    ("bloomFilter" -> bloomFilter.toBase64())
+    ("bloomFilter" -> bloomFilter.toBase64)
 
   override def unionMerge(
       otherProp: StringBloomFilterProperty
@@ -594,11 +592,10 @@ final case class FormatProperty(
     // extended checkers since some of them are more specific
     // (e.g. "geo-uri" is a more specific format for "uri").
     val checkers =
-      (if (p.extendedFormats) {
+      (if (p.extendedFormats)
          FormatProperty.ExtendedFormatCheckers.toSeq
-       } else {
-         Seq.empty
-       }) ++ FormatProperty.FormatCheckers
+       else
+         Seq.empty) ++ FormatProperty.FormatCheckers
 
     checkers.find { case (format, fn) =>
       fn(value)
@@ -620,12 +617,11 @@ final case class FormatProperty(
   }
 
   override def expandTo(other: Option[FormatProperty]): FormatProperty = {
-    if (maxFormat() === other.flatMap(_.maxFormat(false))) {
+    if (maxFormat() === other.flatMap(_.maxFormat(false)))
       this
-    } else {
+    else
       // Reset to empty formats
       FormatProperty()
-    }
   }
 }
 
@@ -715,11 +711,10 @@ final case class PatternProperty(
   private def patternAnomalyLevel(value: String): AnomalyLevel = {
     // If the string consists of only digits, treat
     // it as a warning like with numeric types
-    if (value.forall(_.isDigit)) {
+    if (value.forall(_.isDigit))
       AnomalyLevel.Warning
-    } else {
+    else
       AnomalyLevel.Fatal
-    }
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
@@ -771,12 +766,11 @@ final case class PatternProperty(
   override def expandTo(other: Option[PatternProperty]): PatternProperty = {
     other match {
       case Some(otherProp) =>
-        if (otherProp.isSubsetOf(this)) {
+        if (otherProp.isSubsetOf(this))
           this
-        } else {
+        else
           // TODO Work on heuristics for expansion
           PatternProperty()
-        }
       case None => PatternProperty()
     }
   }
@@ -867,7 +861,7 @@ final case class StringLengthHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("lengthHistogram" -> histogram.bins().map { case (value, count) =>
+    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
       List(JDouble(value.doubleValue), JLong(count.longValue))
     })
   }
