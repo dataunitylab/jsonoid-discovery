@@ -83,7 +83,12 @@ object DiscoverSchema {
   def discover(
       jsons: Iterator[JValue]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
-    jsons.flatMap(discoverFromValue(_)(p)).fold(ZeroSchema())(_.merge(_))
+    try {
+      jsons.flatMap(discoverFromValue(_)(p)).fold(ZeroSchema())(_.merge(_))
+    } catch {
+      // This will happen if we have input in the wrong encoding
+      case e: java.nio.charset.MalformedInputException => ZeroSchema()
+    }
   }
 
   /** Discover a schema from a single JSON object.
