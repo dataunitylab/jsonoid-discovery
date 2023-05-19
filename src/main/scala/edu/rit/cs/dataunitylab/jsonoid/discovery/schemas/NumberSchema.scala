@@ -720,9 +720,7 @@ final case class NumHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("histogram" -> histogram.bins.map { case (value, count) =>
-      List(value, count)
-    })
+    ("histogram" -> histogram.toJson)
   }
 
   override def unionMerge(

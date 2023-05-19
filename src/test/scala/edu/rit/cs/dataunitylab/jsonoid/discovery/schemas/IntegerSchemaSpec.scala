@@ -152,11 +152,24 @@ class IntegerSchemaSpec extends UnitSpec {
 
   it should "keep a running histogram" in {
     val histProp = integerSchema.properties.get[IntHistogramProperty]
-    val bins = (histProp.toJson() \ "histogram").extract[List[List[Double]]]
+    val histJson = histProp.toJson() \ "histogram"
+    val bins = (histJson \ "bins").extract[List[List[Double]]]
     bins(0)(0) should equal(4.0 +- 0.1)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(8.0 +- 0.1)
     bins(1)(1) should ===(1.0)
+    (histJson \ "hasExtremeValues").extract[Boolean] shouldBe false
+  }
+
+  it should "report extreme values" in {
+    val largeIntSchema = IntegerSchema(
+      BigInt(
+        "344440000000000000124000000124154004000124000000124154004000000000004154340000004340000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000021058799293176151000000000000000000000000000000000000000000000000000000000000000000000000000000210587992931761514800"
+      )
+    )
+    val histProp = largeIntSchema.properties.get[IntHistogramProperty]
+    val histJson = histProp.toJson() \ "histogram"
+    (histJson \ "hasExtremeValues").extract[Boolean] shouldBe true
   }
 
   behavior of "IntegerSchema"

@@ -187,12 +187,13 @@ class ArraySchemaSpec extends UnitSpec {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
     val histProp = arraySchema.properties.get[ArrayLengthHistogramProperty]
-    val bins =
-      (histProp.toJson() \ "lengthHistogram").extract[List[List[Double]]]
+    val histJson = histProp.toJson() \ "lengthHistogram"
+    val bins = (histJson \ "bins").extract[List[List[Double]]]
     bins(0)(0) should ===(1.0)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(2.0)
     bins(1)(1) should ===(1.0)
+    (histJson \ "hasExtremeValues").extract[Boolean] shouldBe false
   }
 
   it should "find nothing in an array schema with an empty pointer" in {

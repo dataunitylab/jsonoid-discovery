@@ -687,9 +687,7 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("histogram" -> histogram.bins.map { case (value, count) =>
-      List(value, count)
-    })
+    ("histogram" -> histogram.toJson)
   }
 
   override def unionMerge(
@@ -701,7 +699,7 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
   override def mergeValue(
       value: BigInt
   )(implicit p: JsonoidParams): IntHistogramProperty = {
-    IntHistogramProperty(histogram.merge(value.doubleValue))
+    IntHistogramProperty(histogram.merge(value))
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit

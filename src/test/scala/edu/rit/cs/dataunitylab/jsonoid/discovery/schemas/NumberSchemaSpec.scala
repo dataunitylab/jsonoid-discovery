@@ -175,11 +175,13 @@ class NumberSchemaSpec extends UnitSpec {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
     val histProp = numberSchema.properties.get[NumHistogramProperty]
-    val bins = (histProp.toJson() \ "histogram").extract[List[List[Double]]]
+    val histJson = histProp.toJson() \ "histogram"
+    val bins = (histJson \ "bins").extract[List[List[Double]]]
     bins(0)(0) should ===(3.14)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(4.28)
     bins(1)(1) should ===(1.0)
+    (histJson \ "hasExtremeValues").extract[Boolean] shouldBe false
   }
 
   behavior of "NumberSchema"
@@ -218,11 +220,13 @@ class NumberSchemaSpec extends UnitSpec {
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(0.02)
 
     val histProp = mixedSchema.properties.get[NumHistogramProperty]
-    val bins = (histProp.toJson() \ "histogram").extract[List[List[Double]]]
+    val histJson = histProp.toJson() \ "histogram"
+    val bins = (histJson \ "bins").extract[List[List[Double]]]
     bins(0)(0) should ===(3.14)
     bins(0)(1) should ===(1.0)
     bins(1)(0) should ===(4.28)
     bins(1)(1) should ===(1.0)
+    (histJson \ "hasExtremeValues").extract[Boolean] shouldBe false
   }
 
   it should "have no properties in the minimal property set" in {

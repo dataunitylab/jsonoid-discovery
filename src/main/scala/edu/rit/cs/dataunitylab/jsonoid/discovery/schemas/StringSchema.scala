@@ -861,9 +861,7 @@ final case class StringLengthHistogramProperty(
   override val isInformational = true
 
   override def toJson()(implicit p: JsonoidParams): JObject = {
-    ("lengthHistogram" -> histogram.bins.map { case (value, count) =>
-      List(JDouble(value.doubleValue), JLong(count.longValue))
-    })
+    ("lengthHistogram" -> histogram.toJson)
   }
 
   override def unionMerge(

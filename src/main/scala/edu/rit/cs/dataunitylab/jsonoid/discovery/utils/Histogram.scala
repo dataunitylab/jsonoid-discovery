@@ -6,6 +6,8 @@ import scala.collection.mutable.ListBuffer
 
 import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
 import com.datadoghq.sketch.ddsketch.store.Bin
+import org.json4s.JsonDSL._
+import org.json4s._
 
 import Helpers._
 
@@ -21,7 +23,8 @@ object Histogram {
   * @param sketch the sketch to use for the histogram
   */
 final case class Histogram(
-    sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance)
+    sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance),
+    hasExtremeValues: Boolean = false
 ) {
 
   private def zeroCount: Int = {
@@ -32,6 +35,12 @@ final case class Histogram(
     assert(zeros >= 0)
 
     zeros
+  }
+
+  def toJson: JObject = {
+    ("bins" -> bins.map { case (value, count) =>
+      List(JDouble(value.doubleValue), JLong(count.longValue))
+    }) ~ ("hasExtremeValues" -> hasExtremeValues)
   }
 
   /** Produce bins for the histogram.
@@ -80,7 +89,8 @@ final case class Histogram(
     * @return the merged histogram
     */
   def merge(other: Histogram): Histogram = {
-    val newHistogram = Histogram()
+    val newHistogram =
+      Histogram(hasExtremeValues = hasExtremeValues || other.hasExtremeValues)
     newHistogram.sketch.mergeWith(sketch)
     newHistogram.sketch.mergeWith(other.sketch)
 
@@ -94,11 +104,34 @@ final case class Histogram(
     * @return the merged histogram
     */
   def merge(value: Double): Histogram = {
-    val newHistogram = Histogram()
+    val indexMapping = sketch.getIndexMapping
+    val trackable =
+      value < indexMapping.maxIndexableValue && value > indexMapping.minIndexableValue
+    val newHistogram = Histogram(hasExtremeValues = !trackable)
     newHistogram.sketch.mergeWith(sketch)
-    newHistogram.sketch.accept(value)
+    try {
+      newHistogram.sketch.accept(value)
+    } catch {
+      case e: IllegalArgumentException =>
+        // Ensure that we have marked this value as not trackable
+        assert(!trackable)
+    }
 
     newHistogram
+  }
+
+  /** Merge a value into this histogram.
+    *
+    * @param value the value to merge into the histogram
+    *
+    * @return the merged histogram
+    */
+  def merge(value: BigInt): Histogram = {
+    if (value.isValidDouble) {
+      merge(value.doubleValue)
+    } else {
+      Histogram(sketch, true)
+    }
   }
 
   /** Check if a value is anamolous according to the histogram.
