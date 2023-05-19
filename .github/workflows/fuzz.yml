@@ -1,0 +1,49 @@
+name: Fuzz
+on:
+  schedule:
+    - cron: '0 2 * * 0'  # every Sunday at 2am
+  workflow_dispatch:
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Coursier cache
+      uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
+    - name: Build JAR
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt 'fuzz / assembly'
+    - name: Download Jazzer
+      uses: robinraju/release-downloader@v1.8
+      with:
+        repository: CodeIntelligenceTesting/jazzer
+        latest: true
+        filename: jazzer-linux.tar.gz
+        extract: true
+    - name: Fuzz
+      run: |
+        /usr/bin/timeout 5m ./jazzer \
+          --cp=./jazzer_standalone.jar \
+          --cp=fuzz/target/scala-2.13/fuzz.jar \
+          --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchemaFuzzer \
+          -dict=fuzz/test/resources/json.dict \
+          fuzz/test/resources || code=$?; \
+        if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+    - uses: actions/upload-artifact@v3
+      with:
+        name: crash
+        path: |
+          ./crash-*
+          ./Crash-*.java
+    - name: Clean up
+      run: |
+        rm -rf "$HOME/.ivy2/local" || true
+        find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true
+        find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
+        find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
+        find $HOME/.sbt                              -name "*.lock"               -delete || true
