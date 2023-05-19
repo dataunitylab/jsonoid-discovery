@@ -109,6 +109,13 @@ lazy val root = (project in file("."))
     buildInfoPackage := "edu.rit.cs.dataunitylab.jsonoid.discovery"
   )
 
+lazy val fuzz = (project in file("fuzz")).settings(
+   libraryDependencies ++= Seq(
+     jazzer,
+     json4s
+   )
+).dependsOn(root)
+
 Compile / compile / wartremoverErrors ++= Seq(
   Wart.ArrayEquals,
   Wart.EitherProjectionPartial,
@@ -165,7 +172,9 @@ assembly / assemblyMergeStrategy := {
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
 }
-assembly / assemblyJarName       := s"jsonoid-discovery-${version.value}.jar"
+fuzz / assembly / assemblyMergeStrategy := (assembly / assemblyMergeStrategy).value
+assembly / assemblyJarName        := s"jsonoid-discovery-${version.value}.jar"
+fuzz / assembly / assemblyJarName := "fuzz.jar"
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
 assemblyPrependShellScript := Some(defaultUniversalScript(shebang = false))

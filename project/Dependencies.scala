@@ -20,6 +20,7 @@ object Dependencies {
   lazy val validator           = "commons-validator"           % "commons-validator"     % "1.7"
 
   // Test
+  lazy val jazzer              = "com.code-intelligence"       % "jazzer"                 % "0.16.1"
   lazy val scalactic           = "org.scalactic"              %% "scalactic"              % "3.2.15"
   lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.15"
 

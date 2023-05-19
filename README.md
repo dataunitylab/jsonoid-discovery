@@ -95,6 +95,11 @@ JSONoid currently supports four equivalence relations (which can be specified us
 
 4. **TypeMatch** equivalence will combine object schemas if any keys that they have in common have the same type. Note that this equivalence is *shallow*, meaning that two values are considered the same type if they are both objects or arrays, without considering the contained types (similar to **kind** equivalence).
 
+## Running tests
+
+Tests can be run via [ScalaTest](https://www.scalatest.org/) via `sbt test`.
+It is also possible to run fuzz tests via [Jazzer](https://github.com/CodeIntelligenceTesting/jazzer) with `./run-fuzzer.sh`.
+
 ## Reporting issues
 
 If you encounter any issues, please open an issue on the [GitHub repository](https://github.com/michaelmior/jsonoid-discovery).
