@@ -151,6 +151,14 @@ class NumberSchemaSpec extends UnitSpec {
     ) shouldBe false
   }
 
+  it should "be compatible with multiples of different scales" in {
+    val numSchema1 = NumberSchema(2.0)
+    val numSchema2 = NumberSchema(BigDecimal("888888.8888888889"))
+    val mergedSchema = numSchema1.merge(numSchema2).asInstanceOf[NumberSchema]
+    numSchema1.isSubsetOf(mergedSchema) shouldBe true
+    numSchema2.isSubsetOf(mergedSchema) shouldBe true
+  }
+
   it should "expand by division by 2s" in {
     NumMultipleOfProperty(Some(4.0))
       .expandTo(Some(NumMultipleOfProperty((Some(2.0)))))

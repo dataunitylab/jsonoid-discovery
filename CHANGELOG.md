@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Don't anchor string matches in `StaticPatternProperty`
 - Fix compatibility check with `ProductSchema`
 - Don't crash with extremely large integer values
+- Fix crash when merging numbers of different scales
 
 ## [0.15.0]
 ### Changed

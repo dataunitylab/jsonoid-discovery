@@ -189,7 +189,7 @@ object Helpers {
       val log2 = Math.log(current) / Math.log(2)
       val closestPow2 =
         Math.pow(2, (log2).ceil - 1).toInt
-      val next2 = if (log2.isValidInt) {
+      val next2 = if (log2.isWhole) {
         current - 1
       } else {
         closestPow2

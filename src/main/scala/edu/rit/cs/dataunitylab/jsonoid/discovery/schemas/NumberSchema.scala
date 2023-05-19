@@ -676,7 +676,7 @@ final case class NumMultipleOfProperty(
       if (other.multiple.get === 0)
         multiple.get === 0
       else
-        (multiple.get / other.multiple.get).isValidInt
+        (multiple.get / other.multiple.get).isWhole
     }
   }
 
