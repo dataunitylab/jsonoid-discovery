@@ -33,7 +33,7 @@ object JsonSchema {
     )
   )
   private def fromJsonObjectValue(schema: JObject): JsonSchema[_] = {
-    val baseSchema = if (schema.obj.isEmpty) {
+    val baseSchema: JsonSchema[_] = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") =/= JNothing) {
       ReferenceSchema((schema \ "$ref").extract[String])
@@ -44,7 +44,7 @@ object JsonSchema {
       val value = (schema \ "const").extract[JValue]
       EnumSchema(Set(value))
     } else {
-      val schemaTypes = if ((schema \ "type") =/= JNothing) {
+      val schemaTypes: List[String] = if ((schema \ "type") =/= JNothing) {
         (schema \ "type") match {
           case s: JString => List(s.extract[String])
           case a: JArray  => a.extract[List[String]]
@@ -56,7 +56,7 @@ object JsonSchema {
       }
 
       val schemas = schemaTypes.map { schemaType =>
-        schemaType match {
+        val convertedSchema: JsonSchema[_] = schemaType match {
           case "array"   => ArraySchema.fromJson(schema)
           case "boolean" => BooleanSchema()
           case "integer" => IntegerSchema.fromJson(schema)
@@ -67,6 +67,8 @@ object JsonSchema {
           case _ =>
             throw new UnsupportedOperationException("type not supported")
         }
+
+        convertedSchema
       }
 
       schemas.length match {

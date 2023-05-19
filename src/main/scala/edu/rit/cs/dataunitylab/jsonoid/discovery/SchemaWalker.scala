@@ -2,6 +2,8 @@ package edu.rit.cs.dataunitylab.jsonoid.discovery
 
 import schemas._
 
+import scala.util.matching.Regex
+
 /** A helper trait for any class that needs to walk a schema and build a map
   * of values collected from the properties.
   */
@@ -45,7 +47,8 @@ trait SchemaWalker[T] {
             )
 
           case o: ObjectSchema =>
-            val props = o.properties.get[ObjectTypesProperty].objectTypes
+            val props: Map[String, JsonSchema[_]] =
+              o.properties.get[ObjectTypesProperty].objectTypes
             val extractedProps =
               extractSingle(o, extractor, prefix) ++ props.keySet.toSeq.flatMap(
                 key =>
@@ -58,7 +61,7 @@ trait SchemaWalker[T] {
               )
 
             // XXX patternProperties are represented using the regex string
-            val patternProps = o.properties
+            val patternProps: Map[Regex, JsonSchema[_]] = o.properties
               .getOrNone[PatternTypesProperty]
               .map(_.patternTypes)
               .getOrElse(Map.empty)

@@ -337,7 +337,7 @@ object DiscoverSchema {
       case Some(config) =>
         val tmpDir = if (config.debug) {
           val dir = Files.createTempDirectory("jsonoid")
-          System.err.println(s"tmpDir: ${dir.toString}")
+          System.err.println(s"tmpDir: ${dir.toFile.toString}")
 
           dir
         } else {

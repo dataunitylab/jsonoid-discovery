@@ -85,11 +85,10 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
     // Get the features for the specific type
     case (path, i: IntegerSchema) if i.properties.has[IntHyperLogLogProperty] =>
       val maxLength = if (i.properties.has[MaxIntValueProperty]) {
-        i.properties
-          .get[MaxIntValueProperty]
-          .maxIntValue
-          .getOrElse(0)
-          .toString
+        String
+          .valueOf(
+            i.properties.get[MaxIntValueProperty].maxIntValue.getOrElse(0)
+          )
           .length
       } else {
         0
@@ -103,11 +102,10 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
 
     case (path, n: NumberSchema) if n.properties.has[NumHyperLogLogProperty] =>
       val maxLength = if (n.properties.has[MaxNumValueProperty]) {
-        n.properties
-          .get[MaxNumValueProperty]
-          .maxNumValue
-          .getOrElse(0.0)
-          .toString
+        String
+          .valueOf(
+            n.properties.get[MaxNumValueProperty].maxNumValue.getOrElse(0.0)
+          )
           .length
       } else {
         0

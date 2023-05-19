@@ -303,7 +303,7 @@ final case class ObjectTypesProperty(
     val merged =
       (objectTypes.toSeq ++ value.toSeq).filter(t => mergedTypes.contains(t._1))
     val grouped = merged.groupBy(_._1)
-    val baseSchema = mergeType match {
+    val baseSchema: JsonSchema[_] = mergeType match {
       case Intersect => AnySchema()
       case Union     => ZeroSchema()
     }

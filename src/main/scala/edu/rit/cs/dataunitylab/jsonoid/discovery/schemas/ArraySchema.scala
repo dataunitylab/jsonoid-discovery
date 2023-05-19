@@ -1,7 +1,6 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
-import scala.language.existentials
 import scala.reflect._
 
 import scalaz._
@@ -300,57 +299,68 @@ final case class ItemTypeProperty(
       otherProp: ItemTypeProperty,
       mergeType: MergeType
   )(implicit p: JsonoidParams): ItemTypeProperty = {
-    val newType = (itemType, otherProp.itemType) match {
-      case (Right(schema1), Right(schema2)) =>
-        if (schema1.length == schema2.length) {
-          // Merge tuple schemas that are the same length
-          val newSchemas =
-            (schema1 zip schema2).map(_.fold(_.merge(_, mergeType)))
+    val newType: Either[JsonSchema[_], List[JsonSchema[_]]] =
+      (itemType, otherProp.itemType) match {
+        case (Right(schema1), Right(schema2)) =>
+          if (schema1.length == schema2.length) {
+            // Merge tuple schemas that are the same length
+            val newSchemas: List[JsonSchema[_]] =
+              (schema1 zip schema2).map(_.fold(_.merge(_, mergeType)))
 
-          // Check that the new schemas are compatible with the old
-          assert((schema1 zip newSchemas).forall(s => s._1.isSubsetOf(s._2)))
-          assert((schema2 zip newSchemas).forall(s => s._1.isSubsetOf(s._2)))
+            // Check that the new schemas are compatible with the old
+            assert(
+              (schema1 zip newSchemas).forall(
+                (s: Tuple2[JsonSchema[_], JsonSchema[_]]) =>
+                  s._1.isSubsetOf(s._2)
+              )
+            )
+            assert(
+              (schema2 zip newSchemas).forall(
+                (s: Tuple2[JsonSchema[_], JsonSchema[_]]) =>
+                  s._1.isSubsetOf(s._2)
+              )
+            )
 
-          Right(newSchemas)
-        } else {
-          // Tuple schemas are different length, so convert to list
-          Left((schema1 ++ schema2).fold(ZeroSchema())(_.merge(_, mergeType)))
-        }
+            Right(newSchemas)
+          } else {
+            // Tuple schemas are different length, so convert to list
+            Left((schema1 ++ schema2).fold(ZeroSchema())(_.merge(_, mergeType)))
+          }
 
-      // Merge two list schemas
-      case (Left(schema1), Left(schema2)) =>
-        val newSchema = schema1.merge(schema2, mergeType)
+        // Merge two list schemas
+        case (Left(schema1), Left(schema2)) =>
+          val newSchema = schema1.merge(schema2, mergeType)
 
-        // The new schema must be compatible with the originals
-        assert(schema1.isSubsetOf(newSchema))
-        assert(schema2.isSubsetOf(newSchema))
+          // The new schema must be compatible with the originals
+          assert(schema1.isSubsetOf(newSchema))
+          assert(schema2.isSubsetOf(newSchema))
 
-        Left(schema1.merge(schema2, mergeType))
+          Left(schema1.merge(schema2, mergeType))
 
-      // When merging with ZeroSchema, stay as a tuple
-      case (Left(_: ZeroSchema), Right(schema2)) => Right(schema2)
-      case (Right(schema1), Left(_: ZeroSchema)) => Right(schema1)
+        // When merging with ZeroSchema, stay as a tuple
+        case (Left(_: ZeroSchema), Right(schema2)) => Right(schema2)
+        case (Right(schema1), Left(_: ZeroSchema)) => Right(schema1)
 
-      // Otherwise, when merging a list and tuple schema, convert to list
-      case (Left(schema1), Right(schema2)) =>
-        val newSchema =
-          (schema1 :: schema2).fold(ZeroSchema())(_.merge(_, mergeType))
+        // Otherwise, when merging a list and tuple schema, convert to list
+        case (Left(schema1), Right(schema2)) =>
+          val newSchema =
+            (schema1 :: schema2).fold(ZeroSchema())(_.merge(_, mergeType))
 
-        // The new schema must be compatible with the originals
-        assert(schema1.isSubsetOf(newSchema))
-        assert(schema2.forall(_.isSubsetOf(newSchema)))
+          // The new schema must be compatible with the originals
+          assert(schema1.isSubsetOf(newSchema))
+          assert(schema2.forall(_.isSubsetOf(newSchema)))
 
-        Left(newSchema)
-      case (Right(schema1), Left(schema2)) =>
-        val newSchema =
-          (schema2 :: schema1).fold(ZeroSchema())(_.merge(_, mergeType))
+          Left(newSchema)
+        case (Right(schema1), Left(schema2)) =>
+          val newSchema =
+            (schema2 :: schema1).fold(ZeroSchema())(_.merge(_, mergeType))
 
-        // The new schema must be compatible with the originals
-        assert(schema1.forall(_.isSubsetOf(newSchema)))
-        assert(schema2.isSubsetOf(newSchema))
+          // The new schema must be compatible with the originals
+          assert(schema1.forall(_.isSubsetOf(newSchema)))
+          assert(schema2.isSubsetOf(newSchema))
 
-        Left(newSchema)
-    }
+          Left(newSchema)
+      }
     ItemTypeProperty(newType, count + otherProp.count)
   }
 
@@ -683,7 +693,7 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
       value: List[JsonSchema[_]]
   )(implicit p: JsonoidParams): UniqueProperty = {
     // Use the examples property to check uniqueness
-    val examples = value.fold(ZeroSchema())(_.merge(_)) match {
+    val examples: List[_] = value.fold(ZeroSchema())(_.merge(_)) match {
       case IntegerSchema(props) =>
         props.get[IntExamplesProperty].examples.examples
       case NumberSchema(props) =>
