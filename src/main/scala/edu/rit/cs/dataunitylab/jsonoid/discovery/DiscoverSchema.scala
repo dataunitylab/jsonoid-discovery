@@ -4,7 +4,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
-import scala.io.Source
+import scala.io.{Codec, Source}
 import scala.language.existentials
 
 import scopt.OptionParser
@@ -335,8 +335,8 @@ object DiscoverSchema {
         }
 
         val source = config.input match {
-          case Some(file) => Source.fromFile(file)
-          case None       => Source.stdin
+          case Some(file) => Source.fromFile(file)(Codec.UTF8)
+          case None       => Source.fromInputStream(System.in)(Codec.UTF8)
         }
 
         val propSet = config.onlyProperties match {
