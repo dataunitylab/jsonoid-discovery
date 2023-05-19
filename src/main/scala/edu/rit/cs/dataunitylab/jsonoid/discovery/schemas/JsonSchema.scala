@@ -522,9 +522,14 @@ trait JsonSchema[T] {
       case (s1, s2)                              => (s1, s2)
     }
 
-    schema2.isInstanceOf[AnySchema] ||
-    (schema1.schemaType == schema2.schemaType &&
+    if (schema2.isInstanceOf[AnySchema]) {
+      true
+    } else if (other.isInstanceOf[ProductSchema]) {
+      other.asInstanceOf[ProductSchema].isSupersetOf(this, recursive)
+    } else {
+      (schema1.schemaType == schema2.schemaType &&
       schema1.properties.isSubsetOf(schema2.properties, recursive)(p))
+    }
   }
 
   /** Expand this schema to be compatible with another schema if possible.

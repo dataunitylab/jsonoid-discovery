@@ -188,18 +188,39 @@ final case class ProductSchema(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    // Check if this type is compatible with anything in the product schema
-    val types = properties.get[ProductSchemaTypesProperty].schemaTypes
     other match {
       case AnySchema(_) => true
+
+      // For two product schemas, make sure there are compatible pairs
+      case ProductSchema(ps) =>
+        val types = properties.get[ProductSchemaTypesProperty].schemaTypes
+        val otherTypes = ps.get[ProductSchemaTypesProperty].schemaTypes
+        types.forall(s => otherTypes.exists(s.isSubsetOf(_, recursive)(p)))
+
+      // Otherwise, we can't be compatible
+      case _ => false
+    }
+  }
+
+  def isSupersetOf(
+      other: JsonSchema[_],
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    val types = properties.get[ProductSchemaTypesProperty].schemaTypes
+
+    other match {
+      // XXX Technically this could be true if this schem is a
+      //     product of all other basic types with no restrictions,
+      //     but we consider this a very unlikely case.
+      case AnySchema(_) => false
 
       // For two product schemas, find any compatible pair
       case ProductSchema(ps) =>
         val otherTypes = ps.get[ProductSchemaTypesProperty].schemaTypes
-        types.forall(s => otherTypes.exists(s.isSubsetOf(_, recursive)(p)))
+        otherTypes.forall(s => types.exists(s.isSubsetOf(_, recursive)(p)))
 
       // Otherwise check if the single type is compatible
-      case _ => types.exists(_.isSubsetOf(other, recursive)(p))
+      case _ => types.exists(other.isSubsetOf(_, recursive)(p))
     }
   }
 

@@ -181,7 +181,8 @@ class ProductSchemaSpec extends UnitSpec {
   }
 
   it should "be compatible with one of the contained schemas" in {
-    productSchema1.isSubsetOf(schema1) shouldBe true
+    schema1.isSubsetOf(productSchema1) shouldBe true
+    productSchema1.isSupersetOf(schema1) shouldBe true
   }
 
   it should "not be compatible with a schema not contained inside" in {

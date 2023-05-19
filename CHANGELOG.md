@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Avoid errors with very small `multipleOf` values
 - Avoid errors with `multipleOf` and very different scales
 - Don't anchor string matches in `StaticPatternProperty`
+- Fix compatibility check with `ProductSchema`
 
 ## [0.15.0]
 ### Changed
