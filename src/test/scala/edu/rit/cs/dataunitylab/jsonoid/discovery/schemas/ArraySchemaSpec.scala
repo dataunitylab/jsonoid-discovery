@@ -3,6 +3,7 @@ package schemas
 
 import UnitSpec._
 
+import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.{DefaultFormats, Formats}
 import org.scalactic.TolerantNumerics
@@ -371,5 +372,19 @@ class ArraySchemaSpec extends UnitSpec {
         .tuple(List(IntegerSchema(3), IntegerSchema(4)))
         .expandTo(Some(schema))
     ) shouldBe true
+  }
+
+  behavior of "fromJson"
+
+  it should "parse an array schema" in {
+    val arraySchema = ArraySchema.fromJson(("uniqueItems" -> true))
+    val uniqueProp = arraySchema.properties.get[UniqueProperty]
+    (uniqueProp.toJson() \ "uniqueItems").extract[Boolean] shouldBe true
+  }
+
+  it should "produce an error if items and prefixItems are both used" in {
+    assertThrows[UnsupportedOperationException] {
+      ArraySchema.fromJson(("items" -> true) ~ ("prefixItems" -> true))
+    }
   }
 }

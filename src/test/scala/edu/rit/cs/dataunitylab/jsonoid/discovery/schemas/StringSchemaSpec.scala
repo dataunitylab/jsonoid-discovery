@@ -2,6 +2,7 @@ package edu.rit.cs.dataunitylab.jsonoid.discovery
 package schemas
 
 import org.json4s.{DefaultFormats, Formats}
+import org.json4s.JsonDSL._
 import org.json4s._
 
 import UnitSpec._
@@ -379,5 +380,23 @@ class StringSchemaSpec extends UnitSpec {
     (StringSchema("3.2")(
       JsonoidParams().withPropertySet(propSet)
     ).toJson() \ "type").extract[String] shouldBe "number"
+  }
+
+  behavior of "fromJson"
+
+  it should "parse examples" in {
+    val stringSchema = StringSchema.fromJson(("examples" -> List("foo")))
+    val examplesProp = stringSchema.properties.get[StringExamplesProperty]
+    (examplesProp.toJson() \ "examples") shouldEqual JArray(
+      List(JString("foo"))
+    )
+  }
+
+  it should "reconstruct a Bloom filter" in {
+    val stringSchema = StringSchema.fromJson(
+      ("bloomFilter" -> "rO0ABXNyADtlZHUucml0LmNzLmRhdGF1bml0eWxhYi5qc29ub2lkLmRpc2NvdmVyeS51dGlscy5CbG9vbUZpbHRlcsvQnSfw8R94AgABTAAGZmlsdGVydAAyTGNvbS9zYW5ndXB0YS9ibG9vbWZpbHRlci9pbXBsL1JvYXJpbmdCbG9vbUZpbHRlcjt4cHNyADBjb20uc2FuZ3VwdGEuYmxvb21maWx0ZXIuaW1wbC5Sb2FyaW5nQmxvb21GaWx0ZXIAZGFzji8yJgIAAHhyACxjb20uc2FuZ3VwdGEuYmxvb21maWx0ZXIuQWJzdHJhY3RCbG9vbUZpbHRlclz7+1KlY1K4AgAGSQAYa09yTnVtYmVyT2ZIYXNoRnVuY3Rpb25zRAAbbWF4RmFsc2VQb3NpdGl2ZVByb2JhYmlsaXR5SQAPbnVtQml0c1JlcXVpcmVkTAAIYml0QXJyYXl0AChMY29tL3Nhbmd1cHRhL2Jsb29tZmlsdGVyL2NvcmUvQml0QXJyYXk7TAAQY3VzdG9tRGVjb21wb3NlcnQAL0xjb20vc2FuZ3VwdGEvYmxvb21maWx0ZXIvZGVjb21wb3NlL0RlY29tcG9zZXI7TAAGaGFzaGVydAAsTGNvbS9zYW5ndXB0YS9ibG9vbWZpbHRlci9oYXNoL0hhc2hGdW5jdGlvbjt4cAAAAAY/hHrhR64UewAOoClzcgAwY29tLnNhbmd1cHRhLmJsb29tZmlsdGVyLmNvcmUuUm9hcmluZ0JpdFNldEFycmF5TQ42xUhHW5ECAAJJAARzaXplTAAGYml0bWFwdAAhTG9yZy9yb2FyaW5nYml0bWFwL1JvYXJpbmdCaXRtYXA7eHAADqApc3IAH29yZy5yb2FyaW5nYml0bWFwLlJvYXJpbmdCaXRtYXAAAAAAAAAABgwAAHhwdzw6MAAABQAAAAIAAAADAAEABgAAAAcAAAANAAAAMAAAADIAAAA2AAAAOAAAADoAAABnv7UuMaIIp9KJ73d4cHNyADFjb20uc2FuZ3VwdGEuYmxvb21maWx0ZXIuaGFzaC5NdXJtdXIzSGFzaEZ1bmN0aW9uyC+7EMWNVnECAAB4cA==")
+    )
+    val bloomProp = stringSchema.properties.get[StringBloomFilterProperty]
+    bloomProp.bloomFilter.contains("foo") shouldBe true
   }
 }
