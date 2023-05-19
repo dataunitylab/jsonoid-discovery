@@ -16,6 +16,8 @@ Only the `read:packages` permission should be required.
 ## Input/Output Format
 
 JSONoid accepts [newline-delimited JSON](http://ndjson.org/) either from standard input or a file.
+Any invalid JSON will be skipped and not produce an error.
+It is therefore recommended to validate the JSON before providing to JSONoid if handling invalid input is required.
 The generated schema will be printed [JSON Schema](https://json-schema.org/) as output.
 Note that depending on the configuration, JSONoid will add additional properties which are not part of the JSON Schema standard.
 

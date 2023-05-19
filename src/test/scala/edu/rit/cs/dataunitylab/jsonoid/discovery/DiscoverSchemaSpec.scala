@@ -23,46 +23,58 @@ class DiscoverSchemaSpec extends UnitSpec {
 
   it should "produce an array schema" in {
     DiscoverSchema
-      .discoverFromValue(JArray(List(JBool(true)))) shouldBe a[ArraySchema]
+      .discoverFromValue(JArray(List(JBool(true))))
+      .get shouldBe a[ArraySchema]
   }
 
   it should "produce an array schema from a set" in {
     DiscoverSchema
-      .discoverFromValue(JSet(Set(JBool(true)))) shouldBe a[ArraySchema]
+      .discoverFromValue(JSet(Set(JBool(true))))
+      .get shouldBe a[ArraySchema]
   }
 
   it should "produce a boolean schema" in {
-    DiscoverSchema.discoverFromValue(JBool(true)) shouldBe a[BooleanSchema]
+    DiscoverSchema.discoverFromValue(JBool(true)).get shouldBe a[BooleanSchema]
   }
 
   it should "produce a number schema" in {
-    DiscoverSchema.discoverFromValue(JDecimal(1.0)) shouldBe a[NumberSchema]
+    DiscoverSchema.discoverFromValue(JDecimal(1.0)).get shouldBe a[NumberSchema]
   }
 
   it should "produce an integer schema" in {
-    DiscoverSchema.discoverFromValue(JInt(1)) shouldBe a[IntegerSchema]
+    DiscoverSchema.discoverFromValue(JInt(1)).get shouldBe a[IntegerSchema]
   }
 
   it should "produce an integer schema from a long" in {
-    DiscoverSchema.discoverFromValue(JLong(1)) shouldBe a[IntegerSchema]
+    DiscoverSchema.discoverFromValue(JLong(1)).get shouldBe a[IntegerSchema]
   }
 
   it should "produce a null schema" in {
-    DiscoverSchema.discoverFromValue(JNull) shouldBe a[NullSchema]
+    DiscoverSchema.discoverFromValue(JNull).get shouldBe a[NullSchema]
   }
 
   it should "produce a null schema from nothing" in {
-    DiscoverSchema.discoverFromValue(JNothing) shouldBe a[NullSchema]
+    DiscoverSchema.discoverFromValue(JNothing).get shouldBe a[NullSchema]
   }
 
   it should "produce an object schema" in {
-    DiscoverSchema.discoverFromValue(
-      JObject(List(("foo", JBool(true))))
-    ) shouldBe a[ObjectSchema]
+    DiscoverSchema
+      .discoverFromValue(
+        JObject(List(("foo", JBool(true))))
+      )
+      .get shouldBe a[ObjectSchema]
   }
 
   it should "produce a string schema" in {
-    DiscoverSchema.discoverFromValue(JString("foo")) shouldBe a[StringSchema]
+    DiscoverSchema
+      .discoverFromValue(JString("foo"))
+      .get shouldBe a[StringSchema]
+  }
+
+  it should "produce nothing for Infinity" in {
+    DiscoverSchema.discoverFromValue(
+      JDouble(Double.PositiveInfinity)
+    ) shouldBe None
   }
 
   it should "produce minimal properties when requested" in {

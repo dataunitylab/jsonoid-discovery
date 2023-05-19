@@ -26,7 +26,7 @@ class DefinitionTransformerSpec extends UnitSpec {
     }""")
 
     val schema =
-      DiscoverSchema.discoverFromValue(json).asInstanceOf[ObjectSchema]
+      DiscoverSchema.discoverFromValue(json).get.asInstanceOf[ObjectSchema]
     val transformedSchema = DefinitionTransformer.transformSchema(schema)
 
     // Check that the definition exists
@@ -62,7 +62,7 @@ class DefinitionTransformerSpec extends UnitSpec {
     }""")
 
     val schema =
-      DiscoverSchema.discoverFromValue(json).asInstanceOf[ObjectSchema]
+      DiscoverSchema.discoverFromValue(json).get.asInstanceOf[ObjectSchema]
     val transformedSchema = DefinitionTransformer.transformSchema(schema)
 
     schema.shouldEqual(transformedSchema)

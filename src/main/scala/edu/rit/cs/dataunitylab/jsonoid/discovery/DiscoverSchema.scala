@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Paths}
 import scala.io.{Codec, Source}
 import scala.language.existentials
+import scala.util.Try
 
 import scopt.OptionParser
 import org.json4s._
@@ -61,7 +62,7 @@ object DiscoverSchema {
     jsons.foldLeft(initialSchemas) { (schemas, json) =>
       {
         // Discover the schema for this single value
-        val newSchema = discoverFromValue(json)(p)
+        val newSchema = discoverFromValue(json)(p).getOrElse(ZeroSchema())
 
         // Merge the value into the appropriate schema
         if (util.Random.nextDouble() > splitFraction) {
@@ -82,7 +83,7 @@ object DiscoverSchema {
   def discover(
       jsons: Iterator[JValue]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
-    jsons.map(discoverFromValue(_)(p)).fold(ZeroSchema())(_.merge(_))
+    jsons.flatMap(discoverFromValue(_)(p)).fold(ZeroSchema())(_.merge(_))
   }
 
   /** Discover a schema from a single JSON object.
@@ -93,21 +94,27 @@ object DiscoverSchema {
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def discoverFromValue(
       value: JValue
-  )(implicit p: JsonoidParams): JsonSchema[_] = {
+  )(implicit p: JsonoidParams): Option[JsonSchema[_]] = {
     value match {
       case JArray(items) =>
-        ArraySchema(items.map(discoverFromValue(_)(p)))(p)
-      case JBool(bool)     => BooleanSchema(bool)(p)
-      case JDecimal(dec)   => NumberSchema(dec)(p)
-      case JDouble(dbl)    => NumberSchema(dbl)(p)
-      case JInt(int)       => IntegerSchema(int)(p)
-      case JLong(long)     => IntegerSchema(long)(p)
-      case JNothing        => NullSchema()
-      case JNull           => NullSchema()
-      case JObject(fields) => discoverObjectFields(fields)(p)
+        Some(ArraySchema(items.flatMap(discoverFromValue(_)(p)))(p))
+      case JBool(bool)   => Some(BooleanSchema(bool)(p))
+      case JDecimal(dec) => Some(NumberSchema(dec)(p))
+      case JDouble(dbl) => {
+        if (dbl.isInfinite) {
+          None
+        } else {
+          Some(NumberSchema(dbl)(p))
+        }
+      }
+      case JInt(int)       => Some(IntegerSchema(int)(p))
+      case JLong(long)     => Some(IntegerSchema(long)(p))
+      case JNothing        => Some(NullSchema())
+      case JNull           => Some(NullSchema())
+      case JObject(fields) => Some(discoverObjectFields(fields)(p))
       case JSet(items) =>
-        ArraySchema(items.map(discoverFromValue(_)(p)).toList)(p)
-      case JString(str) => StringSchema(str)(p)
+        Some(ArraySchema(items.flatMap(discoverFromValue(_)(p)).toList)(p))
+      case JString(str) => Some(StringSchema(str)(p))
     }
   }
 
@@ -121,7 +128,14 @@ object DiscoverSchema {
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     ObjectSchema(
       fields
-        .map { case (k, v) => (k, discoverFromValue(v)) }
+        .flatMap {
+          case (k, v) => {
+            discoverFromValue(v)(p) match {
+              case Some(value) => Some((k, value))
+              case _           => None
+            }
+          }
+        }
         .asInstanceOf[Seq[(String, JsonSchema[_])]]
         .toMap
     )(p)
@@ -130,7 +144,7 @@ object DiscoverSchema {
   /** Produce an iterator of JSON objects from a source.
     */
   def jsonFromSource(source: Source): Iterator[JValue] = {
-    source.getLines().map(parse(_))
+    source.getLines().flatMap((s: String) => Try(parse(s)).toOption)
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Var"))

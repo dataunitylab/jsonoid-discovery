@@ -21,7 +21,7 @@ object JsonoidRDD {
   )(implicit p: JsonoidParams): JsonoidRDD = {
     val discoverFromString = (jsonString: String) =>
       DiscoverSchema.discoverFromValue(parse(jsonString))
-    new JsonoidRDD(rdd.map(discoverFromString))(p)
+    new JsonoidRDD(rdd.flatMap(discoverFromString))(p)
   }
 
   implicit def unwrapJsonoidRdd(jsonoidRdd: JsonoidRDD): RDD[JsonSchema[_]] =
