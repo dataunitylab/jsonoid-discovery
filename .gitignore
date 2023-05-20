@@ -17,3 +17,11 @@ node_modules/
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Fuzz testing resources
+jazzer
+jazzer_standalone.jar
+crash-*
+Crash*.java
+fuzz/test/resources/*
+!fuzz/test/resources/json.dict
