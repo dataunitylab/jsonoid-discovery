@@ -36,19 +36,39 @@ object JsonSchema {
     val baseSchema: JsonSchema[_] = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") =/= JNothing) {
-      ReferenceSchema((schema \ "$ref").extract[String])
+      try {
+        val ref = (schema \ "$ref").extract[String]
+        ReferenceSchema((if (ref.isEmpty) "#" else ref))
+      } catch {
+        case e: org.json4s.MappingException => ReferenceSchema("#")
+      }
     } else if ((schema \ "enum") =/= JNothing) {
-      val values = (schema \ "enum").extract[Set[JValue]]
+      val values =
+        try {
+          (schema \ "enum").extract[Set[JValue]]
+        } catch {
+          case e: org.json4s.MappingException => Set.empty[JValue]
+        }
       EnumSchema(values)
     } else if ((schema \ "const") =/= JNothing) {
-      val value = (schema \ "const").extract[JValue]
-      EnumSchema(Set(value))
+      val values =
+        try {
+          Set((schema \ "const").extract[JValue])
+        } catch {
+          case e: org.json4s.MappingException => Set.empty[JValue]
+        }
+      EnumSchema(values)
     } else {
       val schemaTypes: List[String] = if ((schema \ "type") =/= JNothing) {
-        (schema \ "type") match {
-          case s: JString => List(s.extract[String])
-          case a: JArray  => a.extract[List[String]]
-          case _ =>
+        try {
+          (schema \ "type") match {
+            case s: JString => List(s.extract[String])
+            case a: JArray  => a.extract[List[String]]
+            case _ =>
+              throw new UnsupportedOperationException("invalid type")
+          }
+        } catch {
+          case e: org.json4s.MappingException =>
             throw new UnsupportedOperationException("invalid type")
         }
       } else {
@@ -79,7 +99,13 @@ object JsonSchema {
     }
 
     val convertedSchema = if ((schema \ "allOf") =/= JNothing) {
-      val schemas = (schema \ "allOf").extract[List[JObject]]
+      val schemas =
+        try {
+          (schema \ "allOf").extract[List[JObject]]
+        } catch {
+          case e: org.json4s.MappingException =>
+            List.empty
+        }
       schemas.length match {
         case 1 =>
           fromJson(schemas(0)).merge(baseSchema, Intersect)(
@@ -90,18 +116,24 @@ object JsonSchema {
           buildProductSchema(baseSchema, schemas.map(fromJson(_)), AllOf)
       }
     } else if ((schema \ "oneOf") =/= JNothing) {
-      productFromJsons(
-        baseSchema,
-        (schema \ "oneOf").extract[List[JObject]],
-        OneOf
-      )
+      val schemas =
+        try {
+          (schema \ "oneOf").extract[List[JObject]]
+        } catch {
+          case e: org.json4s.MappingException =>
+            List.empty
+        }
+      productFromJsons(baseSchema, schemas, OneOf)
     } else if ((schema \ "anyOf") =/= JNothing) {
       // XXX This technically isn't correct since we change anyOf to oneOf
-      productFromJsons(
-        baseSchema,
-        (schema \ "anyOf").extract[List[JObject]],
-        AnyOf
-      )
+      val schemas =
+        try {
+          (schema \ "anyOf").extract[List[JObject]]
+        } catch {
+          case e: org.json4s.MappingException =>
+            List.empty
+        }
+      productFromJsons(baseSchema, schemas, AnyOf)
     } else {
       baseSchema
     }
@@ -115,11 +147,15 @@ object JsonSchema {
         None
 
     if (definitionsKey.isDefined) {
-      val defs = (schema \ definitionsKey.get)
-        .extract[Map[String, JObject]]
-        .foreach { case (key, value) =>
-          convertedSchema.definitions += (key -> fromJson(value))
-        }
+      try {
+        val defs = (schema \ definitionsKey.get)
+          .extract[Map[String, JObject]]
+          .foreach { case (key, value) =>
+            convertedSchema.definitions += (key -> fromJson(value))
+          }
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     convertedSchema

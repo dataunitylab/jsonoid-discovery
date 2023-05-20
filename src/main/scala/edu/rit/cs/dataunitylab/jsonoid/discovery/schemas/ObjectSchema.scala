@@ -41,15 +41,23 @@ object ObjectSchema {
       throw new UnsupportedOperationException("dependencies not supported")
     }
     if ((obj \ "dependentRequired") =/= JNothing) {
-      val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
-      props.add(StaticDependenciesProperty(deps))
+      try {
+        val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
+        props.add(StaticDependenciesProperty(deps))
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
     if ((obj \ "dependentSchemas") =/= JNothing) {
       throw new UnsupportedOperationException("dependentSchemas not supported")
     }
 
     val objProps = if ((obj \ "properties") =/= JNothing) {
-      (obj \ "properties").extract[Map[String, JObject]]
+      try {
+        (obj \ "properties").extract[Map[String, JObject]]
+      } catch {
+        case e: org.json4s.MappingException => Map.empty
+      }
     } else {
       Map.empty
     }
@@ -59,16 +67,31 @@ object ObjectSchema {
     }.toMap
 
     val patternProps = if ((obj \ "patternProperties") =/= JNothing) {
-      (obj \ "patternProperties").extract[Map[String, JObject]]
+      try {
+        (obj \ "patternProperties").extract[Map[String, JObject]]
+      } catch {
+        case e: org.json4s.MappingException => Map.empty
+      }
     } else {
       Map.empty
     }
-    val patternTypes: Map[Regex, JsonSchema[_]] = patternProps.map {
+    val patternTypes: Map[Regex, JsonSchema[_]] = patternProps.flatMap {
       pp: Tuple2[String, JValue] =>
-        (pp._1.r -> JsonSchema.fromJson(pp._2))
+        try {
+          Some(
+            (if (pp._1.isEmpty) ".*" else pp._1).r -> JsonSchema.fromJson(pp._2)
+          )
+        } catch {
+          case e: java.util.regex.PatternSyntaxException => None
+        }
     }.toMap
 
-    val required = (obj \ "required").extract[Set[String]]
+    val required =
+      try {
+        (obj \ "required").extract[Set[String]]
+      } catch {
+        case e: org.json4s.MappingException => Set.empty[String]
+      }
     val reqProp = RequiredProperty(Some(required))
 
     props.add(ObjectTypesProperty(objTypes))

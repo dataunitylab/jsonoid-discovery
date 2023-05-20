@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Don't crash with extremely large integer values
 - Fix crash when merging numbers of different scales
 - More complete merging with `ProductSchema`
+- Better error handling when deserializing schemas
 
 ## [0.15.0]
 ### Changed

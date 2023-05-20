@@ -31,52 +31,83 @@ object NumberSchema {
     val props = SchemaProperties.empty[BigDecimal]
 
     if ((num \ "multipleOf") != JNothing) {
-      props.add(
-        NumMultipleOfProperty(Some((num \ "multipleOf").extract[BigDecimal]))
-      )
+      try {
+        props.add(
+          NumMultipleOfProperty(Some((num \ "multipleOf").extract[BigDecimal]))
+        )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if ((num \ "minimum") != JNothing) {
-      props.add(
-        MinNumValueProperty(Some((num \ "minimum").extract[BigDecimal]))
-      )
+      try {
+        props.add(
+          MinNumValueProperty(Some((num \ "minimum").extract[BigDecimal]))
+        )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if ((num \ "exclusiveMinimum") != JNothing) {
-      props.add(
-        MinNumValueProperty(
-          Some((num \ "exclusiveMinimum").extract[BigDecimal]),
-          true
+      try {
+        props.add(
+          MinNumValueProperty(
+            Some((num \ "exclusiveMinimum").extract[BigDecimal]),
+            true
+          )
         )
-      )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if ((num \ "maximum") != JNothing) {
-      props.add(
-        MaxNumValueProperty(Some((num \ "maximum").extract[BigDecimal]))
-      )
+      try {
+        props.add(
+          MaxNumValueProperty(Some((num \ "maximum").extract[BigDecimal]))
+        )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if ((num \ "exclusiveMaximum") != JNothing) {
-      props.add(
-        MaxNumValueProperty(
-          Some((num \ "exclusiveMaximum").extract[BigDecimal]),
-          true
+      try {
+        props.add(
+          MaxNumValueProperty(
+            Some((num \ "exclusiveMaximum").extract[BigDecimal]),
+            true
+          )
         )
-      )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (num.values.contains("examples")) {
-      val examples = (num \ "examples").extract[List[BigDecimal]]
-      props.add(
-        NumExamplesProperty(ExamplesProperty(examples, examples.length))
-      )
+      try {
+        val examples = (num \ "examples").extract[List[BigDecimal]]
+        props.add(
+          NumExamplesProperty(ExamplesProperty(examples, examples.length))
+        )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (num.values.contains("bloomFilter")) {
-      val bloomStr = (num \ "bloomFilter").extract[String]
-      val bloomFilter = BloomFilter.deserialize[Double](bloomStr)
-      props.add(NumBloomFilterProperty(bloomFilter))
+      try {
+        val bloomStr = (num \ "bloomFilter").extract[String]
+        val bloomFilter = BloomFilter.deserialize[Double](bloomStr)
+        props.add(NumBloomFilterProperty(bloomFilter))
+      } catch {
+        case e: org.json4s.MappingException        =>
+        case e: java.io.EOFException               =>
+        case e: java.io.StreamCorruptedException   =>
+        case e: java.lang.IllegalArgumentException =>
+      }
     }
 
     NumberSchema(props)

@@ -26,48 +26,79 @@ object IntegerSchema {
     val props = SchemaProperties.empty[BigInt]
 
     if (int.values.contains("multipleOf")) {
-      props.add(
-        IntMultipleOfProperty(Some((int \ "multipleOf").extract[BigInt]))
-      )
+      try {
+        props.add(
+          IntMultipleOfProperty(Some((int \ "multipleOf").extract[BigInt]))
+        )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (int.values.contains("minimum")) {
-      props.add(MinIntValueProperty(Some((int \ "minimum").extract[BigInt])))
+      try {
+        props.add(MinIntValueProperty(Some((int \ "minimum").extract[BigInt])))
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (int.values.contains("exclusiveMinimum")) {
-      props.add(
-        MinIntValueProperty(
-          Some((int \ "exclusiveMinimum").extract[BigInt]),
-          true
+      try {
+        props.add(
+          MinIntValueProperty(
+            Some((int \ "exclusiveMinimum").extract[BigInt]),
+            true
+          )
         )
-      )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (int.values.contains("maximum")) {
-      props.add(MaxIntValueProperty(Some((int \ "maximum").extract[BigInt])))
+      try {
+        props.add(MaxIntValueProperty(Some((int \ "maximum").extract[BigInt])))
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (int.values.contains("exclusiveMaximum")) {
-      props.add(
-        MaxIntValueProperty(
-          Some((int \ "exclusiveMaximum").extract[BigInt]),
-          true
+      try {
+        props.add(
+          MaxIntValueProperty(
+            Some((int \ "exclusiveMaximum").extract[BigInt]),
+            true
+          )
         )
-      )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (int.values.contains("examples")) {
-      val examples = (int \ "examples").extract[List[BigInt]]
-      props.add(
-        IntExamplesProperty(ExamplesProperty(examples, examples.length))
-      )
+      try {
+        val examples = (int \ "examples").extract[List[BigInt]]
+        props.add(
+          IntExamplesProperty(ExamplesProperty(examples, examples.length))
+        )
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if (int.values.contains("bloomFilter")) {
-      val bloomStr = (int \ "bloomFilter").extract[String]
-      val bloomFilter = BloomFilter.deserialize[Integer](bloomStr)
-      props.add(IntBloomFilterProperty(bloomFilter))
+      try {
+        val bloomStr = (int \ "bloomFilter").extract[String]
+        val bloomFilter = BloomFilter.deserialize[Integer](bloomStr)
+        props.add(IntBloomFilterProperty(bloomFilter))
+      } catch {
+        case e: org.json4s.MappingException        =>
+        case e: java.io.EOFException               =>
+        case e: java.io.StreamCorruptedException   =>
+        case e: java.lang.IllegalArgumentException =>
+      }
     }
 
     IntegerSchema(props)

@@ -46,15 +46,27 @@ object ArraySchema {
     }
 
     if ((arr \ "minItems") =/= JNothing) {
-      props.add(MinItemsProperty(Some((arr \ "minItems").extract[Int])))
+      try {
+        props.add(MinItemsProperty(Some((arr \ "minItems").extract[Int])))
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if ((arr \ "maxItems") =/= JNothing) {
-      props.add(MaxItemsProperty(Some((arr \ "maxItems").extract[Int])))
+      try {
+        props.add(MaxItemsProperty(Some((arr \ "maxItems").extract[Int])))
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     if ((arr \ "uniqueItems") =/= JNothing) {
-      props.add(UniqueProperty((arr \ "uniqueItems").extract[Boolean], false))
+      try {
+        props.add(UniqueProperty((arr \ "uniqueItems").extract[Boolean], false))
+      } catch {
+        case e: org.json4s.MappingException =>
+      }
     }
 
     val itemType: Either[JsonSchema[_], List[JsonSchema[_]]] =
@@ -65,11 +77,14 @@ object ArraySchema {
           )
         }
 
-        Right(
-          (arr \ "prefixItems")
-            .extract[List[JValue]]
-            .map(s => JsonSchema.fromJson(s))
-        )
+        val schemas =
+          try {
+            (arr \ "prefixItems").extract[List[JValue]]
+          } catch {
+            case e: org.json4s.MappingException => List.empty[JValue]
+          }
+
+        Right(schemas.map(s => JsonSchema.fromJson(s)))
       } else if ((arr \ "items") =/= JNothing) {
         (arr \ "items") match {
           case a: JArray =>
