@@ -71,6 +71,22 @@ class ProductSchemaSpec extends UnitSpec {
     mergedSchemaProps.productType shouldBe AllOf
   }
 
+  it should "produce an AnySchema with a Union merge" in {
+    productSchema1.merge(AnySchema()) shouldBe an[AnySchema]
+  }
+
+  it should "produce itself when Intersect merged with AnySchema" in {
+    productSchema1.merge(AnySchema(), Intersect) shouldEqual productSchema1
+  }
+
+  it should "produce a ZeroSchema with an Intersect merge" in {
+    productSchema1.merge(ZeroSchema(), Intersect) shouldBe an[ZeroSchema]
+  }
+
+  it should "produce itself when Union merged with ZeroSchema" in {
+    productSchema1.merge(ZeroSchema()) shouldEqual productSchema1
+  }
+
   it should "not created nested ProductSchemas with mixed all values" in {
     val mergedSchemaProps =
       allProductSchema

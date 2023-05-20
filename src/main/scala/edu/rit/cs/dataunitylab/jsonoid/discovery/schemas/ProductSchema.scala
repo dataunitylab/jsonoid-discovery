@@ -110,9 +110,14 @@ final case class ProductSchema(
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     other match {
       case prod: ProductSchema => this.mergeSameType(mergeType)(p)(prod)
-      case zero: ZeroSchema    => this
+      case zero: ZeroSchema    => if (mergeType === Union) this else zero
+      case any: AnySchema      => if (mergeType === Union) any else this
       case _ if mergeType === Union =>
         ProductSchema(this.properties.mergeValue(other))(p)
+      case _ =>
+        throw new UnsupportedOperationException(
+          "Merge with product schema not supported"
+        )
     }
   }
 
