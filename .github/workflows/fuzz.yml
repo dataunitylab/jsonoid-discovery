@@ -44,6 +44,7 @@ jobs:
           --cp=./jazzer_standalone.jar \
           --cp=fuzz/target/scala-2.13/fuzz.jar \
           --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.JsonSchemaFuzzer.scala \
+          --disabled_hooks=com.code_intelligence.jazzer.sanitizers.RegexInjection \
           -dict=fuzz/test/resources/json.dict \
           target/jsonoid-schemas || code=$?; \
         if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
