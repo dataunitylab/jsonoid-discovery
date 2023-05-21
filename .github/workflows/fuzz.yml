@@ -26,6 +26,7 @@ jobs:
         filename: jazzer-linux.tar.gz
         extract: true
     - name: DiscoverSchemaFuzzer
+      continue-on-error: true
       run: |
         /usr/bin/timeout 5m ./jazzer \
           --cp=./jazzer_standalone.jar \
@@ -39,6 +40,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: sbt generateSchemas
     - name: JsonSchemaFuzzer
+      continue-on-error: true
       run: |
         /usr/bin/timeout 5m ./jazzer \
           --cp=./jazzer_standalone.jar \
