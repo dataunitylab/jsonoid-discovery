@@ -45,7 +45,7 @@ jobs:
         /usr/bin/timeout 5m ./jazzer \
           --cp=./jazzer_standalone.jar \
           --cp=fuzz/target/scala-2.13/fuzz.jar \
-          --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.JsonSchemaFuzzer.scala \
+          --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.JsonSchemaFuzzer \
           --disabled_hooks=com.code_intelligence.jazzer.sanitizers.RegexInjection \
           -dict=fuzz/test/resources/json.dict \
           target/jsonoid-schemas || code=$?; \
