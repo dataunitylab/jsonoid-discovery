@@ -25,7 +25,7 @@ jobs:
         latest: true
         filename: jazzer-linux.tar.gz
         extract: true
-    - name: Fuzz
+    - name: DiscoverSchemaFuzzer
       run: |
         /usr/bin/timeout 5m ./jazzer \
           --cp=./jazzer_standalone.jar \
@@ -33,6 +33,19 @@ jobs:
           --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchemaFuzzer \
           -dict=fuzz/test/resources/json.dict \
           fuzz/test/resources || code=$?; \
+        if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
+    - name: Generate example schemas
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt generateSchemas
+    - name: JsonSchemaFuzzer
+      run: |
+        /usr/bin/timeout 5m ./jazzer \
+          --cp=./jazzer_standalone.jar \
+          --cp=fuzz/target/scala-2.13/fuzz.jar \
+          --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.JsonSchemaFuzzer.scala \
+          -dict=fuzz/test/resources/json.dict \
+          target/jsonoid-schemas || code=$?; \
         if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
     - uses: actions/upload-artifact@v3
       with:
