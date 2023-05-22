@@ -24,6 +24,27 @@ class ArraySchemaSpec extends UnitSpec {
     schema.merge(schema).asInstanceOf[ArraySchema]
   }
 
+  it should "merge two array schemas" in {
+    val schema1 = ArraySchema.array(BooleanSchema())
+    val schema2 = ArraySchema.array(IntegerSchema())
+
+    val merged = schema1.merge(schema2).asInstanceOf[ArraySchema]
+    val prodSchema = merged.properties
+      .get[ItemTypeProperty]
+      .itemType
+      .left
+      .toOption
+      .get
+      .asInstanceOf[ProductSchema]
+
+    prodSchema.properties
+      .get[ProductSchemaTypesProperty]
+      .schemaTypes should contain theSameElementsAs List(
+      BooleanSchema(),
+      IntegerSchema()
+    )
+  }
+
   behavior of "MinItemsProperty"
 
   it should "track minimum array length" in {

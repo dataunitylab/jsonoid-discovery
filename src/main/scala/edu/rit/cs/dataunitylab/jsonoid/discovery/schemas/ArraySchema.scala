@@ -350,7 +350,7 @@ final case class ItemTypeProperty(
           assert(schema1.isSubsetOf(newSchema))
           assert(schema2.isSubsetOf(newSchema))
 
-          Left(schema1.merge(schema2, mergeType))
+          Left(newSchema)
 
         // When merging with ZeroSchema, stay as a tuple
         case (Left(_: ZeroSchema), Right(schema2)) => Right(schema2)
