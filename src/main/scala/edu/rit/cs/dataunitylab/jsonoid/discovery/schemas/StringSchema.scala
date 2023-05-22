@@ -39,7 +39,9 @@ object StringSchema {
         val format = (str \ "format").extract[String]
         props.add(FormatProperty(Map(format -> 1)))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -51,8 +53,10 @@ object StringSchema {
           props.add(StaticPatternProperty(regexStr.r))
         }
       } catch {
+        // $COVERAGE-OFF$
         case e: java.util.regex.PatternSyntaxException =>
         case e: org.json4s.MappingException            =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -61,14 +65,18 @@ object StringSchema {
       try {
         props.add(MinLengthProperty(Some((str \ "minLength").extract[Int])))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
     if ((str \ "maxLength") =/= JNothing) {
       try {
         props.add(MaxLengthProperty(Some((str \ "maxLength").extract[Int])))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -80,7 +88,9 @@ object StringSchema {
           StringExamplesProperty(ExamplesProperty(examples, examples.length))
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -91,10 +101,12 @@ object StringSchema {
         val bloomFilter = BloomFilter.deserialize[String](bloomStr)
         props.add(StringBloomFilterProperty(bloomFilter))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException        =>
         case e: java.io.EOFException               =>
         case e: java.io.StreamCorruptedException   =>
         case e: java.lang.IllegalArgumentException =>
+        // $COVERAGE-ON$
       }
     }
 

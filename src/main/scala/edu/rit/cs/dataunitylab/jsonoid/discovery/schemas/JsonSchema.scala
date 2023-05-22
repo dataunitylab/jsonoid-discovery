@@ -40,14 +40,18 @@ object JsonSchema {
         val ref = (schema \ "$ref").extract[String]
         ReferenceSchema((if (ref.isEmpty) "#" else ref))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException => ReferenceSchema("#")
+        // $COVERAGE-ON$
       }
     } else if ((schema \ "enum") =/= JNothing) {
       val values =
         try {
           (schema \ "enum").extract[Set[JValue]]
         } catch {
+          // $COVERAGE-OFF$
           case e: org.json4s.MappingException => Set.empty[JValue]
+          // $COVERAGE-ON$
         }
       EnumSchema(values)
     } else if ((schema \ "const") =/= JNothing) {
@@ -55,7 +59,9 @@ object JsonSchema {
         try {
           Set((schema \ "const").extract[JValue])
         } catch {
+          // $COVERAGE-OFF$
           case e: org.json4s.MappingException => Set.empty[JValue]
+          // $COVERAGE-ON$
         }
       EnumSchema(values)
     } else {
@@ -120,8 +126,9 @@ object JsonSchema {
         try {
           (schema \ "oneOf").extract[List[JObject]]
         } catch {
-          case e: org.json4s.MappingException =>
-            List.empty
+          // $COVERAGE-OFF$
+          case e: org.json4s.MappingException => List.empty
+          // $COVERAGE-ON$
         }
       productFromJsons(baseSchema, schemas, OneOf)
     } else if ((schema \ "anyOf") =/= JNothing) {
@@ -130,8 +137,9 @@ object JsonSchema {
         try {
           (schema \ "anyOf").extract[List[JObject]]
         } catch {
-          case e: org.json4s.MappingException =>
-            List.empty
+          // $COVERAGE-OFF$
+          case e: org.json4s.MappingException => List.empty
+          // $COVERAGE-ON$
         }
       productFromJsons(baseSchema, schemas, AnyOf)
     } else {
@@ -154,7 +162,9 @@ object JsonSchema {
             convertedSchema.definitions += (key -> fromJson(value))
           }
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 

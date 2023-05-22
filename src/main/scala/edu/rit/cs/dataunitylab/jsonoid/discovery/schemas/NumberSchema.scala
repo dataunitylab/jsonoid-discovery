@@ -36,7 +36,9 @@ object NumberSchema {
           NumMultipleOfProperty(Some((num \ "multipleOf").extract[BigDecimal]))
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -46,7 +48,9 @@ object NumberSchema {
           MinNumValueProperty(Some((num \ "minimum").extract[BigDecimal]))
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -59,7 +63,9 @@ object NumberSchema {
           )
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -69,7 +75,9 @@ object NumberSchema {
           MaxNumValueProperty(Some((num \ "maximum").extract[BigDecimal]))
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -82,7 +90,9 @@ object NumberSchema {
           )
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -93,7 +103,9 @@ object NumberSchema {
           NumExamplesProperty(ExamplesProperty(examples, examples.length))
         )
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -103,10 +115,12 @@ object NumberSchema {
         val bloomFilter = BloomFilter.deserialize[Double](bloomStr)
         props.add(NumBloomFilterProperty(bloomFilter))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException        =>
         case e: java.io.EOFException               =>
         case e: java.io.StreamCorruptedException   =>
         case e: java.lang.IllegalArgumentException =>
+        // $COVERAGE-ON$
       }
     }
 

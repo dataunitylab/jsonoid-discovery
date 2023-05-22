@@ -49,7 +49,9 @@ object ArraySchema {
       try {
         props.add(MinItemsProperty(Some((arr \ "minItems").extract[Int])))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -57,7 +59,9 @@ object ArraySchema {
       try {
         props.add(MaxItemsProperty(Some((arr \ "maxItems").extract[Int])))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -65,7 +69,9 @@ object ArraySchema {
       try {
         props.add(UniqueProperty((arr \ "uniqueItems").extract[Boolean], false))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
 
@@ -81,7 +87,9 @@ object ArraySchema {
           try {
             (arr \ "prefixItems").extract[List[JValue]]
           } catch {
+            // $COVERAGE-OFF$
             case e: org.json4s.MappingException => List.empty[JValue]
+            // $COVERAGE-ON$
           }
 
         Right(schemas.map(s => JsonSchema.fromJson(s)))

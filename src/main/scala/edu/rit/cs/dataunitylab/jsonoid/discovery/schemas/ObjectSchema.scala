@@ -45,7 +45,9 @@ object ObjectSchema {
         val deps = (obj \ "dependentRequired").extract[Map[String, Set[String]]]
         props.add(StaticDependenciesProperty(deps))
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException =>
+        // $COVERAGE-ON$
       }
     }
     if ((obj \ "dependentSchemas") =/= JNothing) {
@@ -56,7 +58,9 @@ object ObjectSchema {
       try {
         (obj \ "properties").extract[Map[String, JObject]]
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException => Map.empty
+        // $COVERAGE-ON$
       }
     } else {
       Map.empty
@@ -70,7 +74,9 @@ object ObjectSchema {
       try {
         (obj \ "patternProperties").extract[Map[String, JObject]]
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException => Map.empty
+        // $COVERAGE-ON$
       }
     } else {
       Map.empty
@@ -90,7 +96,9 @@ object ObjectSchema {
       try {
         (obj \ "required").extract[Set[String]]
       } catch {
+        // $COVERAGE-OFF$
         case e: org.json4s.MappingException => Set.empty[String]
+        // $COVERAGE-ON$
       }
     val reqProp = RequiredProperty(Some(required))
 
