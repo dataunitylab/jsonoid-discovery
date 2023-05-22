@@ -21,4 +21,18 @@ class ZeroSchemaSpec extends UnitSpec {
   it should "have no valid types" in {
     zeroSchema.validTypes shouldBe empty
   }
+
+  behavior of "expandTo"
+
+  it should "not expand when given another ZeroSchema" in {
+    zeroSchema.expandTo(Some(zeroSchema)) shouldBe zeroSchema
+  }
+
+  it should "expand to AnySchema when given None" in {
+    zeroSchema.expandTo(None) shouldBe AnySchema()
+  }
+
+  it should "expand a default instance of any other schema" in {
+    zeroSchema.expandTo(Some(IntegerSchema())) shouldBe an[IntegerSchema]
+  }
 }

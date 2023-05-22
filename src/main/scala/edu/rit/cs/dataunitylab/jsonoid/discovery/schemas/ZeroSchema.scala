@@ -37,4 +37,19 @@ final case class ZeroSchema(
       other: JsonSchema[_],
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = false
+
+  // The only thing
+  override def expandTo[S](other: Option[JsonSchema[S]]): JsonSchema[_] = {
+    other match {
+      // No need to expand if this is also a ZeroSchema
+      case Some(_: ZeroSchema) => this
+
+      // Expand a new instance of the type of the other schema
+      case Some(other) =>
+        other.copy(other.properties).copyWithReset().expandTo(Some(other))
+
+      // The only thing we can do is go to AnySchema
+      case None => AnySchema()
+    }
+  }
 }
