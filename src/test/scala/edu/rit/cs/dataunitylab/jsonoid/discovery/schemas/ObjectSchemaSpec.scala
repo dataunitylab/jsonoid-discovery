@@ -10,6 +10,12 @@ import UnitSpec.containingNatureOfSchemaProperties
 class ObjectSchemaSpec extends UnitSpec {
   implicit val formats: Formats = DefaultFormats
 
+  def testSchema(keys: List[String]) = {
+    ObjectSchema(
+      keys.map(k => (k, BooleanSchema())).toMap
+    )
+  }
+
   private val objectTypes =
     Map(
       "foo" -> BooleanSchema(),
@@ -90,6 +96,22 @@ class ObjectSchemaSpec extends UnitSpec {
     (dependenciesProp.disjointSets) should contain theSameElementsAs (
       Seq(Set("foo", "bar"), Set("baz", "quux"))
     )
+  }
+
+  it should "check for subsets of dependencies" in {
+    val schema1 = testSchema(List("foo", "bar"))
+      .merge(testSchema(List("bar")))
+      .merge(testSchema(List("baz")))
+      .asInstanceOf[ObjectSchema]
+    val schema2 = testSchema(List("foo", "bar", "baz"))
+      .merge(testSchema(List("corge")))
+      .asInstanceOf[ObjectSchema]
+
+    val dep1 = schema1.properties.get[DependenciesProperty]
+    val dep2 = schema2.properties.get[DependenciesProperty]
+
+    dep1.isSubsetOf(dep2) shouldBe false
+    dep2.isSubsetOf(dep1) shouldBe true
   }
 
   behavior of "ObjectSchema"

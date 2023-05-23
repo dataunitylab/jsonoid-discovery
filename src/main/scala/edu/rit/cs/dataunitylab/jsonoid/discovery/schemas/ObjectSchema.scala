@@ -841,12 +841,12 @@ final case class DependenciesProperty(
         // Only consider dependent properties which exist in the other schema
         val containedDeps = dependencies(key).filter(other.counts.contains(_))
 
-        // If this key does exist in the other schema, make sure
-        // we have at least the same dependencies
-        containedDeps.subsetOf(otherDependencies.getOrElse(key, Set()))
+        // If this key does exist in the other schema, make
+        // sure we do not have any additional dependencies
+        otherDependencies.getOrElse(key, Set()).subsetOf(containedDeps)
       } else {
         // If this key does not exist in the other schema,
-        // it's okay if we do not have the dependency
+        // then we don't need to consider dependencies
         true
       }
     }
@@ -943,7 +943,7 @@ final case class StaticDependenciesProperty(
     dependencies.keySet.forall { key =>
       // XXX We really should check if the other schema contains
       //     the relevant property as we do for DependenciesProperty
-      dependencies(key).subsetOf(other.dependencies.getOrElse(key, Set()))
+      other.dependencies.getOrElse(key, Set()).subsetOf(dependencies(key))
     }
   }
 }
