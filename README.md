@@ -16,10 +16,13 @@ Only the `read:packages` permission should be required.
 ## Input/Output Format
 
 JSONoid accepts [newline-delimited JSON](http://ndjson.org/) either from standard input or a file.
+This means there should be exactly one JSON value per line in the input.
+If your JSON is not formatted this way, one option is to use the `-c` option to [jq](https://github.com/stedolan/jq) which can convert files to the appropriate format.
 Any invalid JSON will be skipped and not produce an error.
 It is therefore recommended to validate the JSON before providing to JSONoid if handling invalid input is required.
 The generated schema will be printed [JSON Schema](https://json-schema.org/) as output.
 Note that depending on the configuration, JSONoid will add additional properties which are not part of the JSON Schema standard.
+The format is described in the [JSON Schema Profile](https://github.com/dataunitylab/json-schema-profile) draft and is subject to change..
 
 ## Running
 
