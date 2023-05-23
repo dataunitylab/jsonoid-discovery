@@ -60,39 +60,20 @@ class ObjectSchemaSpec extends UnitSpec {
   behavior of "DependenciesProperty"
 
   it should "track dependencies in field occurrence" in {
-    val dependentSchema = ObjectSchema(
-      Map(
-        "foo" -> BooleanSchema(),
-        "bar" ->
-          BooleanSchema()
-      )
-    ).properties
-      .mergeValue(
-        Map(
-          "baz" ->
-            BooleanSchema()
-        )
-      )
-      .mergeValue(Map("foo" -> BooleanSchema()))
-    val dependenciesProp = dependentSchema.get[DependenciesProperty]
+    val dependentSchema = testSchema(List("foo", "bar"))
+      .merge(testSchema(List("baz")))
+      .merge(testSchema(List("foo")))
+      .asInstanceOf[ObjectSchema]
+    val dependenciesProp = dependentSchema.properties.get[DependenciesProperty]
     (dependenciesProp.toJson() \ "dependentRequired")
       .extract[Map[String, List[String]]] shouldEqual Map("bar" -> List("foo"))
   }
 
   it should "be able to find disjoint subsets" in {
-    val dependentSchema = ObjectSchema(
-      Map(
-        "foo" -> BooleanSchema(),
-        "bar" -> BooleanSchema()
-      )
-    ).properties
-      .mergeValue(
-        Map(
-          "baz" -> BooleanSchema(),
-          "quux" -> BooleanSchema()
-        )
-      )
-    val dependenciesProp = dependentSchema.get[DependenciesProperty]
+    val dependentSchema = testSchema(List("foo", "bar"))
+      .merge(testSchema(List("baz", "quux")))
+      .asInstanceOf[ObjectSchema]
+    val dependenciesProp = dependentSchema.properties.get[DependenciesProperty]
     (dependenciesProp.disjointSets) should contain theSameElementsAs (
       Seq(Set("foo", "bar"), Set("baz", "quux"))
     )
@@ -149,16 +130,15 @@ class ObjectSchemaSpec extends UnitSpec {
   }
 
   it should "allow replacement of a schema with a reference" in {
-    val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))
+    val objectSchema = testSchema(List("foo"))
       .replaceWithReference("/foo", "foo")
     (objectSchema.toJson() \ "properties" \ "foo")
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "foo")
   }
 
   it should "allow replacement of a nested schema with a reference" in {
-    val objectSchema = ObjectSchema(
-      Map("foo" -> ObjectSchema(Map("bar" -> BooleanSchema())))
-    ).replaceWithReference("/foo/bar", "bar")
+    val objectSchema = ObjectSchema(Map("foo" -> testSchema(List("bar"))))
+      .replaceWithReference("/foo/bar", "bar")
     (objectSchema.toJson() \ "properties" \ "foo" \ "properties" \ "bar")
       .extract[Map[String, String]] shouldEqual Map("$ref" -> "bar")
   }
@@ -248,8 +228,7 @@ class ObjectSchemaSpec extends UnitSpec {
   }
 
   it should "expand to add new keys" in {
-    val schema =
-      ObjectSchema(Map("foo" -> BooleanSchema(), "bar" -> BooleanSchema()))
+    val schema = testSchema(List("foo", "bar"))
     schema.isSubsetOf(objectSchema.expandTo(Some(schema))) shouldBe true
   }
 
