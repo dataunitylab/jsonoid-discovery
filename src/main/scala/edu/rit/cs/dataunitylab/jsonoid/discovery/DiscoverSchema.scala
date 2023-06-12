@@ -24,6 +24,7 @@ private final case class Config(
     writeValues: Option[File] = None,
     propertySet: PropertySet = PropertySets.AllProperties,
     onlyProperties: Option[Seq[String]] = None,
+    withoutProperties: Option[Seq[String]] = None,
     equivalenceRelation: EquivalenceRelation =
       EquivalenceRelations.KindEquivalenceRelation,
     extendedFormats: Boolean = false,
@@ -274,6 +275,11 @@ object DiscoverSchema {
         .action((x, c) => c.copy(onlyProperties = Some(x)))
         .text("limit discovered properties")
 
+      opt[Seq[String]]("without-properties")
+        .optional()
+        .action((x, c) => c.copy(withoutProperties = Some(x)))
+        .text("exclude some properties from discovery")
+
       opt[EquivalenceRelation]('e', "equivalence-relation")
         .action((x, c) => c.copy(equivalenceRelation = x))
         .text(
@@ -358,9 +364,13 @@ object DiscoverSchema {
           case None       => Source.fromInputStream(System.in)(Codec.UTF8)
         }
 
-        val propSet = config.onlyProperties match {
-          case Some(propNames) => config.propertySet.onlyNamed(propNames)
-          case None            => config.propertySet
+        var propSet = config.propertySet
+        if (config.onlyProperties.isDefined) {
+          propSet = config.propertySet.onlyNamed(config.onlyProperties.get)
+        }
+        if (config.withoutProperties.isDefined) {
+          propSet =
+            config.propertySet.withoutNamed(config.withoutProperties.get)
         }
 
         // Enable numeric string detection
