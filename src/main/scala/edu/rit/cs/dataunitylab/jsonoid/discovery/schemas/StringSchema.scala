@@ -963,6 +963,17 @@ final case class StringNumericProperty(
 
   override def toJson()(implicit p: JsonoidParams): JObject = Nil
 
+  override def isSubsetOf(
+      other: StringNumericProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    (numericSchema, other.numericSchema) match {
+      case (Some(n1), Some(n2)) => n1.isSubsetOf(n2)
+      case (None, Some(_))      => false
+      case _                    => true
+    }
+  }
+
   override def unionMerge(
       otherProp: StringNumericProperty
   )(implicit p: JsonoidParams): StringNumericProperty = {

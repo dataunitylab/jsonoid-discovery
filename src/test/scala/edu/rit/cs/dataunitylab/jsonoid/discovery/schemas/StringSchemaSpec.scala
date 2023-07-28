@@ -285,6 +285,24 @@ class StringSchemaSpec extends UnitSpec {
     numProp.collectAnomalies(JString("3.2")) shouldBe empty
   }
 
+  it should "show numeric strings as subsets of each other" in {
+    val numProp1 = StringNumericProperty().mergeValue("3.2")
+    val numProp2 = StringNumericProperty().mergeValue("3.2")
+    numProp1.isSubsetOf(numProp2) shouldBe true
+  }
+
+  it should "show a numeric string as a subset of a non-numeric string" in {
+    val numProp1 = StringNumericProperty().mergeValue("3.2")
+    val numProp2 = StringNumericProperty().mergeValue("foo")
+    numProp1.isSubsetOf(numProp2) shouldBe true
+  }
+
+  it should "not show a non-numeric string as a subset of a numeric string" in {
+    val numProp1 = StringNumericProperty().mergeValue("foo")
+    val numProp2 = StringNumericProperty().mergeValue("3.2")
+    numProp1.isSubsetOf(numProp2) shouldBe false
+  }
+
   behavior of "StringSchema"
 
   it should "have no properties in the minimal property set" in {
