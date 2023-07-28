@@ -45,6 +45,12 @@ class ArraySchemaSpec extends UnitSpec {
     )
   }
 
+  it should "show an empty tuple schema as a subset of an array schema" in {
+    val tupleProp = ArraySchema.tuple(List()).properties.get[ItemTypeProperty]
+    val arrayProp = arraySchema.properties.get[ItemTypeProperty]
+    tupleProp.isSubsetOf(arrayProp) shouldBe true
+  }
+
   behavior of "MinItemsProperty"
 
   it should "track minimum array length" in {

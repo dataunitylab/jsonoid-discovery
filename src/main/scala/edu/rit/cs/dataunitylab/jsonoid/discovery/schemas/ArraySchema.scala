@@ -440,8 +440,13 @@ final case class ItemTypeProperty(
       case (Left(_), Right(_)) => false
 
       case (Right(schemas), Left(schema)) => {
-        val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
-        !recursive || oneSchema.isSubsetOf(schema)
+        if (schemas.isEmpty) {
+          // An empty tuple schema is a subset of any array schema
+          true
+        } else {
+          val oneSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
+          !recursive || oneSchema.isSubsetOf(schema)
+        }
       }
 
       // Corresponding types must match
