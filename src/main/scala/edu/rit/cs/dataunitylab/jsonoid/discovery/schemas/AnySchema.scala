@@ -38,5 +38,5 @@ final case class AnySchema(
   override def isSubsetOf(
       other: JsonSchema[_],
       recursive: Boolean = true
-  )(implicit p: JsonoidParams): Boolean = false
+  )(implicit p: JsonoidParams): Boolean = other.isInstanceOf[AnySchema]
 }

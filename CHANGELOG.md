@@ -41,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix broken `isSubsetOf` for empty tuple schemas
 - Fix broken `isSubsetOf` for empty `StringNumericProperty`
 - Fix `isSubsetOf` in `DependenciesProperty`
+- `AnySchema` should be a subset of itself
 
 ## [0.15.0]
 ### Changed
