@@ -48,6 +48,14 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "be a subset iff there are no incompatibilities" in {
+    forAll(SchemaGen.genArraySchema, SchemaGen.genArraySchema) {
+      case (schema1, schema2) =>
+        val incompatibilities = schema1.findIncompatibilities(schema2, true)
+        schema1.isSubsetOf(schema2).shouldBe(incompatibilities.isEmpty)
+    }
+  }
+
   it should "merge two array schemas" in {
     val schema1 = ArraySchema.array(BooleanSchema())
     val schema2 = ArraySchema.array(IntegerSchema())

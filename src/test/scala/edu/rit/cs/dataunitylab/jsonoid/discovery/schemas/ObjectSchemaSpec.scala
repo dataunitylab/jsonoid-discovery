@@ -52,6 +52,14 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "be a subset iff there are incompatibilities" in {
+    forAll(SchemaGen.genObjectSchema, SchemaGen.genObjectSchema) {
+      case (schema1, schema2) =>
+        val incompatibilities = schema1.findIncompatibilities(schema2, true)
+        schema1.isSubsetOf(schema2).shouldBe(incompatibilities.isEmpty)
+    }
+  }
+
   behavior of "ObjectTypesProperty"
 
   it should "calculate the intersection of properties" in {

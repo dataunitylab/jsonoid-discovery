@@ -47,6 +47,14 @@ class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "be a subset iff there are incompatibilities" in {
+    forAll(SchemaGen.genProductSchema, SchemaGen.genProductSchema) {
+      case (schema1, schema2) =>
+        val incompatibilities = schema1.findIncompatibilities(schema2, true)
+        schema1.isSubsetOf(schema2).shouldBe(incompatibilities.isEmpty)
+    }
+  }
+
   it should "track the different schema types properties" in {
     val typesProp = productSchema1
       .merge(schema2)

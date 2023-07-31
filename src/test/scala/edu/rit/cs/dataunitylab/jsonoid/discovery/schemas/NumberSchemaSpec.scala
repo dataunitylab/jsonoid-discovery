@@ -27,6 +27,14 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "be a subset iff there are incompatibilities" in {
+    forAll(SchemaGen.genNumberSchema, SchemaGen.genNumberSchema) {
+      case (schema1, schema2) =>
+        val incompatibilities = schema1.findIncompatibilities(schema2, true)
+        schema1.isSubsetOf(schema2).shouldBe(incompatibilities.isEmpty)
+    }
+  }
+
   behavior of "MaxNumValueProperty"
 
   it should "track the maximum value" in {

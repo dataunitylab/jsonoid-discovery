@@ -38,6 +38,14 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "be a subset iff there are incompatibilities" in {
+    forAll(SchemaGen.genStringSchema, SchemaGen.genStringSchema) {
+      case (schema1, schema2) =>
+        val incompatibilities = schema1.findIncompatibilities(schema2, true)
+        schema1.isSubsetOf(schema2).shouldBe(incompatibilities.isEmpty)
+    }
+  }
+
   behavior of "MaxLengthProperty"
 
   it should "track the maximum length" in {

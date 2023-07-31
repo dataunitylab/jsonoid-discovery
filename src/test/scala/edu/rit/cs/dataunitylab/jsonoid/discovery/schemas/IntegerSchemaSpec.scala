@@ -50,6 +50,14 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "be a subset iff there are incompatibilities" in {
+    forAll(SchemaGen.genIntSchema, SchemaGen.genIntSchema) {
+      case (schema1, schema2) =>
+        val incompatibilities = schema1.findIncompatibilities(schema2, true)
+        schema1.isSubsetOf(schema2).shouldBe(incompatibilities.isEmpty)
+    }
+  }
+
   behavior of "MaxIntValueProperty"
 
   it should "track the maximum value" in {
