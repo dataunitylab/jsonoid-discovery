@@ -43,6 +43,15 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "always create merged values which are subsets" in {
+    forAll(SchemaGen.genObjectSchema, SchemaGen.genObjectSchema) {
+      case (schema1, schema2) =>
+        val mergedSchema = schema1.merge(schema2).asInstanceOf[ObjectSchema]
+        schema1.isSubsetOf(mergedSchema).shouldBe(true)
+        schema2.isSubsetOf(mergedSchema).shouldBe(true)
+    }
+  }
+
   behavior of "ObjectTypesProperty"
 
   it should "calculate the intersection of properties" in {

@@ -29,6 +29,15 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "always create merged values which are subsets" in {
+    forAll(SchemaGen.genStringSchema, SchemaGen.genStringSchema) {
+      case (schema1, schema2) =>
+        val mergedSchema = schema1.merge(schema2).asInstanceOf[StringSchema]
+        schema1.isSubsetOf(mergedSchema).shouldBe(true)
+        schema2.isSubsetOf(mergedSchema).shouldBe(true)
+    }
+  }
+
   behavior of "MaxLengthProperty"
 
   it should "track the maximum length" in {

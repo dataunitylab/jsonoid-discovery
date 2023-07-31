@@ -19,6 +19,15 @@ class BooleanSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "always create merged values which are subsets" in {
+    forAll(SchemaGen.genBoolSchema, SchemaGen.genBoolSchema) {
+      case (schema1, schema2) =>
+        val mergedSchema = schema1.merge(schema2).asInstanceOf[BooleanSchema]
+        schema1.isSubsetOf(mergedSchema).shouldBe(true)
+        schema2.isSubsetOf(mergedSchema).shouldBe(true)
+    }
+  }
+
   it should "have type 'boolean'" in {
     booleanSchema.schemaType shouldBe "boolean"
   }

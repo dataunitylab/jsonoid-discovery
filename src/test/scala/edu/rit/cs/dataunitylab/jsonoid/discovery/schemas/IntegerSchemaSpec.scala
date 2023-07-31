@@ -31,6 +31,15 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "always create merged values which are subsets" in {
+    forAll(SchemaGen.genIntSchema, SchemaGen.genIntSchema) {
+      case (schema1, schema2) =>
+        val mergedSchema = schema1.merge(schema2).asInstanceOf[IntegerSchema]
+        schema1.isSubsetOf(mergedSchema).shouldBe(true)
+        schema2.isSubsetOf(mergedSchema).shouldBe(true)
+    }
+  }
+
   it should "be a subset of itself as a NumberSchema" in {
     forAll(SchemaGen.genIntSchema) { schema =>
       {

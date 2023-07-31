@@ -39,6 +39,15 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "always create merged values which are subsets" in {
+    forAll(SchemaGen.genArraySchema, SchemaGen.genArraySchema) {
+      case (schema1, schema2) =>
+        val mergedSchema = schema1.merge(schema2).asInstanceOf[ArraySchema]
+        schema1.isSubsetOf(mergedSchema).shouldBe(true)
+        schema2.isSubsetOf(mergedSchema).shouldBe(true)
+    }
+  }
+
   it should "merge two array schemas" in {
     val schema1 = ArraySchema.array(BooleanSchema())
     val schema2 = ArraySchema.array(IntegerSchema())
