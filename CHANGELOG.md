@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Better error handling when deserializing schemas
 - Fix broken `isSubsetOf` for empty tuple schemas
 - Fix broken `isSubsetOf` for empty `StringNumericProperty`
+- Fix `isSubsetOf` in `DependenciesProperty`
 
 ## [0.15.0]
 ### Changed

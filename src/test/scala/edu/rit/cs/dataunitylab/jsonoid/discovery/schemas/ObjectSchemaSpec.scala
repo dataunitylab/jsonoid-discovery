@@ -95,6 +95,28 @@ class ObjectSchemaSpec extends UnitSpec {
     dep2.isSubsetOf(dep1) shouldBe true
   }
 
+  it should "check for subsets of dependencies when merging" in {
+    // This test is necessary since we have logic to avoid generating
+    // dependencies when the property simply exists all the time
+    //
+    // However, this can cause problems when merging with other schemas
+    // where properties are absent. See the `includeEverywhere`
+    // parameter of `dependencyMap`.
+
+    val schema1 = testSchema(List("foo", "bar", "baz"))
+      .merge(testSchema(List("foo")))
+      .asInstanceOf[ObjectSchema]
+    val schema2 = testSchema(List())
+    val merged = schema1.merge(schema2).asInstanceOf[ObjectSchema]
+
+    val dep1 = schema1.properties.get[DependenciesProperty]
+    val dep2 = schema2.properties.get[DependenciesProperty]
+    val depMerged = merged.properties.get[DependenciesProperty]
+
+    dep1.isSubsetOf(depMerged) shouldBe true
+    dep2.isSubsetOf(depMerged) shouldBe true
+  }
+
   behavior of "ObjectSchema"
 
   it should "be able to find subschemas by pointer" in {

@@ -699,7 +699,7 @@ final case class DependenciesProperty(
   override def toJson()(implicit p: JsonoidParams): JObject = {
     // Use cooccurrence count to check dependencies in both directions,
     // excluding cases where properties are required (count is totalCount)
-    val dependencies = dependencyMap
+    val dependencies = dependencyMap()
     if (dependencies.isEmpty)
       Nil
     else
@@ -733,21 +733,25 @@ final case class DependenciesProperty(
     setMap.keySet.groupBy(setMap(_)).map(_._2.toSet).toSeq
   }
 
-  def dependencyMap: Map[String, Set[String]] = {
+  def dependencyMap(
+      includeEverywhere: Boolean = false
+  ): Map[String, Set[String]] = {
     cooccurrence.toSeq
       .flatMap { case ((key1, key2), count) =>
         (if (
-           counts(key1) === count && count =/= totalCount && counts(
-             key2
-           ) =/= totalCount
+           counts(key1) === count &&
+           (includeEverywhere ||
+             (count =/= totalCount &&
+               counts(key2) =/= totalCount))
          ) {
            List((key1, key2))
          } else {
            List()
          }) ++ (if (
-                  counts(key2) === count && count =/= totalCount && counts(
-                    key1
-                  ) =/= totalCount
+                  counts(key2) === count &&
+                  (includeEverywhere ||
+                    (count =/= totalCount &&
+                      counts(key1) =/= totalCount))
                 ) {
                   List((key2, key1))
                 } else {
@@ -814,7 +818,7 @@ final case class DependenciesProperty(
       case JObject(fields) =>
         val fieldMap = fields.toMap
         fieldMap.keySet.toSeq.flatMap(f =>
-          dependencyMap
+          dependencyMap()
             .getOrElse(f, List())
             .filter(!fieldMap.contains(_))
             .map(d =>
@@ -834,8 +838,8 @@ final case class DependenciesProperty(
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     // We must have a subset of dependencies to be compatible
-    val dependencies = dependencyMap
-    val otherDependencies = other.dependencyMap
+    val dependencies = dependencyMap(true)
+    val otherDependencies = other.dependencyMap(true)
     dependencies.keySet.forall { key =>
       if (other.counts.contains(key)) {
         // Only consider dependent properties which exist in the other schema
