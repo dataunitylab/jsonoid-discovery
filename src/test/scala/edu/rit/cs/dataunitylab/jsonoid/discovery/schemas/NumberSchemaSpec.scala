@@ -4,10 +4,11 @@ package schemas
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalactic.TolerantNumerics
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import UnitSpec._
 
-class NumberSchemaSpec extends UnitSpec {
+class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   implicit val formats: Formats = DefaultFormats
 
   private val numberSchema =
@@ -19,6 +20,12 @@ class NumberSchemaSpec extends UnitSpec {
   private val integerSchema = IntegerSchema(5)
   private val mixedSchema =
     numberSchema.merge(integerSchema).asInstanceOf[NumberSchema]
+
+  it should "be a subset of itself" in {
+    forAll(SchemaGen.genNumberSchema) { schema =>
+      schema.isSubsetOf(schema).shouldBe(true)
+    }
+  }
 
   behavior of "MaxNumValueProperty"
 

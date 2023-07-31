@@ -4,15 +4,22 @@ package schemas
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import UnitSpec._
 
-class StringSchemaSpec extends UnitSpec {
+class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   implicit val formats: Formats = DefaultFormats
 
   private val stringSchema = StringSchema(
     StringSchema("foor").properties.mergeValue("foobar")
   )
+
+  it should "be a subset of itself" in {
+    forAll(SchemaGen.genStringSchema) { schema =>
+      schema.isSubsetOf(schema).shouldBe(true)
+    }
+  }
 
   behavior of "MaxLengthProperty"
 

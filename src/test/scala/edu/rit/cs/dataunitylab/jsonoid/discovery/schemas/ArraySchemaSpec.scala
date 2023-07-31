@@ -7,8 +7,9 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.{DefaultFormats, Formats}
 import org.scalactic.TolerantNumerics
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-class ArraySchemaSpec extends UnitSpec {
+class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   implicit val formats: Formats = DefaultFormats
 
   private val itemType = BooleanSchema()
@@ -22,6 +23,12 @@ class ArraySchemaSpec extends UnitSpec {
     // a tuple schema.
     val schema = ArraySchema.tuple(schemaList)
     schema.merge(schema).asInstanceOf[ArraySchema]
+  }
+
+  it should "be a subset of itself" in {
+    forAll(SchemaGen.genArraySchema) { schema =>
+      schema.isSubsetOf(schema).shouldBe(true)
+    }
   }
 
   it should "merge two array schemas" in {

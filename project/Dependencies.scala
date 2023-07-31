@@ -23,6 +23,9 @@ object Dependencies {
   lazy val jazzer              = "com.code-intelligence"       % "jazzer"                 % "0.16.1"
   lazy val scalactic           = "org.scalactic"              %% "scalactic"              % "3.2.15"
   lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.15"
+  lazy val scalaTestPlus       = "org.scalatestplus"          %% "scalacheck-1-17"        % "3.2.15.0"
+  lazy val scalaCheck          = "org.scalacheck"             %% "scalacheck"             % "1.17.0"
+
 
   // Overrides
   // XXX Bundled version is vulnerable to CVE-2018-10237

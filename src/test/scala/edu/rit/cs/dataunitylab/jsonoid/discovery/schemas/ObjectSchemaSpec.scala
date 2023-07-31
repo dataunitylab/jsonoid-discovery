@@ -4,10 +4,11 @@ package schemas
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import UnitSpec.containingNatureOfSchemaProperties
 
-class ObjectSchemaSpec extends UnitSpec {
+class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   implicit val formats: Formats = DefaultFormats
 
   def testSchema(keys: List[String]) = {
@@ -27,6 +28,12 @@ class ObjectSchemaSpec extends UnitSpec {
   private val schemaProperties =
     ObjectSchema(singleType).properties.mergeValue(objectTypes)
   private val objectSchema = ObjectSchema(schemaProperties)
+
+  it should "be a subset of itself" in {
+    forAll(SchemaGen.genObjectSchema) { schema =>
+      schema.isSubsetOf(schema).shouldBe(true)
+    }
+  }
 
   behavior of "ObjectTypesProperty"
 

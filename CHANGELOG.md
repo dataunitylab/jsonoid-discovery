@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Apply `EnumTransformer` to constant Booleans
 - Add test time assertions
 - Add expansion to `ZeroSchema`
+- Add some basic property-based testing
 
 ### Changed
 - Increase length penalty for primary key detection
