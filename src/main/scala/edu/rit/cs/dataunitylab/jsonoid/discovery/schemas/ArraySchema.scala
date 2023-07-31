@@ -6,6 +6,7 @@ import scala.reflect._
 import scalaz._
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.json4s.jackson.JsonMethods._
 import Scalaz._
 
 import Helpers._
@@ -256,6 +257,10 @@ final case class ArraySchema(
         newSchema
     }
   }
+
+  override def toString: String = {
+    pretty(render(toJson()))
+  }
 }
 
 /** The type of item stored in this array schema.
@@ -283,7 +288,7 @@ final case class ItemTypeProperty(
           ("items" -> combinedSchema.toJson())
         }
       } else {
-        Nil
+        ("items" -> JArray(List()))
       }
   }
 

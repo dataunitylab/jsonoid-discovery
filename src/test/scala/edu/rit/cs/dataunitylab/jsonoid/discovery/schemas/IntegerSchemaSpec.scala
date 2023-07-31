@@ -23,6 +23,14 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "round trip JSON conversion" in {
+    forAll(SchemaGen.genIntSchema) { schema =>
+      val convertedSchema = IntegerSchema.fromJson(schema.toJson())
+      convertedSchema.isSubsetOf(schema).shouldBe(true)
+      schema.isSubsetOf(convertedSchema).shouldBe(true)
+    }
+  }
+
   it should "be a subset of itself as a NumberSchema" in {
     forAll(SchemaGen.genIntSchema) { schema =>
       {

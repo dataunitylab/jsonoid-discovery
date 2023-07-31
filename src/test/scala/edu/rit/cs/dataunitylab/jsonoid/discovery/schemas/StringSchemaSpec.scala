@@ -21,6 +21,14 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "round trip JSON conversion" in {
+    forAll(SchemaGen.genStringSchema) { schema =>
+      val convertedSchema = StringSchema.fromJson(schema.toJson())
+      convertedSchema.isSubsetOf(schema).shouldBe(true)
+      schema.isSubsetOf(convertedSchema).shouldBe(true)
+    }
+  }
+
   behavior of "MaxLengthProperty"
 
   it should "track the maximum length" in {

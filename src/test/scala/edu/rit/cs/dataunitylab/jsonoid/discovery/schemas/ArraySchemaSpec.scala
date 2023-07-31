@@ -31,6 +31,14 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "round trip JSON conversion" in {
+    forAll(SchemaGen.genArraySchema) { schema =>
+      val convertedSchema = ArraySchema.fromJson(schema.toJson())
+      convertedSchema.isSubsetOf(schema).shouldBe(true)
+      schema.isSubsetOf(convertedSchema).shouldBe(true)
+    }
+  }
+
   it should "merge two array schemas" in {
     val schema1 = ArraySchema.array(BooleanSchema())
     val schema2 = ArraySchema.array(IntegerSchema())

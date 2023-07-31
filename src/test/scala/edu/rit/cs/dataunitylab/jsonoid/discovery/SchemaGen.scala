@@ -25,6 +25,8 @@ object SchemaGen {
     value <- arbitrary[String]
   } yield StringSchema(value)(p)
 
+  // Note: genNumberSchema is excluded for now since we can't
+  //       serialize and deserialize and get the same values
   val genPrimitiveSchema =
     Gen.oneOf(genBoolSchema, genIntSchema, genNullSchema, genStringSchema)
 

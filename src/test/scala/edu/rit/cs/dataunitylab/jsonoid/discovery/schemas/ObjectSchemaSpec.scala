@@ -35,6 +35,14 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "round trip JSON conversion" in {
+    forAll(SchemaGen.genObjectSchema) { schema =>
+      val convertedSchema = ObjectSchema.fromJson(schema.toJson())
+      convertedSchema.isSubsetOf(schema).shouldBe(true)
+      schema.isSubsetOf(convertedSchema).shouldBe(true)
+    }
+  }
+
   behavior of "ObjectTypesProperty"
 
   it should "calculate the intersection of properties" in {
