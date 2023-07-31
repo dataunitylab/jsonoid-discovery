@@ -5,7 +5,7 @@ import org.scalacheck.{Arbitrary, Gen}
 import Arbitrary.arbitrary
 
 object SchemaGen {
-  val p = JsonoidParams().withPropertySet(PropertySets.AllProperties)
+  val p = JsonoidParams().withPropertySet(PropertySets.MinProperties)
 
   val genBoolSchema = for {
     value <- arbitrary[Boolean]
@@ -43,6 +43,14 @@ object SchemaGen {
   val genObjectSchema = for {
     objectSchemas <- Gen.mapOf(Gen.zip(arbitrary[String], genPrimitiveSchema))
   } yield ObjectSchema(objectSchemas)(p)
+
+  val genProductSchema = for {
+    schemas <- Gen.listOf(genPrimitiveSchema)
+
+    // XXX This should include AllOf and AnyOf but this is not
+    //     critical for now since we only ever generate OneOf
+    productType <- Gen.const(OneOf)
+  } yield ProductSchema.product(schemas, productType)(p)
 
   val genAnySchema: Gen[JsonSchema[_]] = Gen.oneOf(
     genObjectSchema,

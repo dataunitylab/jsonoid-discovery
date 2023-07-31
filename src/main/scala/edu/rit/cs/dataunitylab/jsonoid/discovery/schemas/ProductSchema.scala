@@ -16,7 +16,8 @@ object ProductSchema {
   )(implicit p: JsonoidParams): ProductSchema = product(List(value))(p)
 
   def product(
-      schemas: List[JsonSchema[_]]
+      schemas: List[JsonSchema[_]],
+      productType: ProductType = OneOf
   )(implicit p: JsonoidParams): ProductSchema = {
     ProductSchema(
       SchemaProperties
@@ -25,7 +26,8 @@ object ProductSchema {
           ProductSchemaTypesProperty(
             AnySchema(),
             schemas,
-            List.fill(schemas.size)(1)
+            List.fill(schemas.size)(1),
+            productType
           )
         )
     )

@@ -3,10 +3,11 @@ package schemas
 
 import org.json4s.{DefaultFormats, Formats}
 import org.json4s._
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import UnitSpec._
 
-class ProductSchemaSpec extends UnitSpec {
+class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   behavior of "ProductSchema"
 
   implicit val formats: Formats = DefaultFormats
@@ -30,6 +31,21 @@ class ProductSchemaSpec extends UnitSpec {
       )
     )
   private val allProductSchema = ProductSchema(allProps)
+
+  it should "be a subset of itself" in {
+    forAll(SchemaGen.genProductSchema) { schema =>
+      schema.isSubsetOf(schema).shouldBe(true)
+    }
+  }
+
+  it should "always create merged values which are subsets" in {
+    forAll(SchemaGen.genProductSchema, SchemaGen.genProductSchema) {
+      case (schema1, schema2) =>
+        val mergedSchema = schema1.merge(schema2).asInstanceOf[ProductSchema]
+        schema1.isSubsetOf(mergedSchema).shouldBe(true)
+        schema2.isSubsetOf(mergedSchema).shouldBe(true)
+    }
+  }
 
   it should "track the different schema types properties" in {
     val typesProp = productSchema1
