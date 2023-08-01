@@ -155,7 +155,7 @@ final case class IntegerSchema(
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
 
-  override val validTypes: Set[Class[_]] = Set(classOf[JInt])
+  override val validTypes: Set[Class[_]] = Set(classOf[JInt], classOf[JLong])
 
   override def mergeSameType(mergeType: MergeType)(implicit
       p: JsonoidParams

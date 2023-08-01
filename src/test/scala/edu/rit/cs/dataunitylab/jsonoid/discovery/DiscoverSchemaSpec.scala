@@ -6,12 +6,19 @@ import scala.io.Source
 import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import UnitSpec._
 
-class DiscoverSchemaSpec extends UnitSpec {
+class DiscoverSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   behavior of "DiscoverSchema"
+
+  it should "schemas generated from a value should not be anonmalous" in {
+    forAll(JsonGen.genObject) { value =>
+      val schema = DiscoverSchema.discoverFromValue(value).get
+      schema.collectAnomalies(value) should be(empty)
+    }
+  }
 
   it should "produce a product schema" in {
     val schema =

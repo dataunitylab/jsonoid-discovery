@@ -36,7 +36,7 @@ object JsonGen {
   val genObject = Gen.sized { size =>
     for {
       keys <- Gen.listOfN(size, arbitrary[String])
-      values <- Gen.listOfN(size, genValue)
+      values <- Gen.listOfN(size, genPrimitive)
     } yield JObject(keys zip values)
   }
 
