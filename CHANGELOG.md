@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `AnySchema` should be a subset of itself
 - Large `BigDecimal` values should be treated as extreme
 - Add `JLong` to valid types for `IntegerSchema`
+- Fix extreme value anomaly checks in histograms
 
 ## [0.15.0]
 ### Changed

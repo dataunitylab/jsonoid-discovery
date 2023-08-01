@@ -82,6 +82,17 @@ final case class Histogram(
     bins.toList
   }
 
+  /** Check if a given value is trackable by this histogram
+    *
+    * @param value the value to check
+    */
+  def isTrackable(value: Double): Boolean = {
+    val indexMapping = sketch.getIndexMapping
+    // XXX We may lose some precision here, but we assume
+    //     that we can track arbitrarily small values
+    value.abs < indexMapping.maxIndexableValue
+  }
+
   /** Merge this histogram with another histogram.
     *
     * @param other the histogram to merge with
@@ -104,17 +115,11 @@ final case class Histogram(
     * @return the merged histogram
     */
   def merge(value: Double): Histogram = {
-    val indexMapping = sketch.getIndexMapping
-    val trackable =
-      value < indexMapping.maxIndexableValue && value > indexMapping.minIndexableValue
+    val trackable = isTrackable(value)
     val newHistogram = Histogram(hasExtremeValues = !trackable)
     newHistogram.sketch.mergeWith(sketch)
-    try {
+    if (trackable) {
       newHistogram.sketch.accept(value)
-    } catch {
-      case e: IllegalArgumentException =>
-        // Ensure that we have marked this value as not trackable
-        assert(!trackable)
     }
 
     newHistogram
@@ -127,7 +132,7 @@ final case class Histogram(
     * @return the merged histogram
     */
   def merge(value: BigInt): Histogram = {
-    if (value.isValidDouble) {
+    if (value.isValidLong) {
       merge(value.doubleValue)
     } else {
       Histogram(sketch, true)
@@ -154,7 +159,26 @@ final case class Histogram(
     *
     * @return whether the value is anomalous according to the histogram
     */
+  @SuppressWarnings(Array("org.wartremover.warts.Return"))
+  def isAnomalous(value: BigInt): Boolean = {
+    value.isValidLong && isTrackable(value.doubleValue) && isAnomalous(
+      value.doubleValue
+    )
+  }
+
+  /** Check if a value is anamolous according to the histogram.
+    *
+    * @param value the value to check for in the histogram
+    *
+    * @return whether the value is anomalous according to the histogram
+    */
+  @SuppressWarnings(Array("org.wartremover.warts.Return"))
   def isAnomalous(value: Double): Boolean = {
+    // We consider values that can't be tracked as not anomalous
+    if (!isTrackable(value)) {
+      return false
+    }
+
     val mapping = sketch.getIndexMapping
 
     val maxValue = if (!sketch.getPositiveValueStore.isEmpty) {
