@@ -31,6 +31,13 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "schemas generated from a value should not be anonmalous" in {
+    forAll(JsonGen.genInt) { int =>
+      val schema = IntegerSchema(int.num)
+      schema.isAnomalous(int) shouldBe false
+    }
+  }
+
   it should "always create merged values which are subsets" in {
     forAll(SchemaGen.genIntSchema, SchemaGen.genIntSchema) {
       case (schema1, schema2) =>

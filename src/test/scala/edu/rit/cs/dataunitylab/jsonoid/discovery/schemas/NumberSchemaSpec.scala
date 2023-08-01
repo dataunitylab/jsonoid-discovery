@@ -35,6 +35,13 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "schemas generated from a value should not be anonmalous" in {
+    forAll(JsonGen.genDecimal) { decimal =>
+      val schema = NumberSchema(decimal.num)
+      schema.isAnomalous(decimal) shouldBe false
+    }
+  }
+
   behavior of "MaxNumValueProperty"
 
   it should "track the maximum value" in {

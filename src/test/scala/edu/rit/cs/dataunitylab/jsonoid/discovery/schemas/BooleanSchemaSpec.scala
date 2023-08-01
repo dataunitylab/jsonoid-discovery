@@ -28,6 +28,13 @@ class BooleanSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "schemas generated from a value should not be anonmalous" in {
+    forAll(JsonGen.genBool) { bool =>
+      val schema = BooleanSchema(bool.value)
+      schema.isAnomalous(bool) shouldBe false
+    }
+  }
+
   it should "have type 'boolean'" in {
     booleanSchema.schemaType shouldBe "boolean"
   }

@@ -777,7 +777,7 @@ final case class NumHistogramProperty(
   override def mergeValue(
       value: BigDecimal
   )(implicit p: JsonoidParams): NumHistogramProperty = {
-    NumHistogramProperty(histogram.merge(value.doubleValue))
+    NumHistogramProperty(histogram.merge(value))
   }
 
   override def collectAnomalies[S <: JValue](value: S, path: String)(implicit
@@ -785,10 +785,11 @@ final case class NumHistogramProperty(
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
     val histAnomaly = value match {
-      case JDouble(num)  => histogram.isAnomalous(num)
-      case JDecimal(num) => histogram.isAnomalous(num.doubleValue)
-      case JInt(num)     => histogram.isAnomalous(num.toDouble)
-      case _             => false
+      case JDouble(num) => histogram.isAnomalous(num)
+      case JDecimal(num) =>
+        num.isInDoubleRange && histogram.isAnomalous(num.doubleValue)
+      case JInt(num) => num.isValidDouble && histogram.isAnomalous(num.toDouble)
+      case _         => false
     }
 
     if (histAnomaly)

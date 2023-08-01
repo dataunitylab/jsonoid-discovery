@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix broken `isSubsetOf` for empty `StringNumericProperty`
 - Fix `isSubsetOf` in `DependenciesProperty`
 - `AnySchema` should be a subset of itself
+- Large `BigDecimal` values should be treated as extreme
 
 ## [0.15.0]
 ### Changed

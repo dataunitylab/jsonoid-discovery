@@ -29,6 +29,13 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "schemas generated from a value should not be anonmalous" in {
+    forAll(JsonGen.genString) { string =>
+      val schema = StringSchema(string.s)
+      schema.isAnomalous(string) shouldBe false
+    }
+  }
+
   it should "always create merged values which are subsets" in {
     forAll(SchemaGen.genStringSchema, SchemaGen.genStringSchema) {
       case (schema1, schema2) =>

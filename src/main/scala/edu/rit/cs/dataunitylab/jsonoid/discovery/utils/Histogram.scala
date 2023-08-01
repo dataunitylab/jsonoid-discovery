@@ -134,6 +134,20 @@ final case class Histogram(
     }
   }
 
+  /** Merge a value into this histogram.
+    *
+    * @param value the value to merge into the histogram
+    *
+    * @return the merged histogram
+    */
+  def merge(value: BigDecimal): Histogram = {
+    if (value.isInDoubleRange) {
+      merge(value.doubleValue)
+    } else {
+      Histogram(sketch, true)
+    }
+  }
+
   /** Check if a value is anamolous according to the histogram.
     *
     * @param value the value to check for in the histogram

@@ -399,6 +399,10 @@ object Helpers {
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   implicit final class BigDecimalOps(self: BigDecimal) {
     def ===(other: BigDecimal): Boolean = self == other
+
+    def isInDoubleRange: Boolean = {
+      self >= Double.MinValue && self <= Double.MaxValue
+    }
   }
 
   /** Find the greatest common divisor of two integers. */

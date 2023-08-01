@@ -753,7 +753,7 @@ final case class IntHistogramProperty(histogram: Histogram = Histogram())
   ): Seq[Anomaly] = {
     value match {
       case JInt(num) =>
-        if (histogram.isAnomalous(num.doubleValue)) {
+        if (num.isValidDouble && histogram.isAnomalous(num.doubleValue)) {
           Seq(
             Anomaly(
               path,
