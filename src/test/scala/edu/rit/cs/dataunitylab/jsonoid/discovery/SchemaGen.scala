@@ -45,7 +45,7 @@ object SchemaGen {
   } yield ObjectSchema(objectSchemas)(p)
 
   val genProductSchema = for {
-    schemas <- Gen.listOf(genPrimitiveSchema)
+    schemas <- Gen.listOf(genPrimitiveSchema) suchThat(_.nonEmpty)
 
     // XXX This should include AllOf and AnyOf but this is not
     //     critical for now since we only ever generate OneOf
