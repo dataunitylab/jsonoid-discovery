@@ -108,7 +108,7 @@ object ArraySchema {
         Left(AnySchema())
       }
 
-    props.add(ItemTypeProperty(itemType))
+    props.add(ItemTypeProperty(itemType, 1))
 
     ArraySchema(props)
   }

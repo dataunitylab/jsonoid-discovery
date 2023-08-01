@@ -153,7 +153,7 @@ class JsonSchemaSpec extends UnitSpec {
     val convertedSchema = JsonSchema.fromJson(arraySchema)
 
     convertedSchema.properties should contain(
-      ItemTypeProperty(Left(BooleanSchema()))
+      ItemTypeProperty(Left(BooleanSchema()), 1)
     )
     convertedSchema.properties should contain(MinItemsProperty(Some(1)))
     convertedSchema.properties should contain(MaxItemsProperty(Some(10)))
@@ -166,7 +166,7 @@ class JsonSchemaSpec extends UnitSpec {
     val convertedSchema = JsonSchema.fromJson(arraySchema)
 
     convertedSchema.properties should contain(
-      ItemTypeProperty(Right(List(BooleanSchema(), NullSchema())))
+      ItemTypeProperty(Right(List(BooleanSchema(), NullSchema())), 1)
     )
   }
 
@@ -176,7 +176,7 @@ class JsonSchemaSpec extends UnitSpec {
     val convertedSchema = JsonSchema.fromJson(arraySchema)
 
     convertedSchema.properties should contain(
-      ItemTypeProperty(Left(AnySchema()))
+      ItemTypeProperty(Left(AnySchema()), 1)
     )
   }
 
@@ -187,7 +187,7 @@ class JsonSchemaSpec extends UnitSpec {
     val convertedSchema = JsonSchema.fromJson(tupleSchema)
 
     convertedSchema.properties should contain(
-      ItemTypeProperty(Right(List(BooleanSchema(), NullSchema())))
+      ItemTypeProperty(Right(List(BooleanSchema(), NullSchema())), 1)
     )
   }
 

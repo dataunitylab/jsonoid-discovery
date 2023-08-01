@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Large `BigDecimal` values should be treated as extreme
 - Add `JLong` to valid types for `IntegerSchema`
 - Fix extreme value anomaly checks in histograms
+- Fix tuple schema deserialization from JSON Schema
 
 ## [0.15.0]
 ### Changed
