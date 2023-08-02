@@ -60,6 +60,10 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "calculate entropy" in {
+    objectSchema.entropy shouldBe Some(4)
+  }
+
   behavior of "ObjectTypesProperty"
 
   it should "calculate the intersection of properties" in {

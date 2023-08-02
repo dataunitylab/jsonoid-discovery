@@ -601,4 +601,11 @@ trait JsonSchema[T] {
         .expandTo(other)
     }
   }
+
+  /** The number of possible types accepted by this schema.
+    * It must be overridden by subclasses to do anything useful.
+    *
+    * @returns the number of types or None if entropy cannot be calculated
+    */
+  def entropy(implicit p: JsonoidParams): Option[Long] = Some(1)
 }
