@@ -262,6 +262,38 @@ final case class ObjectSchema(
 
     ObjectSchema(newProps)(p)
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  override def entropy(implicit p: JsonoidParams): Option[Long] = {
+    val additionalProperties = properties
+      .getOrNone[AdditionalPropertiesProperty]
+      .flatMap(_.overriddenAdditionalProperties)
+      .getOrElse(p.additionalProperties)
+
+    if (additionalProperties) {
+      // This schema is open so it has infinite entropy
+      None
+    } else {
+      val objectTypes = properties.get[ObjectTypesProperty].objectTypes
+      val requiredProperties =
+        properties
+          .getOrNone[RequiredProperty]
+          .flatMap(_.required)
+          .getOrElse(Set.empty)
+      val propertyEntropy = objectTypes.values.map(_.entropy)
+
+      // TODO Entropy is reduced by dependencies
+
+      // We can only calculate entropy if it is defined for all keys
+      if (propertyEntropy.forall(_.isDefined)) {
+        Some(objectTypes.map { case (key, schema) =>
+          schema.entropy.get + (if (requiredProperties.contains(key)) 0 else 1)
+        }.product)
+      } else {
+        None
+      }
+    }
+  }
 }
 
 /** The types of all keys in an object schema.

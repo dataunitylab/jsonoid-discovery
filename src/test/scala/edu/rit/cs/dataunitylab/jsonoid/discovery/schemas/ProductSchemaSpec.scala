@@ -283,4 +283,8 @@ class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
         .get
     ) shouldBe true
   }
+
+  it should "calculate entropy for a simple product" in {
+    productSchema1.entropy shouldBe Some(2)
+  }
 }

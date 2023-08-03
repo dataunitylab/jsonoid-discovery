@@ -83,6 +83,15 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     tupleProp.isSubsetOf(arrayProp) shouldBe true
   }
 
+  it should "calculate entropy for a tuple schema" in {
+    tupleSchema.entropy shouldBe Some(2)
+  }
+
+  it should "calculate entropy for an array schema" in {
+    // This is 2 since the array length can be either 1 or 2
+    arraySchema.entropy shouldBe Some(2)
+  }
+
   behavior of "MinItemsProperty"
 
   it should "track minimum array length" in {

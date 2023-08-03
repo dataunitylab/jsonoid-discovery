@@ -246,6 +246,21 @@ final case class ProductSchema(
       case None => this
     }
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  override def entropy(implicit p: JsonoidParams): Option[Long] = {
+    val schemaTypes = properties.get[ProductSchemaTypesProperty]
+    val baseEntropy = schemaTypes.baseSchema.entropy
+    val schemaEntropies = schemaTypes.schemaTypes.map(_.entropy)
+    if (
+      baseEntropy.isDefined && schemaTypes.productType === OneOf && schemaEntropies
+        .forall(_.isDefined)
+    ) {
+      Some(baseEntropy.get * schemaEntropies.map(_.get).sum)
+    } else {
+      None
+    }
+  }
 }
 
 sealed trait ProductType {

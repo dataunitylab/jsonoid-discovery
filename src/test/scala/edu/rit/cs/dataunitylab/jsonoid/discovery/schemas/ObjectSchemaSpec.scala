@@ -60,6 +60,17 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     }
   }
 
+  it should "calculate entropy for simple objects" in {
+    objectSchema.entropy shouldBe Some(4)
+  }
+
+  it should "calculate entropy for nested objects" in {
+    val nestedSchema1 = ObjectSchema(Map("baz" -> objectSchema))
+    val nestedSchema2 = ObjectSchema(Map("quux" -> objectSchema))
+    val nestedSchema = nestedSchema1.merge(nestedSchema2)
+    nestedSchema.entropy shouldBe Some(25)
+  }
+
   behavior of "ObjectTypesProperty"
 
   it should "calculate the intersection of properties" in {

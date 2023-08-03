@@ -261,6 +261,37 @@ final case class ArraySchema(
   override def toString: String = {
     pretty(render(toJson()))
   }
+
+  @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
+  override def entropy(implicit p: JsonoidParams): Option[Long] = {
+    properties.get[ItemTypeProperty].itemType match {
+      case Left(schema) => {
+        val minItems =
+          properties.getOrNone[MinItemsProperty].flatMap(_.minItems)
+        val maxItems =
+          properties.getOrNone[MaxItemsProperty].flatMap(_.maxItems)
+        (minItems, maxItems) match {
+          case (Some(min), Some(max)) => {
+            val possibleLengths = max - min + 1
+            schema.entropy.map(_ * possibleLengths)
+          }
+
+          // We can't calculate entropy for array schemas without length
+          case _ => None
+        }
+      }
+
+      case Right(schemas) => {
+        val entropies = schemas.map(_.entropy)
+        if (entropies.forall(_.isDefined)) {
+          // Sum the entropies from each element in the tuple
+          Some(entropies.map(_.get).sum)
+        } else {
+          None
+        }
+      }
+    }
+  }
 }
 
 /** The type of item stored in this array schema.
