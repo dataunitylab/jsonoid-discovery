@@ -11,7 +11,7 @@ object Dependencies {
   lazy val ddSketch            = "com.datadoghq"               % "sketches-java"         % "0.8.2"
   lazy val fuzzySets           = "com.github.dataunitylab"    %% "fuzzy-sets"            % "0.2.0-1-g6b2baf2-SNAPSHOT"
   lazy val hyperLogLog         = "com.github.prasanthj"        % "hyperloglog"           % "1.1"
-  lazy val jsonSchemaValidator = "com.networknt"               % "json-schema-validator" % "1.0.79"
+  lazy val jsonSchemaValidator = "com.networknt"               % "json-schema-validator" % "1.0.86"
   lazy val openLocationCode    = "com.google.openlocationcode" % "openlocationcode"      % "1.0.4"
   lazy val scopt               = "com.github.scopt"           %% "scopt"                 % "4.1.0"
   lazy val scalaCsv            = "com.github.tototoshi"       %% "scala-csv"             % "1.3.10"

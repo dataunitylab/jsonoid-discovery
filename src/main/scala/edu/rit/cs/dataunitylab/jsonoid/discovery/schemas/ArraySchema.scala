@@ -313,7 +313,7 @@ final case class ItemTypeProperty(
     case Right(schemas) =>
       if (schemas.nonEmpty) {
         if (count > 0) {
-          ("items" -> JArray(schemas.map(_.toJson()(p))))
+          ("prefixItems" -> JArray(schemas.map(_.toJson()(p))))
         } else {
           val combinedSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
           ("items" -> combinedSchema.toJson())
@@ -327,20 +327,24 @@ final case class ItemTypeProperty(
       transformer: PartialFunction[(String, JsonSchema[_]), JsonSchema[_]],
       path: String
   ): ItemTypeProperty = {
-    ItemTypeProperty(itemType match {
-      case Left(singleType) =>
-        Left(
-          singleType.transformPropertiesWithInexactPath(transformer, true, path)
-        )
-      case Right(typeList) =>
-        Right(typeList.zipWithIndex.map { case (schema, index) =>
-          schema.transformPropertiesWithInexactPath(
-            transformer,
-            true,
-            path
+    ItemTypeProperty(
+      itemType match {
+        case Left(singleType) =>
+          Left(
+            singleType
+              .transformPropertiesWithInexactPath(transformer, true, path)
           )
-        })
-    })
+        case Right(typeList) =>
+          Right(typeList.zipWithIndex.map { case (schema, index) =>
+            schema.transformPropertiesWithInexactPath(
+              transformer,
+              true,
+              path
+            )
+          })
+      },
+      count
+    )
   }
 
   override def intersectMerge(
@@ -420,7 +424,7 @@ final case class ItemTypeProperty(
 
           Left(newSchema)
       }
-    ItemTypeProperty(newType, count + otherProp.count)
+    ItemTypeProperty(newType, 1.max(count + otherProp.count))
   }
 
   override def mergeValue(

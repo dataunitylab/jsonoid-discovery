@@ -225,9 +225,18 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     cp.reportAll()
   }
 
+  it should "convert tuple schemas using prefixItems" in {
+    (tupleSchema.toJson() \ "prefixItems")
+  }
+
+  it should "keep the count when transforming" in {
+    val json = tupleSchema.transformProperties(s => s).toJson()
+    (json \ "prefixItems") shouldNot equal(JNothing)
+  }
+
   it should "allow replacement of a schema with a reference in a tuple schema" in {
     val refSchema = tupleSchema.replaceWithReference("/0", "foo")
-    (refSchema.toJson() \ "items")
+    (refSchema.toJson() \ "prefixItems")
       .extract[List[Map[String, String]]] shouldEqual List(
       Map("$ref" -> "foo"),
       Map("type" -> "boolean")
