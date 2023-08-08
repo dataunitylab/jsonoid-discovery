@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/dataunitylab/jsonoid-discovery/branch/main/graph/badge.svg?token=VhcWABnQhU)](https://codecov.io/gh/dataunitylab/jsonoid-discovery)
 [![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7359/badge)](https://bestpractices.coreinfrastructure.org/projects/7359)
 
-Schema discovery for JSON Schema draft 2019-09 using monoids.
+Schema discovery for JSON Schema draft 2020-12 using monoids.
 The goal of JSONoid is to produce a useful JSON Schema from a collection of JSON documents.
 For an idea of what JSONoid does, you can view [example schemas with their corresponding datasets](https://dataunitylab.github.io/jsonoid-discovery/schemas/).
 

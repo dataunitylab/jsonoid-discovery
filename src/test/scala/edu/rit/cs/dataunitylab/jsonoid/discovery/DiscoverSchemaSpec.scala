@@ -112,9 +112,8 @@ class DiscoverSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       )
 
       // XXX This validation is not perfect, but we'll check later with AJV
-      //     Specifically, version 2020-12 of the spec is not yet supported
       val factory =
-        JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+        JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012)
       val jsonSchema = factory.getSchema(asJsonNode(schema.toJson()))
       val errors = jsonSchema.validate(asJsonNode(firstDoc))
       errors shouldBe empty

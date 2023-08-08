@@ -1,7 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 
-const Ajv = require('ajv/dist/2019')
+const Ajv = require("ajv/dist/2020")
 const addFormats = require('ajv-formats');
 
 const ajv = new Ajv({

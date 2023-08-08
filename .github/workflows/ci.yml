@@ -52,7 +52,7 @@ jobs:
     - name: Validate generated schema
       run: |
           for schema in target/jsonoid-schemas/*.json; do
-            ajv compile --spec=draft2019 -s $schema -c ajv-formats
+            ajv compile --spec=draft2020 -s $schema -c ajv-formats
           done
 
   publish:
