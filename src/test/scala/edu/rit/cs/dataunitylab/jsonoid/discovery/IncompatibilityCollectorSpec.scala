@@ -1,14 +1,29 @@
 package edu.rit.cs.dataunitylab.jsonoid.discovery
 
 import scala.reflect.ClassTag
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import schemas._
 
-class IncompatibilityCollectorSpec extends UnitSpec {
+class IncompatibilityCollectorSpec
+    extends UnitSpec
+    with ScalaCheckPropertyChecks {
   behavior of "IncompatibilityCollector"
 
   val schema1 = IntegerSchema(3)
   val schema2 = IntegerSchema(0)
+
+  it should "find incompatibilities iff a schema is not a subset" in {
+    forAll(SchemaGen.genObjectSchema, SchemaGen.genObjectSchema) {
+      case (schema1, schema2) =>
+        val incompats = IncompatibilityCollector.findIncompatibilities(
+          schema1,
+          schema2,
+          skipIfSubset = false
+        )
+        incompats.isEmpty shouldEqual (schema1.isSubsetOf(schema2))
+    }
+  }
 
   it should "find no incompatiblities between a schema and itself" in {
     IncompatibilityCollector.findIncompatibilities(

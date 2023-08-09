@@ -52,10 +52,11 @@ object IncompatibilityCollector {
   private def findIncompatibilitiesAtPath(
       base: JsonSchema[_],
       other: JsonSchema[_],
+      skipIfSubset: Boolean,
       path: String
   ): Seq[Incompatibility[_]] = {
     (base, other) match {
-      case (_, _) if (base.isSubsetOf(other)) =>
+      case (_, _) if (base.isSubsetOf(other) && skipIfSubset) =>
         Seq()
 
       case (o1: ObjectSchema, o2: ObjectSchema) =>
@@ -70,7 +71,12 @@ object IncompatibilityCollector {
               t1(key),
               t2(key),
               ClassTag(classOf[ObjectTypesProperty])
-            ) ++ findIncompatibilitiesAtPath(t1(key), t2(key), objPath)
+            ) ++ findIncompatibilitiesAtPath(
+              t1(key),
+              t2(key),
+              skipIfSubset,
+              objPath
+            )
           }
 
         // We dealt with the recursive case above, so no recursion here
@@ -111,7 +117,7 @@ object IncompatibilityCollector {
         } else {
           types.zipWithIndex
             .map { case (schema, index) =>
-              findIncompatibilitiesAtPath(schema, other, path)
+              findIncompatibilitiesAtPath(schema, other, skipIfSubset, path)
             }
             .minBy(_.length)
         }
@@ -135,6 +141,7 @@ object IncompatibilityCollector {
             ) ++ arrayIncompats ++ findIncompatibilitiesAtPath(
               s1,
               s2,
+              skipIfSubset,
               path
             )
 
@@ -144,6 +151,7 @@ object IncompatibilityCollector {
             arrayIncompats ++ findIncompatibilitiesAtPath(
               schema,
               oneSchema,
+              skipIfSubset,
               path
             )
 
@@ -185,9 +193,10 @@ object IncompatibilityCollector {
     */
   def findIncompatibilities(
       base: JsonSchema[_],
-      other: JsonSchema[_]
+      other: JsonSchema[_],
+      skipIfSubset: Boolean = true
   ): Seq[Incompatibility[_]] = {
-    val incompats = findIncompatibilitiesAtPath(base, other, "$")
+    val incompats = findIncompatibilitiesAtPath(base, other, skipIfSubset, "$")
 
     // Incompatiblities should be found if the schema is not
     // a subset, otherwise no incompatibilities should be found
