@@ -79,7 +79,7 @@ object DiscoverSchema {
     *
     * @param jsons an iterator of JSON objects to perform schema discovery on
     * @param propSet the property set to use for schema discovery
-    * @return tthe discovered schema
+    * @return the discovered schema
     */
   def discover(
       jsons: Iterator[JValue]
