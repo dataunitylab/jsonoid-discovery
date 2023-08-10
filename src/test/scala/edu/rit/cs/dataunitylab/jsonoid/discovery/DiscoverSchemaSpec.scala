@@ -13,7 +13,7 @@ import UnitSpec._
 class DiscoverSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   behavior of "DiscoverSchema"
 
-  it should "schemas generated from a value should not be anonmalous" in {
+  it should "generate schemas from a value such that the value is not anomalous" in {
     forAll(JsonGen.genObject) { value =>
       val schema = DiscoverSchema.discoverFromValue(value).get
       schema.collectAnomalies(value) should be(empty)
