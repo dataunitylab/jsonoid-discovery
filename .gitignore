@@ -8,6 +8,7 @@ bowtie-report.html
 
 project/project
 project/metals.sbt
+*.hprof
 
 node_modules/
 .pnp.*
