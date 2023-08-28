@@ -10,6 +10,9 @@ project/project
 project/metals.sbt
 *.hprof
 
+/*.json
+/*.jsonl
+
 node_modules/
 .pnp.*
 .yarn/*
