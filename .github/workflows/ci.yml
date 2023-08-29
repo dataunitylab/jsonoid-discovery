@@ -55,12 +55,10 @@ jobs:
             ajv compile --spec=draft2020 -s $schema -c ajv-formats
           done
 
-  publish:
+  publish-package:
     if: ${{ github.event_name != 'pull_request' }}
     needs: test
     runs-on: ubuntu-latest
-    env:
-        DISABLE_ASSERTIONS: 1
     steps:
     - uses: actions/checkout@v3
     - name: Coursier cache
@@ -71,9 +69,26 @@ jobs:
         apps: sbt scala
     - name: Publish package
       env:
+        DISABLE_ASSERTIONS: 1
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt publish
+
+  publish-site:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Coursier cache
+      uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
+    - name: Publish site
+      env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-          sbt publish
           sbt makeSite
           sbt generateSchemas
           cp target/jsonoid-schemas/*.json target/site/schemas
