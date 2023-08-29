@@ -36,6 +36,12 @@ object ObjectSchema {
       throw new UnsupportedOperationException("not isn't supported")
     }
 
+    if ((obj \ "unevaluatedProperties") =/= JNothing) {
+      throw new UnsupportedOperationException(
+        "unevaluatedProperties isn't supported"
+      )
+    }
+
     // TODO Add support for dependencies
     if ((obj \ "dependencies") =/= JNothing) {
       throw new UnsupportedOperationException("dependencies not supported")

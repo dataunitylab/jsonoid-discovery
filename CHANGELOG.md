@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Switch to draft 2020-12
 - Switch back to `prefixItems`
+- Throw error when parsing with `unevaluatedProperties`
 
 ## [0.16.0]
 ### Added
