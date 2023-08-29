@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.17.0]
 ### Added
 - Add calculation of schema entropy
+- Testing validation via Bowtie
 
 ### Changed
 - Switch to draft 2020-12
