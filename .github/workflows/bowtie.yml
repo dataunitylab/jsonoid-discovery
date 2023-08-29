@@ -1,0 +1,32 @@
+name: Bowtie
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  bowtie-report:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Bowtie
+      run: pip install bowtie-json-schema
+    - uses: actions/checkout@v3
+    - name: Coursier cache
+      uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
+    - name: Build Docker image
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt 'set dockerEntrypoint := Seq("/opt/docker/bin/bowtie-validator"); set dockerUpdateLatest := true; Docker/publishLocal'
+    - name: Tag image
+      run: docker tag jsonoid-discovery:latest localhost/jsonoid-discovery
+    - name: Run Bowtie tests
+      run: mkdir bowtie && bowtie suite -V -i localhost/jsonoid-discovery https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/tests/draft2020-12 > bowtie/bowtie.json
+    - name: Generate Bowtie report
+      run: (cd bowtie; bowtie report -b badges bowtie.json)
+    - uses: actions/upload-artifact@v3
+      with:
+        name: bowtie-report
+        path: bowtie/
