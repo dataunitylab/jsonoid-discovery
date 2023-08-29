@@ -46,6 +46,10 @@ object ArraySchema {
       throw new UnsupportedOperationException("contains not supported")
     }
 
+    if ((arr \ "unevaluatedItems") =/= JNothing) {
+      throw new UnsupportedOperationException("unevaluatedItems not supported")
+    }
+
     if ((arr \ "minItems") =/= JNothing) {
       try {
         props.add(MinItemsProperty(Some((arr \ "minItems").extract[Int])))

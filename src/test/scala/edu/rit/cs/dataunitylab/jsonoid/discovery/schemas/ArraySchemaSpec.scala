@@ -227,7 +227,7 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
 
   it should "convert tuple schemas using prefixItems" in {
     (tupleSchema.toJson() \ "prefixItems") shouldNot equal(JNothing)
-    (tupleSchema.toJson() \ "items") shouldEqual(JBool(false))
+    (tupleSchema.toJson() \ "items") shouldEqual (JBool(false))
   }
 
   it should "keep the count when transforming" in {

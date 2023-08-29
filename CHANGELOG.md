@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch back to `prefixItems`
 - Throw error when parsing with `unevaluatedProperties`
 - Set `items` to `false` in tuple schemas
+- Declare lack of support for `unevaluatedItems`
 
 ## [0.16.0]
 ### Added
