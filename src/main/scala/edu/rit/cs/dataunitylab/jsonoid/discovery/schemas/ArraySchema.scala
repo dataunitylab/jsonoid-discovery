@@ -78,7 +78,7 @@ object ArraySchema {
 
     val itemType: Either[JsonSchema[_], List[JsonSchema[_]]] =
       if ((arr \ "prefixItems") =/= JNothing) {
-        if ((arr \ "items") =/= JNothing) {
+        if ((arr \ "items") =/= JNothing && (arr \ "items") =/= JBool(false)) {
           throw new UnsupportedOperationException(
             "Both items and prefixItems cannot be specified"
           )
@@ -313,7 +313,9 @@ final case class ItemTypeProperty(
     case Right(schemas) =>
       if (schemas.nonEmpty) {
         if (count > 0) {
-          ("prefixItems" -> JArray(schemas.map(_.toJson()(p))))
+          ("prefixItems" -> JArray(
+            schemas.map(_.toJson()(p))
+          )) ~ ("items" -> false)
         } else {
           val combinedSchema = schemas.fold(ZeroSchema())(_.merge(_, Union))
           ("items" -> combinedSchema.toJson())
