@@ -30,3 +30,13 @@ jobs:
       with:
         name: bowtie-report
         path: bowtie/
+    - name: Publish report to GitHub pages
+      uses: cpina/github-action-push-to-another-repository@v1.7.2
+      env:
+        SSH_DEPLOY_KEY: ${{ secrets.BOWTIE_SSH_DEPLOY_KEY }}
+      with:
+        source-directory: bowtie
+        destination-github-username: dataunitylab
+        destination-repository-name: jsonoid-bowtie
+        target-branch: gh-pages
+        create-target-branch-if-needed: true
