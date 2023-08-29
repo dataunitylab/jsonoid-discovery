@@ -104,6 +104,7 @@ lazy val root = (project in file("."))
       guava,
       jacksonDatabind,
       protobuf,
+      snappyJava,
     ),
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions ++= nonConsoleCompilerOptions,
