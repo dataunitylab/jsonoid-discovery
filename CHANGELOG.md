@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Throw error when parsing with `unevaluatedProperties`
 - Set `items` to `false` in tuple schemas
 - Declare lack of support for `unevaluatedItems` and `if`/`then`
+- Declare partial support for `additionalProperties`
 
 ## [0.16.0]
 ### Added

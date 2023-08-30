@@ -32,6 +32,16 @@ object ObjectSchema {
     implicit val formats: Formats = DefaultFormats
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
 
+    (obj \ "additionalProperties") match {
+      case JNothing =>
+      case JBool(additionalProperties) =>
+        props.add(AdditionalPropertiesProperty(Some(additionalProperties)))
+      case _ =>
+        throw new UnsupportedOperationException(
+          "additionalProperties with non-Boolean schema not supported"
+        )
+    }
+
     if ((obj \ "not") =/= JNothing) {
       throw new UnsupportedOperationException("not isn't supported")
     }
