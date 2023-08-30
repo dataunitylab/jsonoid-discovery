@@ -117,3 +117,8 @@ Any potential security vulnerabilities should be [reported privately](https://gi
 * [USGS - Earthquakes](https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson)
 * [Rick and Morty characters](https://rickandmortyapi.com/api/character/)
 * [TVmaze](https://api.tvmaze.com/singlesearch/shows?q=mr-robot&embed=episodes)
+
+## Validation
+
+JSONoid also contains a partial implementation of a JSON Schema validator.
+More details on validation can be found [in this repository](https://github.com/dataunitylab/jsonoid-bowtie).

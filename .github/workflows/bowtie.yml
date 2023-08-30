@@ -26,10 +26,13 @@ jobs:
       run: mkdir bowtie && bowtie suite -V -i localhost/jsonoid-discovery https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/tests/draft2020-12 > bowtie/bowtie.json
     - name: Generate Bowtie report
       run: (cd bowtie; bowtie report -b badges bowtie.json)
-    - uses: actions/upload-artifact@v3
+    - name: Upload report artifact
+      uses: actions/upload-artifact@v3
       with:
         name: bowtie-report
         path: bowtie/
+    - name: Link Bowtie report and readme
+      run: (cd bowtie; cp ../BOWTIE-README.md ./README.md; ln -sf bowtie-report.html index.html)
     - name: Publish report to GitHub pages
       uses: cpina/github-action-push-to-another-repository@v1.7.2
       env:
