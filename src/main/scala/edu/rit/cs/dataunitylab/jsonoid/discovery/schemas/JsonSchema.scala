@@ -33,6 +33,10 @@ object JsonSchema {
     )
   )
   private def fromJsonObjectValue(schema: JObject): JsonSchema[_] = {
+    if ((schema \ "if") =/= JNothing || (schema \ "then") =/= JNothing) {
+      throw new UnsupportedOperationException("if/then not supported")
+    }
+
     val baseSchema: JsonSchema[_] = if (schema.obj.isEmpty) {
       AnySchema()
     } else if ((schema \ "$ref") =/= JNothing) {
