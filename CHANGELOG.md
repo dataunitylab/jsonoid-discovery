@@ -6,20 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
-## [0.17.0]
 ### Added
-- Add calculation of schema entropy
 - Testing validation via Bowtie
 - Collect anomalies for `patternProperties`
 
 ### Changed
-- Switch to draft 2020-12
-- Switch back to `prefixItems`
 - Throw error when parsing with `unevaluatedProperties`
 - Set `items` to `false` in tuple schemas
 - Declare lack of support for `unevaluatedItems` and `if`/`then`
 - Declare partial support for `additionalProperties`
+
+## [0.17.0]
+### Added
+- Add calculation of schema entropy
+
+### Changed
+- Switch to draft 2020-12
+- Switch back to `prefixItems`
 
 ## [0.16.0]
 ### Added
