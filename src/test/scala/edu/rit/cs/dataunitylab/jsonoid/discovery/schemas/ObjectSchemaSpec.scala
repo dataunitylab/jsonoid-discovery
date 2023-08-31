@@ -84,6 +84,27 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     schemaProperties should contain(ObjectTypesProperty(objectTypes))
   }
 
+  behavior of "PatternTypesProperty"
+
+  it should "not find an anomaly when a pattern matches" in {
+    PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3)))
+      .collectAnomalies(JObject(List(("foobar", JInt(3))))) shouldBe empty
+  }
+
+  it should "find an anomaly when no patterns match" in {
+    PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3)))
+      .collectAnomalies(JObject(List(("baz", JInt(3))))) shouldEqual Seq(
+      Anomaly("$.baz", "found field not matching pattern", AnomalyLevel.Fatal)
+    )
+  }
+
+  it should "pass through anomalies from matches schemas" in {
+    PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3)))
+      .collectAnomalies(JObject(List(("foobar", JBool(true))))) shouldEqual Seq(
+      Anomaly("$.foobar", "JBool(true) has wrong type", AnomalyLevel.Fatal)
+    )
+  }
+
   behavior of "RequiredProperty"
 
   it should "track required properties" in {

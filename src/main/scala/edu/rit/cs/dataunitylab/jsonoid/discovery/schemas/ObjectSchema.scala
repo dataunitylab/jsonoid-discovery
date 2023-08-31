@@ -551,12 +551,31 @@ final case class PatternTypesProperty(
       p: JsonoidParams,
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
-    if (patternTypes.isEmpty) {
-      throw new UnsupportedOperationException(
-        "anomaly collection not supported for patternProperties"
-      )
-    } else {
-      Seq.empty
+    value match {
+      case JObject(fields) =>
+        fields.flatMap { case (key, value) =>
+          // Find a matching pattern schema if it exists
+          val patternSchema = patternTypes
+            .find { case (pattern, _) =>
+              pattern.matches(key)
+            }
+            .map(_._2)
+
+          // Either collect anomalies from the matching pattern
+          // or report that there is no pattern that matches
+          patternSchema match {
+            case Some(schema) => schema.collectAnomalies(value, f"$path.$key")
+            case None =>
+              Seq(
+                Anomaly(
+                  f"$path.$key",
+                  "found field not matching pattern",
+                  AnomalyLevel.Fatal
+                )
+              )
+          }
+        }
+      case _ => Seq.empty
     }
   }
 }
