@@ -15,14 +15,23 @@ object BooleanSchema {
     )
   }
 
-  lazy val MinProperties: SchemaProperties[Boolean] =
-    SchemaProperties.empty[Boolean]
+  lazy val MinProperties: SchemaProperties[Boolean] = {
+    val props = SchemaProperties.empty[Boolean]
+    props.add(BooleanConstantProperty())
 
-  lazy val SimpleProperties: SchemaProperties[Boolean] =
-    SchemaProperties.empty[Boolean]
+    props
+  }
+
+  lazy val SimpleProperties: SchemaProperties[Boolean] = {
+    val props = SchemaProperties.empty[Boolean]
+    props.add(BooleanConstantProperty())
+
+    props
+  }
 
   lazy val AllProperties: SchemaProperties[Boolean] = {
     val props = SchemaProperties.empty[Boolean]
+    props.add(BooleanConstantProperty())
     props.add(BooleanPercentProperty())
 
     props
@@ -52,6 +61,16 @@ final case class BooleanSchema(
     newSchema.definitions ++= this.definitions
 
     newSchema
+  }
+
+  override def toJson()(implicit p: JsonoidParams): JObject = {
+    properties.getOrNone[BooleanConstantProperty] match {
+      case Some(BooleanConstantProperty(Some(true), _)) =>
+        ("const" -> JBool(true))
+      case Some(BooleanConstantProperty(_, Some(true))) =>
+        ("const" -> JBool(false))
+      case _ => super.toJson()(p)
+    }
   }
 
   override def collectAnomalies[S <: JValue](
@@ -106,5 +125,74 @@ final case class BooleanPercentProperty(
       totalTrue + (if (value) 1 else 0),
       totalFalse + (if (!value) 1 else 0)
     )
+  }
+}
+
+/** Tracks whether all values are either true or false
+  *
+  * @constructor Create a new Boolean constant property
+  * @param allTrue whether all values are true
+  * @param allFalse whether all values are false
+  */
+final case class BooleanConstantProperty(
+    allTrue: Option[Boolean] = None,
+    allFalse: Option[Boolean] = None
+) extends SchemaProperty[Boolean] {
+  override type S = BooleanConstantProperty
+
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): BooleanConstantProperty =
+    BooleanConstantProperty()
+
+  override val isInformational = false
+
+  override def toJson()(implicit p: JsonoidParams): JObject = Nil
+
+  override def unionMerge(
+      otherProp: BooleanConstantProperty
+  )(implicit p: JsonoidParams): BooleanConstantProperty = {
+    BooleanConstantProperty(
+      (allTrue, otherProp.allTrue) match {
+        case (None, None) => None
+        case _ =>
+          Some(allTrue.getOrElse(false) && otherProp.allTrue.getOrElse(false))
+      },
+      (allFalse, otherProp.allFalse) match {
+        case (None, None) => None
+        case _ =>
+          Some(allFalse.getOrElse(false) && otherProp.allFalse.getOrElse(false))
+      }
+    )
+  }
+
+  override def mergeValue(
+      value: Boolean
+  )(implicit p: JsonoidParams): BooleanConstantProperty = {
+    BooleanConstantProperty(
+      Some(allTrue.getOrElse(true) && value),
+      Some(allFalse.getOrElse(true) && !value)
+    )
+  }
+
+  override def isSubsetOf(
+      other: BooleanConstantProperty,
+      recursive: Boolean = true
+  )(implicit p: JsonoidParams): Boolean = {
+    val trueCompat = (allTrue, other.allTrue) match {
+      case (Some(a), Some(b)) => a >= b
+      case _                  => true
+    }
+    val falseCompat = (allFalse, other.allFalse) match {
+      case (Some(a), Some(b)) => a >= b
+      case _                  => true
+    }
+    trueCompat && falseCompat
+  }
+
+  override def expandTo(
+      other: Option[BooleanConstantProperty]
+  ): BooleanConstantProperty = {
+    BooleanConstantProperty(Some(false), Some(false))
   }
 }

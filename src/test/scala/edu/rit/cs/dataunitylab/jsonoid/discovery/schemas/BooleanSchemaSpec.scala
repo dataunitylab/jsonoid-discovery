@@ -43,6 +43,11 @@ class BooleanSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     booleanSchema.validTypes shouldBe Set(classOf[JBool])
   }
 
+  it should "convert to constant where possible" in {
+    val trueSchema = BooleanSchema(true)
+    trueSchema.toJson() shouldBe JObject(List(("const" -> JBool(true))))
+  }
+
   behavior of "BooleanPercentProperty"
 
   it should "track the percentage of true values" in {

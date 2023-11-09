@@ -67,7 +67,13 @@ object JsonSchema {
           case e: org.json4s.MappingException => Set.empty[JValue]
           // $COVERAGE-ON$
         }
-      EnumSchema(values)
+
+      if (values.size === 1 && values.head.isInstanceOf[JBool]) {
+        // Convert Boolean constants to BooleanSchema
+        BooleanSchema(values.head.asInstanceOf[JBool].value)
+      } else {
+        EnumSchema(values)
+      }
     } else {
       val schemaTypes: List[String] = if ((schema \ "type") =/= JNothing) {
         try {

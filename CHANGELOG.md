@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Set `items` to `false` in tuple schemas
 - Declare lack of support for `unevaluatedItems` and `if`/`then`
 - Declare partial support for `additionalProperties`
+- Track Boolean values which are constant
 
 ## [0.17.0]
 ### Added
