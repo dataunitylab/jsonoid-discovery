@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install Bowtie
-      run: pip install bowtie-json-schema
+      run: pip install bowtie-json-schema==2023.8.16
     - uses: actions/checkout@v3
     - name: Coursier cache
       uses: coursier/cache-action@v6
