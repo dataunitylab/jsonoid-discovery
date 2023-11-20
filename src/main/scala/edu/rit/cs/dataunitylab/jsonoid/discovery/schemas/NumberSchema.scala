@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 package schemas
 
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}

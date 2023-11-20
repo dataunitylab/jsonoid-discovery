@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 package schemas
 
 /** Sets of properties which can be used during schema discovery.
@@ -47,7 +47,7 @@ final case class PropertySet(
     */
   def withoutNamed(propNames: Seq[String]): PropertySet = {
     val propClasses = propNames.map(c =>
-      Class.forName("edu.rit.cs.dataunitylab.jsonoid.discovery.schemas." + c)
+      Class.forName("io.github.dataunitylab.jsonoid.discovery.schemas." + c)
     )
     without(propClasses)
   }
@@ -79,7 +79,7 @@ final case class PropertySet(
     */
   def onlyNamed(propNames: Seq[String]): PropertySet = {
     val propClasses = propNames.map(c =>
-      Class.forName("edu.rit.cs.dataunitylab.jsonoid.discovery.schemas." + c)
+      Class.forName("io.github.dataunitylab.jsonoid.discovery.schemas." + c)
     )
     only(propClasses)
   }

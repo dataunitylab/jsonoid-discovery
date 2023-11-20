@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 
 import org.json4s._
 import org.json4s.jackson.JsonMethods._

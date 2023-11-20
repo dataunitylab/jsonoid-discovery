@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 
 import org.apache.log4j.{Level, Logger}
 import org.scalactic.Equality

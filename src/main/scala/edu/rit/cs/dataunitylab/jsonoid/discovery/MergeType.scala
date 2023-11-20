@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 
 /** The type of merge to be used when combining schemas. */
 sealed trait MergeType {}

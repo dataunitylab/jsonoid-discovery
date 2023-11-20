@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid
+package io.github.dataunitylab.jsonoid
 
 import java.io.File
 import scala.io.StdIn

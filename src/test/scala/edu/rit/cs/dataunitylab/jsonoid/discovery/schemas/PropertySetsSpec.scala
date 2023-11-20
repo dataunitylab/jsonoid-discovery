@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 package schemas
 
 class PropertySetsSpec extends UnitSpec {
@@ -14,7 +14,7 @@ class PropertySetsSpec extends UnitSpec {
     propSet.objectProperties shouldBe empty
     propSet.stringProperties.properties.keySet
       .map(_.toString) should contain theSameElementsAs List(
-      "edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty"
+      "io.github.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty"
     )
   }
 
@@ -28,7 +28,7 @@ class PropertySetsSpec extends UnitSpec {
     propSet.objectProperties shouldBe empty
     propSet.stringProperties.properties.keySet
       .map(_.toString) should contain theSameElementsAs List(
-      "edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty"
+      "io.github.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty"
     )
   }
 
@@ -38,7 +38,7 @@ class PropertySetsSpec extends UnitSpec {
     propSet.stringProperties.properties.keySet
       .map(
         _.toString
-      ) should not contain ("edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty")
+      ) should not contain ("io.github.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty")
   }
 
   it should "be able to exclude only properties which don't match a given class" in {
@@ -47,6 +47,6 @@ class PropertySetsSpec extends UnitSpec {
     propSet.stringProperties.properties.keySet
       .map(
         _.toString
-      ) should not contain ("edu.rit.cs.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty")
+      ) should not contain ("io.github.dataunitylab.jsonoid.discovery.schemas.MinLengthProperty")
   }
 }

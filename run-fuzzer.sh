@@ -12,6 +12,6 @@ cp $JAR_FILE $TMP_DIR
 set -o xtrace
 docker run -v $TMP_DIR:/fuzzing cifuzz/jazzer \
            --cp=$(basename $JAR_FILE) \
-           --target_class=edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchemaFuzzer \
+           --target_class=io.github.dataunitylab.jsonoid.discovery.DiscoverSchemaFuzzer \
            -dict=json.dict \
            resources

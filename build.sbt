@@ -3,7 +3,7 @@ import com.typesafe.sbt.packager.docker._
 
 ThisBuild / scalaVersion      := "2.13.10"
 ThisBuild / versionScheme     := Some("early-semver")
-ThisBuild / organization      := "edu.rit.cs"
+ThisBuild / organization      := "io.github.dataunitylab"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
 ThisBuild / githubOwner       := "dataunitylab"
 ThisBuild / githubRepository  := "jsonoid-discovery"
@@ -18,7 +18,7 @@ inThisBuild(
 scalafixOnCompile := true
 ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "3.0.1"
 
-mainClass := Some("edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchema")
+mainClass := Some("io.github.dataunitylab.jsonoid.discovery.DiscoverSchema")
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -59,7 +59,7 @@ generateSchemas := {
   )
 
   for (input <- inputs) {
-    r.run("edu.rit.cs.dataunitylab.jsonoid.discovery.DiscoverSchema",
+    r.run("io.github.dataunitylab.jsonoid.discovery.DiscoverSchema",
     data(cp),
     Seq(
       "src/test/resources/" + input,
@@ -109,7 +109,7 @@ lazy val root = (project in file("."))
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
-    buildInfoPackage := "edu.rit.cs.dataunitylab.jsonoid.discovery"
+    buildInfoPackage := "io.github.dataunitylab.jsonoid.discovery"
   )
 
 lazy val fuzz = (project in file("fuzz")).settings(

@@ -1,4 +1,4 @@
-package edu.rit.cs.dataunitylab.jsonoid.discovery
+package io.github.dataunitylab.jsonoid.discovery
 
 import scala.reflect.ClassTag
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
