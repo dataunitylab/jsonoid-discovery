@@ -208,3 +208,7 @@ apiMappings ++= {
 
   mappings.toMap
 }
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+val releaseToSonatype = sys.env.getOrElse("RELEASE_SONATYPE", "false").toBoolean
+publishTo := {if (releaseToSonatype) sonatypePublishTo.value else githubPublishTo.value}

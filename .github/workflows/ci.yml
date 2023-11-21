@@ -71,7 +71,7 @@ jobs:
       env:
         DISABLE_ASSERTIONS: 1
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sbt publish
+      run: sbt publishSigned && RELEASE_SONATYPE=true sbt publishSigned
 
   publish-site:
     if: ${{ github.event_name != 'pull_request' }}
