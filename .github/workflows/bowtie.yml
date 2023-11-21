@@ -28,6 +28,12 @@ jobs:
       run: echo "DOCKER_HOST=$(docker context inspect --format '{{.Endpoints.docker.Host}}')" >> $GITHUB_ENV
     - name: Show tags
       run: docker images -a
+    - name: Run Bowtie test
+      run: |
+        bowtie run -i localhost/jsonoid-discovery <<EOF
+          {"description": "test case 1", "schema": {}, "tests": [{"description": "a test", "instance": {}}] }
+          {"description": "test case 2", "schema": {"const": 37}, "tests": [{"description": "not 37", "instance": {}}, {"description": "is 37", "instance": 37}] }
+        EOF
     - name: Run Bowtie tests
       run: mkdir bowtie && bowtie suite -V -i localhost/jsonoid-discovery https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/tests/draft2020-12 > bowtie/bowtie.json
     - name: Generate Bowtie report
