@@ -22,6 +22,8 @@ jobs:
       run: sbt 'set dockerEntrypoint := Seq("/opt/docker/bin/bowtie-validator"); set dockerUpdateLatest := true; Docker/publishLocal'
     - name: Tag image
       run: docker tag jsonoid-discovery:latest localhost/jsonoid-discovery
+    - name: Show tags
+      run: docker images -a
     - name: Run Bowtie tests
       run: mkdir bowtie && bowtie suite -V -i localhost/jsonoid-discovery https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/tests/draft2020-12 > bowtie/bowtie.json
     - name: Generate Bowtie report
