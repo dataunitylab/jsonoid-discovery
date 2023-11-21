@@ -29,3 +29,6 @@ crash-*
 Crash*.java
 fuzz/test/resources/*
 !fuzz/test/resources/json.dict
+
+# Bowtie
+bowtie/
