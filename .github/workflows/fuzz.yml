@@ -1,7 +1,7 @@
 name: Fuzz
 on:
   schedule:
-    - cron: '0 2 * * 0'  # every Sunday at 2am
+    - cron: '11 14 * * 0'  # every Sunday at 2:11pm
   workflow_dispatch:
 jobs:
   fuzz:
