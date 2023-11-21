@@ -13,7 +13,13 @@ jobs:
       with:
         jvm: adopt:8
         apps: sbt scala
-    - name: Publish
+    - name: Release
+      run: sbt ci-release
       env:
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        DISABLE_ASSERTIONS: 1
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sbt sonatypeBundleRelease
+        RELEASE_SONATYPE: true

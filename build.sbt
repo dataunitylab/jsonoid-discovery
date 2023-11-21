@@ -10,6 +10,17 @@ ThisBuild / githubRepository  := "jsonoid-discovery"
 
 inThisBuild(
   List(
+    organization := "io.github.dataunitylab",
+    homepage := Some(url("https://github.com/dataunitylab/jsonoid-discovery")),
+    licenses := List("MIT" -> url("http://opensource.org/licenses/MIT")),
+    developers := List(
+      Developer(
+        "michaelmior",
+        "Michael Mior",
+        "mmior@mail.rit.edu ",
+        url("https://michael.mior.ca")
+      )
+    ),
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
@@ -209,6 +220,7 @@ apiMappings ++= {
 }
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 val releaseToSonatype = sys.env.getOrElse("RELEASE_SONATYPE", "false").toBoolean
 publishTo := {if (releaseToSonatype) sonatypePublishTo.value else githubPublishTo.value}
 ThisBuild / dynverSonatypeSnapshots := releaseToSonatype
