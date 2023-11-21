@@ -15,8 +15,8 @@ jobs:
         uses: actions/checkout@v4
       - uses: taiki-e/install-action@parse-changelog
       - name: Generate Changelog
-        run: parse-changelog CHANGELOG.md > ${{ github.workspace }}-CHANGELOG.txt
+        run: parse-changelog CHANGELOG.md > ${{ github.workspace }}-CHANGELOG.md
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          body_path: ${{ github.workspace }}-CHANGELOG.md
