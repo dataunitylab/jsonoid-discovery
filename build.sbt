@@ -156,7 +156,6 @@ Compile / console / scalacOptions := (console / scalacOptions)
 enablePlugins(BuildInfoPlugin)
 enablePlugins(DockerPlugin)
 enablePlugins(GitHubPagesPlugin)
-enablePlugins(GitVersioning)
 enablePlugins(JavaAppPackaging)
 enablePlugins(SiteScaladocPlugin)
 
@@ -212,3 +211,5 @@ apiMappings ++= {
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 val releaseToSonatype = sys.env.getOrElse("RELEASE_SONATYPE", "false").toBoolean
 publishTo := {if (releaseToSonatype) sonatypePublishTo.value else githubPublishTo.value}
+ThisBuild / dynverSonatypeSnapshots := releaseToSonatype
+ThisBuild / dynverSeparator := "-"

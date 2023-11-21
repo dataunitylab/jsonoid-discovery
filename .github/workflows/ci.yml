@@ -19,6 +19,8 @@ jobs:
       with:
         jvm: adopt:8
         apps: sbt scala
+    - name: dynver check
+      run: sbt dynverAssertVersion
     - name: Scalafmt
       run: sbt scalafmtCheck test:scalafmtCheck
     - name: Test
