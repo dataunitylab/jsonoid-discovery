@@ -71,7 +71,7 @@ jobs:
       env:
         DISABLE_ASSERTIONS: 1
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sbt publishSigned
+      run: sbt publish
     - name: Publish package to Sonatype
       if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
       env:
