@@ -67,11 +67,18 @@ jobs:
       with:
         jvm: adopt:8
         apps: sbt scala
-    - name: Publish package
+    - name: Publish package to GitHub
       env:
         DISABLE_ASSERTIONS: 1
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: sbt publishSigned && RELEASE_SONATYPE=true sbt publishSigned
+      run: sbt publishSigned
+    - name: Publish package to Sonatype
+      if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+      env:
+        DISABLE_ASSERTIONS: 1
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_SONATYPE: true
+      run: RELEASE_SONATYPE=true sbt publishSigned
 
   publish-site:
     if: ${{ github.event_name != 'pull_request' }}
