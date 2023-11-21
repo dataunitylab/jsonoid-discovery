@@ -24,6 +24,8 @@ jobs:
       run: sbt 'set dockerEntrypoint := Seq("/opt/docker/bin/bowtie-validator"); set dockerUpdateLatest := true; Docker/publishLocal'
     - name: Tag image
       run: docker tag jsonoid-discovery:latest localhost/jsonoid-discovery
+    - name: Set DOCKER_HOST to find the image
+      run: echo "DOCKER_HOST=$(docker context inspect --format '{{.Endpoints.docker.Host}}')" >> $GITHUB_ENV
     - name: Show tags
       run: docker images -a
     - name: Run Bowtie tests
