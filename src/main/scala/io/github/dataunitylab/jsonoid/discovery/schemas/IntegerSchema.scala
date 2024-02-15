@@ -154,6 +154,7 @@ final case class IntegerSchema(
       IntegerSchema.AllProperties
 ) extends JsonSchema[BigInt] {
   override val schemaType = "integer"
+  override val isNumeric = true
 
   override val validTypes: Set[Class[_]] = Set(classOf[JInt], classOf[JLong])
 

@@ -111,6 +111,18 @@ class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     productSchema1.merge(ZeroSchema()) shouldEqual productSchema1
   }
 
+  it should "merge integer and number schemas together" in {
+    val mergedSchemaProps = ProductSchema(schema2)
+      .merge(NumberSchema())
+      .asInstanceOf[ProductSchema]
+      .properties
+      .get[ProductSchemaTypesProperty]
+
+    mergedSchemaProps.schemaTypes.map(
+      _.schemaType
+    ) should contain theSameElementsAs List("number")
+  }
+
   it should "not created nested ProductSchemas with mixed all values" in {
     val mergedSchemaProps =
       allProductSchema

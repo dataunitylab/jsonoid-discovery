@@ -348,7 +348,7 @@ final case class ProductSchemaTypesProperty(
         p.withER(EquivalenceRelations.KindEquivalenceRelation)
       )
     val newTypes = schemaTypes.zipWithIndex.find { case (s, i) =>
-      s.schemaType === schema.schemaType
+      (s.schemaType === schema.schemaType) || (s.isNumeric && schema.isNumeric)
     } match {
       case Some((s, i)) if p.er.fuse(s, schema) =>
         (
