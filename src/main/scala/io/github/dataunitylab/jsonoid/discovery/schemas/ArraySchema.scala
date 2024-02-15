@@ -801,8 +801,8 @@ final case class UniqueProperty(unique: Boolean = true, unary: Boolean = true)
       other: UniqueProperty,
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
-    // It's ok if the other schema is unique as long as we are not
-    (other.unique && !other.unary) >= (unique && !unary)
+    // It's ok if we are unqiue and the other schema is not
+    other.unique <= unique || other.unary || unary
   }
 
   override def expandTo(other: Option[UniqueProperty]): UniqueProperty = {
