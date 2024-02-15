@@ -277,8 +277,7 @@ trait JsonSchema[T] {
   /** A set of properties wh */
   def properties: SchemaProperties[T]
 
-  /**
-    */
+  /** A string representing the type of this schema. */
   def schemaType: String
 
   /** Whether [[schemaType]] has any meaning for this schema class. */
