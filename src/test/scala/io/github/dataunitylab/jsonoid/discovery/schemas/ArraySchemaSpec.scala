@@ -151,6 +151,12 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     uniqueArraySchema.properties should contain(UniqueProperty(true, false))
   }
 
+  it should "show unique values as subset of non-unique values" in {
+    UniqueProperty(true, false).isSubsetOf(
+      UniqueProperty(false, false)
+    ) shouldBe (true)
+  }
+
   it should "not expand if both are unique" in {
     UniqueProperty(true, false).expandTo(
       Some(UniqueProperty(true, false))
