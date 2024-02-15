@@ -163,6 +163,7 @@ final case class NumberSchema(
       NumberSchema.AllProperties
 ) extends JsonSchema[BigDecimal] {
   override val schemaType = "number"
+  override val isNumeric = true
 
   override val validTypes: Set[Class[_]] =
     Set(classOf[JInt], classOf[JDouble], classOf[JDecimal])

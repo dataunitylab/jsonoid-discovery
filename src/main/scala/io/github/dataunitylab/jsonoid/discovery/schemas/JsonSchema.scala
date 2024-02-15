@@ -280,6 +280,9 @@ trait JsonSchema[T] {
   /** A string representing the type of this schema. */
   def schemaType: String
 
+  /** Whether this schema is numeric. */
+  def isNumeric: Boolean = false
+
   /** Whether [[schemaType]] has any meaning for this schema class. */
   def hasType: Boolean = true
 

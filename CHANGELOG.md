@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix array uniqueness subset check
 
+### Changed
+- Combine numeric schemas in `ProductSchema`
+
 ## [0.19.0]
 ### Fixed
 - Fix package coordinates
