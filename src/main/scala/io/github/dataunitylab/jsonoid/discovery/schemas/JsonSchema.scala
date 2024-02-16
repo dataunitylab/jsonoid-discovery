@@ -9,6 +9,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 import Helpers._
+import utils.JsonPointer
 
 object JsonSchema {
   implicit val formats: Formats = DefaultFormats
@@ -414,8 +415,8 @@ trait JsonSchema[T] {
 
   /** Finda nested schema based on a JSON Pointer. */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
-  def findByPointer(pointer: String): Option[JsonSchema[_]] = if (
-    pointer == ""
+  def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = if (
+    pointer.isEmpty
   ) {
     Some(this)
   } else {
@@ -428,7 +429,7 @@ trait JsonSchema[T] {
     */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = if (
-    pointer == ""
+    pointer.isEmpty
   ) {
     Seq(this)
   } else {
@@ -443,7 +444,7 @@ trait JsonSchema[T] {
     * @return a new schema with the referenced schema replaced
     */
   def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] =
     this
@@ -457,7 +458,7 @@ trait JsonSchema[T] {
     * @return a new schema with a reference
     */
   def replaceWithReference(
-      pointer: String,
+      pointer: JsonPointer,
       reference: String,
       obj: Option[JsonSchema[_]] = None
   )(implicit p: JsonoidParams): JsonSchema[_] =

@@ -9,6 +9,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 import Helpers._
+import utils.JsonPointer
 
 object ObjectSchema {
   def apply(
@@ -186,17 +187,19 @@ final case class ObjectSchema(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+  override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
+    val pointerStr = pointer.toString
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    pointer.split("/", 3) match {
+    pointerStr.split("/", 3) match {
       case Array(_)        => None
       case Array(_, "")    => Some(this)
       case Array(_, first) => objectTypes.get(first)
       case Array(_, first, rest) =>
         objectTypes.get(first) match {
-          case Some(schema: JsonSchema[_]) => schema.findByPointer("/" + rest)
-          case Some(_)                     => None
-          case None                        => None
+          case Some(schema: JsonSchema[_]) =>
+            schema.findByPointer(JsonPointer(List(rest)))
+          case Some(_) => None
+          case None    => None
         }
     }
   }
@@ -224,12 +227,13 @@ final case class ObjectSchema(
     )
   )
   override def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
+    val pointerStr = pointer.toString
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    val newTypes = pointer.split("/", 3) match {
+    val newTypes = pointerStr.split("/", 3) match {
       case Array(_) | Array(_, "") =>
         return replaceSchema
       case Array(_, first) =>

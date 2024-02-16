@@ -9,6 +9,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 import Helpers._
+import utils.JsonPointer
 
 object ProductSchema {
   def apply(
@@ -134,14 +135,15 @@ final case class ProductSchema(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+  override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
+    val pointerStr = pointer.toString
     val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
-    pointer.split("/", 3) match {
+    pointerStr.split("/", 3) match {
       case Array(_)        => None
       case Array(_, "")    => Some(this)
       case Array(_, first) => Some(schemas(first.toInt))
       case Array(_, first, rest) =>
-        schemas(first.toInt).findByPointer("/" + rest)
+        schemas(first.toInt).findByPointer(JsonPointer(List(rest)))
     }
   }
 
@@ -160,12 +162,13 @@ final case class ProductSchema(
     )
   )
   override def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
+    val pointerStr = pointer.toString
     val typesProp = properties.get[ProductSchemaTypesProperty]
     // Build a new type list that replaces the required type
-    val newSchemas = pointer.split("/", 3) match {
+    val newSchemas = pointerStr.split("/", 3) match {
       case Array(_) =>
         throw new IllegalArgumentException("Invalid path for reference")
       case Array(_, "") =>

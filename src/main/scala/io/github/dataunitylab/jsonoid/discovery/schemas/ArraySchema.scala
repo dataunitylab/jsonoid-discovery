@@ -10,7 +10,7 @@ import org.json4s.jackson.JsonMethods._
 import Scalaz._
 
 import Helpers._
-import utils.Histogram
+import utils.{Histogram, JsonPointer}
 
 object ArraySchema {
   def apply(
@@ -174,20 +174,21 @@ final case class ArraySchema(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+  override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
+    val pointerStr: String = pointer.toString
     properties.get[ItemTypeProperty].itemType match {
       // We can only follow pointers for tuple schemas, not real array schemas
       case Left(schema) =>
         // XXX The * is not real JSON Pointer syntax
         //     but allows us to work with array schemas
-        pointer.split("/", 3) match {
+        pointerStr.split("/", 3) match {
           case Array(_, "")        => Some(this)
           case Array(_, "*")       => Some(schema)
           case Array(_, "*", rest) => schema.findByPointer("/" + rest)
           case _                   => None
         }
       case Right(schemas) =>
-        pointer.split("/", 3) match {
+        pointerStr.split("/", 3) match {
           case Array(_)        => None
           case Array(_, "")    => Some(this)
           case Array(_, first) => Some(schemas(first.toInt))
@@ -217,16 +218,17 @@ final case class ArraySchema(
     )
   )
   override def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
+    val pointerStr = pointer.toString
     val itemTypeProp = properties.get[ItemTypeProperty]
     itemTypeProp.itemType match {
       case Left(schema) =>
         // XXX The * is not real JSON Pointer syntax
         //     but allows us to work with array schemas
         // Build a new type property that replaces the required type
-        val typeProp = pointer.split("/", 3) match {
+        val typeProp = pointerStr.split("/", 3) match {
           case Array(_, "*") =>
             ItemTypeProperty(Left(replaceSchema))
           case Array(_, "*", rest) =>
@@ -241,7 +243,7 @@ final case class ArraySchema(
         ArraySchema(this.properties.replaceProperty(typeProp))
       case Right(schemas) =>
         // Build a new type list that replaces the required type
-        val newSchemas = pointer.split("/", 3) match {
+        val newSchemas = pointerStr.split("/", 3) match {
           case Array(_) =>
             throw new IllegalArgumentException("Invalid path for reference")
           case Array(_, "") =>

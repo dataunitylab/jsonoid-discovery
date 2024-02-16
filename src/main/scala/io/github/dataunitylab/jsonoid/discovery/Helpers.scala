@@ -13,7 +13,12 @@ object Helpers {
     assert(path.nonEmpty)
 
     // Change dots to slashses and remove any array accesses
-    path.substring(1).replace(".", "/").replaceAll("\\[[^]+]\\]", "")
+    path
+      .substring(1)
+      .replace("~", "~0")
+      .replace("/", "~1")
+      .replace(".", "/")
+      .replaceAll("\\[[^]+]\\]", "")
   }
 
   /** The maximum number of rounds to consider during schema expansion. */

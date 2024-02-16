@@ -6,6 +6,8 @@ import scala.reflect._
 import org.json4s.JsonDSL._
 import org.json4s._
 
+import utils.JsonPointer
+
 object DynamicObjectSchema {
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
@@ -44,14 +46,15 @@ final case class DynamicObjectSchema(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+  override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
+    val pointerStr = pointer.toString
     val typeProp = properties.get[DynamicObjectTypeProperty]
-    pointer.split("/", 3) match {
+    pointerStr.split("/", 3) match {
       case Array(_)        => None
       case Array(_, "")    => Some(this)
       case Array(_, first) => Some(typeProp.valueType)
       case Array(_, first, rest) =>
-        typeProp.valueType.findByPointer("/" + rest)
+        typeProp.valueType.findByPointer(JsonPointer(List(rest)))
     }
   }
 
@@ -73,12 +76,13 @@ final case class DynamicObjectSchema(
     )
   )
   override def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
+    val pointerStr = pointer.toString
     val valueType = properties.get[DynamicObjectTypeProperty].valueType
-    val newType = pointer.split("/", 3) match {
+    val newType = pointerStr.split("/", 3) match {
       case Array(_) | Array(_, "") =>
         throw new IllegalArgumentException("Invalid path for reference")
       case Array(_, first) =>
