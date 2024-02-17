@@ -175,25 +175,24 @@ final case class ArraySchema(
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
-    val pointerStr: String = pointer.toString
     properties.get[ItemTypeProperty].itemType match {
       // We can only follow pointers for tuple schemas, not real array schemas
       case Left(schema) =>
         // XXX The * is not real JSON Pointer syntax
         //     but allows us to work with array schemas
-        pointerStr.split("/", 3) match {
-          case Array(_, "")        => Some(this)
-          case Array(_, "*")       => Some(schema)
-          case Array(_, "*", rest) => schema.findByPointer("/" + rest)
-          case _                   => None
+        pointer.parts match {
+          case List("")      => Some(this)
+          case List("*")     => Some(schema)
+          case ("*" :: rest) => schema.findByPointer(JsonPointer(rest))
+          case _             => None
         }
       case Right(schemas) =>
-        pointerStr.split("/", 3) match {
-          case Array(_)        => None
-          case Array(_, "")    => Some(this)
-          case Array(_, first) => Some(schemas(first.toInt))
-          case Array(_, first, rest) =>
-            schemas(first.toInt).findByPointer("/" + rest)
+        pointer.parts match {
+          case Nil         => None
+          case List("")    => Some(this)
+          case List(first) => Some(schemas(first.toInt))
+          case (first :: rest) =>
+            schemas(first.toInt).findByPointer(JsonPointer(rest))
         }
     }
   }
@@ -221,19 +220,18 @@ final case class ArraySchema(
       pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
-    val pointerStr = pointer.toString
     val itemTypeProp = properties.get[ItemTypeProperty]
     itemTypeProp.itemType match {
       case Left(schema) =>
         // XXX The * is not real JSON Pointer syntax
         //     but allows us to work with array schemas
         // Build a new type property that replaces the required type
-        val typeProp = pointerStr.split("/", 3) match {
-          case Array(_, "*") =>
+        val typeProp = pointer.parts match {
+          case List("*") =>
             ItemTypeProperty(Left(replaceSchema))
-          case Array(_, "*", rest) =>
+          case ("*" :: rest) =>
             ItemTypeProperty(
-              Left(schema.replaceWithSchema("/" + rest, replaceSchema)),
+              Left(schema.replaceWithSchema(JsonPointer(rest), replaceSchema)),
               itemTypeProp.count
             )
           case _ =>
@@ -243,17 +241,16 @@ final case class ArraySchema(
         ArraySchema(this.properties.replaceProperty(typeProp))
       case Right(schemas) =>
         // Build a new type list that replaces the required type
-        val newSchemas = pointerStr.split("/", 3) match {
-          case Array(_) =>
+        val newSchemas = pointer.parts match {
+          case Nil | List("") =>
             throw new IllegalArgumentException("Invalid path for reference")
-          case Array(_, "") =>
-            throw new IllegalArgumentException("Invalid path for reference")
-          case Array(_, first) =>
+          case List(first) =>
             schemas.updated(first.toInt, replaceSchema)
-          case Array(_, first, rest) =>
+          case (first :: rest) =>
             schemas.updated(
               first.toInt,
-              schemas(first.toInt).replaceWithSchema("/" + rest, replaceSchema)
+              schemas(first.toInt)
+                .replaceWithSchema(JsonPointer(rest), replaceSchema)
             )
         }
 

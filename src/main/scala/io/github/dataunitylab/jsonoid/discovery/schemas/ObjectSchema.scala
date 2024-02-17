@@ -188,16 +188,15 @@ final case class ObjectSchema(
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
-    val pointerStr = pointer.toString
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    pointerStr.split("/", 3) match {
-      case Array(_)        => None
-      case Array(_, "")    => Some(this)
-      case Array(_, first) => objectTypes.get(first)
-      case Array(_, first, rest) =>
+    pointer.parts match {
+      case Nil         => None
+      case List("")    => Some(this)
+      case List(first) => objectTypes.get(first)
+      case (first :: rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
-            schema.findByPointer(JsonPointer(List(rest)))
+            schema.findByPointer(JsonPointer(rest))
           case Some(_) => None
           case None    => None
         }
@@ -231,21 +230,20 @@ final case class ObjectSchema(
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
-    val pointerStr = pointer.toString
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    val newTypes = pointerStr.split("/", 3) match {
-      case Array(_) | Array(_, "") =>
+    val newTypes = pointer.parts match {
+      case Nil | List("") =>
         return replaceSchema
-      case Array(_, first) =>
+      case List(first) =>
         objectTypes + (first -> replaceSchema)
 
-      case Array(_, first, rest) =>
+      case (first :: rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
             // Replace the type along the path with
             // one which has the replaced schema
             objectTypes + (first -> schema.replaceWithSchema(
-              "/" + rest,
+              JsonPointer(rest),
               replaceSchema
             ))
           case _ =>
