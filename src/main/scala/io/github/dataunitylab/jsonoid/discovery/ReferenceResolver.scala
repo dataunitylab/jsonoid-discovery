@@ -1,6 +1,7 @@
 package io.github.dataunitylab.jsonoid.discovery
 
 import schemas._
+import utils.JsonPointer
 
 /** Resolve references in a schema by annotating all references with the schema
   * that is being referenced. Specifically any instances of
@@ -43,34 +44,32 @@ object ReferenceResolver extends SchemaWalker[Unit] {
   }
 
   /** Helper for [[resolveReferences]] which finds the schema for a referenced
-    * path.
+    * pointer.
     *
-    * @param path the path of the referenced schema
+    * @param pointer the pointer of the referenced schema
     * @param rootSchema the root schema where definitions are located
     *
     * @return the schema being referenced
     */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
-  private def resolvePath(
-      path: String,
+  private def resolvePointer(
+      pointer: String,
       rootSchema: JsonSchema[_]
   ): JsonSchema[_] = {
-    val strippedPath =
-      if (path.startsWith("#"))
-        path.substring(1)
-      else
-        path
+    val strippedPointer = JsonPointer.fromString(
+      if (pointer.startsWith("#")) pointer.substring(1) else pointer
+    )
 
     val defs = rootSchema.definitions
-    strippedPath.split("/") match {
-      case Array("", "$defs", defn)       => defs(defn)
-      case Array("", "definitions", defn) => defs(defn)
-      case Array("", "$defs", _) | Array("", "definitions", _) =>
+    strippedPointer.parts match {
+      case List("$defs", defn)       => defs(defn)
+      case List("definitions", defn) => defs(defn)
+      case List("$defs", _) | List("definitions", _) =>
         throw new UnsupportedOperationException(
           "can't resolve nested definition"
         )
       case _ =>
-        rootSchema.findByPointer(strippedPath).get
+        rootSchema.findByPointer(strippedPointer).get
     }
   }
 
@@ -85,8 +84,8 @@ object ReferenceResolver extends SchemaWalker[Unit] {
         if !r.properties.has[ReferenceObjectProperty] =>
       r.properties.add(
         ReferenceObjectProperty(
-          resolvePath(
-            r.properties.get[ReferencePathProperty].path,
+          resolvePointer(
+            r.properties.get[ReferencePointerProperty].pointer,
             rootSchema
           )
         )
