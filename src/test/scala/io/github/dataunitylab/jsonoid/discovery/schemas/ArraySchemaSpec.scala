@@ -1,6 +1,8 @@
 package io.github.dataunitylab.jsonoid.discovery
 package schemas
 
+import utils.JsonPointer
+
 import UnitSpec._
 
 import org.json4s.JsonDSL._
@@ -282,7 +284,7 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "find nothing in an array schema with an empty pointer" in {
-    arraySchema.findByPointer("").shouldBe(None)
+    arraySchema.findByPointer(JsonPointer(List(), false)).shouldBe(None)
   }
 
   it should "find the single type in an array schema" in {
@@ -294,7 +296,7 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "find nothing in a tuple schema with an empty pointer" in {
-    tupleSchema.findByPointer("").shouldBe(None)
+    tupleSchema.findByPointer(JsonPointer(List(), false)).shouldBe(None)
   }
 
   it should "find a type in a tuple schema" in {

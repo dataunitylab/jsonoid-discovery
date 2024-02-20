@@ -5,15 +5,24 @@ import scala.annotation.tailrec
 import scalaz._
 import Scalaz._
 
+import utils.JsonPointer
+
 /** Various helper functions used in the rest of the code.
   */
 object Helpers {
-  def pathToInexactPointer(path: String): String = {
+  def pathToInexactPointer(path: String): JsonPointer = {
     // Path must not be empty
     assert(path.nonEmpty)
 
     // Change dots to slashses and remove any array accesses
-    path.substring(1).replace(".", "/").replaceAll("\\[[^]+]\\]", "")
+    JsonPointer.fromString(
+      path
+        .substring(1)
+        .replace("~", "~0")
+        .replace("/", "~1")
+        .replace(".", "/")
+        .replaceAll("\\[[^]+]\\]", "")
+    )
   }
 
   /** The maximum number of rounds to consider during schema expansion. */

@@ -15,7 +15,7 @@ object ReferenceSchema {
     assert(reference.nonEmpty)
 
     val props = SchemaProperties.empty[String]
-    props.add(ReferencePathProperty(reference))
+    props.add(ReferencePointerProperty(reference))
 
     obj match {
       case Some(schemaObj) => props.add(ReferenceObjectProperty(schemaObj))
@@ -64,32 +64,35 @@ final case class ReferenceSchema(
   }
 }
 
-/** Represents a reference to a particular path.
+/** Represents a reference to a particular pointer.
   *
-  * @constructor Create a path reference property
-  * @param path the referenced path
+  * @constructor Create a pointer reference property
+  * @param pointer the referenced pointer
   */
-final case class ReferencePathProperty(path: String)
+final case class ReferencePointerProperty(pointer: String)
     extends SchemaProperty[String] {
-  // Path must not be empty
-  assert(path.nonEmpty)
+  // Pointer must not be empty
+  assert(pointer.nonEmpty)
 
-  override type S = ReferencePathProperty
+  override type S = ReferencePointerProperty
 
-  override def newDefault()(implicit p: JsonoidParams): ReferencePathProperty =
-    ReferencePathProperty("")
+  override def newDefault()(implicit
+      p: JsonoidParams
+  ): ReferencePointerProperty =
+    ReferencePointerProperty("")
 
-  override def toJson()(implicit p: JsonoidParams): JObject = ("$ref" -> path)
+  override def toJson()(implicit p: JsonoidParams): JObject =
+    ("$ref" -> pointer)
 
   override def unionMerge(
-      otherProp: ReferencePathProperty
-  )(implicit p: JsonoidParams): ReferencePathProperty = {
+      otherProp: ReferencePointerProperty
+  )(implicit p: JsonoidParams): ReferencePointerProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 
   override def mergeValue(
-      otherPath: String
-  )(implicit p: JsonoidParams): ReferencePathProperty = {
+      otherPointer: String
+  )(implicit p: JsonoidParams): ReferencePointerProperty = {
     throw new UnsupportedOperationException("$ref cannot be merged")
   }
 }

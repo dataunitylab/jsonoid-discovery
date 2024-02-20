@@ -8,6 +8,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 import schemas._
+import utils.JsonPointer
 
 abstract class UnitSpec
     extends AnyFlatSpec
@@ -22,6 +23,8 @@ abstract class UnitSpec
 
 object UnitSpec {
   implicit val p: JsonoidParams = JsonoidParams()
+  implicit val pointerToString: JsonPointer => String = _.toString
+  implicit val pointerFromString: String => JsonPointer = JsonPointer.fromString
 
   implicit def containingNatureOfSchemaProperties[SchemaProperties[
       _

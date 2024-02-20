@@ -9,6 +9,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 import Helpers._
+import utils.JsonPointer
 
 object ProductSchema {
   def apply(
@@ -134,19 +135,21 @@ final case class ProductSchema(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+  override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
     val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
-    pointer.split("/", 3) match {
-      case Array(_)        => None
-      case Array(_, "")    => Some(this)
-      case Array(_, first) => Some(schemas(first.toInt))
-      case Array(_, first, rest) =>
-        schemas(first.toInt).findByPointer("/" + rest)
+    pointer.parts match {
+      case Nil         => None
+      case List("")    => Some(this)
+      case List(first) => Some(schemas(first.toInt))
+      case (first :: rest) =>
+        schemas(first.toInt).findByPointer(JsonPointer(rest))
     }
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+  override def findByInexactPointer(
+      pointer: JsonPointer
+  ): Seq[JsonSchema[_]] = {
     val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
     schemas.foldLeft(Seq.empty[JsonSchema[_]])(
       _ ++ _.findByInexactPointer(pointer)
@@ -160,23 +163,21 @@ final case class ProductSchema(
     )
   )
   override def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     val typesProp = properties.get[ProductSchemaTypesProperty]
     // Build a new type list that replaces the required type
-    val newSchemas = pointer.split("/", 3) match {
-      case Array(_) =>
+    val newSchemas = pointer.parts match {
+      case Nil | List("") =>
         throw new IllegalArgumentException("Invalid path for reference")
-      case Array(_, "") =>
-        throw new IllegalArgumentException("Invalid path for reference")
-      case Array(_, first) =>
+      case List(first) =>
         typesProp.schemaTypes.updated(first.toInt, replaceSchema)
-      case Array(_, first, rest) =>
+      case (first :: rest) =>
         val schema = typesProp.schemaTypes(first.toInt)
         typesProp.schemaTypes.updated(
           first.toInt,
-          schema.replaceWithSchema("/" + rest, replaceSchema)
+          schema.replaceWithSchema(JsonPointer(rest), replaceSchema)
         )
     }
 

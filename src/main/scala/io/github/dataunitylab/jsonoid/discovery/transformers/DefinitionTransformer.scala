@@ -8,6 +8,7 @@ import org.christopherfrantz.dbscan.{DBSCANClusterer, DistanceMetric}
 
 import Helpers._
 import schemas._
+import utils.JsonPointer
 
 /** Used to calculate similarity fuzzy sets located at two paths.
   *
@@ -43,11 +44,13 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     * @param path the JSON Path value
     * @return the JSON Pointer
     */
-  def pathToPointer(path: String): String = {
+  def pathToPointer(path: String): JsonPointer = {
     // Path must not be empty
     assert(path.nonEmpty)
 
-    path.substring(1).replace(".", "/").replaceAll("""\[(.+?)\]""", "/$1")
+    JsonPointer.fromString(
+      path.substring(1).replace(".", "/").replaceAll("""\[(.+?)\]""", "/$1")
+    )
   }
 
   /** Transform the schema to replace repeated structures.
@@ -71,17 +74,21 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
     val clusters = findClusters(schema).map(_.map(pathToPointer _))
 
     // Track a new schema with replaced definitions
-    var replaced = Set.empty[String]
+    var replaced = Set.empty[JsonPointer]
     var definitions = Set.empty[String]
     var definitionSchema = schema
     clusters.toList
-      // Process clusters with the shortest paths first
+      // Process clusters with the shortest pointers first
       // so we avoid replacing nested definitions later
-      .sortBy(cluster => -cluster.map(_.size).sum * 1.0 / cluster.size)
+      .sortBy(cluster => -cluster.map(_.parts.size).sum * 1.0 / cluster.size)
       .zipWithIndex
       .foreach { case (cluster, index) =>
         // Check that we're not replacing something already replaced
-        if (!cluster.exists(c => replaced.exists(c.startsWith(_)))) {
+        if (
+          !cluster.exists(c =>
+            replaced.exists(r => c.toString.startsWith(r.toString))
+          )
+        ) {
           // Merge all schemas in the cluster to create a new definition
           val clusterSchema = cluster
             .map(schema.findByPointer(_).get)
@@ -91,9 +98,15 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
           // (reverse the values and find a prefix)
           // We also only take the part of the name after the last slash
           val lastParts =
-            cluster.flatMap(_.split("/").reverse.dropWhile { x =>
-              x === "*" || (x forall Character.isDigit)
-            }.headOption)
+            cluster.flatMap(
+              _.toString
+                .split("/")
+                .reverse
+                .dropWhile { x =>
+                  x === "*" || (x forall Character.isDigit)
+                }
+                .headOption
+            )
           var definition = if (lastParts.size > 1) {
             val afterUnderscore = lastParts.map(_.split("_").last)
             if (

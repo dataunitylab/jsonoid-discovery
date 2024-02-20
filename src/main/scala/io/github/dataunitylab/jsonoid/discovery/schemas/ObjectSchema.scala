@@ -9,6 +9,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 
 import Helpers._
+import utils.JsonPointer
 
 object ObjectSchema {
   def apply(
@@ -186,31 +187,35 @@ final case class ObjectSchema(
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-  override def findByPointer(pointer: String): Option[JsonSchema[_]] = {
+  override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    pointer.split("/", 3) match {
-      case Array(_)        => None
-      case Array(_, "")    => Some(this)
-      case Array(_, first) => objectTypes.get(first)
-      case Array(_, first, rest) =>
+    pointer.parts match {
+      case Nil         => None
+      case List("")    => Some(this)
+      case List(first) => objectTypes.get(first)
+      case (first :: rest) =>
         objectTypes.get(first) match {
-          case Some(schema: JsonSchema[_]) => schema.findByPointer("/" + rest)
-          case Some(_)                     => None
-          case None                        => None
+          case Some(schema: JsonSchema[_]) =>
+            schema.findByPointer(JsonPointer(rest))
+          case Some(_) => None
+          case None    => None
         }
     }
   }
 
-  override def findByInexactPointer(pointer: String): Seq[JsonSchema[_]] = {
+  override def findByInexactPointer(
+      pointer: JsonPointer
+  ): Seq[JsonSchema[_]] = {
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    pointer.split("/", 3) match {
+    val pointerStr = pointer.toString
+    pointerStr.split("/", 3) match {
       case Array(_)        => Seq()
       case Array(_, "")    => Seq(this)
       case Array(_, first) => objectTypes.get(first).toList
       case Array(_, first, rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
-            schema.findByInexactPointer("/" + rest)
+            schema.findByInexactPointer(JsonPointer(List(rest)))
           case _ => Seq()
         }
     }
@@ -224,24 +229,24 @@ final case class ObjectSchema(
     )
   )
   override def replaceWithSchema(
-      pointer: String,
+      pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
-    val newTypes = pointer.split("/", 3) match {
-      case Array(_) | Array(_, "") =>
+    val newTypes = pointer.parts match {
+      case Nil | List("") =>
         return replaceSchema
-      case Array(_, first) =>
+      case List(first) =>
         objectTypes + (first -> replaceSchema)
 
-      case Array(_, first, rest) =>
+      case (first :: rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
             // Replace the type along the path with
             // one which has the replaced schema
             objectTypes + (first -> schema.replaceWithSchema(
-              "/" + rest,
+              JsonPointer(rest),
               replaceSchema
             ))
           case _ =>

@@ -6,7 +6,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-import UnitSpec.containingNatureOfSchemaProperties
+import UnitSpec.{containingNatureOfSchemaProperties, pointerFromString}
 
 class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   implicit val formats: Formats = DefaultFormats
