@@ -3,7 +3,7 @@ package transformers
 
 import scala.jdk.CollectionConverters._
 
-import com.github.dataunitylab.fuzzysets.FuzzySet
+import io.github.dataunitylab.fuzzysets.FuzzySet
 import org.christopherfrantz.dbscan.{DBSCANClusterer, DistanceMetric}
 
 import Helpers._
