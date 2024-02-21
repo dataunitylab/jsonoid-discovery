@@ -86,9 +86,13 @@ generateSchemas := {
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
-    resolvers += Resolver.githubPackages("dataunitylab"),
+
+    // For bloomfilter
     resolvers += Resolver.githubPackages("michaelmior"),
+
+    // For DBSCAN
     resolvers += "jitpack" at "https://jitpack.io",
+
     libraryDependencies ++= Seq(
         bloomFilter,
         ddSketch,
