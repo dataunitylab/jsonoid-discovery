@@ -107,7 +107,7 @@ It is also possible to run fuzz tests via [Jazzer](https://github.com/CodeIntell
 
 ## Reporting issues
 
-If you encounter any issues, please open an issue on the [GitHub repository](https://github.com/michaelmior/jsonoid-discovery).
+If you encounter any issues, please open an issue on the [GitHub repository](https://github.com/dataunitylab/jsonoid-discovery).
 Any potential security vulnerabilities should be [reported privately](https://github.com/dataunitylab/jsonoid-discovery/security/advisories/new).
 
 ## Datasets
