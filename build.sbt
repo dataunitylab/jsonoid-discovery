@@ -1,5 +1,6 @@
 import Dependencies._
 import com.typesafe.sbt.packager.docker._
+import xerial.sbt.Sonatype._
 
 ThisBuild / scalaVersion      := "2.13.10"
 ThisBuild / versionScheme     := Some("early-semver")
@@ -19,6 +20,11 @@ inThisBuild(
         url("https://michael.mior.ca")
       )
     ),
+    sonatypeProjectHosting := Some(GitHubHosting(
+      "dataunitylab",
+      "jsonoid-discovery",
+      "mmior@mail.rit.edu"
+    )),
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
@@ -217,6 +223,7 @@ apiMappings ++= {
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+publishMavenStyle := true
 publishTo := sonatypePublishTo.value
 ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / dynverSeparator := "-"
