@@ -34,7 +34,7 @@ Add the `--help` option to see possible configuration options.
 
 To simplify, you may wish to add a shell alias so `jsonoid` can be run directly as a command.
 
-    alias jsonoid='docker run -i --rm michaelmior/jsonoid-discovery
+    alias jsonoid='docker run -i --rm michaelmior/jsonoid-discovery'
     jsonoid --help
 
 ## Compiling
