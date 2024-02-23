@@ -5,8 +5,6 @@ ThisBuild / scalaVersion      := "2.13.10"
 ThisBuild / versionScheme     := Some("early-semver")
 ThisBuild / organization      := "io.github.dataunitylab"
 ThisBuild / organizationName  := "Rochester Institute of Technology"
-ThisBuild / githubOwner       := "dataunitylab"
-ThisBuild / githubRepository  := "jsonoid-discovery"
 
 inThisBuild(
   List(
@@ -86,9 +84,6 @@ generateSchemas := {
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
-
-    // For bloomfilter
-    resolvers += Resolver.githubPackages("michaelmior"),
 
     // For DBSCAN
     resolvers += "jitpack" at "https://jitpack.io",
@@ -225,7 +220,6 @@ apiMappings ++= {
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
-val releaseToSonatype = sys.env.getOrElse("RELEASE_SONATYPE", "false").toBoolean
-publishTo := {if (releaseToSonatype) sonatypePublishTo.value else githubPublishTo.value}
-ThisBuild / dynverSonatypeSnapshots := releaseToSonatype
+publishTo := sonatypePublishTo.value
+ThisBuild / dynverSonatypeSnapshots := true
 ThisBuild / dynverSeparator := "-"

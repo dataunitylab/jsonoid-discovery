@@ -30,6 +30,7 @@ object JsonoidRDD {
 
 /** A JSONoid RDD is an RDD of schema objects.
   */
+@SerialVersionUID(2081137182276371163L)
 class JsonoidRDD(val rdd: RDD[JsonSchema[_]])(implicit
     p: JsonoidParams
 ) extends Serializable {

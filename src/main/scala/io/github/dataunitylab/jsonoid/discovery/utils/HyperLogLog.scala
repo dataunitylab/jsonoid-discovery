@@ -21,6 +21,7 @@ object HyperLogLog {
 
 /** A HyperLogLog data structure to track the cardinality of a set of values.
   */
+@SerialVersionUID(2071731969768916781L)
 class HyperLogLog extends Serializable {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   @transient var hll: HLL = HLL

@@ -92,6 +92,7 @@ object EquivalenceRelations {
   * datasets](https://link.springer.com/article/10.1007/s00778-018-0532-7) by
   * Baazizi et al
   */
+@SerialVersionUID(6315521571346698210L)
 abstract class EquivalenceRelation extends Serializable {
 
   /** Returns true if the two schemas should be considered equivalent.

@@ -10,7 +10,7 @@ import java.io.{
 import java.nio.charset.Charset
 import java.util.Base64
 
-import com.sangupta.bloomfilter.impl.RoaringBloomFilter
+import io.github.michaelmior.bloomfilter.impl.RoaringBloomFilter
 
 object BloomFilter {
 
@@ -37,6 +37,7 @@ object BloomFilter {
   * @constructor Create a new Bloom filter
   * @param filter the underlying bitmap for the Bloom filter
   */
+@SerialVersionUID(226119492812308295L)
 final case class BloomFilter[T](
     filter: RoaringBloomFilter[T] = new RoaringBloomFilter[T](
       BloomFilter.ExpectedElements,
