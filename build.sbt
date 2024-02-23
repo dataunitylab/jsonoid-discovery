@@ -85,9 +85,6 @@ lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
 
-    // For DBSCAN
-    resolvers += "jitpack" at "https://jitpack.io",
-
     libraryDependencies ++= Seq(
         bloomFilter,
         ddSketch,
