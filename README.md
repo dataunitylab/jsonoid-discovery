@@ -8,6 +8,9 @@ Schema discovery for JSON Schema draft 2020-12 using monoids.
 The goal of JSONoid is to produce a useful JSON Schema from a collection of JSON documents.
 For an idea of what JSONoid does, you can view [example schemas with their corresponding datasets](https://dataunitylab.github.io/jsonoid-discovery/schemas/).
 
+<!-- START doctoc -->
+<!-- END doctoc -->
+
 ## Input/Output Format
 
 JSONoid accepts [newline-delimited JSON](http://ndjson.org/) either from standard input or a file.
