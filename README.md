@@ -8,8 +8,33 @@ Schema discovery for JSON Schema draft 2020-12 using monoids.
 The goal of JSONoid is to produce a useful JSON Schema from a collection of JSON documents.
 For an idea of what JSONoid does, you can view [example schemas with their corresponding datasets](https://dataunitylab.github.io/jsonoid-discovery/schemas/).
 
-<!-- START doctoc -->
-<!-- END doctoc -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<details>
+<summary>Table of Contents</summary>
+
+- [Input/Output Format](#inputoutput-format)
+- [Running](#running)
+- [Compiling](#compiling)
+- [Schema monoids](#schema-monoids)
+  - [Arrays](#arrays)
+  - [Numbers (integer and decimal)](#numbers-integer-and-decimal)
+  - [Objects](#objects)
+  - [Strings](#strings)
+- [Equivalence relations](#equivalence-relations)
+- [Transformers](#transformers)
+  - [`DefinitionTransformer`](#definitiontransformer)
+  - [`DisjointObjectTransformer`](#disjointobjecttransformer)
+  - [`DynamicObjectTransformer`](#dynamicobjecttransformer)
+  - [`EnumTransformer`](#enumtransformer)
+  - [`MergeAllOfTransformer`](#mergealloftransformer)
+- [Running tests](#running-tests)
+- [Reporting issues](#reporting-issues)
+- [Datasets](#datasets)
+- [Validation](#validation)
+
+</details>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Input/Output Format
 
