@@ -8,11 +8,6 @@ Schema discovery for JSON Schema draft 2020-12 using monoids.
 The goal of JSONoid is to produce a useful JSON Schema from a collection of JSON documents.
 For an idea of what JSONoid does, you can view [example schemas with their corresponding datasets](https://dataunitylab.github.io/jsonoid-discovery/schemas/).
 
-Currently this package uses unreleased code via GitHub Packages.
-Although all the code is public, you must [create a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).
-This token should be stored in a file named `.env` in the root of the repository with a line `GITHUB_TOKEN=YOUR_TOKEN_HERE`.
-Only the `read:packages` permission should be required.
-
 ## Input/Output Format
 
 JSONoid accepts [newline-delimited JSON](http://ndjson.org/) either from standard input or a file.
