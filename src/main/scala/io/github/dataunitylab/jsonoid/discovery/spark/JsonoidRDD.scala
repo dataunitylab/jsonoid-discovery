@@ -39,4 +39,9 @@ class JsonoidRDD(val rdd: RDD[JsonSchema[_]])(implicit
   def reduceSchemas(): JsonSchema[_] = {
     rdd.fold(ZeroSchema())(_.merge(_)(p))
   }
+
+  /** Reduce the RDD down to a single schema using tree reduction. */
+  def treeReduceSchemas(depth: Int = 2): JsonSchema[_] = {
+    rdd.treeReduce(_.merge(_)(p), depth)
+  }
 }
