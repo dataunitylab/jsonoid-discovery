@@ -7,7 +7,7 @@ jobs:
   fuzz:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Coursier cache
       uses: coursier/cache-action@v6
     - uses: coursier/setup-action@v1
