@@ -28,6 +28,7 @@ For an idea of what JSONoid does, you can view [example schemas with their corre
   - [`DynamicObjectTransformer`](#dynamicobjecttransformer)
   - [`EnumTransformer`](#enumtransformer)
   - [`MergeAllOfTransformer`](#mergealloftransformer)
+- [Apache Spark :sparkles:](#apache-spark-sparkles)
 - [Running tests](#running-tests)
 - [Reporting issues](#reporting-issues)
 - [Datasets](#datasets)
