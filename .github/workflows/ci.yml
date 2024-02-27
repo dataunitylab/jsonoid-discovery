@@ -57,6 +57,28 @@ jobs:
             ajv compile --spec=draft2020 -s $schema -c ajv-formats
           done
 
+  assemble:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Coursier cache
+      uses: coursier/cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: adopt:8
+        apps: sbt scala
+    - name: Assemble
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: sbt assembly
+    - name: Upload JAR
+      uses: actions/upload-artifact@v4
+      with:
+        name: jsonoid-discovery.jar
+        if-no-files-found: error
+        path: target/scala-2.13/jsonoid-discovery*.jar
+
   publish-site:
     if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/') }}
     needs: test
