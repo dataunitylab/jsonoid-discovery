@@ -175,6 +175,7 @@ Accordingly, there is no option for this transformer in the CLI, but may be usef
 JSONoid also supports distributed schema discovery via [Apache Spark](https://spark.apache.org/).
 There are two options for running JSONoid on Spark.
 The first is to the `JsonoidSpark` class as your main class when running Spark.
+You can either use the JAR file produced via `sbt assembly` or download from [the latest release](https://github.com/dataunitylab/jsonoid-discovery/releases/latest).
 In this case, you can pass a path file path as input and the schema will be written to standard output.
 Alternatively, you can use the `JsonoidRdd#fromString` method to convert an RDD of strings to an RDD of schemas that supports schema discovery via the `reduceSchemas` or `treeReduceSchemas `method.
 The result of the reduction will be a `JsonSchema` object.
