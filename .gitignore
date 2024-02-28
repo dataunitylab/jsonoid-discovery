@@ -33,3 +33,5 @@ fuzz/test/resources/*
 
 # Bowtie
 bowtie/
+
+*.tar.gz
