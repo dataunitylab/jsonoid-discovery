@@ -2,6 +2,7 @@ package io.github.dataunitylab.jsonoid.discovery
 package schemas
 
 import scala.collection.mutable.HashMap
+import scala.language.existentials
 import scala.reflect._
 import scala.util.matching.Regex
 
@@ -32,16 +33,6 @@ object ObjectSchema {
   )(implicit p: JsonoidParams): ObjectSchema = {
     implicit val formats: Formats = DefaultFormats
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
-
-    (obj \ "additionalProperties") match {
-      case JNothing =>
-      case JBool(additionalProperties) =>
-        props.add(AdditionalPropertiesProperty(Some(additionalProperties)))
-      case _ =>
-        throw new UnsupportedOperationException(
-          "additionalProperties with non-Boolean schema not supported"
-        )
-    }
 
     if ((obj \ "not") =/= JNothing) {
       throw new UnsupportedOperationException("not isn't supported")
@@ -119,7 +110,22 @@ object ObjectSchema {
       }
     val reqProp = RequiredProperty(Some(required))
 
-    props.add(ObjectTypesProperty(objTypes))
+    (obj \ "additionalProperties") match {
+      case JNothing =>
+      case JBool(additionalProperties) =>
+        props.add(AdditionalPropertiesProperty(Some(additionalProperties)))
+      case JObject(obj) if obj.isEmpty && patternTypes.isEmpty =>
+        val patternTypes = Map(".*".r -> JsonSchema.fromJson(obj))
+        props.add(PatternTypesProperty(patternTypes))
+      case _ =>
+        throw new UnsupportedOperationException(
+          "additionalProperties with non-Boolean schema not supported"
+        )
+    }
+
+    if (!objTypes.isEmpty) {
+      props.add(ObjectTypesProperty(objTypes))
+    }
     if (!patternTypes.isEmpty) {
       props.add(PatternTypesProperty(patternTypes))
     }

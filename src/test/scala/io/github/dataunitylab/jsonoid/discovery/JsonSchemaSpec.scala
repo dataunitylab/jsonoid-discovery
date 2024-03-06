@@ -133,7 +133,7 @@ class JsonSchemaSpec extends UnitSpec {
 
     val convertedSchema = JsonSchema.fromJson(objSchema)
 
-    convertedSchema.properties should contain(ObjectTypesProperty(Map()))
+    convertedSchema shouldBe an[ObjectSchema]
   }
 
   it should "convert an object schema with missing type" in {

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix some anomaly checking with `patternProperties`
+- Fix some anomaly checking with `additionalProperties`
 
 ## [0.20.1]
 ### Added
