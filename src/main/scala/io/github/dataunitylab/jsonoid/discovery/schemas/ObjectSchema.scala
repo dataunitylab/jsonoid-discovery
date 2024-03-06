@@ -315,6 +315,41 @@ final case class ObjectSchema(
       }
     }
   }
+
+  override def collectAnomalies[S <: JValue](
+      value: S,
+      path: String = "$"
+  )(implicit p: JsonoidParams, tag: ClassTag[S]): Seq[Anomaly] = {
+    if (
+      isValidType(value) &&
+      properties.has[PatternTypesProperty] &&
+      properties.has[ObjectTypesProperty]
+    ) {
+      // Check if additional properties are allowed
+      val allowAdditional = properties
+        .getOrNone[AdditionalPropertiesProperty]
+        .map(_.allowAdditional)
+        .getOrElse(p.additionalProperties)
+
+      // Get anomalies from patternProperties while allowing
+      // the possibility of explicitly defined keys elsewhere
+      val patternAnomalies = properties
+        .get[PatternTypesProperty]
+        .collectAnomaliesAllowMissing(
+          value,
+          path,
+          properties.get[ObjectTypesProperty].objectTypes.keySet,
+          allowAdditional
+        )
+
+      patternAnomalies ++ properties
+        .without(List(classOf[PatternTypesProperty]))
+        .flatMap(_.collectAnomalies(value, path)(p, tag))
+        .toSeq
+    } else {
+      super.collectAnomalies(value, path)(p, tag)
+    }
+  }
 }
 
 /** The types of all keys in an object schema.
@@ -556,6 +591,15 @@ final case class PatternTypesProperty(
       p: JsonoidParams,
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
+    collectAnomaliesAllowMissing(value, path, Set(), p.additionalProperties)
+  }
+
+  def collectAnomaliesAllowMissing[S <: JValue](
+      value: S,
+      path: String,
+      missingOk: Set[String],
+      additionalProperties: Boolean
+  )(implicit p: JsonoidParams, tag: ClassTag[S]): Seq[Anomaly] = {
     value match {
       case JObject(fields) =>
         fields.flatMap { case (key, value) =>
@@ -570,7 +614,7 @@ final case class PatternTypesProperty(
           // or report that there is no pattern that matches
           patternSchema match {
             case Some(schema) => schema.collectAnomalies(value, f"$path.$key")
-            case None =>
+            case None if !additionalProperties && !missingOk.contains(key) =>
               Seq(
                 Anomaly(
                   f"$path.$key",
@@ -578,6 +622,7 @@ final case class PatternTypesProperty(
                   AnomalyLevel.Fatal
                 )
               )
+            case None => Seq.empty
           }
         }
       case _ => Seq.empty

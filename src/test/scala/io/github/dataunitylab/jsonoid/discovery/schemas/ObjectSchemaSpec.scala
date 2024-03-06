@@ -71,6 +71,16 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     nestedSchema.entropy shouldBe Some(25)
   }
 
+  it should "not find an anomaly if a pattern does not match, but is defined in properties" in {
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3))))
+    props.add(ObjectTypesProperty(Map("bar" -> NumberSchema(3))))
+
+    ObjectSchema(props).collectAnomalies(
+      JObject(List(("bar", JInt(3))))
+    ) shouldBe empty
+  }
+
   behavior of "ObjectTypesProperty"
 
   it should "calculate the intersection of properties" in {
@@ -103,6 +113,13 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       .collectAnomalies(JObject(List(("foobar", JBool(true))))) shouldEqual Seq(
       Anomaly("$.foobar", "JBool(true) has wrong type", AnomalyLevel.Fatal)
     )
+  }
+
+  it should "not find an anomaly if a pattern does not match, but additionalProperties=true" in {
+    implicit val params =
+      JsonoidParams().withAdditionalProperties(true)
+    PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3)))
+      .collectAnomalies(JObject(List(("baz", JInt(3))))) shouldBe empty
   }
 
   behavior of "RequiredProperty"
