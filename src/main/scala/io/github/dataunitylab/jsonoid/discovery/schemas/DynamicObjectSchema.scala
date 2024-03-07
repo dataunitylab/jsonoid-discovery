@@ -9,6 +9,15 @@ import org.json4s._
 import utils.JsonPointer
 
 object DynamicObjectSchema {
+  def apply(
+      value: JsonSchema[_]
+  )(implicit p: JsonoidParams): DynamicObjectSchema = {
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(DynamicObjectTypeProperty(value))
+
+    DynamicObjectSchema(props)(p)
+  }
+
   val AllProperties: SchemaProperties[Map[String, JsonSchema[_]]] = {
     val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
     props.add(DynamicObjectTypeProperty())
