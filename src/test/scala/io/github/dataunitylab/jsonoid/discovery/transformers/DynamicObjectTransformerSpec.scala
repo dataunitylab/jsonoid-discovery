@@ -22,6 +22,23 @@ class DynamicObjectTransformerSpec extends UnitSpec {
       .valueType shouldBe a[StringSchema]
   }
 
+  it should "replace dynamic objects with patternProperties" in {
+    var props = ObjectSchema().properties.copy()
+    props.add(PatternTypesProperty(Map("foo.*".r -> IntegerSchema())))
+    for (i <- 1 to 11) {
+      props = props.mergeValue(Map("a" * i -> StringSchema()))
+    }
+
+    val transformedSchema =
+      DynamicObjectTransformer.transformSchema(ObjectSchema(props))
+    transformedSchema shouldBe a[DynamicObjectSchema]
+    transformedSchema
+      .asInstanceOf[DynamicObjectSchema]
+      .properties
+      .get[DynamicObjectTypeProperty]
+      .valueType shouldBe a[ProductSchema]
+  }
+
   it should "not replace objects with static keys" in {
     var props = ObjectSchema().properties
     for (_ <- 1 to 11) {

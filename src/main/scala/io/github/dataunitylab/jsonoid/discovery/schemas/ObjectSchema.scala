@@ -356,6 +356,26 @@ final case class ObjectSchema(
       super.collectAnomalies(value, path)(p, tag)
     }
   }
+
+  def toDynamicObjectSchema()(implicit
+      p: JsonoidParams
+  ): DynamicObjectSchema = {
+    // Get all types from objects and patterns
+    val objectTypes = properties.get[ObjectTypesProperty].objectTypes.values
+    val patternTypes = properties
+      .getOrNone[PatternTypesProperty]
+      .map(_.patternTypes.values)
+      .getOrElse(Iterator.empty)
+
+    // Combine all types into a single schema
+    val valueType =
+      (objectTypes ++ patternTypes).fold(ZeroSchema())(_.merge(_)(p))
+
+    // Generate the new schema
+    val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
+    props.add(DynamicObjectTypeProperty(valueType))
+    DynamicObjectSchema(props)(p)
+  }
 }
 
 /** The types of all keys in an object schema.

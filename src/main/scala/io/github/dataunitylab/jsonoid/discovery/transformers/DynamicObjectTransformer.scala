@@ -43,14 +43,7 @@ object DynamicObjectTransformer extends SchemaWalker[ObjectSchema] {
     objects.foreach { case (path, objSchema) =>
       // Construct thew new final type
       val pointer = pathToInexactPointer(path)
-      val objectTypes =
-        objSchema.properties.get[ObjectTypesProperty].objectTypes
-      val valueType = objectTypes.values.fold(ZeroSchema())(_.merge(_))
-
-      // Generate the new schema
-      val props = SchemaProperties.empty[Map[String, JsonSchema[_]]]
-      props.add(DynamicObjectTypeProperty(valueType))
-      val newSchema = DynamicObjectSchema(props)(p)
+      val newSchema = objSchema.toDynamicObjectSchema()(p)
 
       finalSchema = finalSchema.replaceWithSchema(pointer, newSchema)
     }
