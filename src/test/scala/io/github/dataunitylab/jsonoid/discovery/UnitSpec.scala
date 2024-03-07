@@ -19,6 +19,19 @@ abstract class UnitSpec
   before {
     Logger.getLogger("org.apache.spark").setLevel(Level.OFF)
   }
+
+  def withParams(
+      additionalProperties: Boolean = false,
+      propSet: PropertySet = PropertySets.AllProperties,
+      er: EquivalenceRelation = EquivalenceRelations.KindEquivalenceRelation
+  )(testCode: JsonoidParams => Any): Unit = {
+    implicit val params =
+      JsonoidParams()
+        .withAdditionalProperties(additionalProperties)
+        .withER(er)
+        .withPropertySet(propSet)
+    testCode(params)
+  }
 }
 
 object UnitSpec {

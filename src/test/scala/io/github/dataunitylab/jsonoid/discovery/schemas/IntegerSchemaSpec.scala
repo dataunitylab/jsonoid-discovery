@@ -80,7 +80,8 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "expand by incrementing values" in {
     MaxIntValueProperty(Some(10))
       .expandTo(Some(MaxIntValueProperty((Some(11)))))
-      .maxIntValue shouldBe Some(11)
+      .maxIntValue
+      .value shouldBe 11
   }
 
   behavior of "MinIntValueProperty"
@@ -98,7 +99,8 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "expand by decrementing values" in {
     MinIntValueProperty(Some(14))
       .expandTo(Some(MinIntValueProperty((Some(13)))))
-      .minIntValue shouldBe Some(13)
+      .minIntValue
+      .value shouldBe 13
   }
 
   behavior of "IntHyperLogLogProperty"
@@ -194,7 +196,8 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "not expand if already covered" in {
     IntMultipleOfProperty(Some(14))
       .expandTo(Some(IntMultipleOfProperty((Some(28)))))
-      .multiple shouldBe Some(14)
+      .multiple
+      .value shouldBe 14
   }
 
   behavior of "IntHistogramProperty"
@@ -223,10 +226,10 @@ class IntegerSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
 
   behavior of "IntegerSchema"
 
-  it should "have no properties in the minimal property set" in {
-    IntegerSchema(0)(
-      JsonoidParams().withPropertySet(PropertySets.MinProperties)
-    ).properties shouldBe empty
+  it should "have no properties in the minimal property set" in withParams(
+    propSet = PropertySets.MinProperties
+  ) { implicit params =>
+    IntegerSchema(0)(params).properties shouldBe empty
   }
 
   it should "show integers as a valid type" in {

@@ -61,14 +61,14 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "calculate entropy for simple objects" in {
-    objectSchema.entropy shouldBe Some(4)
+    objectSchema.entropy.value shouldBe 4
   }
 
   it should "calculate entropy for nested objects" in {
     val nestedSchema1 = ObjectSchema(Map("baz" -> objectSchema))
     val nestedSchema2 = ObjectSchema(Map("quux" -> objectSchema))
     val nestedSchema = nestedSchema1.merge(nestedSchema2)
-    nestedSchema.entropy shouldBe Some(25)
+    nestedSchema.entropy.value shouldBe 25
   }
 
   it should "not find an anomaly if a pattern does not match, but is defined in properties" in {
@@ -115,9 +115,9 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     )
   }
 
-  it should "not find an anomaly if a pattern does not match, but additionalProperties=true" in {
-    implicit val params =
-      JsonoidParams().withAdditionalProperties(true)
+  it should "not find an anomaly if a pattern does not match, but additionalProperties=true" in withParams(
+    additionalProperties = true
+  ) { implicit params =>
     PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3)))
       .collectAnomalies(JObject(List(("baz", JInt(3))))) shouldBe empty
   }
@@ -201,20 +201,21 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   behavior of "ObjectSchema"
 
   it should "be able to find subschemas by pointer" in {
-    objectSchema.findByPointer("/foo") shouldBe Some(BooleanSchema())
+    objectSchema.findByPointer("/foo").value shouldBe BooleanSchema()
   }
 
   it should "be able to find nested subschemas by pointer" in {
     val nestedSchema = ObjectSchema(Map("baz" -> objectSchema))
-    nestedSchema.findByPointer("/baz/foo") shouldBe Some(BooleanSchema())
+    nestedSchema.findByPointer("/baz/foo").value shouldBe BooleanSchema()
   }
 
-  it should "have no properties in the minimal property set" in {
+  it should "have no properties in the minimal property set" in withParams(
+    propSet = PropertySets.MinProperties
+  ) { implicit params =>
     val cp = new Checkpoint()
 
-    val objectProperties = ObjectSchema(Map("foo" -> BooleanSchema()))(
-      JsonoidParams().withPropertySet(PropertySets.MinProperties)
-    ).properties
+    val objectProperties =
+      ObjectSchema(Map("foo" -> BooleanSchema())).properties
 
     cp { objectProperties should have size 2 }
     cp { objectProperties.get[AdditionalPropertiesProperty] }
@@ -286,9 +287,9 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     )
   }
 
-  it should "detect anomalies of missing required dependencies" in {
-    implicit val params =
-      JsonoidParams().withAdditionalProperties(true)
+  it should "detect anomalies of missing required dependencies" in withParams(
+    additionalProperties = true
+  ) { implicit params =>
     val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))(
       params.withPropertySet(PropertySets.MinProperties)
     )
@@ -304,9 +305,9 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       .extract[Boolean] shouldBe false
   }
 
-  it should "allow additional properties if requested" in {
-    val params =
-      JsonoidParams().withAdditionalProperties(true)
+  it should "allow additional properties if requested" in withParams(
+    additionalProperties = true
+  ) { implicit params =>
     val objectSchema = ObjectSchema(Map("foo" -> BooleanSchema()))(params)
     (objectSchema.toJson() \ "additionalProperties")
       .extract[Boolean] shouldBe true
@@ -320,10 +321,10 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     ObjectSchema(singleType).isSubsetOf(objectSchema) shouldBe true
   }
 
-  it should "show an object with a superset of properties as compatible if additionalProperties is true" in {
-    val p: JsonoidParams =
-      JsonoidParams.defaultJsonoidParams.withAdditionalProperties(true)
-    objectSchema.isSubsetOf(ObjectSchema(singleType)(p))(p) shouldBe true
+  it should "show an object with a superset of properties as compatible if additionalProperties is true" in withParams(
+    additionalProperties = true
+  ) { implicit params =>
+    objectSchema.isSubsetOf(ObjectSchema(singleType)) shouldBe true
   }
 
   it should "show an object with a superset of properties as compatible if additionalProperties is false" in {
@@ -341,15 +342,17 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     schema2.isSubsetOf(schema1.expandTo(Some(schema2))) shouldBe true
   }
 
-  // it should "expand to add additionalProperties" in {
-  //   objectSchema.properties
-  //     .get[AdditionalPropertiesProperty]
-  //     .additionalProperties shouldBe false
-  //   objectSchema
-  //     .expandTo(None)
-  //     .asInstanceOf[ObjectSchema]
-  //     .properties
-  //     .get[AdditionalPropertiesProperty]
-  //     .additionalProperties shouldBe true
-  // }
+  ignore should "expand to add additionalProperties" in {
+    objectSchema.properties
+      .get[AdditionalPropertiesProperty]
+      .overriddenAdditionalProperties
+      .value shouldBe false
+    objectSchema
+      .expandTo(None)
+      .asInstanceOf[ObjectSchema]
+      .properties
+      .get[AdditionalPropertiesProperty]
+      .overriddenAdditionalProperties
+      .value shouldBe true
+  }
 }

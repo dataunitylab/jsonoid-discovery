@@ -86,12 +86,12 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "calculate entropy for a tuple schema" in {
-    tupleSchema.entropy shouldBe Some(2)
+    tupleSchema.entropy.value shouldBe 2
   }
 
   it should "calculate entropy for an array schema" in {
     // This is 2 since the array length can be either 1 or 2
-    arraySchema.entropy shouldBe Some(2)
+    arraySchema.entropy.value shouldBe 2
   }
 
   behavior of "MinItemsProperty"
@@ -105,7 +105,8 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       .expandTo(
         Some(MinItemsProperty(Some(2)))
       )
-      .minItems shouldBe Some(2)
+      .minItems
+      .value shouldBe 2
   }
 
   behavior of "MaxItemsProperty"
@@ -119,7 +120,8 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       .expandTo(
         Some(MaxItemsProperty(Some(3)))
       )
-      .maxItems shouldBe Some(3)
+      .maxItems
+      .value shouldBe 3
   }
 
   behavior of "UniqueProperty"
@@ -185,14 +187,14 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "be able to find subschemas by pointer" in {
-    tupleSchema.findByPointer("/1") shouldBe Some(BooleanSchema())
+    tupleSchema.findByPointer("/1").value shouldBe BooleanSchema()
   }
 
   it should "be able to find nested subschemas by pointer" in {
     val nestedList = List(tupleSchema, tupleSchema)
     val nestedSchema =
       ArraySchema(ArraySchema(nestedList).properties.mergeValue(nestedList))
-    nestedSchema.findByPointer("/0/1") shouldBe Some(BooleanSchema())
+    nestedSchema.findByPointer("/0/1").value shouldBe BooleanSchema()
   }
 
   it should "transform array schemas" in {
@@ -219,13 +221,13 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       .shouldEqual(Right(List(NullSchema(), NullSchema())))
   }
 
-  it should "have no properties in the minimal property set" in {
+  it should "have no properties in the minimal property set" in withParams(
+    propSet = PropertySets.MinProperties
+  ) { implicit params =>
     val cp = new Checkpoint()
 
     val arrayProperties =
-      ArraySchema(List(BooleanSchema()))(
-        JsonoidParams().withPropertySet(PropertySets.MinProperties)
-      ).properties
+      ArraySchema(List(BooleanSchema()))(params).properties
 
     cp { arrayProperties should have size 1 }
     cp { arrayProperties.get[ItemTypeProperty] }
@@ -288,11 +290,11 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "find the single type in an array schema" in {
-    arraySchema.findByPointer("/*").shouldEqual(Some(BooleanSchema()))
+    arraySchema.findByPointer("/*").value shouldBe BooleanSchema()
   }
 
   it should "find the array schema itself" in {
-    arraySchema.findByPointer("/").shouldEqual(Some(arraySchema))
+    arraySchema.findByPointer("/").value shouldBe arraySchema
   }
 
   it should "find nothing in a tuple schema with an empty pointer" in {
@@ -300,11 +302,11 @@ class ArraySchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   }
 
   it should "find a type in a tuple schema" in {
-    tupleSchema.findByPointer("/1").shouldEqual(Some(BooleanSchema()))
+    tupleSchema.findByPointer("/1").value shouldBe BooleanSchema()
   }
 
   it should "find the tuple schema itself" in {
-    tupleSchema.findByPointer("/").shouldEqual(Some(tupleSchema))
+    tupleSchema.findByPointer("/").value shouldBe tupleSchema
   }
 
   it should "not show anomalies in for non-array values" in {

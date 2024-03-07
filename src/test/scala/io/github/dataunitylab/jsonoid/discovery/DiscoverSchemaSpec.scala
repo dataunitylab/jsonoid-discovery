@@ -8,8 +8,6 @@ import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
-import UnitSpec._
-
 class DiscoverSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   behavior of "DiscoverSchema"
 
@@ -84,10 +82,11 @@ class DiscoverSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     ) shouldBe None
   }
 
-  it should "produce minimal properties when requested" in {
-    val stringSchema = DiscoverSchema.discover(
-      Seq(JString("foo")).iterator
-    )(JsonoidParams().withPropertySet(PropertySets.MinProperties))
+  it should "produce minimal properties when requested" in withParams(propSet =
+    PropertySets.MinProperties
+  ) { implicit params =>
+    val stringSchema =
+      DiscoverSchema.discover(Seq(JString("foo")).iterator)(params)
     stringSchema.properties shouldBe empty
   }
 

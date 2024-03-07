@@ -267,22 +267,18 @@ class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       .keySet should contain("foo")
   }
 
-  it should "expand an existing type to be compatbile" in {
+  it should "expand an existing type to be compatbile" in withParams(propSet =
+    PropertySets.SimpleProperties
+  ) { implicit params =>
     // We need to rebuild some types using Simple properties
     // to ensure that there is something that will be in conflict
     // if the resulting types are not compatible
-    val oldSchema = IntegerSchema(0)(
-      JsonoidParams.defaultJsonoidParams.withPropertySet(
-        PropertySets.SimpleProperties
-      )
-    )
-    val newSchema = IntegerSchema(3)(
-      JsonoidParams.defaultJsonoidParams.withPropertySet(
-        PropertySets.SimpleProperties
-      )
-    )
+    val oldSchema = IntegerSchema(0)(params)
+    val newSchema = IntegerSchema(3)(params)
     val productSchema1 =
-      ProductSchema(schema1).merge(oldSchema).asInstanceOf[ProductSchema]
+      ProductSchema(schema1)(params)
+        .merge(oldSchema)(params)
+        .asInstanceOf[ProductSchema]
 
     newSchema.isSubsetOf(
       productSchema1
@@ -293,10 +289,10 @@ class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
         .schemaTypes
         .find(_.schemaType == "integer")
         .get
-    ) shouldBe true
+    )(params) shouldBe true
   }
 
   it should "calculate entropy for a simple product" in {
-    productSchema1.entropy shouldBe Some(2)
+    productSchema1.entropy.value shouldBe 2
   }
 }

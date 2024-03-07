@@ -5,8 +5,6 @@ import schemas.NullSchema
 import org.json4s.JsonDSL._
 import org.json4s._
 
-import UnitSpec._
-
 class PrimaryKeyFinderSpec extends UnitSpec {
   behavior of "PrimaryKeyFinder"
 

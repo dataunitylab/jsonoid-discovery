@@ -3,8 +3,6 @@ package io.github.dataunitylab.jsonoid.discovery
 import org.json4s.JsonDSL._
 import org.json4s._
 
-import UnitSpec._
-
 class ForeignKeyFinderSpec extends UnitSpec {
   behavior of "ForeignKeyFinder"
 

@@ -57,7 +57,8 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "expand by incrementing values" in {
     MaxNumValueProperty(Some(11))
       .expandTo(Some(MaxNumValueProperty((Some(12)))))
-      .maxNumValue shouldBe Some(12)
+      .maxNumValue
+      .value shouldBe 12
   }
 
   behavior of "MinNumValueProperty"
@@ -75,7 +76,8 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "expand by decrementing values" in {
     MinNumValueProperty(Some(11))
       .expandTo(Some(MinNumValueProperty((Some(10)))))
-      .minNumValue shouldBe Some(10)
+      .minNumValue
+      .value shouldBe 10
   }
 
   behavior of "NumHyperLogLogProperty"
@@ -184,7 +186,8 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "expand by division by 2s" in {
     NumMultipleOfProperty(Some(4.0))
       .expandTo(Some(NumMultipleOfProperty((Some(2.0)))))
-      .multiple shouldBe Some(2.0)
+      .multiple
+      .value shouldBe 2.0
   }
 
   it should "stop expanding after MaxExpandRounds" in {
@@ -196,7 +199,8 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "not expand if already covered" in {
     NumMultipleOfProperty(Some(3.5))
       .expandTo(Some(NumMultipleOfProperty((Some(7.0)))))
-      .multiple shouldBe Some(3.5)
+      .multiple
+      .value shouldBe 3.5
   }
 
   behavior of "NumHistogramProperty"
@@ -259,10 +263,10 @@ class NumberSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
     (histJson \ "hasExtremeValues").extract[Boolean] shouldBe false
   }
 
-  it should "have no properties in the minimal property set" in {
-    NumberSchema(0.0)(
-      JsonoidParams().withPropertySet(PropertySets.MinProperties)
-    ).properties shouldBe empty
+  it should "have no properties in the minimal property set" in withParams(
+    propSet = PropertySets.MinProperties
+  ) { implicit params =>
+    NumberSchema(0.0)(params).properties shouldBe empty
   }
 
   it should "show integers as a valid type" in {

@@ -25,7 +25,7 @@ class NullSchemaSpec extends UnitSpec {
   }
 
   it should "should have only Info-level anomalies with non-null values" in {
-    nullSchema.maxAnomalyLevel(JString("foo")) shouldBe Some(AnomalyLevel.Info)
+    nullSchema.maxAnomalyLevel(JString("foo")).value shouldBe AnomalyLevel.Info
   }
 
   it should "should not show null values as anomalous" in {

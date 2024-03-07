@@ -85,11 +85,11 @@ class HelpersSpec extends UnitSpec {
   }
 
   it should "give a value when finding the max with None" in {
-    maxOrNone(none, Some("foo")) should be(Some("foo"))
+    maxOrNone(none, Some("foo")).value shouldBe "foo"
   }
 
   it should "give None with the max of two None values" in {
-    maxOrNone(none, none) should be(None)
+    maxOrNone(none, none) shouldBe None
   }
 
   behavior of "minOrNone"
@@ -99,11 +99,11 @@ class HelpersSpec extends UnitSpec {
   }
 
   it should "give a value when finding the min with None" in {
-    minOrNone(none, Some("foo")) should be(Some("foo"))
+    minOrNone(none, Some("foo")).value shouldBe "foo"
   }
 
   it should "give None with the min of two None values" in {
-    minOrNone(none, none) should be(None)
+    minOrNone(none, none) shouldBe None
   }
 
   behavior of "intersectOrNone"

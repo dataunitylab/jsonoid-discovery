@@ -15,7 +15,9 @@ class JsonoidRDDSpec extends UnitSpec with ScalaCheckPropertyChecks {
     (false)
   )
 
-  it should "produce a schema with Spark" in {
+  it should "produce a schema with Spark" in withParams(propSet =
+    PropertySets.MinProperties
+  ) { implicit params =>
     forAll(table) { (treeReduce) =>
       val jsons = Seq(
         """{"a": "bar", "b": true, "c": null}""",
@@ -28,8 +30,7 @@ class JsonoidRDDSpec extends UnitSpec with ScalaCheckPropertyChecks {
       val sc = new SparkContext(conf)
       val rdd = sc.parallelize(jsons)
 
-      val params = JsonoidParams().withPropertySet(PropertySets.MinProperties)
-      val jsonoidRdd = JsonoidRDD.fromStringRDD(rdd)(params)
+      val jsonoidRdd = JsonoidRDD.fromStringRDD(rdd)
       val schema = if (treeReduce) {
         jsonoidRdd.treeReduceSchemas()
       } else {

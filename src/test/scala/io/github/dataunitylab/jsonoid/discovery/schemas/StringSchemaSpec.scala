@@ -140,7 +140,8 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "not expand for compatible formats" in {
     FormatProperty(Map("uri" -> 100))
       .expandTo(Some(FormatProperty(Map("uri" -> 10))))
-      .maxFormat() shouldBe Some("uri")
+      .maxFormat()
+      .value shouldBe "uri"
   }
 
   it should "expand to remove formats if needed" in {
@@ -217,8 +218,8 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       PatternProperty(Some("fo"), Some("ar")).expandTo(
         Some(PatternProperty(Some("foo"), Some("bar")))
       )
-    newPattern.prefix shouldBe Some("fo")
-    newPattern.suffix shouldBe Some("ar")
+    newPattern.prefix.value shouldBe "fo"
+    newPattern.suffix.value shouldBe "ar"
   }
 
   it should "not report anomalies with valid strings" in {
@@ -344,10 +345,10 @@ class StringSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
 
   behavior of "StringSchema"
 
-  it should "have no properties in the minimal property set" in {
-    StringSchema("foo")(
-      JsonoidParams().withPropertySet(PropertySets.MinProperties)
-    ).properties shouldBe empty
+  it should "have no properties in the minimal property set" in withParams(
+    propSet = PropertySets.MinProperties
+  ) { implicit params =>
+    StringSchema("foo")(params).properties shouldBe empty
   }
 
   it should "show strings as a valid type" in {
