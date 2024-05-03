@@ -60,6 +60,10 @@ jobs:
   assemble:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      attestations: write
+      contents: read
     steps:
     - uses: actions/checkout@v4
     - name: Coursier cache
@@ -78,6 +82,10 @@ jobs:
         name: jsonoid-discovery.jar
         if-no-files-found: error
         path: target/scala-2.13/jsonoid-discovery*.jar
+    - name: Attest build provenance
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: 'target/scala-2.13/jsonoid-discovery*.jar'
 
   publish-site:
     if: ${{ github.event_name != 'pull_request' && !startsWith(github.ref, 'refs/tags/') }}
