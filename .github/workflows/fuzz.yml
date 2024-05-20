@@ -19,7 +19,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: sbt 'fuzz / assembly'
     - name: Download Jazzer
-      uses: robinraju/release-downloader@v1.8
+      uses: robinraju/release-downloader@v1.10
       with:
         repository: CodeIntelligenceTesting/jazzer
         latest: true
