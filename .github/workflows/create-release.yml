@@ -39,7 +39,7 @@ jobs:
       - name: Make source archive
         run: git archive --format tar.gz --prefix=jsonoid-discovery-${{ github.event.workflow_run.head_branch }}/ HEAD > jsonoid-discovery-${{ github.event.workflow_run.head_branch }}.tar.gz
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.md
           files: |
