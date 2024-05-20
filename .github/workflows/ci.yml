@@ -103,6 +103,7 @@ jobs:
     - name: Publish site
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_PAGES_PUBLISH_FORCE_PUSH: true
       run: |
           sbt makeSite
           sbt generateSchemas
