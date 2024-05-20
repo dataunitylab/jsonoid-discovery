@@ -13,6 +13,8 @@ jobs:
     - name: Install Bowtie
       run: pip install bowtie-json-schema==2023.8.16
     - uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Coursier cache
       uses: coursier/cache-action@v6
     - uses: coursier/setup-action@v1
@@ -26,7 +28,7 @@ jobs:
     - name: Tag image
       run: docker tag jsonoid-discovery:latest localhost/jsonoid-discovery
     - name: Run Bowtie tests
-      run: mkdir bowtie && bowtie suite -V -i localhost/jsonoid-discovery https://github.com/json-schema-org/JSON-Schema-Test-Suite/tree/main/tests/draft2020-12 > bowtie/bowtie.json
+      run: mkdir bowtie && bowtie suite -V -i localhost/jsonoid-discovery JSON-Schema-Test-Suite/tests/draft2020-12/ > bowtie/bowtie.json
     - name: Generate Bowtie report
       run: (cd bowtie; bowtie report -b badges bowtie.json)
     - name: Upload report artifact
