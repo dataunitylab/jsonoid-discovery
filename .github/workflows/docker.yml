@@ -65,6 +65,7 @@ jobs:
       id: push
       with:
         context: ./target/docker/stage
+        sbom: true
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
