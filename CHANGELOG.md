@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix some anomaly checking with `patternProperties`
 - Fix some anomaly checking with `additionalProperties`
 
-## [0.20.1]
+## [0.20.1] - 2024-02-28
 ### Added
 - Support for using `treeReduce` with Apache Spark
 
-## [0.20.0]
+## [0.20.0] - 2024-02-20
 ### Fixed
 - Fix array uniqueness subset check
 
@@ -25,11 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Combine numeric schemas in `ProductSchema`
 - Use JSON Pointer objects instead of strings
 
-## [0.19.0]
+## [0.19.0] - 2023-11-26
 ### Fixed
 - Fix package coordinates
 
-## [0.18.0]
+## [0.18.0] - 2023-11-20
 ### Added
 - Testing validation via Bowtie
 - Collect anomalies for `patternProperties`
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Declare partial support for `additionalProperties`
 - Track Boolean values which are constant
 
-## [0.17.0]
+## [0.17.0] - 2023-08-08
 ### Added
 - Add calculation of schema entropy
 
@@ -49,7 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch to draft 2020-12
 - Switch back to `prefixItems`
 
-## [0.16.0]
+## [0.16.0] - 2023-08-02
 ### Added
 - Add dynamic object transformer
 - Add disjoint key transformer
@@ -91,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix extreme value anomaly checks in histograms
 - Fix tuple schema deserialization from JSON Schema
 
-## [0.15.0]
+## [0.15.0] - 2023-04-11
 ### Changed
 - Add namespace to `AnomalyLevel`
 - Unknown properties are not anomalous if `additionalProperties` is true
@@ -103,14 +103,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correct anomaly detection in `ProductSchema`
 - More accurate anomaly detection for `PatternProperty`
 
-## [0.14.0]
+## [0.14.0] - 2023-04-04
 ### Changed
 - Move to new package name
 
 ### Fixed
 - Fix JSONoid version in generated schema
 
-## [0.13.0]
+## [0.13.0] - 2023-02-28
 ### Added
 - Allow disabling expansion entirely
 - Add possible debug output to CLI
@@ -132,11 +132,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exit with non-zero status for invalid arguments
 - Allow oblivious expansion with split discovery
 
-## [0.12.2]
+## [0.12.2] - 2023-02-24
 ### Added
 - Allow specifying random number seed for reproducible discovery
 
-## [0.12.1]
+## [0.12.1] - 2023-02-23
 ### Added
 - Add a property to track the percentage of true Boolean values
 - Allow for oblivious expansion without another schema
@@ -148,7 +148,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Fixed
 - Fix missing bash in Docker image
 
-## [0.12.0]
+## [0.12.0] - 2023-02-21
 ### Added
 - Add equivalence relation which checks types
 - Allow additional ER choices in CLI
@@ -167,7 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Correctly check UUID format
 - Correctly check email format
 
-## [0.11.0]
+## [0.11.0] - 2023-01-13
 ### Added
 - Make definition transformation optional when running via Spark
 - Use [DDSketch](https://github.com/DataDog/sketches-java/) for histograms
@@ -186,7 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Scalafix along with some minor rewrites
 - Pretty print final JSON schema
 
-## [0.10.0]
+## [0.10.0] - 2022-04-15
 ### Added
 - Add intersecting label equivalence relation
 - Include serialized HLL in generated schema
@@ -199,48 +199,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Avoid discovering properties not required in CLI
 
-## [0.9.7]
+## [0.9.7] - 2022-03-14
 ### Added
 - Detect anomalies resulting from dependency violations
 
-## [0.9.6]
+## [0.9.6] - 2022-03-12
 ### Fixed
 - Fix nested property transformation
 
-## [0.9.5]
+## [0.9.5] - 2022-03-12
 ### Fixed
 - Fix property restriction for complex types
 
-## [0.9.4]
+## [0.9.4] - 2022-03-11
 ### Added
 - Allow restricting to a subset of properties
 
-## [0.9.3]
+## [0.9.3] - 2022-03-09
 ### Fixed
 - Fix Bloom filter deserialization
 
-## [0.9.2]
+## [0.9.2] - 2022-03-09
 ### Added
 - Fix `dependentRequired` during conversion
 
-## [0.9.1]
+## [0.9.1] - 2022-03-09
 ### Added
 - Support `dependentRequired` during conversion
 
-## [0.9.0]
+## [0.9.0] - 2022-03-09
 ### Fixed
 - Correct type anomaly detection
 
-## [0.8.3]
+## [0.8.3] - 2022-03-08
 ### Fixed
 - Avoid unnecessary anomaly errors on `patternProperties`
 
-## [0.8.2]
+## [0.8.2] - 2022-03-08
 ### Added
 - Serialize/deserialize Bloom filters
 - Support `const` when converting schemas
 
-## [0.8.1]
+## [0.8.1] - 2022-03-08
 ### Added
 - Allow transformers to work on top-level objects
 - Separate transformer to merge schemas containing `allOf`
@@ -253,7 +253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Properly detect type anomalies with nested schemas
 
-## [0.8.0]
+## [0.8.0] - 2022-02-22
 ### Added
 - Allow merging schemas by intersection instead of union
 - Use a base schema in `ProductSchema`
@@ -262,20 +262,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restore CLI functionality
 - Ensure special schemas are merged correctly
 
-## [0.7.3]
+## [0.7.3] - 2022-02-16
 ### Fixed
 - Don't show reference in `ReferenceObjectProperty#toString` to fix circular references
 - Support circular references during reference resolution
 
-## [0.7.2]
+## [0.7.2] - 2022-02-15
 ### Fixed
 - Added missing `patternProperties` support to `SchemaWalker`
 
-## [0.7.1]
+## [0.7.1] - 2022-02-15
 ### Added
 - Support `patternProperties` during object conversion
 
-## [0.7.0]
+## [0.7.0] - 2022-02-09
 ### Added
 - Support exclusive min/max during conversion
 - Support `allOf` during object conversion
@@ -285,7 +285,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add more explicit object conversion errors
 - `MultipleOfProperty` renamed to `IntMultipleOfProperty`
 
-## [0.6.3]
+## [0.6.3] - 2022-02-08
 ### Added
 - Perform heuristic type detection during object conversion
 - Support `additionalItems` during object conversion
@@ -297,15 +297,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Allow arrays to be converted without item type
 
-## [0.6.2]
+## [0.6.2] - 2022-02-04
 ### Fixed
 - Perform definition conversion for all types
 
-## [0.6.1]
+## [0.6.1] - 2022-02-04
 ### Fixed
 - Don't require root to be `ObjectSchema` when resolving references
 
-## [0.6.0]
+## [0.6.0] - 2022-02-04
 ### Added
 - Show error message when converting with `patternProperties`
 - Include definitions when converting to JSONoid objects
@@ -313,7 +313,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Store definitions directly on the `JsonSchema` object, not as a property
 
-## [0.5.5]
+## [0.5.5] - 2022-02-03
 ### Added
 - Allow a reference object to be stored for schema references
 - Correctly parse `$ref` during object conversion
@@ -322,7 +322,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Enable Wartremover only for compilation (not tests)
 
-## [0.5.4]
+## [0.5.4] - 2022-02-01
 ### Added
 - Support cases where `type` is an array in JSONoid object conversion
 - Support enums in JSONoid object conversion
@@ -335,7 +335,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Make JSONoid conversion helper methods private
 - Don't construct `ProductSchema` with a single element during object conversion
 
-## [0.5.3]
+## [0.5.3] - 2022-01-31
 ### Changed
 - Throw a more readable exception if `$ref` or `allOf` are found during conversion
 - Assume something is object type during conversion if it has `properties`
@@ -343,12 +343,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Allow objects with no defined properties when converting to JSONoid
 
-## [0.5.2]
+## [0.5.2] - 2022-01-31
 ### Added
 - `NonEquivalenceRelation` which never merges
 - Also convert `anyOf` and `oneOf` to `ProductSchema` during conversion
 
-## [0.5.1]
+## [0.5.1] - 2022-01-29
 ### Added
 - New `getOrNone` method for `SchemaProperties` which returns an `Option`
 
@@ -356,7 +356,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved ``BuildInfo`` class to inside `discovery` package
 - Update assembly JAR configuration to change name
 
-## [0.5.0]
+## [0.5.0] - 2022-01-28
 ### Added
 - Histograms are tracked for array and string lengths
 - JSON values can be checked for anomalies against a schema
@@ -368,11 +368,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Definition replacement now works for `ProductSchema`
 
-## [0.4.2]
+## [0.4.2] - 2021-10-15
 ### Fixed
 - Don't include `ProductSchema` counts in generated schema
 
-## [0.4.1]
+## [0.4.1] - 2021-10-15
 ### Added
 - Allow `ProductSchema` as a top-level result
 
