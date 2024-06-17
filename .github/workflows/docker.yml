@@ -51,6 +51,7 @@ jobs:
         load: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        push: false
     - name: Test image
       env:
         DOCKER_TAG: ${{ steps.meta.outputs.tags }}
