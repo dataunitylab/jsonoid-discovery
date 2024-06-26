@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
       protobuf,
       snappyJava,
     ),
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+    javacOptions ++= Seq("-source", "11", "-target", "11"),
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
     buildInfoPackage := "io.github.dataunitylab.jsonoid.discovery"
@@ -173,7 +173,7 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(SiteScaladocPlugin)
 
 dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
-dockerBaseImage := "azul/zulu-openjdk:8-jre"
+dockerBaseImage := "azul/zulu-openjdk:11-jre"
 
 gitHubPagesOrgName := "dataunitylab"
 gitHubPagesRepoName := "jsonoid-discovery"

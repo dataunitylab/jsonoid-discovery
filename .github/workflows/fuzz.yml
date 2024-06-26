@@ -12,7 +12,7 @@ jobs:
       uses: coursier/cache-action@v6
     - uses: coursier/setup-action@v1
       with:
-        jvm: adopt:8
+        jvm: zulu:11.0.10
         apps: sbt scala
     - name: Build JAR
       env:
