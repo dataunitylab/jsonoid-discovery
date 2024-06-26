@@ -173,11 +173,7 @@ enablePlugins(JavaAppPackaging)
 enablePlugins(SiteScaladocPlugin)
 
 dockerEntrypoint := Seq("/opt/docker/bin/discover-schema")
-dockerBaseImage := "openjdk:8-alpine"
-dockerCommands ++= Seq(
-  Cmd("USER", "root"),
-  ExecCmd("RUN", "apk", "add", "--no-cache", "bash"),
-)
+dockerBaseImage := "azul/zulu-openjdk:8-jre"
 
 gitHubPagesOrgName := "dataunitylab"
 gitHubPagesRepoName := "jsonoid-discovery"
