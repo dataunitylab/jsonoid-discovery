@@ -13,16 +13,16 @@ For an idea of what JSONoid does, you can view [example schemas with their corre
 <details>
 <summary>Table of Contents</summary>
 
-- [Input/Output Format](#inputoutput-format)
-- [Running](#running)
-- [Compiling](#compiling)
-- [Schema monoids](#schema-monoids)
+- [Input/Output Format :clipboard:](#inputoutput-format-clipboard)
+- [Running :running:](#running-running)
+- [Compiling :construction_worker:](#compiling-construction_worker)
+- [Schema monoids :heavy_multiplication_x:](#schema-monoids-heavy_multiplication_x)
   - [Arrays](#arrays)
   - [Numbers (integer and decimal)](#numbers-integer-and-decimal)
   - [Objects](#objects)
   - [Strings](#strings)
-- [Equivalence relations](#equivalence-relations)
-- [Transformers](#transformers) :robot:
+- [Equivalence relations :left_right_arrow:](#equivalence-relations-left_right_arrow)
+- [Transformers](#transformers)
   - [`DefinitionTransformer`](#definitiontransformer)
   - [`DisjointObjectTransformer`](#disjointobjecttransformer)
   - [`DynamicObjectTransformer`](#dynamicobjecttransformer)
@@ -30,9 +30,9 @@ For an idea of what JSONoid does, you can view [example schemas with their corre
   - [`MergeAllOfTransformer`](#mergealloftransformer)
 - [Apache Spark :sparkles:](#apache-spark-sparkles)
 - [Running tests](#running-tests)
-- [Reporting issues](#reporting-issues)
-- [Datasets](#datasets)
-- [Validation](#validation)
+- [Reporting issues :triangular_flag_on_post:](#reporting-issues-triangular_flag_on_post)
+- [Datasets :file_folder:](#datasets-file_folder)
+- [Validation :white_check_mark:](#validation-white_check_mark)
 
 </details>
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
