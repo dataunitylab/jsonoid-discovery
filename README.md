@@ -22,7 +22,7 @@ For an idea of what JSONoid does, you can view [example schemas with their corre
   - [Objects](#objects)
   - [Strings](#strings)
 - [Equivalence relations](#equivalence-relations)
-- [Transformers](#transformers)
+- [Transformers](#transformers) :robot:
   - [`DefinitionTransformer`](#definitiontransformer)
   - [`DisjointObjectTransformer`](#disjointobjecttransformer)
   - [`DynamicObjectTransformer`](#dynamicobjecttransformer)
@@ -37,7 +37,7 @@ For an idea of what JSONoid does, you can view [example schemas with their corre
 </details>
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Input/Output Format
+## Input/Output Format :clipboard:
 
 JSONoid accepts [newline-delimited JSON](http://ndjson.org/) either from standard input or a file.
 This means there should be exactly one JSON value per line in the input.
@@ -48,7 +48,7 @@ The generated schema will be printed [JSON Schema](https://json-schema.org/) as 
 Note that depending on the configuration, JSONoid will add additional properties which are not part of the JSON Schema standard.
 The format is described in the [JSON Schema Profile](https://github.com/dataunitylab/json-schema-profile) draft and is subject to change..
 
-## Running
+## Running :running:
 
 To quickly run jsonoid, you can use the Docker image which is built from the latest commit on the `main` branch.
 Note that by default, jsonoid accepts [newline-delimited JSON](http://ndjson.org/) on standard input, so it will hang waiting for input.
@@ -61,14 +61,14 @@ To simplify, you may wish to add a shell alias so `jsonoid` can be run directly 
     alias jsonoid='docker run -i --rm michaelmior/jsonoid-discovery'
     jsonoid --help
 
-## Compiling
+## Compiling :construction_worker:
 
 To produce a JAR file which is suitable for running either locally or via Spark, run `sbt assembly`.
 This requires an installation of [sbt](https://www.scala-sbt.org/).
 Alternatively, you can use `./sbtx assembly` to attempt to automatically download install the appropriate sbt and Scala versions using [sbt-extras](https://github.com/dwijnand/sbt-extras).
 This will produce a JAR file under `target/scala-2.13/` which can either be run directly or passed to `spark-submit` to run via Spark.
 
-## Schema monoids
+## Schema monoids :heavy_multiplication_x:
 
 In JSONoid, the primary way information is collected from a schema is using [monoids](https://en.wikipedia.org/wiki/Monoid).
 A monoid simply stores a piece of information extracted from a JSON document along with information on how to combine together information from all documents in a collection in a scalable way.
@@ -108,7 +108,7 @@ For each primitive type, the following monoids are defined.
 - `LengthHistogram`, `MaxLength`, `MinLength` - Both the minimum and maximum length of strings as well as a histogram of all string lengths will be included.
 - `Format` - This attempts to infer a value for the [`pattern`](https://json-schema.org/understanding-json-schema/reference/string.html#regular-expressions) keyword. A pattern is a regular expression which all string values must match. Currently this property simply finds common prefixes and suffixes of strings in the schema.
 
-## Equivalence relations
+## Equivalence relations :left_right_arrow:
 
 The concept of equivalence relations was first introduced by Baazizi et al. in [Parametric schema inference for massive JSON datasets](https://link.springer.com/article/10.1007/s00778-018-0532-7.)
 The idea is that some JSON Schemas may contain some level of variation such as optional values and multiple possible types for a given key.
@@ -185,12 +185,12 @@ The result of the reduction will be a `JsonSchema` object.
 Tests can be run via [ScalaTest](https://www.scalatest.org/) via `sbt test`.
 It is also possible to run fuzz tests via [Jazzer](https://github.com/CodeIntelligenceTesting/jazzer) with `./run-fuzzer.sh`.
 
-## Reporting issues
+## Reporting issues :triangular_flag_on_post:
 
 If you encounter any issues, please open an issue on the [GitHub repository](https://github.com/dataunitylab/jsonoid-discovery).
 Any potential security vulnerabilities should be [reported privately](https://github.com/dataunitylab/jsonoid-discovery/security/advisories/new).
 
-## Datasets
+## Datasets :file_folder:
 
 * [GDP](http://api.worldbank.org/countries/USA/indicators/NY.GDP.MKTP.CD?per_page=5000&format=json)
 * [Nobel Prize](http://api.nobelprize.org/v1/prize.json)
@@ -198,7 +198,7 @@ Any potential security vulnerabilities should be [reported privately](https://gi
 * [Rick and Morty characters](https://rickandmortyapi.com/api/character/)
 * [TVmaze](https://api.tvmaze.com/singlesearch/shows?q=mr-robot&embed=episodes)
 
-## Validation
+## Validation :white_check_mark:
 
 JSONoid also contains a partial implementation of a JSON Schema validator.
 More details on validation can be found [in this repository](https://github.com/dataunitylab/jsonoid-bowtie).
