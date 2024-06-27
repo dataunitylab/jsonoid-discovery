@@ -450,7 +450,7 @@ final case class ItemTypeProperty(
         itemType match {
           case Left(singleType) =>
             arr.zipWithIndex.flatMap { case (schema, index) =>
-              singleType.collectAnomalies(schema, f"${path}[$index]")
+              singleType.collectAnomalies(schema, f"${path}[${index.toString}]")
             }
 
           case Right(typeList) =>
@@ -465,7 +465,8 @@ final case class ItemTypeProperty(
             } else {
               typeList.zip(arr).zipWithIndex.flatMap {
                 case ((schema, arrayValue), index) =>
-                  schema.collectAnomalies(arrayValue, f"${path}[$index]")
+                  schema
+                    .collectAnomalies(arrayValue, f"${path}[${index.toString}]")
               }
             }
         }

@@ -7,6 +7,7 @@ import scala.reflect.ClassTag
 
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 import Helpers._
 import utils.JsonPointer
@@ -515,7 +516,13 @@ trait JsonSchema[T] {
     if (isValidType(value))
       properties.flatMap(_.collectAnomalies(value, path)(p, tag)).toSeq
     else
-      Seq(Anomaly(path, f"${value} has wrong type", AnomalyLevel.Fatal))
+      Seq(
+        Anomaly(
+          path,
+          f"${compact(render(value))} has wrong type",
+          AnomalyLevel.Fatal
+        )
+      )
   }
 
   /** Update a schema to only include a specific set of properties.

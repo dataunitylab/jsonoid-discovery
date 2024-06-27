@@ -4,6 +4,7 @@ package schemas
 import scala.reflect.ClassTag
 
 import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 import Helpers._
 
@@ -61,6 +62,12 @@ final case class NullSchema(
       //
       // Note that we override this behaviour in [[ProductSchema]] since
       // there we are explicitly expecting some non-null value
-      Seq(Anomaly(path, f"${value} is not null", AnomalyLevel.Info))
+      Seq(
+        Anomaly(
+          path,
+          f"${compact(render(value))} is not null",
+          AnomalyLevel.Info
+        )
+      )
   }
 }

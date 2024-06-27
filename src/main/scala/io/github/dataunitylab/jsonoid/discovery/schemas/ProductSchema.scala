@@ -7,6 +7,7 @@ import scala.reflect.ClassTag
 
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.json4s.jackson.JsonMethods._
 
 import Helpers._
 import utils.JsonPointer
@@ -421,7 +422,13 @@ final case class ProductSchemaTypesProperty(
           Seq.empty
         } else {
           val maxLevel = maxAnomalyLevels.flatten.max
-          Seq(Anomaly(path, f"failed match for ${value} in schema", maxLevel))
+          Seq(
+            Anomaly(
+              path,
+              f"failed match for ${compact(render(value))} in schema",
+              maxLevel
+            )
+          )
         }
 
       // At least one schema must have no anomalies or only info level
@@ -434,7 +441,13 @@ final case class ProductSchemaTypesProperty(
           Seq.empty
         } else {
           val maxLevel = maxAnomalyLevels.flatten.max
-          Seq(Anomaly(path, f"failed match for ${value} in schema", maxLevel))
+          Seq(
+            Anomaly(
+              path,
+              f"failed match for ${compact(render(value))} in schema",
+              maxLevel
+            )
+          )
         }
 
       // Info anomalies are fine in multiple schemas
@@ -447,12 +460,18 @@ final case class ProductSchemaTypesProperty(
           // We take the lowest anomaly level from each schema
           // since this is the schema with the closest match
           val minAnomalyLevel = maxAnomalyLevels.flatten.min
-          Seq(Anomaly(path, f"no matches found for ${value}", minAnomalyLevel))
+          Seq(
+            Anomaly(
+              path,
+              f"no matches found for ${compact(render(value))}",
+              minAnomalyLevel
+            )
+          )
         } else {
           Seq(
             Anomaly(
               path,
-              f"multiple matches found for ${value}",
+              f"multiple matches found for ${compact(render(value))}",
               AnomalyLevel.Fatal
             )
           )

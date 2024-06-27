@@ -6,7 +6,7 @@ import schemas._
 class DisjointObjectTransformerSpec extends UnitSpec {
   behavior of "DisjointObjectTransformer"
 
-  implicit val propSet = PropertySets.AllProperties
+  implicit val propSet: PropertySet = PropertySets.AllProperties
 
   it should "replace disjoint objects with a product schema" in {
     val obj1 =

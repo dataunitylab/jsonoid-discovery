@@ -111,7 +111,7 @@ class ObjectSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
   it should "pass through anomalies from matches schemas" in {
     PatternTypesProperty(Map("^foo.*".r -> NumberSchema(3)))
       .collectAnomalies(JObject(List(("foobar", JBool(true))))) shouldEqual Seq(
-      Anomaly("$.foobar", "JBool(true) has wrong type", AnomalyLevel.Fatal)
+      Anomaly("$.foobar", "true has wrong type", AnomalyLevel.Fatal)
     )
   }
 

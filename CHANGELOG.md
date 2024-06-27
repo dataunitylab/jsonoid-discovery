@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix some anomaly checking with `additionalProperties`
 
 ### Changed
+- Update to Scala 2.13.14
 - Update to Java 11
 - Change base image for Docker container
 - Set build timestamp for reproducible builds
