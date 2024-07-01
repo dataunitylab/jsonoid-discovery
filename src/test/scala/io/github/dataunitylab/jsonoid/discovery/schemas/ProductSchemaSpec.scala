@@ -187,9 +187,9 @@ class ProductSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       anomalous: Boolean
   ): Unit = {
     it should s"${if (anomalous) ""
-    else "not "}find anomalies for a ProductSchema using ${productType} and ${matchCount} ${if (matchCount == 1)
-      "match"
-    else "matches"}" in {
+      else "not "}find anomalies for a ProductSchema using ${productType} and ${matchCount} ${if (matchCount == 1)
+        "match"
+      else "matches"}" in {
       val schemas =
         List(stringSchemaWithMinLength(1), stringSchemaWithMinLength(2))
 
