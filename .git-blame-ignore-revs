@@ -1,4 +1,6 @@
 # .git-blame-ignore-revs
+# Update scalafmt
+74d12812efcc89d52f0e77c39f3095e2947367ba
 # Update code style
 ede1cc58290781e51345cd38d7859d78e1696f4b
 # Fix scalafmt errors
