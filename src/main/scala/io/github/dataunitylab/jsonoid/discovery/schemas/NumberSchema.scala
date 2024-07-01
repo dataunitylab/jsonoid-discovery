@@ -208,9 +208,12 @@ final case class NumberSchema(
 
 /** Tracks the minimum value of all numbers.
   *
-  * @constructor Create a new minimum numbers value property
-  * @param minNumValue the minimum value
-  * @param exclusive whether the minimum value is exclusive
+  * @constructor
+  *   Create a new minimum numbers value property
+  * @param minNumValue
+  *   the minimum value
+  * @param exclusive
+  *   whether the minimum value is exclusive
   */
 final case class MinNumValueProperty(
     minNumValue: Option[BigDecimal] = None,
@@ -336,9 +339,12 @@ final case class MinNumValueProperty(
 
 /** Tracks the maximum value of all numbers.
   *
-  * @constructor Create a new maximum numbers value property
-  * @param maxNumValue the maximum value
-  * @param exclusive whether the maximum value is exclusive
+  * @constructor
+  *   Create a new maximum numbers value property
+  * @param maxNumValue
+  *   the maximum value
+  * @param exclusive
+  *   whether the maximum value is exclusive
   */
 final case class MaxNumValueProperty(
     maxNumValue: Option[BigDecimal] = None,
@@ -465,8 +471,10 @@ final case class MaxNumValueProperty(
 
 /** Tracks the estimated cardinality of the set of number values.
   *
-  * @constructor Create a new HLL property
-  * @param hll the HyperLogLog data structure used to track the cardinality
+  * @constructor
+  *   Create a new HLL property
+  * @param hll
+  *   the HyperLogLog data structure used to track the cardinality
   */
 final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
     extends SchemaProperty[BigDecimal] {
@@ -512,8 +520,10 @@ final case class NumHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
 
 /** Tracks possible numbers which can be contained in the set
   *
-  * @constructor Create a new number Bloom filter property
-  * @param bloomFilter the Bloom filter used to track the set of numbers
+  * @constructor
+  *   Create a new number Bloom filter property
+  * @param bloomFilter
+  *   the Bloom filter used to track the set of numbers
   */
 final case class NumBloomFilterProperty(
     bloomFilter: BloomFilter[Double] = BloomFilter[Double]()
@@ -587,8 +597,10 @@ final case class NumBloomFilterProperty(
 
 /** Tracks statistics on the numbers in this set
   *
-  * @constructor Create a new number statistics property
-  * @param stats the statistics used to track the set of numbers
+  * @constructor
+  *   Create a new number statistics property
+  * @param stats
+  *   the statistics used to track the set of numbers
   */
 final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
     extends SchemaProperty[BigDecimal] {
@@ -617,8 +629,10 @@ final case class NumStatsProperty(stats: StatsProperty = StatsProperty())
 
 /** Tracks examples observed for these numbers.
   *
-  * @constructor Create a new number examples property
-  * @param examples the example numbers observed
+  * @constructor
+  *   Create a new number examples property
+  * @param examples
+  *   the example numbers observed
   */
 final case class NumExamplesProperty(
     examples: ExamplesProperty[BigDecimal] = ExamplesProperty()
@@ -752,8 +766,10 @@ final case class NumMultipleOfProperty(
 
 /** Tracks a histogram of number values.
   *
-  * @constructor Create a new number histogram property
-  * @param histogram a histogram of number values
+  * @constructor
+  *   Create a new number histogram property
+  * @param histogram
+  *   a histogram of number values
   */
 final case class NumHistogramProperty(
     histogram: Histogram = Histogram()

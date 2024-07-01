@@ -186,8 +186,10 @@ final case class StringSchema(
 
 /** Tracks the minimum length of strings.
   *
-  * @constructor Create a new minimum string length property
-  * @param minLength the minimum string length
+  * @constructor
+  *   Create a new minimum string length property
+  * @param minLength
+  *   the minimum string length
   */
 final case class MinLengthProperty(minLength: Option[Int] = None)
     extends SchemaProperty[String] {
@@ -270,8 +272,10 @@ final case class MinLengthProperty(minLength: Option[Int] = None)
 
 /** Tracks the maximum length of strings.
   *
-  * @constructor Create a new maximum string length property
-  * @param maxLength the maximum string length
+  * @constructor
+  *   Create a new maximum string length property
+  * @param maxLength
+  *   the maximum string length
   */
 final case class MaxLengthProperty(maxLength: Option[Int] = None)
     extends SchemaProperty[String] {
@@ -350,8 +354,10 @@ final case class MaxLengthProperty(maxLength: Option[Int] = None)
 
 /** Tracks the estimated cardinality of the set of string values.
   *
-  * @constructor Create a new HLL property
-  * @param hll the HyperLogLog data structure used to track the cardinality
+  * @constructor
+  *   Create a new HLL property
+  * @param hll
+  *   the HyperLogLog data structure used to track the cardinality
   */
 final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
     extends SchemaProperty[String] {
@@ -390,8 +396,10 @@ final case class StringHyperLogLogProperty(hll: HyperLogLog = new HyperLogLog())
 
 /** Tracks possible strings which can be contained in the set
   *
-  * @constructor Create a new string Bloom filter property
-  * @param bloomFilter the Bloom filter used to track the set of strings
+  * @constructor
+  *   Create a new string Bloom filter property
+  * @param bloomFilter
+  *   the Bloom filter used to track the set of strings
   */
 final case class StringBloomFilterProperty(
     bloomFilter: BloomFilter[String] = BloomFilter[String]()
@@ -448,8 +456,10 @@ final case class StringBloomFilterProperty(
 
 /** Tracks examples observed for these strings.
   *
-  * @constructor Create a new string examples property
-  * @param examples the example strings observed
+  * @constructor
+  *   Create a new string examples property
+  * @param examples
+  *   the example strings observed
   */
 final case class StringExamplesProperty(
     examples: ExamplesProperty[String] = ExamplesProperty()
@@ -480,7 +490,7 @@ final case class StringExamplesProperty(
 object FormatProperty {
 
   /** The minimum number of examples of a formatted string that must be
-    *  observed.
+    * observed.
     */
   val MinExamples: Int = 10
 
@@ -550,8 +560,10 @@ object FormatProperty {
 
 /** Tracks the possible formats for string values.
   *
-  * @constructor Create a new string format property
-  * @param formats a map from formats to a count of observed examples
+  * @constructor
+  *   Create a new string format property
+  * @param formats
+  *   a map from formats to a count of observed examples
   */
 final case class FormatProperty(
     formats: Map[String, BigInt] = Map.empty[String, BigInt]
@@ -676,11 +688,16 @@ object PatternProperty {
 
 /** Tracks the possible patterns for string values.
   *
-  * @constructor Create a new string pattern property
-  * @param prefix a possible common prefix of strings
-  * @param suffix a possible common suffix of strings
-  * @param examples the total number of observed examples
-  * @param minLength the minimum observed length of a string
+  * @constructor
+  *   Create a new string pattern property
+  * @param prefix
+  *   a possible common prefix of strings
+  * @param suffix
+  *   a possible common suffix of strings
+  * @param examples
+  *   the total number of observed examples
+  * @param minLength
+  *   the minimum observed length of a string
   */
 final case class PatternProperty(
     prefix: Option[String] = None,
@@ -821,8 +838,10 @@ final case class PatternProperty(
 
 /** Represents patterns read in from a serialized JSON Schema.
   *
-  * @constructor Create a new static string pattern property
-  * @param regex a regular expression which represents the pattern to match
+  * @constructor
+  *   Create a new static string pattern property
+  * @param regex
+  *   a regular expression which represents the pattern to match
   */
 final case class StaticPatternProperty(regex: Regex)
     extends SchemaProperty[String] {
@@ -888,8 +907,10 @@ final case class StaticPatternProperty(regex: Regex)
 
 /** Tracks a histogram of string lengths.
   *
-  * @constructor Create a new string length histogram property
-  * @param histogram a histogram of string lengths
+  * @constructor
+  *   Create a new string length histogram property
+  * @param histogram
+  *   a histogram of string lengths
   */
 final case class StringLengthHistogramProperty(
     histogram: Histogram = Histogram()
@@ -945,8 +966,10 @@ final case class StringLengthHistogramProperty(
 
 /** Tracks a possible numeric schema.
   *
-  * @constructor Create a new numeric string schema property
-  * @param numericSchema a possible numeric schema
+  * @constructor
+  *   Create a new numeric string schema property
+  * @param numericSchema
+  *   a possible numeric schema
   */
 final case class StringNumericProperty(
     numericSchema: Option[NumberSchema] = None,

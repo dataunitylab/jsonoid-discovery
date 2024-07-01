@@ -4,11 +4,11 @@ package io.github.dataunitylab.jsonoid.discovery
 sealed trait MergeType {}
 
 /** Merge schemas by taking their union, producing a schema that will accept the
-  *  all documents accepted by either schema.
+  * all documents accepted by either schema.
   */
 case object Union extends MergeType {}
 
 /** Merge schemas by taking their intersection, producing a schema that will
-  *  accept the all documents accepted by both schemas.
+  * accept the all documents accepted by both schemas.
   */
 case object Intersect extends MergeType {}

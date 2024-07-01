@@ -12,16 +12,20 @@ import utils.JsonPointer
 
 /** Used to calculate similarity fuzzy sets located at two paths.
   *
-  * @constructor Create a new similarity fuzzy set calculator.
-  * @param fuzzySets a map of fuzzy sets to paths
+  * @constructor
+  *   Create a new similarity fuzzy set calculator.
+  * @param fuzzySets
+  *   a map of fuzzy sets to paths
   */
 final case class SimilarityMetric(val fuzzySets: Map[String, FuzzySet[String]])
     extends DistanceMetric[String] {
 
   /** Calculate the distance between the fuzzy sets at two paths.
     *
-    * @param path1 the first path
-    * @param path2 the second path
+    * @param path1
+    *   the first path
+    * @param path2
+    *   the second path
     */
   def calculateDistance(path1: String, path2: String): Double = {
     // Look up the set based on path, calculate similarity, and invert it
@@ -41,8 +45,10 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
 
   /** Convert a JSON Path value into a JSON Pointer.
     *
-    * @param path the JSON Path value
-    * @return the JSON Pointer
+    * @param path
+    *   the JSON Path value
+    * @return
+    *   the JSON Pointer
     */
   def pathToPointer(path: String): JsonPointer = {
     // Path must not be empty
@@ -55,9 +61,12 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
 
   /** Transform the schema to replace repeated structures.
     *
-    * @param schema the schema to transform
-    * @param addObject whether to capture the object within the created reference
-    * @return the transformed schema
+    * @param schema
+    *   the schema to transform
+    * @param addObject
+    *   whether to capture the object within the created reference
+    * @return
+    *   the transformed schema
     */
   @SuppressWarnings(
     Array(
@@ -151,8 +160,10 @@ object DefinitionTransformer extends SchemaWalker[FuzzySet[String]] {
 
   /** Find clusters of similar nested keyswithin the schema.
     *
-    * @param schema the schema to cluster
-    * @return a set of set of paths which are clusters
+    * @param schema
+    *   the schema to cluster
+    * @return
+    *   a set of set of paths which are clusters
     */
   def findClusters(schema: JsonSchema[_]): Set[Set[String]] = {
     // Build fuzzy sets representing key occurrence in all objects

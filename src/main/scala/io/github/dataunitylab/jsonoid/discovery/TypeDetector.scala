@@ -5,7 +5,7 @@ import scala.util.Try
 import org.json4s._
 
 /** Provides the ability to detect the schema type of a serialized JSON Schema
-  *  object without `type` based on other available properties.
+  * object without `type` based on other available properties.
   */
 object TypeDetector {
 

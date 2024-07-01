@@ -13,8 +13,10 @@ object JsonoidRDD {
 
   /** Create a JSONoid RDD from an RDD of JSON strings.
     *
-    * @param rdd the RDD of JSON strings
-    * @param propSet the set of properties which should be discovered
+    * @param rdd
+    *   the RDD of JSON strings
+    * @param propSet
+    *   the set of properties which should be discovered
     */
   def fromStringRDD(
       rdd: RDD[String]

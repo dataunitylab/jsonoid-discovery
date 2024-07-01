@@ -6,8 +6,10 @@ import utils.HyperLogLog
 
 /** Represents a discovered primary key.
   *
-  * @constructor Create a new primary key with two paths.
-  * @param path the path of the primary key
+  * @constructor
+  *   Create a new primary key with two paths.
+  * @param path
+  *   the path of the primary key
   */
 final case class PrimaryKey(path: String)
 
@@ -19,12 +21,18 @@ object PrimaryKeyFeatures {
 
 /** A set of features used to score primary key candidates.
   *
-  * @constructor Create a new set of primary key features.
-  * @param maxCount the maximum cardinality of values at this path
-  * @param hasPrefixOrSuffix whether the path has a prefix or suffix common to primary keys
-  * @param depth the depth of the primary key in the JSON document
-  * @param idType the type of the primary key
-  * @param maxLength the maximum length of all prinary key values
+  * @constructor
+  *   Create a new set of primary key features.
+  * @param maxCount
+  *   the maximum cardinality of values at this path
+  * @param hasPrefixOrSuffix
+  *   whether the path has a prefix or suffix common to primary keys
+  * @param depth
+  *   the depth of the primary key in the JSON document
+  * @param idType
+  *   the type of the primary key
+  * @param maxLength
+  *   the maximum length of all prinary key values
   */
 final case class PrimaryKeyFeatures(
     maxCount: Double,
@@ -141,9 +149,11 @@ object PrimaryKeyFinder extends SchemaWalker[PrimaryKeyFeatures] {
 
   /** Find a list of possible primary keys in a schema.
     *
-    * @param schema the schema to search for primary keys
+    * @param schema
+    *   the schema to search for primary keys
     *
-    * @return a list of possible primary keys
+    * @return
+    *   a list of possible primary keys
     */
   def findPrimaryKeys(schema: JsonSchema[_]): List[PrimaryKey] = {
     schema match {

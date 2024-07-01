@@ -6,10 +6,10 @@ import schemas._
 
 /** Use entropy calculations to detect objects with dynamic keys
   *
-  *  This implements the approach from "Reducing Ambiguity in Json Schema
-  *  Discovery" by Spoth et al.
+  * This implements the approach from "Reducing Ambiguity in Json Schema
+  * Discovery" by Spoth et al.
   *
-  *  https://dl.acm.org/doi/abs/10.1145/3448016.3452801
+  * https://dl.acm.org/doi/abs/10.1145/3448016.3452801
   */
 object DynamicObjectTransformer extends SchemaWalker[ObjectSchema] {
   @SuppressWarnings(Array("org.wartremover.warts.Var"))

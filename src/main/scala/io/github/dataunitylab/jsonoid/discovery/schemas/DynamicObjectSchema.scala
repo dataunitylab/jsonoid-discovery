@@ -111,8 +111,10 @@ final case class DynamicObjectSchema(
 
 /** The type of the values in a dynamic object schema.
   *
-  * @constructor Create a new dynamic object type property.
-  * @param valueType the type of the object value
+  * @constructor
+  *   Create a new dynamic object type property.
+  * @param valueType
+  *   the type of the object value
   */
 final case class DynamicObjectTypeProperty(
     valueType: JsonSchema[_] = ZeroSchema()

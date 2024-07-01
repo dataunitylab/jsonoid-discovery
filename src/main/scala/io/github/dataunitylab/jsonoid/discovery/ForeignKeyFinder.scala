@@ -5,9 +5,12 @@ import utils.BloomFilter
 
 /** Represents a discovered foreign key.
   *
-  * @constructor Create a new foreign key with two paths.
-  * @param localPath the path of the referencing property
-  * @param foreignPath the path of the referenced property
+  * @constructor
+  *   Create a new foreign key with two paths.
+  * @param localPath
+  *   the path of the referencing property
+  * @param foreignPath
+  *   the path of the referenced property
   */
 final case class ForeignKey(localPath: String, foreignPath: String)
 
@@ -17,8 +20,10 @@ object ForeignKeyFinder extends SchemaWalker[BloomFilter[_]] {
 
   /** Collect Bloom filters of all types in the schemas.
     *
-    * @param schemas the schemas to search for filters
-    * @return a map from paths to Bloom filters
+    * @param schemas
+    *   the schemas to search for filters
+    * @return
+    *   a map from paths to Bloom filters
     */
   private def collectFiltersByPath(
       schema: JsonSchema[_]
@@ -37,7 +42,8 @@ object ForeignKeyFinder extends SchemaWalker[BloomFilter[_]] {
 
   /** Returns a list of possible foreign keys.
     *
-    * @param schema the schema to search for foreign keys
+    * @param schema
+    *   the schema to search for foreign keys
     */
   def findForeignKeys(schema: JsonSchema[_]): List[ForeignKey] = {
     val filters = collectFiltersByPath(schema)

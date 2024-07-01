@@ -3,13 +3,20 @@ package schemas
 
 /** Sets of properties which can be used during schema discovery.
   *
-  * @constructor Create a new set of properties
-  * @param arrayProperties properties related to [[ArraySchema]]
-  * @param booleanProperties properties related to [[BooleanSchema]]
-  * @param integerProperties properties related to [[IntegerSchema]]
-  * @param numberProperties properties related to [[NumberSchema]]
-  * @param objectPropperties properties related to [[ObjectSchema]]
-  * @param stringProperties properties related to [[StringSchema]]
+  * @constructor
+  *   Create a new set of properties
+  * @param arrayProperties
+  *   properties related to [[ArraySchema]]
+  * @param booleanProperties
+  *   properties related to [[BooleanSchema]]
+  * @param integerProperties
+  *   properties related to [[IntegerSchema]]
+  * @param numberProperties
+  *   properties related to [[NumberSchema]]
+  * @param objectPropperties
+  *   properties related to [[ObjectSchema]]
+  * @param stringProperties
+  *   properties related to [[StringSchema]]
   */
 final case class PropertySet(
     val arrayProperties: SchemaProperties[List[JsonSchema[_]]],
@@ -20,12 +27,13 @@ final case class PropertySet(
     val stringProperties: SchemaProperties[String]
 ) {
 
-  /** Create a new property set without the
-    *  specific sequence of properties.
+  /** Create a new property set without the specific sequence of properties.
     *
-    * @param propClasses the property classes to exclude
+    * @param propClasses
+    *   the property classes to exclude
     *
-    * @return a new property set without the given properties
+    * @return
+    *   a new property set without the given properties
     */
   def without(propClasses: Seq[Class[_]]): PropertySet = {
     PropertySet(
@@ -38,12 +46,14 @@ final case class PropertySet(
     )
   }
 
-  /** Create a new property set without the
-    *  specific sequence of named properties.
+  /** Create a new property set without the specific sequence of named
+    * properties.
     *
-    * @param propNames the property names to exclude
+    * @param propNames
+    *   the property names to exclude
     *
-    * @return a new property set without the given properties
+    * @return
+    *   a new property set without the given properties
     */
   def withoutNamed(propNames: Seq[String]): PropertySet = {
     val propClasses = propNames.map(c =>
@@ -52,12 +62,13 @@ final case class PropertySet(
     without(propClasses)
   }
 
-  /** Create a new property set with only the
-    *  specific sequence of properties.
+  /** Create a new property set with only the specific sequence of properties.
     *
-    * @param propClasses the property classes to include
+    * @param propClasses
+    *   the property classes to include
     *
-    * @return a new property set with only the given properties
+    * @return
+    *   a new property set with only the given properties
     */
   def only(propClasses: Seq[Class[_]]): PropertySet = {
     PropertySet(
@@ -73,9 +84,11 @@ final case class PropertySet(
   /** Create a new property set with only the specific sequence of named
     * properties.
     *
-    * @param propNames the property names to include
+    * @param propNames
+    *   the property names to include
     *
-    * @return a new property set with only the named properties
+    * @return
+    *   a new property set with only the named properties
     */
   def onlyNamed(propNames: Seq[String]): PropertySet = {
     val propClasses = propNames.map(c =>
@@ -99,7 +112,7 @@ object PropertySets {
   )
 
   /** A property set with the minimum set of properties to discover structural
-    *  information..
+    * information..
     */
   val MinProperties: PropertySet = PropertySet(
     ArraySchema.MinProperties,

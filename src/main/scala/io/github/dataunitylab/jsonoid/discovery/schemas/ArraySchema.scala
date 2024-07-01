@@ -301,8 +301,11 @@ final case class ArraySchema(
 
 /** The type of item stored in this array schema.
   *
-  * @constructor Create a new item type property.
-  * @param itemType either `Left` for a single item type or `Right` for a tuple schema with multiple types
+  * @constructor
+  *   Create a new item type property.
+  * @param itemType
+  *   either `Left` for a single item type or `Right` for a tuple schema with
+  *   multiple types
   */
 final case class ItemTypeProperty(
     itemType: Either[JsonSchema[_], List[JsonSchema[_]]] = Left(ZeroSchema()),
@@ -500,9 +503,9 @@ final case class ItemTypeProperty(
       // Corresponding types must match
       case (Right(schemas1), Right(schemas2)) =>
         schemas1.length == schemas2.length &&
-          (!recursive || schemas1
-            .zip(schemas2)
-            .forall({ case (s1, s2) => s1.isSubsetOf(s2) }))
+        (!recursive || schemas1
+          .zip(schemas2)
+          .forall({ case (s1, s2) => s1.isSubsetOf(s2) }))
     }
   }
 
@@ -551,8 +554,10 @@ final case class ItemTypeProperty(
 
 /** Tracks the minimum number of items in the array.
   *
-  * @constructor Create a new minimum items property
-  * @param minItems the minimum number of items in the array
+  * @constructor
+  *   Create a new minimum items property
+  * @param minItems
+  *   the minimum number of items in the array
   */
 final case class MinItemsProperty(minItems: Option[Int] = None)
     extends SchemaProperty[List[JsonSchema[_]]] {

@@ -4,13 +4,13 @@ import schemas._
 
 import scala.util.matching.Regex
 
-/** A helper trait for any class that needs to walk a schema and build a map
-  * of values collected from the properties.
+/** A helper trait for any class that needs to walk a schema and build a map of
+  * values collected from the properties.
   */
 trait SchemaWalker[T] {
 
   /** Helper for [[extractValues]] that extracts a sequence of values from a
-    *  single schema without recursion.
+    * single schema without recursion.
     */
   private def extractSingle(
       schema: JsonSchema[_],
@@ -126,11 +126,15 @@ trait SchemaWalker[T] {
   /** Recursively extracts values from a schema to build a map from paths to the
     * extracted values.
     *
-    * @param schema the schema to extract values from
-    * @param extractor a function that extracts values from a single schema
-    * @param follow a function that returns true if the traversal should continue
+    * @param schema
+    *   the schema to extract values from
+    * @param extractor
+    *   a function that extracts values from a single schema
+    * @param follow
+    *   a function that returns true if the traversal should continue
     *
-    * @return a map from paths to the extracted values
+    * @return
+    *   a map from paths to the extracted values
     */
   def walk(
       schema: JsonSchema[_],

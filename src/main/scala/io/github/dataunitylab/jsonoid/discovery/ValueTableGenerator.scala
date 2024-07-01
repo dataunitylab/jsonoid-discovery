@@ -12,8 +12,10 @@ object ValueTableGenerator extends SchemaWalker[List[String]] {
 
   /** Write a table of observed values to the given output stream.
     *
-    * @param schema the schema whose values should be written
-    * @param output the output stream to write to
+    * @param schema
+    *   the schema whose values should be written
+    * @param output
+    *   the output stream to write to
     */
   def writeValueTable(schema: JsonSchema[_], output: OutputStream): Unit = {
     val exampleExtractor

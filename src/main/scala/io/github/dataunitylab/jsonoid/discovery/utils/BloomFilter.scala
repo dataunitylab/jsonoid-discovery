@@ -34,8 +34,10 @@ object BloomFilter {
 
 /** A serializable Bloom filter implementation based on a Roaring bitmap.
   *
-  * @constructor Create a new Bloom filter
-  * @param filter the underlying bitmap for the Bloom filter
+  * @constructor
+  *   Create a new Bloom filter
+  * @param filter
+  *   the underlying bitmap for the Bloom filter
   */
 @SerialVersionUID(226119492812308295L)
 final case class BloomFilter[T](

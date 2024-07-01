@@ -280,11 +280,16 @@ case object OneOf extends ProductType {
 
 /** The types of all values in a product schema.
   *
-  * @constructor Create a new product schema types property.
-  * @param baseSchema a schema which all values in the product schema are compatible with
-  * @param schemaTypes the types of each value in the product schema
-  * @param schemaCounts the number of values in each type in the product schema
-  * @param productType the type of the product schema
+  * @constructor
+  *   Create a new product schema types property.
+  * @param baseSchema
+  *   a schema which all values in the product schema are compatible with
+  * @param schemaTypes
+  *   the types of each value in the product schema
+  * @param schemaCounts
+  *   the number of values in each type in the product schema
+  * @param productType
+  *   the type of the product schema
   */
 final case class ProductSchemaTypesProperty(
     val baseSchema: JsonSchema[_] = AnySchema(),

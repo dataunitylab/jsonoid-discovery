@@ -15,7 +15,9 @@ import com.github.prasanthj.hll.{HyperLogLog => HLL, HyperLogLogUtils}
 object HyperLogLog {
   implicit def unwrapHLL(hll: HyperLogLog): HLL = hll.hll
 
-  /** The default number of register index bits to use in the HLL data structure. */
+  /** The default number of register index bits to use in the HLL data
+    * structure.
+    */
   val DefaultRegisterIndexBits: Int = 10
 }
 

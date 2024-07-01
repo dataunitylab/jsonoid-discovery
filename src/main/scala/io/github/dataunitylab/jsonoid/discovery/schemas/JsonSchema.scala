@@ -204,7 +204,7 @@ object JsonSchema {
   }
 
   /** Helper function for [[fromJsonObjectValue]]i to build a product schema
-    *  from a list of serialized schema objects.
+    * from a list of serialized schema objects.
     */
   private def productFromJsons(
       baseSchema: JsonSchema[_],
@@ -269,8 +269,10 @@ trait JsonSchema[T] {
 
   /** Add a new definition to the set of [[definitions]].
     *
-    * @param definition the new definition to add
-    * @param name the name of the definition
+    * @param definition
+    *   the new definition to add
+    * @param name
+    *   the name of the definition
     */
   @SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements"))
   def addDefinition(definition: JsonSchema[_], name: String): Unit =
@@ -315,10 +317,13 @@ trait JsonSchema[T] {
 
   /** Merge multiple schemas together.
     *
-    * @param other the schema to merge with
-    * @param mergeType the type of merge to perform
+    * @param other
+    *   the schema to merge with
+    * @param mergeType
+    *   the type of merge to perform
     *
-    * @return the merged schema
+    * @return
+    *   the merged schema
     */
   @SuppressWarnings(
     Array(
@@ -360,8 +365,8 @@ trait JsonSchema[T] {
     */
   def copy(properties: SchemaProperties[T]): JsonSchema[T]
 
-  /** Create a copy of this schema with the same set of properties, but with each
-    * property set to their default value.
+  /** Create a copy of this schema with the same set of properties, but with
+    * each property set to their default value.
     */
   def copyWithReset()(implicit p: JsonoidParams): JsonSchema[T] = {
     copy(properties.copyWithReset()(p))
@@ -370,10 +375,13 @@ trait JsonSchema[T] {
   /** Transform all the properties in this schema and any nested schemas
     * according to a specified function.
     *
-    * @param transformer the function to transform the properties
-    * @param transformBase whether to also transform this schema
+    * @param transformer
+    *   the function to transform the properties
+    * @param transformBase
+    *   whether to also transform this schema
     *
-    * @return a new schema with transformed properties
+    * @return
+    *   a new schema with transformed properties
     */
   def transformProperties(
       transformer: PartialFunction[JsonSchema[_], JsonSchema[_]],
@@ -396,9 +404,12 @@ trait JsonSchema[T] {
     * which array element is being used or which schema within a
     * [[ProductSchema]] is being referenced.
     *
-    * @param transformer the function to transform the properties
-    * @param transformBase whether to also transform this schema
-    * @param path the base of the inexact path
+    * @param transformer
+    *   the function to transform the properties
+    * @param transformBase
+    *   whether to also transform this schema
+    * @param path
+    *   the base of the inexact path
     */
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def transformPropertiesWithInexactPath(
@@ -439,10 +450,13 @@ trait JsonSchema[T] {
 
   /** Replace a schema at a particular pointer with a new schema.
     *
-    * @param pointer the JSON pointer to the schema to replace
-    * @param replaceSchema the schema to replace with
+    * @param pointer
+    *   the JSON pointer to the schema to replace
+    * @param replaceSchema
+    *   the schema to replace with
     *
-    * @return a new schema with the referenced schema replaced
+    * @return
+    *   a new schema with the referenced schema replaced
     */
   def replaceWithSchema(
       pointer: JsonPointer,
@@ -450,13 +464,18 @@ trait JsonSchema[T] {
   )(implicit p: JsonoidParams): JsonSchema[_] =
     this
 
-  /** Replace a schema at a particular pointer with a reference to another schema.
+  /** Replace a schema at a particular pointer with a reference to another
+    * schema.
     *
-    * @param pointer the JSON pointer to the schema to replace
-    * @param reference the reference to use in the new schema
-    * @param obj an optional object which represents the referenced schema
+    * @param pointer
+    *   the JSON pointer to the schema to replace
+    * @param reference
+    *   the reference to use in the new schema
+    * @param obj
+    *   an optional object which represents the referenced schema
     *
-    * @return a new schema with a reference
+    * @return
+    *   a new schema with a reference
     */
   def replaceWithReference(
       pointer: JsonPointer,
@@ -467,10 +486,13 @@ trait JsonSchema[T] {
 
   /** Whether a value at a particular path is anomalous.
     *
-    * @param value the value to check for anomalies
-    * @param path the path where this anomaly is being checked
+    * @param value
+    *   the value to check for anomalies
+    * @param path
+    *   the path where this anomaly is being checked
     *
-    * @return true if the value is anomalous, false otherwise
+    * @return
+    *   true if the value is anomalous, false otherwise
     */
   def isAnomalous[S <: JValue](
       value: S,
@@ -484,10 +506,13 @@ trait JsonSchema[T] {
 
   /** Whether a value at a particular path is anomalous.
     *
-    * @param value the value to check for anomalies
-    * @param path the path where this anomaly is being checked
+    * @param value
+    *   the value to check for anomalies
+    * @param path
+    *   the path where this anomaly is being checked
     *
-    * @return true if the value is anomalous, false otherwise
+    * @return
+    *   true if the value is anomalous, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
   def maxAnomalyLevel[S <: JValue](
@@ -504,10 +529,13 @@ trait JsonSchema[T] {
 
   /** Produce a list of anomalies when validating a given value.
     *
-    * @param value the value to check for anomalies
-    * @param path the path where this anomaly is being checked
+    * @param value
+    *   the value to check for anomalies
+    * @param path
+    *   the path where this anomaly is being checked
     *
-    * @return a sequence of anomalies observed for this value
+    * @return
+    *   a sequence of anomalies observed for this value
     */
   def collectAnomalies[S <: JValue](
       value: S,
@@ -527,9 +555,11 @@ trait JsonSchema[T] {
 
   /** Update a schema to only include a specific set of properties.
     *
-    * @param props the properties to include
+    * @param props
+    *   the properties to include
     *
-    * @return a new schema with only the specified properties
+    * @return
+    *   a new schema with only the specified properties
     */
   def onlyProperties(props: Seq[Class[_]]): JsonSchema[T] = {
     val copyProps =
@@ -547,9 +577,11 @@ trait JsonSchema[T] {
 
   /** Update a schema to only include a specific named set of properties.
     *
-    * @param props the names properties to include
+    * @param props
+    *   the names properties to include
     *
-    * @return a new schema with only the specified properties
+    * @return
+    *   a new schema with only the specified properties
     */
   def onlyPropertiesNamed(props: Seq[String]): JsonSchema[T] = {
     onlyProperties(
@@ -561,10 +593,13 @@ trait JsonSchema[T] {
 
   /** Find incompatibilities with this schema and another schema.
     *
-    * @param other the other schema to compare with
-    * @param recursive whether to recursively compare the schemas
+    * @param other
+    *   the other schema to compare with
+    * @param recursive
+    *   whether to recursively compare the schemas
     *
-    * @return a sequence of properties which are incompatible
+    * @return
+    *   a sequence of properties which are incompatible
     */
   def findIncompatibilities(
       other: JsonSchema[_],
@@ -574,10 +609,13 @@ trait JsonSchema[T] {
 
   /** Check whether this schema is compatible with antoher schema.
     *
-    * @param other the other schema to compare with
-    * @param recursive whether to recursively compare the schemas
+    * @param other
+    *   the other schema to compare with
+    * @param recursive
+    *   whether to recursively compare the schemas
     *
-    * @return true if this schema is compatible with the other, false otherwise
+    * @return
+    *   true if this schema is compatible with the other, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def isSubsetOf(
@@ -602,9 +640,11 @@ trait JsonSchema[T] {
 
   /** Expand this schema to be compatible with another schema if possible.
     *
-    * @param other the other schema to expand to
+    * @param other
+    *   the other schema to expand to
     *
-    * @return a possibly expanded schema to be compatible with the other
+    * @return
+    *   a possibly expanded schema to be compatible with the other
     */
   @SuppressWarnings(
     Array("org.wartremover.warts.Equals", "org.wartremover.warts.Recursion")
@@ -622,10 +662,11 @@ trait JsonSchema[T] {
     }
   }
 
-  /** The number of possible types accepted by this schema.
-    * It must be overridden by subclasses to do anything useful.
+  /** The number of possible types accepted by this schema. It must be
+    * overridden by subclasses to do anything useful.
     *
-    * @return the number of types or None if entropy cannot be calculated
+    * @return
+    *   the number of types or None if entropy cannot be calculated
     */
   def entropy(implicit p: JsonoidParams): Option[Long] = Some(1)
 }

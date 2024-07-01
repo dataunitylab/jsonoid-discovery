@@ -19,8 +19,10 @@ object Histogram {
 
 /** A histogram of the values in a given set.:w
   *
-  * @constructor Create a new histogram
-  * @param sketch the sketch to use for the histogram
+  * @constructor
+  *   Create a new histogram
+  * @param sketch
+  *   the sketch to use for the histogram
   */
 final case class Histogram(
     sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance),
@@ -45,7 +47,8 @@ final case class Histogram(
 
   /** Produce bins for the histogram.
     *
-    * @return a list of bins representing the histogram
+    * @return
+    *   a list of bins representing the histogram
     */
   @SuppressWarnings(
     Array(
@@ -84,7 +87,8 @@ final case class Histogram(
 
   /** Check if a given value is trackable by this histogram
     *
-    * @param value the value to check
+    * @param value
+    *   the value to check
     */
   def isTrackable(value: Double): Boolean = {
     val indexMapping = sketch.getIndexMapping
@@ -95,9 +99,11 @@ final case class Histogram(
 
   /** Merge this histogram with another histogram.
     *
-    * @param other the histogram to merge with
+    * @param other
+    *   the histogram to merge with
     *
-    * @return the merged histogram
+    * @return
+    *   the merged histogram
     */
   def merge(other: Histogram): Histogram = {
     val newHistogram =
@@ -110,9 +116,11 @@ final case class Histogram(
 
   /** Merge a value into this histogram.
     *
-    * @param value the value to merge into the histogram
+    * @param value
+    *   the value to merge into the histogram
     *
-    * @return the merged histogram
+    * @return
+    *   the merged histogram
     */
   def merge(value: Double): Histogram = {
     val trackable = isTrackable(value)
@@ -127,9 +135,11 @@ final case class Histogram(
 
   /** Merge a value into this histogram.
     *
-    * @param value the value to merge into the histogram
+    * @param value
+    *   the value to merge into the histogram
     *
-    * @return the merged histogram
+    * @return
+    *   the merged histogram
     */
   def merge(value: BigInt): Histogram = {
     if (value.isValidLong) {
@@ -141,9 +151,11 @@ final case class Histogram(
 
   /** Merge a value into this histogram.
     *
-    * @param value the value to merge into the histogram
+    * @param value
+    *   the value to merge into the histogram
     *
-    * @return the merged histogram
+    * @return
+    *   the merged histogram
     */
   def merge(value: BigDecimal): Histogram = {
     if (value.isInDoubleRange) {
@@ -155,9 +167,11 @@ final case class Histogram(
 
   /** Check if a value is anamolous according to the histogram.
     *
-    * @param value the value to check for in the histogram
+    * @param value
+    *   the value to check for in the histogram
     *
-    * @return whether the value is anomalous according to the histogram
+    * @return
+    *   whether the value is anomalous according to the histogram
     */
   @SuppressWarnings(Array("org.wartremover.warts.Return"))
   def isAnomalous(value: BigInt): Boolean = {
@@ -168,9 +182,11 @@ final case class Histogram(
 
   /** Check if a value is anamolous according to the histogram.
     *
-    * @param value the value to check for in the histogram
+    * @param value
+    *   the value to check for in the histogram
     *
-    * @return whether the value is anomalous according to the histogram
+    * @return
+    *   whether the value is anomalous according to the histogram
     */
   @SuppressWarnings(Array("org.wartremover.warts.Return"))
   def isAnomalous(value: Double): Boolean = {

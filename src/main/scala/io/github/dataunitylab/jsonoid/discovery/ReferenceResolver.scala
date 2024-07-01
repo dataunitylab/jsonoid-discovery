@@ -12,9 +12,11 @@ object ReferenceResolver extends SchemaWalker[Unit] {
 
   /** Resolve references in a schema.
     *
-    * @param schema the schema to resolve references in
+    * @param schema
+    *   the schema to resolve references in
     *
-    * @return the schema with annotated references
+    * @return
+    *   the schema with annotated references
     */
   @SuppressWarnings(
     Array("org.wartremover.warts.While", "org.wartremover.warts.Var")
@@ -46,10 +48,13 @@ object ReferenceResolver extends SchemaWalker[Unit] {
   /** Helper for [[resolveReferences]] which finds the schema for a referenced
     * pointer.
     *
-    * @param pointer the pointer of the referenced schema
-    * @param rootSchema the root schema where definitions are located
+    * @param pointer
+    *   the pointer of the referenced schema
+    * @param rootSchema
+    *   the root schema where definitions are located
     *
-    * @return the schema being referenced
+    * @return
+    *   the schema being referenced
     */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   private def resolvePointer(
@@ -75,7 +80,8 @@ object ReferenceResolver extends SchemaWalker[Unit] {
 
   /** Used in [[transformSchema]] to resolve references.
     *
-    * @param rootSchema the root schema where definitions are located
+    * @param rootSchema
+    *   the root schema where definitions are located
     */
   private def resolveReferences(
       rootSchema: JsonSchema[_]

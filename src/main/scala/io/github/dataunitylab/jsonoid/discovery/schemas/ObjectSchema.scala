@@ -268,7 +268,8 @@ final case class ObjectSchema(
 
   /** Returns a new schema with only the specified keys.
     *
-    * @param keys a set of keys to include
+    * @param keys
+    *   a set of keys to include
     */
   def onlyKeys(keys: Set[String]): ObjectSchema = {
     val newProps = SchemaProperties(
@@ -380,8 +381,10 @@ final case class ObjectSchema(
 
 /** The types of all keys in an object schema.
   *
-  * @constructor Create a new object types property.
-  * @param objectTypes a map from object keys to schemas for the values
+  * @constructor
+  *   Create a new object types property.
+  * @param objectTypes
+  *   a map from object keys to schemas for the values
   */
 final case class ObjectTypesProperty(
     objectTypes: Map[String, JsonSchema[_]] = Map.empty[String, JsonSchema[_]]
@@ -532,8 +535,10 @@ final case class ObjectTypesProperty(
 
 /** The types of all keys in an object schema which match given patterns.
   *
-  * @constructor Create a new pattern types property.
-  * @param objectTypes a map from patterns keys must match to schemas for the values
+  * @constructor
+  *   Create a new pattern types property.
+  * @param objectTypes
+  *   a map from patterns keys must match to schemas for the values
   */
 final case class PatternTypesProperty(
     patternTypes: Map[Regex, JsonSchema[_]] = Map.empty[Regex, JsonSchema[_]]
@@ -658,9 +663,12 @@ final case class PatternTypesProperty(
 
 /** Tracks what percentage of the time keys in an object schema are present.
   *
-  * @constructor Create a new field presence property.
-  * @param fieldPresence a map from keys to the number of times the key is present
-  * @param totalCount the total number of observed objects
+  * @constructor
+  *   Create a new field presence property.
+  * @param fieldPresence
+  *   a map from keys to the number of times the key is present
+  * @param totalCount
+  *   the total number of observed objects
   */
 final case class FieldPresenceProperty(
     fieldPresence: Map[String, BigInt] = Map.empty[String, BigInt],
@@ -723,8 +731,10 @@ final case class FieldPresenceProperty(
 
 /** Tracks what keys are required in an object schema.
   *
-  * @constructor Create a new required property.
-  * @param required a possible set of keys which may be required
+  * @constructor
+  *   Create a new required property.
+  * @param required
+  *   a possible set of keys which may be required
   */
 final case class RequiredProperty(
     required: Option[Set[String]] = None
@@ -805,17 +815,23 @@ final case class RequiredProperty(
 
 object DependenciesProperty {
 
-  /** The maximimum number of properties where dependencies should be tracked. */
+  /** The maximimum number of properties where dependencies should be tracked.
+    */
   val MaxProperties: Int = 50
 }
 
 /** Tracks dependencies between keys in an object schema.
   *
-  * @constructor Create a new dependencies property.
-  * @param totalCount the total number of observed objects
-  * @param counts a map from keys to the number of times the key is present
-  * @param cooccurrence a map from pairs of keys to the number of times they cooccur
-  * @param overloaded whether this property is overloaded and stopped tracking
+  * @constructor
+  *   Create a new dependencies property.
+  * @param totalCount
+  *   the total number of observed objects
+  * @param counts
+  *   a map from keys to the number of times the key is present
+  * @param cooccurrence
+  *   a map from pairs of keys to the number of times they cooccur
+  * @param overloaded
+  *   whether this property is overloaded and stopped tracking
   */
 final case class DependenciesProperty(
     totalCount: BigInt = 0,
@@ -1013,8 +1029,10 @@ final case class DependenciesProperty(
 /** A set of dependencies between keys in an object schema extracted from a
   * serialized JSON Schema.
   *
-  * @constructor Create a new static dependencies property
-  * @param dependencies a map from keys to dependent keys
+  * @constructor
+  *   Create a new static dependencies property
+  * @param dependencies
+  *   a map from keys to dependent keys
   */
 final case class StaticDependenciesProperty(
     dependencies: Map[String, Set[String]] = Map.empty

@@ -60,12 +60,17 @@ object Helpers {
 
   /** Expands an integer used for a minimum value to meet a given limit.
     *
-    * @param current the current minimum value
-    * @param limit the limit from the other schema
-    * @param exclusive whether the current limit is exclusive or not
-    * @param round the current round of expansion
+    * @param current
+    *   the current minimum value
+    * @param limit
+    *   the limit from the other schema
+    * @param exclusive
+    *   whether the current limit is exclusive or not
+    * @param round
+    *   the current round of expansion
     *
-    * @return the new minimum value and whether it is exclusive
+    * @return
+    *   the new minimum value and whether it is exclusive
     */
   def expandInt(
       current: BigInt,
@@ -156,12 +161,17 @@ object Helpers {
 
   /** Contracts an integer used for a maxium value to meet a given limit.
     *
-    * @param current the current maximum value
-    * @param limit the limit from the other schema
-    * @param exclusive whether the current limit is exclusive or not
-    * @param round the current round of expansion
+    * @param current
+    *   the current maximum value
+    * @param limit
+    *   the limit from the other schema
+    * @param exclusive
+    *   whether the current limit is exclusive or not
+    * @param round
+    *   the current round of expansion
     *
-    * @return the new maximum value and whether it is exclusive
+    * @return
+    *   the new maximum value and whether it is exclusive
     */
   @SuppressWarnings(Array("org.wartremover.warts.Equals"))
   def contractInt(
@@ -237,15 +247,20 @@ object Helpers {
     foo(x, 2).sorted
   }
 
-  /** Determine if one minimum values the values of another,
-    * considering whether each minimum is exclusive or not.
+  /** Determine if one minimum values the values of another, considering whether
+    * each minimum is exclusive or not.
     *
-    * @param value1 the first minimum value
-    * @param exclusive1 whether the first minimum value is exclusive
-    * @param value2 the second minimum value
-    * @param exclusive2 whether the second minimum value is exclusive
+    * @param value1
+    *   the first minimum value
+    * @param exclusive1
+    *   whether the first minimum value is exclusive
+    * @param value2
+    *   the second minimum value
+    * @param exclusive2
+    *   whether the second minimum value is exclusive
     *
-    * @return true if the second value covers the first, false otherwise
+    * @return
+    *   true if the second value covers the first, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def isMinCoveredBy[A: Order](
@@ -269,14 +284,19 @@ object Helpers {
       value2.get <= value1.get
   }
 
-  /** Determine if one maximum value covers the values of another,
-    *  considering whether each maximum is exclusive or not.
+  /** Determine if one maximum value covers the values of another, considering
+    * whether each maximum is exclusive or not.
     *
-    * @param value1 the first maximum value
-    * @param exclusive1 whether the first maximum value is exclusive
-    * @param value2 the second maximum value
-    * @param exclusive2 whether the second maximum value is exclusive
-    * @return true if the second value covers the first, false otherwise
+    * @param value1
+    *   the first maximum value
+    * @param exclusive1
+    *   whether the first maximum value is exclusive
+    * @param value2
+    *   the second maximum value
+    * @param exclusive2
+    *   whether the second maximum value is exclusive
+    * @return
+    *   true if the second value covers the first, false otherwise
     */
   @SuppressWarnings(Array("org.wartremover.warts.OptionPartial"))
   def isMaxCoveredBy[A: Order](
@@ -321,7 +341,7 @@ object Helpers {
     }
 
   /** Find the intersection of two optional sets or None if neither set is
-    *  specified.
+    * specified.
     */
   def intersectOrNone[A](
       first: Option[Set[A]],
@@ -333,7 +353,8 @@ object Helpers {
     case (None, None)       => None
   }
 
-  /** Find the union of two optional sets or None if neither set is specified. */
+  /** Find the union of two optional sets or None if neither set is specified.
+    */
   def unionOrNone[A](
       first: Option[Set[A]],
       second: Option[Set[A]]

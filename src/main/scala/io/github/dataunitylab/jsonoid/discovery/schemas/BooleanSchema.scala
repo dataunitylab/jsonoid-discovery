@@ -79,16 +79,19 @@ final case class BooleanSchema(
   )(implicit p: JsonoidParams, t: ClassTag[S]): Seq[Anomaly] = {
     value match {
       case JBool(_) => Seq.empty
-      case _        => Seq(Anomaly(path, "expected boolean type", AnomalyLevel.Fatal))
+      case _ => Seq(Anomaly(path, "expected boolean type", AnomalyLevel.Fatal))
     }
   }
 }
 
 /** Tracks the percentage of true values for a boolean.
   *
-  * @constructor Create a new Boolean percent property
-  * @param totalTrue the number of true values observed
-  * @param totalFalse the number of false values observed
+  * @constructor
+  *   Create a new Boolean percent property
+  * @param totalTrue
+  *   the number of true values observed
+  * @param totalFalse
+  *   the number of false values observed
   */
 final case class BooleanPercentProperty(
     totalTrue: BigInt = 0,
@@ -130,9 +133,12 @@ final case class BooleanPercentProperty(
 
 /** Tracks whether all values are either true or false
   *
-  * @constructor Create a new Boolean constant property
-  * @param allTrue whether all values are true
-  * @param allFalse whether all values are false
+  * @constructor
+  *   Create a new Boolean constant property
+  * @param allTrue
+  *   whether all values are true
+  * @param allFalse
+  *   whether all values are false
   */
 final case class BooleanConstantProperty(
     allTrue: Option[Boolean] = None,

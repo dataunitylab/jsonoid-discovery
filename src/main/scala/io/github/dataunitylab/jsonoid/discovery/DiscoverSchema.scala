@@ -48,11 +48,15 @@ object DiscoverSchema {
   /** Perform split schema discovery by randomly splitting the input and
     * generating two different schemas.
     *
-    * @param jsons an iterator of JSON objects to perform schema discovery on
-    * @param propSet the property set to use for schema discovery
-    * @param splitPercentage the percentage of the input to use for training
+    * @param jsons
+    *   an iterator of JSON objects to perform schema discovery on
+    * @param propSet
+    *   the property set to use for schema discovery
+    * @param splitPercentage
+    *   the percentage of the input to use for training
     *
-    * @return a tuple of the discovered schemas
+    * @return
+    *   a tuple of the discovered schemas
     */
   def splitDiscover(
       jsons: Iterator[JValue],
@@ -77,9 +81,12 @@ object DiscoverSchema {
 
   /** Perform schema discovery on a set of JSON objects.
     *
-    * @param jsons an iterator of JSON objects to perform schema discovery on
-    * @param propSet the property set to use for schema discovery
-    * @return the discovered schema
+    * @param jsons
+    *   an iterator of JSON objects to perform schema discovery on
+    * @param propSet
+    *   the property set to use for schema discovery
+    * @return
+    *   the discovered schema
     */
   def discover(
       jsons: Iterator[JValue]
@@ -94,8 +101,10 @@ object DiscoverSchema {
 
   /** Discover a schema from a single JSON object.
     *
-    * @param value the JSON object to discover the schema for
-    * @param propSet the property set to use for schema discovery
+    * @param value
+    *   the JSON object to discover the schema for
+    * @param propSet
+    *   the property set to use for schema discovery
     */
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def discoverFromValue(
@@ -126,8 +135,10 @@ object DiscoverSchema {
 
   /** Discover a schema from a set of fields in a JSON object.
     *
-    * @param fields the fields to discover the schema for
-    * @param propSet the property set to use for schema discovery
+    * @param fields
+    *   the fields to discover the schema for
+    * @param propSet
+    *   the property set to use for schema discovery
     */
   private def discoverObjectFields(
       fields: Seq[JField]

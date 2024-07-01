@@ -4,12 +4,19 @@ import schemas.{PropertySet, PropertySets}
 
 /** Parameters used during the discovery process.
   *
-  * @param additionalProperties whether `additionalProperties` is set to true in generated schemas
-  * @param er the equivalence relation to use during the discovery process
-  * @param extendedFormats whether to include extended formats
-  * @param formatThreshold the fraction of values that must match a given format for [[schemas.FormatProperty]] to consider the format valid
-  * @param maxExamples the maximum number of examples to be kept for any examples property
-  * @param resetFormatLength whether to reset max/min length of strings with [[schemas.FormatProperty]]
+  * @param additionalProperties
+  *   whether `additionalProperties` is set to true in generated schemas
+  * @param er
+  *   the equivalence relation to use during the discovery process
+  * @param extendedFormats
+  *   whether to include extended formats
+  * @param formatThreshold
+  *   the fraction of values that must match a given format for
+  *   [[schemas.FormatProperty]] to consider the format valid
+  * @param maxExamples
+  *   the maximum number of examples to be kept for any examples property
+  * @param resetFormatLength
+  *   whether to reset max/min length of strings with [[schemas.FormatProperty]]
   */
 final case class JsonoidParams(
     val additionalProperties: Boolean = false,

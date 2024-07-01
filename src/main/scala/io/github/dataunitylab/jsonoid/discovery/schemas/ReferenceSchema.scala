@@ -66,8 +66,10 @@ final case class ReferenceSchema(
 
 /** Represents a reference to a particular pointer.
   *
-  * @constructor Create a pointer reference property
-  * @param pointer the referenced pointer
+  * @constructor
+  *   Create a pointer reference property
+  * @param pointer
+  *   the referenced pointer
   */
 final case class ReferencePointerProperty(pointer: String)
     extends SchemaProperty[String] {
@@ -99,8 +101,10 @@ final case class ReferencePointerProperty(pointer: String)
 
 /** Represents a reference to a particular schema object.
   *
-  * @constructor Create an object reference property
-  * @param schema the referenced object
+  * @constructor
+  *   Create an object reference property
+  * @param schema
+  *   the referenced object
   */
 final case class ReferenceObjectProperty(schema: JsonSchema[_])
     extends SchemaProperty[String] {

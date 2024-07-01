@@ -9,15 +9,20 @@ final case class Incompatibility[T](path: String, property: ClassTag[T])
 
 object IncompatibilityCollector {
 
-  /** Give a more detailed incompatibility by
-    * manually checking the type of these two schemas.
+  /** Give a more detailed incompatibility by manually checking the type of
+    * these two schemas.
     *
-    * @param path the path of the potential incompatibility
-    * @param s1 the first schema
-    * @param s2 the second schema
-    * @param tag the type of incompatibility to report
+    * @param path
+    *   the path of the potential incompatibility
+    * @param s1
+    *   the first schema
+    * @param s2
+    *   the second schema
+    * @param tag
+    *   the type of incompatibility to report
     *
-    * @return an sequence of a single incompatibility if one exists
+    * @return
+    *   an sequence of a single incompatibility if one exists
     */
   def typeIncompat(
       path: String,
@@ -36,11 +41,15 @@ object IncompatibilityCollector {
 
   /** Check for incompatibilities at a given path.
     *
-    * @param base the base schema
-    * @param other the other schema to check for incompatibilities
-    * @param path the path of the potential incompatibility
+    * @param base
+    *   the base schema
+    * @param other
+    *   the other schema to check for incompatibilities
+    * @param path
+    *   the path of the potential incompatibility
     *
-    * @return a sequence of incompatibilities at the given path
+    * @return
+    *   a sequence of incompatibilities at the given path
     */
   @SuppressWarnings(
     Array(
@@ -186,10 +195,13 @@ object IncompatibilityCollector {
 
   /** Check for incompatibilities across an entire schema..
     *
-    * @param base the base schema
-    * @param other the other schema to check for incompatibilities
+    * @param base
+    *   the base schema
+    * @param other
+    *   the other schema to check for incompatibilities
     *
-    * @return a sequence of incompatibilities at the given path
+    * @return
+    *   a sequence of incompatibilities at the given path
     */
   def findIncompatibilities(
       base: JsonSchema[_],

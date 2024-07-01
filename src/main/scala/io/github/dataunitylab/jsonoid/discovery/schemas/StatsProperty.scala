@@ -14,11 +14,16 @@ object StatsProperty {
 
 /** Data for properties which track statistics on a set of values.
   *
-  * @param totalN the total count of values
-  * @param m1 the first statistical moment
-  * @param m2 the second statistical moment
-  * @param m3 the third statistical moment
-  * @param m4 the fourth statistical moment
+  * @param totalN
+  *   the total count of values
+  * @param m1
+  *   the first statistical moment
+  * @param m2
+  *   the second statistical moment
+  * @param m3
+  *   the third statistical moment
+  * @param m4
+  *   the fourth statistical moment
   */
 final case class StatsProperty(
     val totalN: BigInt = 0,
@@ -66,9 +71,11 @@ final case class StatsProperty(
 
   /** Merge these statistical values together.
     *
-    * @param other the other statistics to merge with
+    * @param other
+    *   the other statistics to merge with
     *
-    * @return the merged statistics
+    * @return
+    *   the merged statistics
     */
   def merge(other: StatsProperty): StatsProperty = {
     // See https://www.johndcook.com/blog/skewness_kurtosis/

@@ -7,8 +7,8 @@ import schemas._
   */
 object EquivalenceRelations {
 
-  /** An equivalence relation which considers objects equal if they have the same
-    * set of keys.
+  /** An equivalence relation which considers objects equal if they have the
+    * same set of keys.
     */
   implicit object LabelEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -42,8 +42,8 @@ object EquivalenceRelations {
     }
   }
 
-  /** An equivalence relation which considers objects equal if all keys which are
-    * in common between the objects have the same type.
+  /** An equivalence relation which considers objects equal if all keys which
+    * are in common between the objects have the same type.
     */
   implicit object TypeMatchEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -62,8 +62,8 @@ object EquivalenceRelations {
     }
   }
 
-  /** An equivalence relation which considers schemas equal if they have the same
-    * type.
+  /** An equivalence relation which considers schemas equal if they have the
+    * same type.
     */
   implicit object KindEquivalenceRelation extends EquivalenceRelation {
     def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean = {
@@ -97,8 +97,10 @@ abstract class EquivalenceRelation extends Serializable {
 
   /** Returns true if the two schemas should be considered equivalent.
     *
-    * @param kind1 the first schema to compare
-    * @param kind2 the second schem to compare
+    * @param kind1
+    *   the first schema to compare
+    * @param kind2
+    *   the second schem to compare
     */
   def fuse(kind1: JsonSchema[_], kind2: JsonSchema[_]): Boolean
 }
