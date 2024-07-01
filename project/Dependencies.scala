@@ -14,10 +14,10 @@ object Dependencies {
   lazy val jsonSchemaValidator = "com.networknt"               % "json-schema-validator" % "1.4.3"
   lazy val openLocationCode    = "com.google.openlocationcode" % "openlocationcode"      % "1.0.4"
   lazy val scopt               = "com.github.scopt"           %% "scopt"                 % "4.1.0"
-  lazy val scalaCsv            = "com.github.tototoshi"       %% "scala-csv"             % "1.3.10"
+  lazy val scalaCsv            = "com.github.tototoshi"       %% "scala-csv"             % "1.4.1"
   lazy val spark               = "org.apache.spark"           %% "spark-core"            % "3.5.1"
   lazy val sparkSql            = "org.apache.spark"           %% "spark-sql"             % "3.5.1"
-  lazy val validator           = "commons-validator"           % "commons-validator"     % "1.8.0"
+  lazy val validator           = "commons-validator"           % "commons-validator"     % "1.9.0"
 
   // Test
   lazy val jazzer              = "com.code-intelligence"       % "jazzer"                 % "0.22.1"

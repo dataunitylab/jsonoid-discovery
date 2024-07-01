@@ -31,7 +31,7 @@ inThisBuild(
 )
 
 scalafixOnCompile := true
-ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "3.0.1"
+ThisBuild / scalafixDependencies += "net.pixiv" %% "scalafix-pixiv-rule" % "4.5.3"
 
 mainClass := Some("io.github.dataunitylab.jsonoid.discovery.DiscoverSchema")
 
