@@ -8,10 +8,10 @@ object Dependencies {
 
   lazy val bloomFilter         = "io.github.michaelmior"       % "bloomfilter"           % "0.10.1"
   lazy val dbscan              = "io.github.michaelmior"       % "dbscan"                % "0.2"
-  lazy val ddSketch            = "com.datadoghq"               % "sketches-java"         % "0.8.2"
+  lazy val ddSketch            = "com.datadoghq"               % "sketches-java"         % "0.8.3"
   lazy val fuzzySets           = "io.github.dataunitylab"     %% "fuzzy-sets"            % "0.4.0"
   lazy val hyperLogLog         = "com.github.prasanthj"        % "hyperloglog"           % "1.1"
-  lazy val jsonSchemaValidator = "com.networknt"               % "json-schema-validator" % "1.3.3"
+  lazy val jsonSchemaValidator = "com.networknt"               % "json-schema-validator" % "1.4.3"
   lazy val openLocationCode    = "com.google.openlocationcode" % "openlocationcode"      % "1.0.4"
   lazy val scopt               = "com.github.scopt"           %% "scopt"                 % "4.1.0"
   lazy val scalaCsv            = "com.github.tototoshi"       %% "scala-csv"             % "1.3.10"
@@ -21,10 +21,10 @@ object Dependencies {
 
   // Test
   lazy val jazzer              = "com.code-intelligence"       % "jazzer"                 % "0.22.1"
-  lazy val scalactic           = "org.scalactic"              %% "scalactic"              % "3.2.18"
-  lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.18"
-  lazy val scalaTestPlus       = "org.scalatestplus"          %% "scalacheck-1-17"        % "3.2.18.0"
-  lazy val scalaCheck          = "org.scalacheck"             %% "scalacheck"             % "1.17.0"
+  lazy val scalactic           = "org.scalactic"              %% "scalactic"              % "3.2.19"
+  lazy val scalaTest           = "org.scalatest"              %% "scalatest"              % "3.2.19"
+  lazy val scalaTestPlus       = "org.scalatestplus"          %% "scalacheck-1-18"        % "3.2.19.0"
+  lazy val scalaCheck          = "org.scalacheck"             %% "scalacheck"             % "1.18.0"
 
 
   // Overrides
