@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.1] - 2024-07-01
+
+### Changed
+- Update dependencies
+
 ## [0.30.0] - 2024-06-27
 ### Added
 - Support `patternProperties` when converting to a dynamic object
@@ -466,7 +471,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-05-31
 - Initial release
 
-[Unreleased]: https://github.com/dataunitylab/jsonoid-discovery/compare/v0.30.0...HEAD
+[Unreleased]: https://github.com/dataunitylab/jsonoid-discovery/compare/v0.30.1...HEAD
+[0.30.1]: https://github.com/dataunitylab/jsonoid-discovery/compare/v0.30.0...v0.30.1
 [0.30.0]: https://github.com/dataunitylab/jsonoid-discovery/compare/v0.20.1...v0.30.0
 [0.20.1]: https://github.com/dataunitylab/jsonoid-discovery/compare/v0.19.0...v0.20.1
 [0.20.0]: https://github.com/dataunitylab/jsonoid-discovery/compare/v0.19.0...v0.20.0
