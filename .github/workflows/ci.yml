@@ -88,5 +88,6 @@ jobs:
         path: target/scala-2.13/jsonoid-discovery*.jar
     - name: Attest build provenance
       uses: actions/attest-build-provenance@v1
+      if: ${{ github.event_name != 'pull_request' }}
       with:
         subject-path: 'target/scala-2.13/jsonoid-discovery*.jar'
