@@ -5,7 +5,7 @@ on:
       - '*'
 jobs:
   bowtie-report:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
     - uses: actions/setup-python@v5
       with:
