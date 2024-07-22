@@ -40,6 +40,17 @@ jobs:
         find $HOME/.ivy2/cache                       -name "ivydata-*.properties" -delete || true
         find $HOME/.cache/coursier/v1                -name "ivydata-*.properties" -delete || true
         find $HOME/.sbt                              -name "*.lock"               -delete || true
+
+  test-schemas:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    steps:
+    - uses: actions/checkout@v4
+    - name: Coursier cache
+      uses: useblacksmith/coursier-cache-action@v6
+    - uses: coursier/setup-action@v1
+      with:
+        jvm: zulu:11.0.10
+        apps: sbt scala
     - uses: actions/setup-node@v4
       with:
         node-version: '16'
@@ -59,7 +70,7 @@ jobs:
           done
 
   assemble:
-    needs: test
+    needs: [test, test-schemas]
     runs-on: blacksmith-2vcpu-ubuntu-2204
     permissions:
       id-token: write
