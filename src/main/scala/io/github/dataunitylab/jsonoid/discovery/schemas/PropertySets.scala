@@ -102,7 +102,7 @@ final case class PropertySet(
 object PropertySets {
 
   /** A property set with all supported properties. */
-  implicit val AllProperties: PropertySet = PropertySet(
+  lazy implicit val AllProperties: PropertySet = PropertySet(
     ArraySchema.AllProperties,
     BooleanSchema.AllProperties,
     IntegerSchema.AllProperties,
