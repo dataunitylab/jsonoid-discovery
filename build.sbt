@@ -2,10 +2,10 @@ import Dependencies._
 import com.typesafe.sbt.packager.docker._
 import xerial.sbt.Sonatype._
 
-ThisBuild / scalaVersion      := "2.13.14"
-ThisBuild / versionScheme     := Some("early-semver")
-ThisBuild / organization      := "io.github.dataunitylab"
-ThisBuild / organizationName  := "Rochester Institute of Technology"
+ThisBuild / scalaVersion := "2.13.14"
+ThisBuild / versionScheme := Some("early-semver")
+ThisBuild / organization := "io.github.dataunitylab"
+ThisBuild / organizationName := "Rochester Institute of Technology"
 
 inThisBuild(
   List(
@@ -20,11 +20,13 @@ inThisBuild(
         url("https://michael.mior.ca")
       )
     ),
-    sonatypeProjectHosting := Some(GitHubHosting(
-      "dataunitylab",
-      "jsonoid-discovery",
-      "mmior@mail.rit.edu"
-    )),
+    sonatypeProjectHosting := Some(
+      GitHubHosting(
+        "dataunitylab",
+        "jsonoid-discovery",
+        "mmior@mail.rit.edu"
+      )
+    ),
     semanticdbEnabled := true,
     semanticdbVersion := scalafixSemanticdb.revision
   )
@@ -43,10 +45,11 @@ val nonConsoleCompilerOptions = Seq(
   "-Ywarn-unused:imports",
   "-deprecation",
   "-release:8"
-) ++ {if (sys.env.get("DISABLE_ASSERTIONS").isDefined)
-  Seq("-Xdisable-assertions")
-else
-  Nil
+) ++ {
+  if (sys.env.get("DISABLE_ASSERTIONS").isDefined)
+    Seq("-Xdisable-assertions")
+  else
+    Nil
 }
 
 val generateSchemas = taskKey[Unit]("Generate example schemas")
@@ -74,50 +77,49 @@ generateSchemas := {
   )
 
   for (input <- inputs) {
-    r.run("io.github.dataunitylab.jsonoid.discovery.DiscoverSchema",
-    data(cp),
-    Seq(
-      "src/test/resources/" + input,
-      "-p",
-      "Simple",
-      "-w",
-      schemaPath.resolve(input).toString
-    ),
-    (streams.value: @sbtUnchecked).log)
+    r.run(
+      "io.github.dataunitylab.jsonoid.discovery.DiscoverSchema",
+      data(cp),
+      Seq(
+        "src/test/resources/" + input,
+        "-p",
+        "Simple",
+        "-w",
+        schemaPath.resolve(input).toString
+      ),
+      (streams.value: @sbtUnchecked).log
+    )
   }
 }
 
 lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
-
     libraryDependencies ++= Seq(
-        bloomFilter,
-        ddSketch,
-        json4s,
-        json4sScalaz,
-        dbscan,
-        fuzzySets,
-        hyperLogLog,
-        jsonSchemaValidator,
-        openLocationCode,
-        scopt,
-        scalaCsv,
-        validator,
-
-        spark % "provided",
-        sparkSql % "provided",
-
-        scalactic % Test,
-        scalaTest % Test,
-        scalaTestPlus % Test,
-        scalaCheck % Test,
+      bloomFilter,
+      ddSketch,
+      json4s,
+      json4sScalaz,
+      dbscan,
+      fuzzySets,
+      hyperLogLog,
+      jsonSchemaValidator,
+      openLocationCode,
+      scopt,
+      scalaCsv,
+      validator,
+      spark % "provided",
+      sparkSql % "provided",
+      scalactic % Test,
+      scalaTest % Test,
+      scalaTestPlus % Test,
+      scalaCheck % Test
     ),
     dependencyOverrides ++= Seq(
       guava,
       jacksonDatabind,
       protobuf,
-      snappyJava,
+      snappyJava
     ),
     javacOptions ++= Seq("-source", "11", "-target", "11"),
     scalacOptions ++= nonConsoleCompilerOptions,
@@ -125,12 +127,14 @@ lazy val root = (project in file("."))
     buildInfoPackage := "io.github.dataunitylab.jsonoid.discovery"
   )
 
-lazy val fuzz = (project in file("fuzz")).settings(
-   libraryDependencies ++= Seq(
-     jazzer,
-     json4s
-   )
-).dependsOn(root)
+lazy val fuzz = (project in file("fuzz"))
+  .settings(
+    libraryDependencies ++= Seq(
+      jazzer,
+      json4s
+    )
+  )
+  .dependsOn(root)
 
 Compile / compile / wartremoverErrors ++= Seq(
   Wart.ArrayEquals,
@@ -158,12 +162,11 @@ Compile / compile / wartremoverErrors ++= Seq(
   Wart.TripleQuestionMark,
   Wart.TryPartial,
   Wart.Var,
-  Wart.While,
+  Wart.While
 )
 
-Compile / console / scalacOptions := (console / scalacOptions)
-  .value.filterNot(opt =>
-    nonConsoleCompilerOptions.contains(opt)
+Compile / console / scalacOptions := (console / scalacOptions).value.filterNot(
+  opt => nonConsoleCompilerOptions.contains(opt)
 )
 
 enablePlugins(BuildInfoPlugin)
@@ -185,14 +188,14 @@ git.useGitDescribe := true
 Test / fork := true
 
 assembly / assemblyMergeStrategy := {
-  case "module-info.class" => MergeStrategy.discard
+  case "module-info.class"                     => MergeStrategy.discard
   case "META-INF/versions/9/module-info.class" => MergeStrategy.discard
   case x =>
     val oldStrategy = (assembly / assemblyMergeStrategy).value
     oldStrategy(x)
 }
 fuzz / assembly / assemblyMergeStrategy := (assembly / assemblyMergeStrategy).value
-assembly / assemblyJarName        := s"jsonoid-discovery-${version.value}.jar"
+assembly / assemblyJarName := s"jsonoid-discovery-${version.value}.jar"
 fuzz / assembly / assemblyJarName := "fuzz.jar"
 
 import sbtassembly.AssemblyPlugin.defaultUniversalScript
@@ -203,7 +206,12 @@ run / connectInput := true
 // See https://www.scala-sbt.org/1.x/docs/Using-Sonatype.html for instructions on how to publish to Sonatype.
 
 apiMappings ++= {
-  def mappingsFor(organization: String, names: List[String], location: String, revision: (String) => String = identity): Seq[(File, URL)] =
+  def mappingsFor(
+      organization: String,
+      names: List[String],
+      location: String,
+      revision: (String) => String = identity
+  ): Seq[(File, URL)] =
     for {
       entry: Attributed[File] <- (Compile / fullClasspath).value
       module: ModuleID <- entry.get(moduleID.key)
@@ -212,7 +220,11 @@ apiMappings ++= {
     } yield entry.data -> url(location.format(revision(module.revision)))
 
   val mappings: Seq[(File, URL)] =
-    mappingsFor("org.scala-lang", List("scala-library"), "http://scala-lang.org/api/%s/")
+    mappingsFor(
+      "org.scala-lang",
+      List("scala-library"),
+      "http://scala-lang.org/api/%s/"
+    )
 
   mappings.toMap
 }

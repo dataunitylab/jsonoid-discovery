@@ -11,10 +11,9 @@ object JsonSchemaFuzzer {
       val json = parse(input)
       JsonSchema.fromJson(json)
     } catch {
-      case e: com.fasterxml.jackson.core.JsonParseException =>
+      case e: com.fasterxml.jackson.core.JsonParseException               =>
       case e: com.fasterxml.jackson.databind.exc.MismatchedInputException =>
-      case e: UnsupportedOperationException =>
+      case e: UnsupportedOperationException                               =>
     }
   }
 }
-
