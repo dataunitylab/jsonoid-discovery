@@ -12,7 +12,7 @@ object Dependencies {
   lazy val fuzzySets = "io.github.dataunitylab" %% "fuzzy-sets" % "0.4.0"
   lazy val hyperLogLog = "com.github.prasanthj" % "hyperloglog" % "1.1"
   lazy val jsonSchemaValidator =
-    "com.networknt" % "json-schema-validator" % "1.5.0"
+    "com.networknt" % "json-schema-validator" % "1.5.1"
   lazy val openLocationCode =
     "com.google.openlocationcode" % "openlocationcode" % "1.0.4"
   lazy val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
