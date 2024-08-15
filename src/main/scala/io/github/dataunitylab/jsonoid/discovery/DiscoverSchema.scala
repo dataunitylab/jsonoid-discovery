@@ -40,6 +40,7 @@ private final case class Config(
     debug: Boolean = false,
     detectDynamic: Boolean = false,
     detectDisjoint: Boolean = false,
+    findEnums: Boolean = true,
     numericStrings: Boolean = false
 )
 
@@ -170,7 +171,8 @@ object DiscoverSchema {
       otherSchema: Option[JsonSchema[_]] = None,
       addDefinitions: Boolean = false,
       detectDynamic: Boolean = false,
-      detectDisjoint: Boolean = false
+      detectDisjoint: Boolean = false,
+      findEnums: Boolean = true
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     var transformedSchema = schema
     if (detectDynamic) {
@@ -185,8 +187,10 @@ object DiscoverSchema {
       transformedSchema = DefinitionTransformer
         .transformSchema(transformedSchema)(p)
     }
-    transformedSchema = EnumTransformer
-      .transformSchema(transformedSchema, otherSchema)(p)
+    if (findEnums) {
+      transformedSchema = EnumTransformer
+        .transformSchema(transformedSchema, otherSchema)(p)
+    }
 
     // Reset max/min length from strings if a format is defined
     if (p.resetFormatLength) {
@@ -313,6 +317,10 @@ object DiscoverSchema {
       opt[Unit]('j', "detect-disjoint")
         .action((x, c) => c.copy(detectDisjoint = true))
         .text("detect objects with disjoint keys")
+
+      opt[Unit]("no-find-enums")
+        .action((x, c) => c.copy(findEnums = false))
+        .text("do not attempt to discover enumerations")
 
       opt[Unit]("numeric-strings")
         .action((x, c) => c.copy(numericStrings = true))
@@ -494,7 +502,8 @@ object DiscoverSchema {
             testSchema,
             config.addDefinitions,
             config.detectDynamic,
-            config.detectDisjoint
+            config.detectDisjoint,
+            config.findEnums
           )(p)
 
         // If debugging is enabled, save the schema before expansion
