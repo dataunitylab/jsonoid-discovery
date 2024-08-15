@@ -493,7 +493,8 @@ object DiscoverSchema {
             schema,
             testSchema,
             config.addDefinitions,
-            config.detectDynamic
+            config.detectDynamic,
+            config.detectDisjoint
           )(p)
 
         // If debugging is enabled, save the schema before expansion

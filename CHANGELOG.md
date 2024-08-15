@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Fix circular dependency with property sets
+- Properly respect disjoint object detection in CLI
 
 ### Changed
 - Disable assertions by default
