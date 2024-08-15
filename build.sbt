@@ -46,7 +46,7 @@ val nonConsoleCompilerOptions = Seq(
   "-deprecation",
   "-release:8"
 ) ++ {
-  if (sys.env.get("DISABLE_ASSERTIONS").isDefined)
+  if (sys.env.get("ENABLE_ASSERTIONS").isEmpty)
     Seq("-Xdisable-assertions")
   else
     Nil

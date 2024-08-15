@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix circular dependency with property sets
 
+### Changed
+- Disable assertions by default
+
 ## [0.30.1] - 2024-07-01
 ### Changed
 - Update dependencies
