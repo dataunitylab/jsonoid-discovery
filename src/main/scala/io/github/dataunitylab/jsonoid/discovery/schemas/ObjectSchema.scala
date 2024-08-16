@@ -234,26 +234,26 @@ final case class ObjectSchema(
       "org.wartremover.warts.Return"
     )
   )
-  override def replaceWithSchema(
+  override def replace(
       pointer: JsonPointer,
-      replaceSchema: JsonSchema[_]
+      replacer: JsonSchema[_] => JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
     val newTypes = pointer.parts match {
       case Nil | List("") =>
-        return replaceSchema
+        return replacer(this)
       case List(first) =>
-        objectTypes + (first -> replaceSchema)
+        objectTypes + (first -> replacer(objectTypes(first)))
 
       case (first :: rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
             // Replace the type along the path with
             // one which has the replaced schema
-            objectTypes + (first -> schema.replaceWithSchema(
+            objectTypes + (first -> schema.replace(
               JsonPointer(rest),
-              replaceSchema
+              replacer
             ))
           case _ =>
             throw new IllegalArgumentException("Invalid path for replacement")

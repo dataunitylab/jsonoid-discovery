@@ -86,9 +86,9 @@ final case class DynamicObjectSchema(
       "org.wartremover.warts.Recursion"
     )
   )
-  override def replaceWithSchema(
+  override def replace(
       pointer: JsonPointer,
-      replaceSchema: JsonSchema[_]
+      replacer: JsonSchema[_] => JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     // Build a new type map that replaces the required type
     val valueType = properties.get[DynamicObjectTypeProperty].valueType
@@ -96,9 +96,9 @@ final case class DynamicObjectSchema(
       case Nil | List("") =>
         throw new IllegalArgumentException("Invalid path for reference")
       case List(first) =>
-        replaceSchema
+        replacer(this)
       case (first :: rest) =>
-        valueType.replaceWithSchema(JsonPointer(rest), replaceSchema)
+        valueType.replace(JsonPointer(rest), replacer)
     }
 
     val typeProp = DynamicObjectTypeProperty(newType)

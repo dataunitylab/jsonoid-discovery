@@ -448,6 +448,13 @@ trait JsonSchema[T] {
     Seq.empty
   }
 
+  def replace(
+      pointer: JsonPointer,
+      replacer: JsonSchema[_] => JsonSchema[_]
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
+    this
+  }
+
   /** Replace a schema at a particular pointer with a new schema.
     *
     * @param pointer
@@ -461,8 +468,9 @@ trait JsonSchema[T] {
   def replaceWithSchema(
       pointer: JsonPointer,
       replaceSchema: JsonSchema[_]
-  )(implicit p: JsonoidParams): JsonSchema[_] =
-    this
+  )(implicit p: JsonoidParams): JsonSchema[_] = {
+    replace(pointer, _ => replaceSchema)(p)
+  }
 
   /** Replace a schema at a particular pointer with a reference to another
     * schema.

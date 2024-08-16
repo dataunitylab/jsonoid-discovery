@@ -218,9 +218,9 @@ final case class ArraySchema(
       "org.wartremover.warts.Recursion"
     )
   )
-  override def replaceWithSchema(
+  override def replace(
       pointer: JsonPointer,
-      replaceSchema: JsonSchema[_]
+      replacer: JsonSchema[_] => JsonSchema[_]
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     val itemTypeProp = properties.get[ItemTypeProperty]
     itemTypeProp.itemType match {
@@ -230,10 +230,12 @@ final case class ArraySchema(
         // Build a new type property that replaces the required type
         val typeProp = pointer.parts match {
           case List("*") =>
-            ItemTypeProperty(Left(replaceSchema))
+            ItemTypeProperty(Left(replacer(schema)))
           case ("*" :: rest) =>
             ItemTypeProperty(
-              Left(schema.replaceWithSchema(JsonPointer(rest), replaceSchema)),
+              Left(
+                schema.replace(JsonPointer(rest), replacer)
+              ),
               itemTypeProp.count
             )
           case _ =>
@@ -247,12 +249,15 @@ final case class ArraySchema(
           case Nil | List("") =>
             throw new IllegalArgumentException("Invalid path for reference")
           case List(first) =>
-            schemas.updated(first.toInt, replaceSchema)
+            schemas.updated(first.toInt, replacer(schemas(first.toInt)))
           case (first :: rest) =>
             schemas.updated(
               first.toInt,
               schemas(first.toInt)
-                .replaceWithSchema(JsonPointer(rest), replaceSchema)
+                .replaceWithSchema(
+                  JsonPointer(rest),
+                  replacer(schemas(first.toInt))
+                )
             )
         }
 
