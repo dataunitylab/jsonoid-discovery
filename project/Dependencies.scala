@@ -3,8 +3,8 @@ import sbt._
 object Dependencies {
   // Runtime
   // XXX json4s cannot currently be upgrade to maintain compatibility with Spark
-  lazy val json4s = "org.json4s" %% "json4s-jackson" % "3.7.0-M11"
-  lazy val json4sScalaz = "org.json4s" %% "json4s-scalaz" % "3.7.0-M11"
+  lazy val json4s = "org.json4s" %% "json4s-jackson" % "4.0.7"
+  lazy val json4sScalaz = "org.json4s" %% "json4s-scalaz" % "4.0.7"
 
   lazy val bloomFilter = "io.github.michaelmior" % "bloomfilter" % "0.10.1"
   lazy val dbscan = "io.github.michaelmior" % "dbscan" % "0.2"
@@ -17,8 +17,8 @@ object Dependencies {
     "com.google.openlocationcode" % "openlocationcode" % "1.0.4"
   lazy val scopt = "com.github.scopt" %% "scopt" % "4.1.0"
   lazy val scalaCsv = "com.github.tototoshi" %% "scala-csv" % "2.0.0"
-  lazy val spark = "org.apache.spark" %% "spark-core" % "3.5.2"
-  lazy val sparkSql = "org.apache.spark" %% "spark-sql" % "3.5.2"
+  lazy val spark = "org.apache.spark" %% "spark-core" % "4.0.0-preview1"
+  lazy val sparkSql = "org.apache.spark" %% "spark-sql" % "4.0.0-preview1"
   lazy val validator = "commons-validator" % "commons-validator" % "1.9.0"
 
   // Test
@@ -33,7 +33,7 @@ object Dependencies {
   lazy val guava = "com.google.guava" % "guava" % "33.0.0-jre"
   // XXX This is necessary for Spark version consistency
   lazy val jacksonDatabind =
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.1"
   // XXX Version bundled with Spark is vulnerable to CVE-2022-3171
   lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.3"
   // XXX Bundled version is vulnerable to CVE-2023-34455

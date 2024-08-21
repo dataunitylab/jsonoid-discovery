@@ -15,6 +15,11 @@ object Histogram {
 
   /** Default error tolerance of the histogram. */
   val Tolerance: Double = 0.01
+
+  def apply(sketch: DDSketch, hasExtremeValues: Boolean): Histogram =
+    new Histogram(Some(sketch), hasExtremeValues = false)
+  def apply(hasExtremeValues: Boolean = false): Histogram =
+    new Histogram(None, hasExtremeValues = false)
 }
 
 /** A histogram of the values in a given set.:w
@@ -24,10 +29,14 @@ object Histogram {
   * @param sketch
   *   the sketch to use for the histogram
   */
-final case class Histogram(
-    sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance),
-    hasExtremeValues: Boolean = false
-) {
+@SerialVersionUID(543265672950309208L)
+final class Histogram(
+    initSketch: Option[DDSketch] = None,
+    val hasExtremeValues: Boolean = false
+) extends Serializable {
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
+  @transient var sketch: DDSketch =
+    initSketch.getOrElse(DDSketches.unboundedDense(Histogram.Tolerance))
 
   private def zeroCount: Int = {
     val zeros = (sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
