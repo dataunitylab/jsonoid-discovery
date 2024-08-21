@@ -19,7 +19,7 @@ jobs:
       uses: useblacksmith/coursier-cache-action@v6
     - uses: coursier/setup-action@v1
       with:
-        jvm: zulu:11.0.10
+        jvm: zulu:17.0.10
         apps: sbt scala
     - name: dynver check
       run: sbt dynverAssertVersion
@@ -53,7 +53,7 @@ jobs:
       uses: useblacksmith/coursier-cache-action@v6
     - uses: coursier/setup-action@v1
       with:
-        jvm: zulu:11.0.10
+        jvm: zulu:17.0.10
         apps: sbt scala
     - uses: actions/setup-node@v4
       with:
@@ -89,7 +89,7 @@ jobs:
       run:  echo "SOURCE_DATE_EPOCH=$(date -d $(parse-changelog CHANGELOG.md -t | rev | cut -d' ' -f1 | rev) '+%s')" >> "$GITHUB_ENV"
     - uses: coursier/setup-action@v1
       with:
-        jvm: zulu:11.0.10
+        jvm: zulu:17.0.10
         apps: sbt scala
     - name: Assemble
       env:
