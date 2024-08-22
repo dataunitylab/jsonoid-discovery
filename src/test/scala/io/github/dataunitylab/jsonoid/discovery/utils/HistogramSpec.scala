@@ -1,6 +1,13 @@
 package io.github.dataunitylab.jsonoid.discovery
 package utils
 
+import java.io.{
+  ByteArrayInputStream,
+  ByteArrayOutputStream,
+  ObjectInputStream,
+  ObjectOutputStream
+}
+
 class HistogramSpec extends UnitSpec {
   behavior of "Histogram"
 
@@ -74,5 +81,21 @@ class HistogramSpec extends UnitSpec {
     val hist = Histogram().merge(0)
 
     hist.isAnomalous(0) shouldBe (false)
+  }
+
+  it should "serialize and deserialize" in {
+    val hist = Histogram(hasExtremeValues = true).merge(10).merge(5)
+    val baos = new ByteArrayOutputStream()
+    val oos = new ObjectOutputStream(baos)
+    oos.writeObject(hist)
+    oos.close()
+
+    val ois =
+      new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()))
+    val hist2 = ois.readObject().asInstanceOf[Histogram]
+    ois.close()
+
+    hist2.isAnomalous(10) shouldBe (false)
+    hist.hasExtremeValues shouldBe (true)
   }
 }

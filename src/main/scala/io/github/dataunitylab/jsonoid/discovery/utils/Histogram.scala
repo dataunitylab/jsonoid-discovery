@@ -1,11 +1,19 @@
 package io.github.dataunitylab.jsonoid.discovery
 package utils
 
+import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
+import java.nio.ByteBuffer
+
 import scala.jdk.CollectionConverters._
+import scala.jdk.FunctionConverters._
 import scala.collection.mutable.ListBuffer
 
-import com.datadoghq.sketch.ddsketch.{DDSketch, DDSketches}
-import com.datadoghq.sketch.ddsketch.store.Bin
+import com.datadoghq.sketch.ddsketch.{
+  DDSketch,
+  DDSketches,
+  DDSketchProtoBinding
+}
+import com.datadoghq.sketch.ddsketch.store.{Bin, UnboundedSizeDenseStore}
 import org.json4s.JsonDSL._
 import org.json4s._
 
@@ -15,6 +23,11 @@ object Histogram {
 
   /** Default error tolerance of the histogram. */
   val Tolerance: Double = 0.01
+
+  def apply(sketch: DDSketch, hasExtremeValues: Boolean): Histogram =
+    new Histogram(Some(sketch), hasExtremeValues = hasExtremeValues)
+  def apply(hasExtremeValues: Boolean = false): Histogram =
+    new Histogram(None, hasExtremeValues = hasExtremeValues)
 }
 
 /** A histogram of the values in a given set.:w
@@ -24,10 +37,15 @@ object Histogram {
   * @param sketch
   *   the sketch to use for the histogram
   */
-final case class Histogram(
-    sketch: DDSketch = DDSketches.unboundedDense(Histogram.Tolerance),
-    hasExtremeValues: Boolean = false
-) {
+@SerialVersionUID(543265672950309208L)
+@SuppressWarnings(Array("org.wartremover.warts.Var"))
+final class Histogram(
+    initSketch: Option[DDSketch] = None,
+    val hasExtremeValues: Boolean = false
+) extends Serializable {
+  @SuppressWarnings(Array("org.wartremover.warts.Var"))
+  @transient var sketch: DDSketch =
+    initSketch.getOrElse(DDSketches.unboundedDense(Histogram.Tolerance))
 
   private def zeroCount: Int = {
     val zeros = (sketch.getCount - (sketch.getNegativeValueStore.getTotalCount +
@@ -124,7 +142,8 @@ final case class Histogram(
     */
   def merge(value: Double): Histogram = {
     val trackable = isTrackable(value)
-    val newHistogram = Histogram(hasExtremeValues = !trackable)
+    val newHistogram =
+      Histogram(hasExtremeValues = hasExtremeValues || !trackable)
     newHistogram.sketch.mergeWith(sketch)
     if (trackable) {
       newHistogram.sketch.accept(value)
@@ -233,5 +252,23 @@ final case class Histogram(
     assert(maxValue >= minValue)
 
     value < minValue || value > maxValue
+  }
+
+  @throws(classOf[IOException])
+  private def writeObject(out: ObjectOutputStream): Unit = {
+    out.defaultWriteObject()
+    out.writeInt(sketch.serializedSize())
+    out.write(sketch.serialize().array())
+  }
+
+  @throws(classOf[IOException])
+  private def readObject(in: ObjectInputStream): Unit = {
+    in.defaultReadObject()
+    val nBytes = in.readInt()
+    val buffer = ByteBuffer.allocate(nBytes)
+    val sketchBytes = in.read(buffer.array(), 0, nBytes)
+    val proto = com.datadoghq.sketch.ddsketch.proto.DDSketch.parseFrom(buffer)
+    val supplier = (() => new UnboundedSizeDenseStore()).asJavaSupplier
+    sketch = DDSketchProtoBinding.fromProto(supplier, proto)
   }
 }

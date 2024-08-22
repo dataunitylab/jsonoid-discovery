@@ -4,7 +4,6 @@ package spark
 import scala.language.implicitConversions
 
 import org.apache.spark.rdd.RDD
-import org.json4s._
 import org.json4s.jackson.JsonMethods._
 
 import schemas._

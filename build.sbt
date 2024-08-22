@@ -105,6 +105,7 @@ lazy val root = (project in file("."))
       hyperLogLog,
       jsonSchemaValidator,
       openLocationCode,
+      protobuf,
       scopt,
       scalaCsv,
       validator,
@@ -186,6 +187,11 @@ git.remoteRepo := "git@github.com:dataunitylab/jsonoid-discovery.git"
 git.useGitDescribe := true
 
 Test / fork := true
+
+ThisBuild / assemblyShadeRules := Seq(
+  ShadeRule.rename("org.json4s.**" -> "shadejson4s.@1").inAll,
+  ShadeRule.rename("com.google.protobuf.**" -> "shadeprotobuf.@1").inAll
+)
 
 assembly / assemblyMergeStrategy := {
   case "module-info.class"                     => MergeStrategy.discard

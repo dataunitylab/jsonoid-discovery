@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Disable assertions by default
+- Expand Spark compatibility by shading assembly
 
 ## [0.30.1] - 2024-07-01
 ### Changed
