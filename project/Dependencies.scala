@@ -9,7 +9,7 @@ object Dependencies {
   lazy val bloomFilter = "io.github.michaelmior" % "bloomfilter" % "0.10.1"
   lazy val dbscan = "io.github.michaelmior" % "dbscan" % "0.2"
   lazy val ddSketch = "com.datadoghq" % "sketches-java" % "0.8.3"
-  lazy val fuzzySets = "io.github.dataunitylab" %% "fuzzy-sets" % "0.4.0"
+  lazy val fuzzySets = "io.github.dataunitylab" %% "fuzzy-sets" % "0.5.1"
   lazy val hyperLogLog = "com.github.prasanthj" % "hyperloglog" % "1.1"
   lazy val jsonSchemaValidator =
     "com.networknt" % "json-schema-validator" % "1.5.1"
