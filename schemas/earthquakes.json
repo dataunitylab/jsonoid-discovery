@@ -52,8 +52,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565751" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -69,8 +69,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565751" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -87,20 +87,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565751" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -119,8 +119,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -162,14 +162,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "3km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565751.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -181,32 +181,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565751," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.9 - 3km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -214,8 +214,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -249,8 +249,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -264,8 +264,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565746" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -281,8 +281,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565746" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -299,20 +299,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565746" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -331,8 +331,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -374,14 +374,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "3km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565746.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -393,32 +393,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565746," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.9 - 3km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -426,8 +426,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -461,8 +461,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -476,8 +476,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565741" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -493,8 +493,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565741" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -511,20 +511,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565741" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -543,8 +543,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -586,14 +586,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "3km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565741.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -605,32 +605,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565741," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.9 - 3km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -638,8 +638,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -673,8 +673,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -688,8 +688,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565736" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -705,8 +705,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565736" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -723,20 +723,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565736" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -755,8 +755,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -797,14 +797,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565736.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -816,32 +816,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565736," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.2 - 4km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -849,8 +849,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -884,8 +884,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -899,8 +899,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565731" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -916,8 +916,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565731" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -934,20 +934,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565731" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -966,8 +966,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -1009,14 +1009,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565731.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -1028,32 +1028,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565731," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.1 - 4km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -1061,8 +1061,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -1096,8 +1096,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -1111,8 +1111,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565726" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -1128,8 +1128,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565726" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -1146,20 +1146,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565726" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -1178,8 +1178,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -1221,14 +1221,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "3km WSW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565726.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -1240,32 +1240,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565726," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.1 - 3km WSW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -1273,8 +1273,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -1308,8 +1308,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -1323,8 +1323,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565711" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -1340,8 +1340,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565711" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -1358,20 +1358,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565711" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -1390,8 +1390,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -1433,14 +1433,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565711.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -1452,32 +1452,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565711," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.2 - 4km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -1485,8 +1485,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -1520,8 +1520,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -1535,8 +1535,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "ci39905608" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -1552,8 +1552,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/ci39905608" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -1570,20 +1570,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "ml" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "ci" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "39905608" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -1602,8 +1602,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -1645,14 +1645,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "11km ENE of Ridgecrest, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ci39905608.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -1664,32 +1664,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",ci39905608," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.3 - 11km ENE of Ridgecrest, CA" ],
-                "minLength" : 34,
-                "maxLength" : 34
+                "maxLength" : 34,
+                "minLength" : 34
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data,scitech-link," ],
-                "minLength" : 46,
-                "maxLength" : 46
+                "maxLength" : 46,
+                "minLength" : 46
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",ci," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -1697,8 +1697,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -1732,8 +1732,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -1747,8 +1747,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "ak0216pr6sdm" ],
-            "minLength" : 12,
-            "maxLength" : 12
+            "maxLength" : 12,
+            "minLength" : 12
           },
           "properties" : {
             "type" : "object",
@@ -1764,8 +1764,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/ak0216pr6sdm" ],
-                "minLength" : 62,
-                "maxLength" : 62
+                "maxLength" : 62,
+                "minLength" : 62
               },
               "felt" : {
                 "type" : "null"
@@ -1782,20 +1782,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "ml" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "ak" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "0216pr6sdm" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "rms" : {
                 "type" : "number",
@@ -1810,8 +1810,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "null"
@@ -1845,14 +1845,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "36 km SW of Skwentna, Alaska" ],
-                "minLength" : 28,
-                "maxLength" : 28
+                "maxLength" : 28,
+                "minLength" : 28
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/ak0216pr6sdm.geojson" ],
-                "minLength" : 77,
-                "maxLength" : 77
+                "maxLength" : 77,
+                "minLength" : 77
               },
               "time" : {
                 "type" : "integer",
@@ -1864,32 +1864,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",ak0216pr6sdm," ],
-                "minLength" : 14,
-                "maxLength" : 14
+                "maxLength" : 14,
+                "minLength" : 14
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 2.3 - 36 km SW of Skwentna, Alaska" ],
-                "minLength" : 36,
-                "maxLength" : 36
+                "maxLength" : 36,
+                "minLength" : 36
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",origin," ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",ak," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -1897,8 +1897,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -1932,8 +1932,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -1947,8 +1947,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565706" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -1964,8 +1964,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565706" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -1982,20 +1982,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565706" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -2014,8 +2014,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -2057,14 +2057,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "5km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565706.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -2076,32 +2076,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565706," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.9 - 5km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -2109,8 +2109,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -2144,8 +2144,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -2159,8 +2159,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565701" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -2176,8 +2176,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565701" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -2194,20 +2194,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565701" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -2226,8 +2226,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -2269,14 +2269,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565701.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -2288,32 +2288,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565701," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.1 - 4km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -2321,8 +2321,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -2356,8 +2356,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -2371,8 +2371,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "hv72489087" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -2388,8 +2388,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/hv72489087" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -2406,20 +2406,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "hv" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "72489087" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -2438,8 +2438,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -2477,14 +2477,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "6 km E of Pāhala, Hawaii" ],
-                "minLength" : 24,
-                "maxLength" : 24
+                "maxLength" : 24,
+                "minLength" : 24
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/hv72489087.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -2496,32 +2496,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",hv72489087," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 2.0 - 6 km E of Pāhala, Hawaii" ],
-                "minLength" : 32,
-                "maxLength" : 32
+                "maxLength" : 32,
+                "minLength" : 32
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",origin,phase-data," ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",hv," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -2529,8 +2529,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -2564,8 +2564,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -2579,8 +2579,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565696" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -2596,8 +2596,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565696" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -2614,20 +2614,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565696" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -2646,8 +2646,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -2689,14 +2689,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "3km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565696.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -2708,32 +2708,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565696," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.2 - 3km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -2741,8 +2741,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -2775,8 +2775,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -2790,8 +2790,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565681" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -2807,8 +2807,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565681" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -2825,20 +2825,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565681" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -2857,8 +2857,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -2900,14 +2900,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565681.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -2919,32 +2919,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565681," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.9 - 4km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -2952,8 +2952,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -2987,8 +2987,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -3002,8 +3002,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565671" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -3019,8 +3019,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565671" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -3037,20 +3037,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565671" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -3069,8 +3069,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -3112,14 +3112,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565671.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -3131,32 +3131,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565671," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.3 - 4km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -3164,8 +3164,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -3198,8 +3198,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -3213,8 +3213,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565686" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -3230,8 +3230,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565686" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -3248,20 +3248,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565686" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -3280,8 +3280,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -3323,14 +3323,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "5km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565686.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -3342,32 +3342,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565686," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.2 - 5km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -3375,8 +3375,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -3409,8 +3409,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -3424,8 +3424,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565666" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -3441,8 +3441,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565666" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -3459,20 +3459,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565666" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -3491,8 +3491,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -3534,14 +3534,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565666.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -3553,32 +3553,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565666," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.7 - 4km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -3586,8 +3586,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -3621,8 +3621,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -3636,8 +3636,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565661" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -3653,8 +3653,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565661" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -3671,20 +3671,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565661" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -3703,8 +3703,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -3746,14 +3746,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "5km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565661.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -3765,32 +3765,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565661," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.7 - 5km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -3798,8 +3798,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -3833,8 +3833,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -3848,8 +3848,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565656" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -3865,8 +3865,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565656" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -3883,20 +3883,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565656" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -3915,8 +3915,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -3958,14 +3958,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "5km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565656.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -3977,32 +3977,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565656," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 0.5 - 5km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -4010,8 +4010,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -4045,8 +4045,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -4060,8 +4060,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565646" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -4077,8 +4077,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565646" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -4095,20 +4095,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565646" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -4127,8 +4127,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -4170,14 +4170,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565646.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -4189,32 +4189,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565646," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.4 - 4km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -4222,8 +4222,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -4257,8 +4257,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -4272,8 +4272,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565636" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -4289,8 +4289,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565636" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -4307,20 +4307,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565636" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -4339,8 +4339,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -4382,14 +4382,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km WNW of Cobb, CA" ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565636.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -4401,32 +4401,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565636," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.3 - 4km WNW of Cobb, CA" ],
-                "minLength" : 27,
-                "maxLength" : 27
+                "maxLength" : 27,
+                "minLength" : 27
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -4434,8 +4434,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -4469,8 +4469,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -4484,8 +4484,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "pr2021146006" ],
-            "minLength" : 12,
-            "maxLength" : 12
+            "maxLength" : 12,
+            "minLength" : 12
           },
           "properties" : {
             "type" : "object",
@@ -4501,8 +4501,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/pr2021146006" ],
-                "minLength" : 62,
-                "maxLength" : 62
+                "maxLength" : 62,
+                "minLength" : 62
               },
               "felt" : {
                 "type" : "null"
@@ -4519,20 +4519,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "pr" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "2021146006" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "rms" : {
                 "type" : "number",
@@ -4551,8 +4551,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "reviewed" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "nst" : {
                 "type" : "integer",
@@ -4594,14 +4594,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "3 km WSW of Indios, Puerto Rico" ],
-                "minLength" : 31,
-                "maxLength" : 31
+                "maxLength" : 31,
+                "minLength" : 31
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/pr2021146006.geojson" ],
-                "minLength" : 77,
-                "maxLength" : 77
+                "maxLength" : 77,
+                "minLength" : 77
               },
               "time" : {
                 "type" : "integer",
@@ -4613,32 +4613,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",pr2021146006," ],
-                "minLength" : 14,
-                "maxLength" : 14
+                "maxLength" : 14,
+                "minLength" : 14
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 2.2 - 3 km WSW of Indios, Puerto Rico" ],
-                "minLength" : 39,
-                "maxLength" : 39
+                "maxLength" : 39,
+                "minLength" : 39
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",origin,phase-data," ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",pr," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -4646,8 +4646,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -4681,8 +4681,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -4696,8 +4696,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "nc73565631" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -4713,8 +4713,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/nc73565631" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -4731,20 +4731,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "nc" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "73565631" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -4763,8 +4763,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -4806,14 +4806,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "4km NW of Cobb, CA" ],
-                "minLength" : 18,
-                "maxLength" : 18
+                "maxLength" : 18,
+                "minLength" : 18
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/nc73565631.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -4825,32 +4825,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",nc73565631," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.0 - 4km NW of Cobb, CA" ],
-                "minLength" : 26,
-                "maxLength" : 26
+                "maxLength" : 26,
+                "minLength" : 26
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",nearby-cities,origin,phase-data," ],
-                "minLength" : 33,
-                "maxLength" : 33
+                "maxLength" : 33,
+                "minLength" : 33
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",nc," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -4858,8 +4858,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -4893,8 +4893,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -4908,8 +4908,8 @@
           "id" : {
             "type" : "string",
             "examples" : [ "hv72489082" ],
-            "minLength" : 10,
-            "maxLength" : 10
+            "maxLength" : 10,
+            "minLength" : 10
           },
           "properties" : {
             "type" : "object",
@@ -4925,8 +4925,8 @@
               "url" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/eventpage/hv72489082" ],
-                "minLength" : 60,
-                "maxLength" : 60
+                "maxLength" : 60,
+                "minLength" : 60
               },
               "felt" : {
                 "type" : "null"
@@ -4943,20 +4943,20 @@
               "magType" : {
                 "type" : "string",
                 "examples" : [ "md" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "net" : {
                 "type" : "string",
                 "examples" : [ "hv" ],
-                "minLength" : 2,
-                "maxLength" : 2
+                "maxLength" : 2,
+                "minLength" : 2
               },
               "code" : {
                 "type" : "string",
                 "examples" : [ "72489082" ],
-                "minLength" : 8,
-                "maxLength" : 8
+                "maxLength" : 8,
+                "minLength" : 8
               },
               "rms" : {
                 "type" : "number",
@@ -4975,8 +4975,8 @@
               "status" : {
                 "type" : "string",
                 "examples" : [ "automatic" ],
-                "minLength" : 9,
-                "maxLength" : 9
+                "maxLength" : 9,
+                "minLength" : 9
               },
               "nst" : {
                 "type" : "integer",
@@ -5014,14 +5014,14 @@
               "place" : {
                 "type" : "string",
                 "examples" : [ "Hawaii region, Hawaii" ],
-                "minLength" : 21,
-                "maxLength" : 21
+                "maxLength" : 21,
+                "minLength" : 21
               },
               "detail" : {
                 "type" : "string",
                 "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/detail/hv72489082.geojson" ],
-                "minLength" : 75,
-                "maxLength" : 75
+                "maxLength" : 75,
+                "minLength" : 75
               },
               "time" : {
                 "type" : "integer",
@@ -5033,32 +5033,32 @@
               "ids" : {
                 "type" : "string",
                 "examples" : [ ",hv72489082," ],
-                "minLength" : 12,
-                "maxLength" : 12
+                "maxLength" : 12,
+                "minLength" : 12
               },
               "title" : {
                 "type" : "string",
                 "examples" : [ "M 1.8 - Hawaii region, Hawaii" ],
-                "minLength" : 29,
-                "maxLength" : 29
+                "maxLength" : 29,
+                "minLength" : 29
               },
               "type" : {
                 "type" : "string",
                 "examples" : [ "earthquake" ],
-                "minLength" : 10,
-                "maxLength" : 10
+                "maxLength" : 10,
+                "minLength" : 10
               },
               "types" : {
                 "type" : "string",
                 "examples" : [ ",origin,phase-data," ],
-                "minLength" : 19,
-                "maxLength" : 19
+                "maxLength" : 19,
+                "minLength" : 19
               },
               "sources" : {
                 "type" : "string",
                 "examples" : [ ",hv," ],
-                "minLength" : 4,
-                "maxLength" : 4
+                "maxLength" : 4,
+                "minLength" : 4
               }
             },
             "required" : [ "mag", "url", "felt", "alert", "mmi", "tz", "magType", "net", "code", "rms", "gap", "status", "nst", "dmin", "sig", "cdi", "updated", "tsunami", "place", "detail", "time", "ids", "title", "type", "types", "sources" ]
@@ -5066,8 +5066,8 @@
           "type" : {
             "type" : "string",
             "examples" : [ "Feature" ],
-            "minLength" : 7,
-            "maxLength" : 7
+            "maxLength" : 7,
+            "minLength" : 7
           },
           "geometry" : {
             "type" : "object",
@@ -5101,8 +5101,8 @@
               "type" : {
                 "type" : "string",
                 "examples" : [ "Point" ],
-                "minLength" : 5,
-                "maxLength" : 5
+                "maxLength" : 5,
+                "minLength" : 5
               }
             },
             "required" : [ "type", "coordinates" ]
@@ -5128,8 +5128,8 @@
         "url" : {
           "type" : "string",
           "examples" : [ "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson" ],
-          "minLength" : 74,
-          "maxLength" : 74
+          "maxLength" : 74,
+          "minLength" : 74
         },
         "status" : {
           "type" : "integer",
@@ -5148,14 +5148,14 @@
         "api" : {
           "type" : "string",
           "examples" : [ "1.10.3" ],
-          "minLength" : 6,
-          "maxLength" : 6
+          "maxLength" : 6,
+          "minLength" : 6
         },
         "title" : {
           "type" : "string",
           "examples" : [ "USGS All Earthquakes, Past Hour" ],
-          "minLength" : 31,
-          "maxLength" : 31
+          "maxLength" : 31,
+          "minLength" : 31
         }
       },
       "required" : [ "count", "url", "status", "generated", "api", "title" ]
@@ -5163,11 +5163,11 @@
     "type" : {
       "type" : "string",
       "examples" : [ "FeatureCollection" ],
-      "minLength" : 17,
-      "maxLength" : 17
+      "maxLength" : 17,
+      "minLength" : 17
     }
   },
   "required" : [ "type", "metadata", "features", "bbox" ],
   "$schema" : "https://json-schema.org/draft/2020-12/schema",
-  "description" : "Generated by JSONoid 0.0.0-1-9c6f6d6c-SNAPSHOT. Not to be used for validation purposes."
+  "description" : "Generated by JSONoid 0.0.0-1-7bee2adf-SNAPSHOT. Not to be used for validation purposes."
 }
