@@ -15,7 +15,8 @@ private final case class Config(
     propertySet: PropertySet = PropertySets.AllProperties,
     addDefinitions: Boolean = false,
     detectDynamic: Boolean = false,
-    detectDisjoint: Boolean = false
+    detectDisjoint: Boolean = false,
+    treeReduce: Boolean = false
 )
 
 object JsonoidSpark {
@@ -60,6 +61,10 @@ object JsonoidSpark {
       opt[Unit]('j', "detect-disjoint")
         .action((x, c) => c.copy(detectDisjoint = true))
         .text("detect objects with disjoint keys")
+
+      opt[Unit]('t', "tree-reduce")
+        .action((x, c) => c.copy(treeReduce = true))
+        .text("use treeReduce for schema reduction")
     }
 
     parser.parse(args, Config()) match {
@@ -71,8 +76,11 @@ object JsonoidSpark {
         val jsonRdd = JsonoidRDD.fromStringRDD(
           sc.textFile(config.input)
         )(p)
-        var schema: ObjectSchema =
+        var schema: ObjectSchema = if (config.treeReduce) {
+          jsonRdd.treeReduceSchemas().asInstanceOf[ObjectSchema]
+        } else {
           jsonRdd.reduceSchemas().asInstanceOf[ObjectSchema]
+        }
 
         // Skip transformation if we know the required properties don't exist
         if (!(config.propertySet === PropertySets.MinProperties)) {
