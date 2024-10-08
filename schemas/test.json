@@ -22,8 +22,8 @@
     "c" : {
       "type" : "string",
       "maxLength" : 3,
-      "examples" : [ "foo" ],
-      "minLength" : 3
+      "minLength" : 3,
+      "examples" : [ "foo" ]
     },
     "d" : {
       "const" : false
