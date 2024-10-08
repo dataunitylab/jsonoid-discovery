@@ -1,11 +1,13 @@
 name: Bowtie
 on:
-  push:
-    branches:
-      - '*'
-  pull_request:
-    branches:
-      - main
+  # XXX Temporarily switch to manual trigger
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - '*'
+  # pull_request:
+  #   branches:
+  #     - main
 jobs:
   bowtie-report:
     runs-on: blacksmith-2vcpu-ubuntu-2204
