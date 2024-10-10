@@ -37,5 +37,5 @@ object Dependencies {
   // XXX Version bundled with Spark is vulnerable to CVE-2022-3171
   lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.4"
   // XXX Bundled version is vulnerable to CVE-2023-34455
-  lazy val snappyJava = "org.xerial.snappy" % "snappy-java" % "1.1.10.5"
+  lazy val snappyJava = "org.xerial.snappy" % "snappy-java" % "1.1.10.7"
 }
