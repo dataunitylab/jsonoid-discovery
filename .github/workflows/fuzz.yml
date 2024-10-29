@@ -8,6 +8,8 @@ jobs:
     runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Coursier cache
       uses: useblacksmith/coursier-cache-action@v6
     - uses: coursier/setup-action@v1

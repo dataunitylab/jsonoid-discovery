@@ -20,6 +20,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+        persist-credentials: false
     - name: Coursier cache
       uses: useblacksmith/coursier-cache-action@v6
     - uses: coursier/setup-action@v1

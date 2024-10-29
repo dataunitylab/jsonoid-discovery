@@ -11,6 +11,8 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Coursier cache
       uses: coursier/cache-action@v6
     - uses: coursier/setup-action@v1

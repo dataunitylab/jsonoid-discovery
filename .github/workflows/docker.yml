@@ -17,6 +17,8 @@ jobs:
       contents: read
     steps:
     - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Coursier cache
       uses: useblacksmith/coursier-cache-action@v6
     - uses: taiki-e/install-action@parse-changelog
