@@ -35,7 +35,7 @@ object Dependencies {
   lazy val jacksonDatabind =
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2"
   // XXX Version bundled with Spark is vulnerable to CVE-2022-3171
-  lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.5"
+  lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "4.29.1"
   // XXX Bundled version is vulnerable to CVE-2023-34455
   lazy val snappyJava = "org.xerial.snappy" % "snappy-java" % "1.1.10.7"
 }
