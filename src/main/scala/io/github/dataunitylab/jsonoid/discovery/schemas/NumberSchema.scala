@@ -450,9 +450,8 @@ final case class MaxNumValueProperty(
       maxNumValue.map(_.setScale(0, BigDecimal.RoundingMode.FLOOR).toBigInt),
       other
         .map(o =>
-          o.maxNumValue.map(n =>
-            n.setScale(0, BigDecimal.RoundingMode.CEILING).toBigInt
-          )
+          o.maxNumValue
+            .map(n => n.setScale(0, BigDecimal.RoundingMode.CEILING).toBigInt)
         )
         .getOrElse(None),
       exclusive,
