@@ -6,6 +6,7 @@ object Dependencies {
   lazy val json4s = "org.json4s" %% "json4s-jackson" % "3.7.0-M11"
   lazy val json4sScalaz = "org.json4s" %% "json4s-scalaz" % "3.7.0-M11"
 
+  lazy val automaton = "io.github.michaelmior" % "automaton" % "1.14"
   lazy val bloomFilter = "io.github.michaelmior" % "bloomfilter" % "0.10.1"
   lazy val dbscan = "io.github.michaelmior" % "dbscan" % "0.2"
   lazy val ddSketch = "com.datadoghq" % "sketches-java" % "0.8.3"

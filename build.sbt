@@ -96,6 +96,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "JSONoid Discovery",
     libraryDependencies ++= Seq(
+      automaton,
       bloomFilter,
       ddSketch,
       json4s,
