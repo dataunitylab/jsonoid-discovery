@@ -30,7 +30,7 @@ object Dependencies {
 
   // Overrides
   // XXX Bundled version is vulnerable to CVE-2018-10237
-  lazy val guava = "com.google.guava" % "guava" % "33.4.0-jre"
+  lazy val guava = "com.google.guava" % "guava" % "33.4.5-jre"
   // XXX This is necessary for Spark version consistency
   lazy val jacksonDatabind =
     "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2"
