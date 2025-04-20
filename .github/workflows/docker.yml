@@ -28,6 +28,12 @@ jobs:
       with:
         jvm: zulu:11.0.10
         apps: sbt scala
+    - name: Docker cache
+      id: cache-primes
+      uses: actions/cache@v4
+      with:
+        path: docker-cache
+        key: docker-cache
     - name: Compile and prepare Docker configuration
       run: sbt Docker/stage
       env:
@@ -60,8 +66,8 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         push: false
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=local,src=docker-cache
+        cache-to: type=local,dest=docker-cache,mode=max
     - name: Test image
       env:
         DOCKER_TAG: ${{ steps.meta.outputs.tags }}
@@ -75,8 +81,8 @@ jobs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
+        cache-from: type=local,src=docker-cache
+        cache-to: type=local,dest=docker-cache,mode=max
     - name: Attest
       uses: actions/attest-build-provenance@v2
       id: attest
