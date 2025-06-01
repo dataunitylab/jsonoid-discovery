@@ -231,9 +231,9 @@ final case class MinNumValueProperty(
       otherProp: MinNumValueProperty
   )(implicit p: JsonoidParams): MinNumValueProperty = {
     val exclusive = (minNumValue, otherProp.minNumValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive || otherProp.exclusive
       case _ => otherProp.exclusive
@@ -248,9 +248,9 @@ final case class MinNumValueProperty(
       otherProp: MinNumValueProperty
   )(implicit p: JsonoidParams): MinNumValueProperty = {
     val exclusive = (minNumValue, otherProp.minNumValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive && otherProp.exclusive
       case _ => otherProp.exclusive
@@ -362,9 +362,9 @@ final case class MaxNumValueProperty(
       otherProp: MaxNumValueProperty
   )(implicit p: JsonoidParams): MaxNumValueProperty = {
     val exclusive = (maxNumValue, otherProp.maxNumValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive || otherProp.exclusive
       case _ => otherProp.exclusive
@@ -379,9 +379,9 @@ final case class MaxNumValueProperty(
       otherProp: MaxNumValueProperty
   )(implicit p: JsonoidParams): MaxNumValueProperty = {
     val exclusive = (maxNumValue, otherProp.maxNumValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive && otherProp.exclusive
       case _ => otherProp.exclusive
@@ -695,7 +695,7 @@ final case class NumMultipleOfProperty(
     val (newMultiple, newTiny) = (multiple, otherProp.multiple) match {
       case (Some(m), None) if !otherProp.tiny => (Some(m), false)
       case (None, Some(n)) if !tiny           => (Some(n), false)
-      case (Some(m), Some(n)) =>
+      case (Some(m), Some(n))                 =>
         Try(gcd(m, n)).toOption match {
           // Avoid tracking very small multiples
           case Some(value) if value < 1e-10 => (None, true)
@@ -801,7 +801,7 @@ final case class NumHistogramProperty(
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
     val histAnomaly = value match {
-      case JDouble(num) => histogram.isAnomalous(num)
+      case JDouble(num)  => histogram.isAnomalous(num)
       case JDecimal(num) =>
         num.isInDoubleRange && histogram.isAnomalous(num.doubleValue)
       case JInt(num) => num.isValidDouble && histogram.isAnomalous(num.toDouble)

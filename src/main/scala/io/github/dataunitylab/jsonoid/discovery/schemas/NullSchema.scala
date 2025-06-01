@@ -41,7 +41,7 @@ final case class NullSchema(
       recursive: Boolean = true
   )(implicit p: JsonoidParams): Boolean = {
     other match {
-      case _: NullSchema => true
+      case _: NullSchema     => true
       case ps: ProductSchema =>
         val schemaTypes =
           ps.properties.get[ProductSchemaTypesProperty].schemaTypes
