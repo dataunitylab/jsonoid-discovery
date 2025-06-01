@@ -111,7 +111,7 @@ object ObjectSchema {
     val reqProp = RequiredProperty(Some(required))
 
     (obj \ "additionalProperties") match {
-      case JNothing =>
+      case JNothing                    =>
       case JBool(additionalProperties) =>
         props.add(AdditionalPropertiesProperty(Some(additionalProperties)))
       case JObject(obj) if obj.isEmpty && patternTypes.isEmpty =>
@@ -196,9 +196,9 @@ final case class ObjectSchema(
   override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
     pointer.parts match {
-      case Nil         => None
-      case List("")    => Some(this)
-      case List(first) => objectTypes.get(first)
+      case Nil             => None
+      case List("")        => Some(this)
+      case List(first)     => objectTypes.get(first)
       case (first :: rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>
@@ -215,9 +215,9 @@ final case class ObjectSchema(
     val objectTypes = properties.get[ObjectTypesProperty].objectTypes
     val pointerStr = pointer.toString
     pointerStr.split("/", 3) match {
-      case Array(_)        => Seq()
-      case Array(_, "")    => Seq(this)
-      case Array(_, first) => objectTypes.get(first).toList
+      case Array(_)              => Seq()
+      case Array(_, "")          => Seq(this)
+      case Array(_, first)       => objectTypes.get(first).toList
       case Array(_, first, rest) =>
         objectTypes.get(first) match {
           case Some(schema: JsonSchema[_]) =>

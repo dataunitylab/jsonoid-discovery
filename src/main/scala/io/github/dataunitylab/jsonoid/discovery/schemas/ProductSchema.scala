@@ -113,9 +113,9 @@ final case class ProductSchema(
       mergeType: MergeType
   )(implicit p: JsonoidParams): JsonSchema[_] = {
     other match {
-      case prod: ProductSchema => this.mergeSameType(mergeType)(p)(prod)
-      case zero: ZeroSchema    => if (mergeType === Union) this else zero
-      case any: AnySchema      => if (mergeType === Union) any else this
+      case prod: ProductSchema      => this.mergeSameType(mergeType)(p)(prod)
+      case zero: ZeroSchema         => if (mergeType === Union) this else zero
+      case any: AnySchema           => if (mergeType === Union) any else this
       case _ if mergeType === Union =>
         ProductSchema(this.properties.mergeValue(other))(p)
       case _ =>
@@ -139,9 +139,9 @@ final case class ProductSchema(
   override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
     val schemas = properties.get[ProductSchemaTypesProperty].schemaTypes
     pointer.parts match {
-      case Nil         => None
-      case List("")    => Some(this)
-      case List(first) => Some(schemas(first.toInt))
+      case Nil             => None
+      case List("")        => Some(this)
+      case List(first)     => Some(schemas(first.toInt))
       case (first :: rest) =>
         schemas(first.toInt).findByPointer(JsonPointer(rest))
     }

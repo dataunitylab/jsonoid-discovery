@@ -58,9 +58,9 @@ final case class DynamicObjectSchema(
   override def findByPointer(pointer: JsonPointer): Option[JsonSchema[_]] = {
     val typeProp = properties.get[DynamicObjectTypeProperty]
     pointer.parts match {
-      case Nil         => None
-      case List("")    => Some(this)
-      case List(first) => Some(typeProp.valueType)
+      case Nil             => None
+      case List("")        => Some(this)
+      case List(first)     => Some(typeProp.valueType)
       case (first :: rest) =>
         typeProp.valueType.findByPointer(JsonPointer(rest))
     }
@@ -72,9 +72,9 @@ final case class DynamicObjectSchema(
     val typeProp = properties.get[DynamicObjectTypeProperty]
     val pointerStr = pointer.toString
     pointerStr.split("/", 3) match {
-      case Array(_)        => Seq()
-      case Array(_, "")    => Seq(this)
-      case Array(_, first) => Seq(typeProp.valueType)
+      case Array(_)              => Seq()
+      case Array(_, "")          => Seq(this)
+      case Array(_, first)       => Seq(typeProp.valueType)
       case Array(_, first, rest) =>
         typeProp.valueType.findByInexactPointer(JsonPointer(List(rest)))
     }

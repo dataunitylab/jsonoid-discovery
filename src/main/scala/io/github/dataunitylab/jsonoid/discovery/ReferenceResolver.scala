@@ -67,8 +67,8 @@ object ReferenceResolver extends SchemaWalker[Unit] {
 
     val defs = rootSchema.definitions
     strippedPointer.parts match {
-      case List("$defs", defn)       => defs(defn)
-      case List("definitions", defn) => defs(defn)
+      case List("$defs", defn)                       => defs(defn)
+      case List("definitions", defn)                 => defs(defn)
       case List("$defs", _) | List("definitions", _) =>
         throw new UnsupportedOperationException(
           "can't resolve nested definition"

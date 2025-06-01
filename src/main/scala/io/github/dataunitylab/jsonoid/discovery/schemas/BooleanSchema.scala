@@ -161,12 +161,12 @@ final case class BooleanConstantProperty(
     BooleanConstantProperty(
       (allTrue, otherProp.allTrue) match {
         case (None, None) => None
-        case _ =>
+        case _            =>
           Some(allTrue.getOrElse(false) && otherProp.allTrue.getOrElse(false))
       },
       (allFalse, otherProp.allFalse) match {
         case (None, None) => None
-        case _ =>
+        case _            =>
           Some(allFalse.getOrElse(false) && otherProp.allFalse.getOrElse(false))
       }
     )
