@@ -3,8 +3,8 @@ import sbt._
 object Dependencies {
   // Runtime
   // XXX json4s cannot currently be upgrade to maintain compatibility with Spark
-  lazy val json4s = "org.json4s" %% "json4s-jackson" % "3.7.0-M11"
-  lazy val json4sScalaz = "org.json4s" %% "json4s-scalaz" % "3.7.0-M11"
+  lazy val json4s = "org.json4s" %% "json4s-jackson" % "3.7.0-RC1"
+  lazy val json4sScalaz = "org.json4s" %% "json4s-scalaz" % "3.7.0-RC1"
 
   lazy val bloomFilter = "io.github.michaelmior" % "bloomfilter" % "0.10.1"
   lazy val dbscan = "io.github.michaelmior" % "dbscan" % "0.2"
