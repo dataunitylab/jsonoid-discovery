@@ -22,7 +22,7 @@ object JsonSchema {
       case JBool(true)  => AnySchema()
       case JBool(false) => ZeroSchema()
       case o: JObject   => fromJsonObjectValue(o)
-      case _ =>
+      case _            =>
         throw new UnsupportedOperationException("invalid schema element")
     }
   }
@@ -82,7 +82,7 @@ object JsonSchema {
           (schema \ "type") match {
             case s: JString => List(s.extract[String])
             case a: JArray  => a.extract[List[String]]
-            case _ =>
+            case _          =>
               throw new UnsupportedOperationException("invalid type")
           }
         } catch {
@@ -102,7 +102,7 @@ object JsonSchema {
           case "null"    => NullSchema()
           case "object"  => ObjectSchema.fromJson(schema)
           case "string"  => StringSchema.fromJson(schema)
-          case _ =>
+          case _         =>
             throw new UnsupportedOperationException("type not supported")
         }
 

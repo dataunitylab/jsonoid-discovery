@@ -254,9 +254,9 @@ final case class MinIntValueProperty(
       otherProp: MinIntValueProperty
   )(implicit p: JsonoidParams): MinIntValueProperty = {
     val exclusive = (minIntValue, otherProp.minIntValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive || otherProp.exclusive
       case _ => otherProp.exclusive
@@ -271,9 +271,9 @@ final case class MinIntValueProperty(
       otherProp: MinIntValueProperty
   )(implicit p: JsonoidParams): MinIntValueProperty = {
     val exclusive = (minIntValue, otherProp.minIntValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive && otherProp.exclusive
       case _ => otherProp.exclusive
@@ -372,9 +372,9 @@ final case class MaxIntValueProperty(
       otherProp: MaxIntValueProperty
   )(implicit p: JsonoidParams): MaxIntValueProperty = {
     val exclusive = (maxIntValue, otherProp.maxIntValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x < y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x < y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive || otherProp.exclusive
       case _ => otherProp.exclusive
@@ -389,9 +389,9 @@ final case class MaxIntValueProperty(
       otherProp: MaxIntValueProperty
   )(implicit p: JsonoidParams): MaxIntValueProperty = {
     val exclusive = (maxIntValue, otherProp.maxIntValue) match {
-      case (None, _)                   => this.exclusive
-      case (_, None)                   => otherProp.exclusive
-      case (Some(x), Some(y)) if x > y => this.exclusive
+      case (None, _)                     => this.exclusive
+      case (_, None)                     => otherProp.exclusive
+      case (Some(x), Some(y)) if x > y   => this.exclusive
       case (Some(x), Some(y)) if x === y =>
         this.exclusive && otherProp.exclusive
       case _ => otherProp.exclusive

@@ -116,7 +116,7 @@ object DiscoverSchema {
         Some(ArraySchema(items.flatMap(discoverFromValue(_)(p)))(p))
       case JBool(bool)   => Some(BooleanSchema(bool)(p))
       case JDecimal(dec) => Some(NumberSchema(dec)(p))
-      case JDouble(dbl) => {
+      case JDouble(dbl)  => {
         if (dbl.isInfinite) {
           None
         } else {
@@ -128,7 +128,7 @@ object DiscoverSchema {
       case JNothing        => Some(NullSchema())
       case JNull           => Some(NullSchema())
       case JObject(fields) => Some(discoverObjectFields(fields)(p))
-      case JSet(items) =>
+      case JSet(items)     =>
         Some(ArraySchema(items.flatMap(discoverFromValue(_)(p)).toList)(p))
       case JString(str) => Some(StringSchema(str)(p))
     }

@@ -188,9 +188,9 @@ final case class ArraySchema(
         }
       case Right(schemas) =>
         pointer.parts match {
-          case Nil         => None
-          case List("")    => Some(this)
-          case List(first) => Some(schemas(first.toInt))
+          case Nil             => None
+          case List("")        => Some(this)
+          case List(first)     => Some(schemas(first.toInt))
           case (first :: rest) =>
             schemas(first.toInt).findByPointer(JsonPointer(rest))
         }
@@ -322,7 +322,7 @@ final case class ItemTypeProperty(
     ItemTypeProperty()
 
   override def toJson()(implicit p: JsonoidParams): JObject = itemType match {
-    case Left(schema) => ("items" -> schema.toJson())
+    case Left(schema)   => ("items" -> schema.toJson())
     case Right(schemas) =>
       if (schemas.nonEmpty) {
         if (count > 0) {

@@ -1029,7 +1029,7 @@ final case class StringNumericProperty(
       tag: ClassTag[S]
   ): Seq[Anomaly] = {
     numericSchema match {
-      case None => Seq.empty
+      case None         => Seq.empty
       case Some(schema) =>
         value match {
           case JString(str) => {
