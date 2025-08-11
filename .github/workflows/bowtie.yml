@@ -17,7 +17,7 @@ jobs:
         python-version: '3.11'
     - name: Install Bowtie
       run: pip install bowtie-json-schema==2023.8.16
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         submodules: true
         persist-credentials: false
