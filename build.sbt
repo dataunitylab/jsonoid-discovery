@@ -117,7 +117,6 @@ lazy val root = (project in file("."))
       scalaCheck % Test
     ),
     dependencyOverrides ++= Seq(
-      guava,
       jacksonDatabind,
       protobuf,
       snappyJava
