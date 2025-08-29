@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - name: Coursier cache
-        uses: useblacksmith/coursier-cache-action@v6
+        uses: coursier/cache-action@v6
       - uses: coursier/setup-action@v1
         with:
           jvm: zulu:11.0.10
