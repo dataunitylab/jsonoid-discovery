@@ -35,3 +35,10 @@ fuzz/test/resources/*
 bowtie/
 
 *.tar.gz
+
+# START Ruler Generated Files
+/.gemini/settings.json
+/.gemini/settings.json.bak
+/AGENTS.md
+/AGENTS.md.bak
+# END Ruler Generated Files
