@@ -108,7 +108,7 @@ jobs:
         if-no-files-found: error
         path: target/scala-2.13/jsonoid-discovery*.jar
     - name: Attest build provenance
-      uses: actions/attest-build-provenance@v2
+      uses: actions/attest-build-provenance@v3
       if: ${{ github.event_name != 'pull_request' }}
       with:
         subject-path: 'target/scala-2.13/jsonoid-discovery*.jar'
