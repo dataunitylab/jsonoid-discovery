@@ -84,7 +84,7 @@ jobs:
         cache-from: type=local,src=docker-cache
         cache-to: type=local,dest=docker-cache,mode=max
     - name: Attest
-      uses: actions/attest-build-provenance@v2
+      uses: actions/attest-build-provenance@v3
       id: attest
       with:
         subject-name: index.docker.io/michaelmior/jsonoid-discovery
