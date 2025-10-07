@@ -125,7 +125,7 @@ lazy val root = (project in file("."))
     scalacOptions ++= nonConsoleCompilerOptions,
     buildInfoKeys := Seq[BuildInfoKey](version),
     buildInfoPackage := "io.github.dataunitylab.jsonoid.discovery",
-    javaOptions in Test += "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
+    Test / javaOptions += "--add-exports=java.base/sun.nio.ch=ALL-UNNAMED"
   )
 
 lazy val fuzz = (project in file("fuzz"))
