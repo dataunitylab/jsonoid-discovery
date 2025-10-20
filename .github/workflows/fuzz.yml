@@ -25,7 +25,7 @@ jobs:
       with:
         repository: CodeIntelligenceTesting/jazzer
         latest: true
-        filename: jazzer-linux.tar.gz
+        filename: jazzer-linux-x86-64.tar.gz
         extract: true
     - name: DiscoverSchemaFuzzer
       continue-on-error: true
