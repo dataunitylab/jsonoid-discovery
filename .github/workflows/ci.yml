@@ -59,7 +59,7 @@ jobs:
       with:
         jvm: zulu:11.0.10
         apps: sbt scala
-    - uses: actions/setup-node@v5
+    - uses: actions/setup-node@v6
       with:
         node-version: '16'
         cache: 'yarn'
