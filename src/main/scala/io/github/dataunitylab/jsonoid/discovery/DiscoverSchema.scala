@@ -276,7 +276,9 @@ object DiscoverSchema {
       opt[URL]('u', "input-url")
         .optional()
         .action((x, c) => c.copy(inputUrl = Some(x)))
-        .text("a URL to a JSON file to perform discovery on, one object per line")
+        .text(
+          "a URL to a JSON file to perform discovery on, one object per line"
+        )
 
       opt[File]('w', "write-output")
         .action((x, c) => c.copy(writeOutput = Some(x)))
