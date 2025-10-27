@@ -34,7 +34,7 @@ jobs:
       - name: Generate Changelog
         run: parse-changelog CHANGELOG.md > ${{ github.workspace }}-CHANGELOG.md
       - name: Download JAR
-        uses: actions/download-artifact@v5
+        uses: actions/download-artifact@v6
         with:
           name: jsonoid-discovery.jar
           github-token: ${{ secrets.GH_PAT }}
