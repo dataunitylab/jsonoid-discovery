@@ -52,7 +52,7 @@ jobs:
           -dict=fuzz/test/resources/json.dict \
           target/jsonoid-schemas || code=$?; \
         if [[ $code -ne 124 && $code -ne 0 ]]; then exit $code; fi
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       with:
         name: crash
         path: |
