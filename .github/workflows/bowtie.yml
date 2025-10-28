@@ -10,7 +10,7 @@ on:
   #     - main
 jobs:
   bowtie-report:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
     - uses: actions/setup-python@v6
       with:
