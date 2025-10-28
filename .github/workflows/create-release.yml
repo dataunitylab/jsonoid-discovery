@@ -7,7 +7,7 @@ on:
 
 jobs:
   check:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     if: ${{ github.event.workflow_run.conclusion == 'success' && startsWith(github.event.workflow_run.head_branch, 'v') }}
     outputs:
       status: ${{ steps.check.conclusion }}
@@ -22,7 +22,7 @@ jobs:
         run: git show-ref --verify refs/tags/${{ github.event.workflow_run.head_branch }}
 
   release:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     needs: check
     if: needs.check.outputs.status == 'success'
     steps:

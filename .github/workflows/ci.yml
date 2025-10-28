@@ -10,7 +10,7 @@ on:
       - main
 jobs:
   test:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     env:
         ENABLE_ASSERTIONS: 1
     steps:
@@ -46,7 +46,7 @@ jobs:
         find $HOME/.sbt                              -name "*.lock"               -delete || true
 
   test-schemas:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     env:
         ENABLE_ASSERTIONS: 1
     steps:
@@ -79,7 +79,7 @@ jobs:
 
   assemble:
     needs: [test, test-schemas]
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     permissions:
       id-token: write
       attestations: write

@@ -3,7 +3,7 @@ name: TOC Generator
 jobs:
   generateTOC:
     name: TOC Generator
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: technote-space/toc-generator@v4
         with:
