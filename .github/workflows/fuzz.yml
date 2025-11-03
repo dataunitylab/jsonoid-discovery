@@ -11,7 +11,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Coursier cache
-      uses: coursier/cache-action@v6
+      uses: coursier/cache-action@v7
     - uses: coursier/setup-action@v1
       with:
         jvm: zulu:11.0.10
