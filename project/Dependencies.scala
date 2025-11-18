@@ -19,7 +19,7 @@ object Dependencies {
   lazy val scalaCsv = "com.github.tototoshi" %% "scala-csv" % "2.0.0"
   lazy val spark = "org.apache.spark" %% "spark-core" % "3.5.6"
   lazy val sparkSql = "org.apache.spark" %% "spark-sql" % "3.5.6"
-  lazy val validator = "commons-validator" % "commons-validator" % "1.10.0"
+  lazy val validator = "commons-validator" % "commons-validator" % "1.10.1"
 
   // Test
   lazy val jazzer = "com.code-intelligence" % "jazzer" % "0.22.1"
