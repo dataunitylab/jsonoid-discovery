@@ -7,7 +7,7 @@ jobs:
   fuzz:
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         persist-credentials: false
     - name: Coursier cache
