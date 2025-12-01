@@ -65,6 +65,7 @@ object ReferenceResolver extends SchemaWalker[Unit] {
       if (pointer.startsWith("#")) pointer.substring(1) else pointer
     )
 
+    @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
     val defs = rootSchema.definitions
     strippedPointer.parts match {
       case List("$defs", defn)                       => defs(defn)
