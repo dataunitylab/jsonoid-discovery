@@ -3,7 +3,7 @@ package schemas
 
 import scala.io.Source
 
-import com.networknt.schema.{JsonSchemaFactory, SpecVersion}
+import com.networknt.schema.{SchemaRegistry, SpecificationVersion}
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
@@ -111,9 +111,9 @@ class DiscoverSchemaSpec extends UnitSpec with ScalaCheckPropertyChecks {
       )
 
       // XXX This validation is not perfect, but we'll check later with AJV
-      val factory =
-        JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V202012)
-      val jsonSchema = factory.getSchema(asJsonNode(schema.toJson()))
+      val schemaRegistry =
+        SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
+      val jsonSchema = schemaRegistry.getSchema(asJsonNode(schema.toJson()))
       val errors = jsonSchema.validate(asJsonNode(firstDoc))
       errors shouldBe empty
     }
