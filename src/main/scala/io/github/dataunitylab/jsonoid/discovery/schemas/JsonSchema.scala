@@ -168,6 +168,7 @@ object JsonSchema {
 
     if (definitionsKey.isDefined) {
       try {
+        @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
         val defs = (schema \ definitionsKey.get)
           .extract[Map[String, JObject]]
           .foreach { case (key, value) =>
