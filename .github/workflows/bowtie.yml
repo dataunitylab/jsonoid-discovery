@@ -38,7 +38,7 @@ jobs:
     - name: Generate Bowtie report
       run: (cd bowtie; bowtie report -b badges bowtie.json)
     - name: Upload report artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: bowtie-report
         path: bowtie/
