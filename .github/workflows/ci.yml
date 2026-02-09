@@ -18,7 +18,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Coursier cache
-      uses: coursier/cache-action@v7
+      uses: coursier/cache-action@v8
     - uses: coursier/setup-action@v2
       with:
         jvm: zulu:11.0.10
@@ -54,7 +54,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Coursier cache
-      uses: coursier/cache-action@v7
+      uses: coursier/cache-action@v8
     - uses: coursier/setup-action@v2
       with:
         jvm: zulu:11.0.10
@@ -89,7 +89,7 @@ jobs:
       with:
         persist-credentials: false
     - name: Coursier cache
-      uses: coursier/cache-action@v7
+      uses: coursier/cache-action@v8
     - uses: taiki-e/install-action@parse-changelog
     - name: Set build timestamp
       run:  echo "SOURCE_DATE_EPOCH=$(date -d $(parse-changelog CHANGELOG.md -t | rev | cut -d' ' -f1 | rev) '+%s')" >> "$GITHUB_ENV"
