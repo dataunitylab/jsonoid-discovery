@@ -31,7 +31,7 @@ object Dependencies {
   // Overrides
   // XXX This is necessary for Spark version consistency
   lazy val jacksonDatabind =
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2"
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.4"
   // XXX Version bundled with Spark is vulnerable to CVE-2022-3171
   lazy val protobuf = "com.google.protobuf" % "protobuf-java" % "3.25.5"
   // XXX Bundled version is vulnerable to CVE-2023-34455
