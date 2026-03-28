@@ -24,7 +24,7 @@ object Dependencies {
   // Test
   lazy val jazzer = "com.code-intelligence" % "jazzer" % "0.22.1"
   lazy val scalactic = "org.scalactic" %% "scalactic" % "3.2.20"
-  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.19"
+  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.20"
   lazy val scalaTestPlus = "org.scalatestplus" %% "scalacheck-1-18" % "3.2.19.0"
   lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.19.0"
 
