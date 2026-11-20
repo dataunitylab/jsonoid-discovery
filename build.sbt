@@ -2,7 +2,7 @@ import Dependencies._
 import com.typesafe.sbt.packager.docker._
 import xerial.sbt.Sonatype._
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / organization := "io.github.dataunitylab"
 ThisBuild / organizationName := "Rochester Institute of Technology"
